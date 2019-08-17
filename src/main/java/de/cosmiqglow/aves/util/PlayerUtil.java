@@ -4,10 +4,13 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 
+/**
+ * Contains some methods to work with {@link Player} objects
+ */
 public class PlayerUtil {
 
     /**
-     * Send a an actionbar to a specific player
+     * Send an actionbar to a specific player
      * @param player which receive the message
      * @param message to be send
      */
