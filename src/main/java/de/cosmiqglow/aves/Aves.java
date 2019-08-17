@@ -6,12 +6,12 @@ public class Aves extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        System.out.println(
+        System.out.println("\n" +
                 "    /\\                 \n" +
-                        "   /  \\__   _____  ___ \n" +
-                        "  / /\\ \\ \\ / / _ \\/ __|\n" +
-                        " / ____ \\ V /  __/\\__ \\\n" +
-                        "/_/    \\_\\_/ \\___||___/");
+                "   /  \\__   _____  ___ \n" +
+                "  / /\\ \\ \\ / / _ \\/ __|\n" +
+                " / ____ \\ V /  __/\\__ \\\n" +
+                "/_/    \\_\\_/ \\___||___/");
         System.out.println(String.format("Starting Aves v%s by %s",
                 getDescription().getVersion(), getDescription().getAuthors()));
         super.onEnable();
