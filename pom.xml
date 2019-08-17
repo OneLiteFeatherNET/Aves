@@ -15,11 +15,18 @@
         <project.build.targetEncoding>UTF-8</project.build.targetEncoding>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>cosmiqglow</id>
+            <url>https://nexus.cosmiqglow.de/repository/maven-snapshots</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
-            <groupId>com.spigot</groupId>
-            <artifactId>Spigot</artifactId>
-            <version>1.13</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.13.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
