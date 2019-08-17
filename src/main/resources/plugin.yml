@@ -1,0 +1,6 @@
+name: Aves
+version: 1.0.0
+main: de.cosmiqglow.aves.Aves
+author: CosmiqGlow
+
+api-version: 1.13
