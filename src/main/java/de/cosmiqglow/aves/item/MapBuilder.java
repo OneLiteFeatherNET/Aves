@@ -33,13 +33,6 @@ public final class MapBuilder extends ItemBuilder {
         return this;
     }
 
-    public MapBuilder setMapID(int mapID) {
-        MapMeta meta = getItemMeta();
-        meta.setMapId(mapID);
-        stack.setItemMeta(meta);
-        return this;
-    }
-
     public MapBuilder addRenderer(MapRenderer mapRenderer) {
         MapMeta meta = getItemMeta();
         MapView mapView = (MapView) meta;
