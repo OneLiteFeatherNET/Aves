@@ -10,6 +10,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -57,16 +58,12 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder addLore(final String name) {
-        ItemMeta meta = getItemMeta();
-        meta.getLore().add(name);
-        this.stack.setItemMeta(meta);
-        return this;
-    }
-
     public ItemBuilder addLore(final String... lore) {
         ItemMeta meta = getItemMeta();
-        meta.setLore(Arrays.asList(lore));
+        List<String> currentLore = meta.getLore();
+        if (currentLore == null) currentLore = new ArrayList<>();
+        currentLore.addAll(Arrays.asList(lore));
+        meta.setLore(currentLore);
         this.stack.setItemMeta(meta);
         return this;
     }
