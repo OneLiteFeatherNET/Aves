@@ -56,7 +56,6 @@ public class RenderMapBuilder extends MapBuilder {
 
     @Override
     public ItemStack build() {
-        List<MapRenderer> old = map.getRenderers();
         map = Bukkit.createMap(Bukkit.getWorlds().get(0));
         map.setScale(MapView.Scale.NORMAL);
         addRenderer(new MapRenderer() {
