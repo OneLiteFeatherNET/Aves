@@ -44,12 +44,12 @@ public class RenderMapBuilder extends MapBuilder {
         return this;
     }
 
-    public MapBuilder addCursor(int x, int y, CursorDirection direction, CursorType type) {
+    public RenderMapBuilder addCursor(int x, int y, CursorDirection direction, CursorType type) {
         cursors.addCursor(x, y, (byte) direction.getId(), (byte) type.getId());
         return this;
     }
 
-    public MapBuilder setRenderOnce(boolean staticRender) {
+    public RenderMapBuilder setRenderOnce(boolean staticRender) {
         this.staticRender = staticRender;
         return this;
     }
