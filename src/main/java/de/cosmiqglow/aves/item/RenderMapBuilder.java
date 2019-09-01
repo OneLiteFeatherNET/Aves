@@ -61,10 +61,8 @@ public class RenderMapBuilder extends MapBuilder {
         addRenderer(new MapRenderer() {
             @Override
             public void render(MapView mapView, MapCanvas mapCanvas, Player player) {
-                if (rendered && staticRender)
+                if (rendered && staticRender) {
                     return;
-                if (player == null || !player.isOnline()) {
-                    old.forEach(map::addRenderer);
                 } else {
                     if (image != null)
                         mapCanvas.drawImage(0, 0, image);
