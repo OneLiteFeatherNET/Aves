@@ -17,6 +17,9 @@ public class LocationUtil {
      * @return True, if the location between both locations is less than the given delta, false otherwise
      */
     public static boolean compare(Location location1, Location location2, double delta) {
+        if (location1.equals(location2))
+            return true;
+
         return location1.distanceSquared(location2) < Math.pow(delta, 2);
     }
 }
