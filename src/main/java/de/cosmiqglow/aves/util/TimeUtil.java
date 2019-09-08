@@ -5,7 +5,7 @@ import com.google.common.base.Joiner;
 public class TimeUtil {
 
     /**
-     * Convert a time value into a hh:mm format
+     * Convert a time value into the hh:mm format
      * @param time The time who should be converted
      * @return The converted time
      */
