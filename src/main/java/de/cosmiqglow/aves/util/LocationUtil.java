@@ -20,6 +20,6 @@ public class LocationUtil {
         if (location1.equals(location2))
             return true;
 
-        return location1.distanceSquared(location2) < Math.pow(delta, 2);
+        return location1.distanceSquared(location2) <= Math.pow(delta, 2);
     }
 }
