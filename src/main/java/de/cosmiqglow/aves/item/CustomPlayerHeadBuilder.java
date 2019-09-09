@@ -15,6 +15,13 @@ public final class CustomPlayerHeadBuilder extends ItemBuilder {
         super(Material.PLAYER_HEAD);
     }
 
+    /**
+     * Add a skin to a profile
+     * @param skinValue The skin value to add
+     * @param skinSignature The skin signature to add
+     * @return
+     */
+
     public CustomPlayerHeadBuilder setSkinOverValues(final String skinValue, final String skinSignature) {
         Objects.requireNonNull(skinValue, "SkinValue can not be null"); 
         Objects.requireNonNull(skinSignature, "SkinSignature can not be null");
@@ -24,6 +31,12 @@ public final class CustomPlayerHeadBuilder extends ItemBuilder {
         setSkinOverGameProfile(gameProfile);
         return this;
     }
+
+    /**
+     * Set a profile to a player head
+     * @param gameProfile The profile to add
+     * @return
+     */
 
     public CustomPlayerHeadBuilder setSkinOverGameProfile(GameProfile gameProfile) {
         Objects.requireNonNull(gameProfile, "Profile can not be null");

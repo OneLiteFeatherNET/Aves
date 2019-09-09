@@ -10,12 +10,26 @@ public final class LeatherArmorBuilder extends ItemBuilder {
         super(type.getMaterial());
     }
 
+    /**
+     * Sets the color of the armor
+     * @param color The color to set
+     * @return
+     */
+
     public LeatherArmorBuilder setColor(Color color) {
         LeatherArmorMeta meta = getItemMeta();
         meta.setColor(color);
         stack.setItemMeta(meta);
         return this;
     }
+
+    /**
+     * Sets the color of the armor with RGB values
+     * @param red The amount of red
+     * @param green The amount of green
+     * @param blue The amount of blue
+     * @return
+     */
 
     public LeatherArmorBuilder setColor(int red, int green, int blue) {
         LeatherArmorMeta meta = getItemMeta();
@@ -24,10 +38,19 @@ public final class LeatherArmorBuilder extends ItemBuilder {
         return this;
     }
 
+    /**
+     * Override the default method to return another meta
+     * @return The {@link LeatherArmorMeta}
+     */
+
     @Override
     protected LeatherArmorMeta getItemMeta() {
         return (LeatherArmorMeta) super.getItemMeta();
     }
+
+    /**
+     * The enum is a wrapper for each armor from the type leather
+     */
 
     public enum LeatherArmorType {
         LEATHER_HELMET(Material.LEATHER_HELMET),
