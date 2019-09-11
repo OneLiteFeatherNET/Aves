@@ -6,7 +6,7 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
-public class MapBuilder extends ItemBuilder {
+public final class MapBuilder extends ItemBuilder {
 
     public MapBuilder(final MapType type) {
         super(type.getMaterial());
