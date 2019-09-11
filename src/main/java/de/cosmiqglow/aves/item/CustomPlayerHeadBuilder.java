@@ -40,7 +40,7 @@ public final class CustomPlayerHeadBuilder extends ItemBuilder {
 
     public CustomPlayerHeadBuilder setSkinOverGameProfile(GameProfile gameProfile) {
         Objects.requireNonNull(gameProfile, "Profile can not be null");
-        SkullMeta meta = (SkullMeta) getItemMeta();
+        SkullMeta meta = getItemMeta();
         try {
             Field field = meta.getClass().getDeclaredField("profile");
             field.setAccessible(true);
@@ -50,5 +50,15 @@ public final class CustomPlayerHeadBuilder extends ItemBuilder {
         }
         stack.setItemMeta(meta);
         return this;
+    }
+
+    /**
+     * Override the default method to return another meta
+     * @return The {@link SkullMeta}
+     */
+
+    @Override
+    protected SkullMeta getItemMeta() {
+        return (SkullMeta) super.getItemMeta();
     }
 }
