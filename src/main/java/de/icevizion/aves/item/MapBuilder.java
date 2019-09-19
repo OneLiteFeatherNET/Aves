@@ -1,4 +1,4 @@
-package de.cosmiqglow.aves.item;
+package de.icevizion.aves.item;
 
 import org.bukkit.Color;
 import org.bukkit.Material;

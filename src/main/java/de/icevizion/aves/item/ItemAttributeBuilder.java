@@ -1,4 +1,4 @@
-package de.cosmiqglow.aves.item;
+package de.icevizion.aves.item;
 
 import com.google.common.collect.Multimap;
 import org.bukkit.Material;
