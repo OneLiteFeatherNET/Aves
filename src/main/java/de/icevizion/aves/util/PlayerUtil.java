@@ -1,4 +1,4 @@
-package de.cosmiqglow.aves.util;
+package de.icevizion.aves.util;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;

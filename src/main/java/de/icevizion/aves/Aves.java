@@ -1,4 +1,4 @@
-package de.cosmiqglow.aves;
+package de.icevizion.aves;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

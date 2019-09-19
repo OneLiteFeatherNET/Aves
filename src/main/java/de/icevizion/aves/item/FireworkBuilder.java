@@ -1,4 +1,4 @@
-package de.cosmiqglow.aves.item;
+package de.icevizion.aves.item;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.FireworkEffect;

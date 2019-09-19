@@ -1,4 +1,4 @@
-package de.cosmiqglow.aves.util;
+package de.icevizion.aves.util;
 
 import com.google.common.base.Joiner;
 

@@ -1,4 +1,4 @@
-package de.cosmiqglow.aves.item;
+package de.icevizion.aves.item;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
