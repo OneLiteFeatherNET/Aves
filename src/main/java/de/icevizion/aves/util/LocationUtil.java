@@ -25,6 +25,7 @@ public class LocationUtil {
      * @param delta The maximum delta that is allowed between both locations
      * @return True, if the location between both locations is less than the given delta, false otherwise
      */
+
     public static boolean compare(Location location1, Location location2, double delta) {
         if (location1.equals(location2))
             return true;
