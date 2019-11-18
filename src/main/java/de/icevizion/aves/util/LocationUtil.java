@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 /**
- * Contains some methods that work with the @{@link Location}
+ * The class contains some methods that work with {@link Location}
  */
 public class LocationUtil {
 
@@ -19,7 +19,7 @@ public class LocationUtil {
     }
 
     /**
-     * Compare two locations with the given delta
+     * Compare two locations with the given delta.
      * @param location1 The first location
      * @param location2 The second location
      * @param delta The maximum delta that is allowed between both locations
@@ -30,5 +30,15 @@ public class LocationUtil {
         if (location1.equals(location2))
             return true;
         return location1.distanceSquared(location2) <= Math.pow(delta, 2);
+    }
+
+    /**
+     * Checks if the block is solid at the location.
+     * @param location The location to check
+     * @return True when the block is solid otherwise false
+     */
+
+    public static boolean isOnGround(Location location) {
+        return location.getBlock().getType().isBlock();
     }
 }
