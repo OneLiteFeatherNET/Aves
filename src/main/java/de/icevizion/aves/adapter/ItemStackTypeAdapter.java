@@ -8,6 +8,7 @@ package de.icevizion.aves.adapter;
 
 
 import com.google.gson.*;
+import de.icevizion.aves.item.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -31,7 +32,6 @@ public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDese
         JsonObject object = new JsonObject();
         object.add("material", new JsonPrimitive(itemStack.getType().name()));
         object.add("amount", new JsonPrimitive(itemStack.getAmount()));
-        object.add("durability", new JsonPrimitive(itemStack.getDurability()));
         if (itemStack.hasItemMeta()) {
             JsonObject metaObject = new JsonObject();
             ItemMeta meta = itemStack.getItemMeta();
@@ -68,42 +68,44 @@ public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDese
     @Override
     public ItemStack deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject object = jsonElement.getAsJsonObject();
+
         Material material = Material.getMaterial(object.get("material").getAsString());
         if (material == null)
             material = Material.STONE;
-        int amount = object.get("amount").getAsInt();
-        short durability = object.get("durability").getAsShort();
-        ItemStack itemStack = new ItemStack(material, amount);
-        itemStack.setDurability(durability);
 
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (object.has("meta")) {
-            JsonObject metaObject = object.getAsJsonObject("meta");
-            if (metaObject.has("displayName"))
-                itemMeta.setDisplayName(metaObject.get("displayName").getAsString());
-            if (metaObject.has("enchantments")) {
-                JsonArray enchantsArray = metaObject.getAsJsonArray("enchantments");
-                for (JsonElement enchantElement : enchantsArray) {
-                    itemStack.addUnsafeEnchantment(
-                            Enchantment.getByName(((JsonObject) enchantElement).get("enchantment").getAsString()),
-                            ((JsonObject) enchantElement).get("level").getAsInt());
-                }
-            }
-            if (metaObject.has("lore")) {
-                JsonArray loreArray = metaObject.getAsJsonArray("lore");
-                List<String> lore = new ArrayList<>();
-                for (JsonElement element : loreArray)
-                    lore.add(element.getAsString());
-                itemMeta.setLore(lore);
-            }
-            if (metaObject.has("flags")) {
-                JsonArray flagArray = metaObject.getAsJsonArray("flags");
-                for (JsonElement element : flagArray)
-                    itemMeta.addItemFlags(ItemFlag.valueOf(element.getAsString()));
-            }
+        ItemBuilder itemBuilder = new ItemBuilder(material);
+        itemBuilder.setAmount(object.get("amount").getAsInt());
+
+        if (!object.has("meta")) {
+            return itemBuilder.build();
         }
 
-        return itemStack;
+        JsonObject metaObject = object.getAsJsonObject("meta");
+
+        if (metaObject.has("displayName"))
+            itemBuilder.setDisplayName(metaObject.get("displayName").getAsString());
+        if (metaObject.has("enchantments")) {
+            JsonArray enchantsArray = metaObject.getAsJsonArray("enchantments");
+            for (JsonElement enchantElement : enchantsArray) {
+                itemBuilder.addUnsafeEnchantment(
+                        Enchantment.getByName(((JsonObject) enchantElement).get("enchantment").getAsString()),
+                        ((JsonObject) enchantElement).get("level").getAsInt());
+            }
+        }
+        if (metaObject.has("lore")) {
+            JsonArray loreArray = metaObject.getAsJsonArray("lore");
+            List<String> lore = new ArrayList<>();
+            for (JsonElement element : loreArray)
+                lore.add(element.getAsString());
+            itemBuilder.addLore(lore);
+        }
+        if (metaObject.has("flags")) {
+            JsonArray flagArray = metaObject.getAsJsonArray("flags");
+            for (JsonElement element : flagArray)
+                itemBuilder.addItemFlag(ItemFlag.valueOf(element.getAsString()));
+        }
+
+        return itemBuilder.build();
     }
 }
 
