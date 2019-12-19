@@ -10,21 +10,21 @@ public class LocationUtil {
 
     /**
      * Returns the center of the block.
-     * @param block The block where the center should be calculated from
+     * @param location The block where the center should be calculated from
      * @return The middle location of the given block
      */
 
-    public static Location getCenter(Block block) {
-        return block.getLocation().add(0.5, 0, 0.5);
+    public static Location getCenter(Location location) {
+        return location.add(0.5, 0, 0.5);
     }
 
     /**
      * Returns the center of the block over 3 dimensions
-     * @param block The block where the center should be calculated from
+     * @param location The block where the center should be calculated from
      * @return The middle location of the given block
      */
 
-    public static Location getCenter3D(Block block) { return block.getLocation().add(0.5, -0.5, 0.5); }
+    public static Location getCenter3D(Location location) { return location.add(0.5, -0.5, 0.5); }
 
     /**
      * Compare two locations with the given delta.
