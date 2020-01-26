@@ -46,7 +46,7 @@ public class LocationUtil {
      * @return True when the block is solid otherwise false
      */
 
-    public static boolean isOnGround(Location location) {
+    public static boolean isSolid(Location location) {
         return location.getBlock().getType().isBlock();
     }
 }
