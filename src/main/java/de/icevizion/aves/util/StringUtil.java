@@ -1,9 +1,21 @@
 package de.icevizion.aves.util;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import org.bukkit.ChatColor;
 
 public class StringUtil {
+
+    /**
+     * Creates a progress bar for the given values.
+     * @param current The current amount
+     * @param max The maximum amount
+     * @param totalBars The maximum bars to display
+     * @param symbol The symbol to display
+     * @param completedColor The color for the completed part
+     * @param notCompletedColor The color for the not completed part
+     * @return The progressbar as string
+     */
 
     public static String getProgressBar(int current, int max, int totalBars, char symbol, ChatColor completedColor,
                                         ChatColor notCompletedColor) {
@@ -13,25 +25,11 @@ public class StringUtil {
                 + Strings.repeat("" + notCompletedColor + symbol, totalBars - progressBars);
     }
 
-    public static String repeat(String text, int count) {
-        if (count <= 1) {
-            return count == 0 ? "" : text;
-        }
-        int length = text.length();
-        long longSize = length * count;
-        int size = (int)longSize;
-        if (size != longSize) {
-            throw new ArrayIndexOutOfBoundsException("Required array size too large: " + longSize);
-        }
-        char[] array = new char[size];
-        int n;
-        text.getChars(0, length, array, 0);
-        for (n = length; n < size - n; n <<= 1) {
-            System.arraycopy(array, 0, array, n, n);
-        }
-        System.arraycopy(array, 0, array, n, size - n);
-        return new String(array);
-    }
+    /**
+     * Converts the life of a player into a string. Full hearts are displayed in red and empty hearts in grey.
+     * @param paramHealth The health of a player
+     * @return The converted health as string
+     */
 
     public static String getHealthString(double paramHealth) {
         int health = (int) Math.round(paramHealth);
@@ -47,10 +45,17 @@ public class StringUtil {
         return builder.toString();
     }
 
-    public static String centerText(String text, int linelength) {
+    /**
+     * Centers a given text with a given length of a line.
+     * @param text The text to center
+     * @param lineLength The length of a line
+     * @return The centered text
+     */
+
+    public static String centerText(String text, int lineLength) {
         StringBuilder builder = new StringBuilder(text);
         char space = ' ';
-        int distance = (linelength - text.length()) / 2;
+        int distance = (lineLength - text.length()) / 2;
         for (int i = 0; i < distance; i++) {
             builder.insert(0, space);
             builder.append(space);
@@ -58,12 +63,18 @@ public class StringUtil {
         return builder.toString();
     }
 
-    public static String toRepeat(String toRepeat, int count) {
-        StringBuilder builder = new StringBuilder();
-        while (count > 0) {
-            builder.append(toRepeat);
-            --count;
+    /**
+     * Convert a time value into the hh:mm format.
+     * @param time The time who should be converted
+     * @return The converted time
+     */
+
+    public static String getTimeString(final int time) {
+        if (time <= 0) {
+            return "00:00";
         }
-        return builder.toString();
+        int minutes = time / 60;
+        int seconds = time % 60;
+        return Joiner.on(":").join((minutes < 10) ? "0" + minutes : minutes, (seconds < 10) ? "0" + seconds : seconds);
     }
 }
