@@ -1,23 +1,16 @@
 package de.icevizion.aves.util;
 
+import com.google.common.base.Strings;
 import org.bukkit.ChatColor;
 
 public class StringUtil {
 
-    public static String getProgressBar(double percent, int totalBars, String symbol, ChatColor finished, ChatColor unfinished) {
-        if (percent > 1 || percent < 0) return "";
+    public static String getProgressBar(int current, int max, int totalBars, char symbol, ChatColor completedColor,
+                                        ChatColor notCompletedColor) {
+        float percent = (float) current / max;
         int progressBars = (int) (totalBars * percent);
-        int leftOverBars = (totalBars - progressBars);
-        StringBuilder sb = new StringBuilder();
-        sb.append(finished);
-        for (int i = 0; i < progressBars; i++) {
-            sb.append(symbol);
-        }
-        sb.append(unfinished);
-        for (int i = 0; i < leftOverBars; i++) {
-            sb.append(symbol);
-        }
-        return sb.toString();
+        return Strings.repeat("" + completedColor + symbol, progressBars)
+                + Strings.repeat("" + notCompletedColor + symbol, totalBars - progressBars);
     }
 
     public static String repeat(String text, int count) {
