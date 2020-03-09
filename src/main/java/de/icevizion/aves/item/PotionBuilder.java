@@ -14,7 +14,7 @@ public final class PotionBuilder extends ItemBuilder {
     }
 
     /**
-     * Sets the potion color
+     * Sets the potion color.
      * @param color The color to set
      * @return
      */
@@ -27,7 +27,7 @@ public final class PotionBuilder extends ItemBuilder {
     }
 
     /**
-     * Sets the underlying potion data
+     * Sets the underlying potion data.
      * @param potionType The type to add
      * @return
      */
@@ -40,7 +40,7 @@ public final class PotionBuilder extends ItemBuilder {
     }
 
     /**
-     * Sets the underlying potion data
+     * Sets the underlying potion data.
      * @param potionType The type to add
      * @param extended whether the potion is extended PotionType#isExtendable() must be true
      * @param upgrade whether the potion is upgraded PotionType#isUpgradable() must be true
@@ -55,7 +55,7 @@ public final class PotionBuilder extends ItemBuilder {
     }
 
     /**
-     * Adds a custom potion effect to this potion
+     * Adds a custom potion effect to this potion.
      * @param potionEffect The potion effect to add
      * @param overwrite True if any existing effect of the same type should be overwritten
      * @return
@@ -69,7 +69,7 @@ public final class PotionBuilder extends ItemBuilder {
     }
 
     /**
-     * Override the default method to return another meta
+     * Override the default method to return another meta.
      * @return The {@link PotionMeta}
      */
 
@@ -79,15 +79,15 @@ public final class PotionBuilder extends ItemBuilder {
     }
 
     /**
-     * The enum is a wrapper for the existing potion material
+     * The enum is a wrapper for the existing potion material.
      */
 
     public enum PotionItemType {
 
         POTION(Material.POTION),
-        SPLASH_POTION(Material.SPLASH_POTION),
-        LINGERING_POTION(Material.LINGERING_POTION),
-        TIPPED_ARROW(Material.TIPPED_ARROW);
+        SPLASH(Material.SPLASH_POTION),
+        LINGERING(Material.LINGERING_POTION),
+        TIPPED(Material.TIPPED_ARROW);
 
         final Material material;
 
