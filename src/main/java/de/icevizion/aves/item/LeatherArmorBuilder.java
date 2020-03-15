@@ -6,7 +6,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public final class LeatherArmorBuilder extends ItemBuilder {
 
-    public LeatherArmorBuilder(LeatherArmorType type) {
+    public LeatherArmorBuilder(LeatherType type) {
         super(type.getMaterial());
     }
 
@@ -52,15 +52,15 @@ public final class LeatherArmorBuilder extends ItemBuilder {
      * The enum is a wrapper for each armor from the type leather
      */
 
-    public enum LeatherArmorType {
-        LEATHER_HELMET(Material.LEATHER_HELMET),
-        LEATHER_CHESTPLATE(Material.LEATHER_CHESTPLATE),
-        LEATHER_LEGGINGS(Material.LEATHER_LEGGINGS),
-        LEATHER_BOOTS(Material.LEATHER_BOOTS);
+    public enum LeatherType {
+        HELMET(Material.LEATHER_HELMET),
+        CHESTPLATE(Material.LEATHER_CHESTPLATE),
+        LEGGINGS(Material.LEATHER_LEGGINGS),
+        BOOTS(Material.LEATHER_BOOTS);
 
         final Material material;
 
-        LeatherArmorType(final Material material) {
+        LeatherType(final Material material) {
             this.material = material;
         }
 
