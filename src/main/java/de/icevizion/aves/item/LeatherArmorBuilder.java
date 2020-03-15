@@ -55,7 +55,7 @@ public final class LeatherArmorBuilder extends ItemBuilder {
     public enum LeatherType {
         HELMET(Material.LEATHER_HELMET),
         CHESTPLATE(Material.LEATHER_CHESTPLATE),
-        EGGINGS(Material.LEATHER_LEGGINGS),
+        LEGGINGS(Material.LEATHER_LEGGINGS),
         BOOTS(Material.LEATHER_BOOTS);
 
         final Material material;
