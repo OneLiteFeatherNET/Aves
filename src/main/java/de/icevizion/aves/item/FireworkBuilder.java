@@ -11,7 +11,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 public final class FireworkBuilder extends ItemBuilder {
 
     public FireworkBuilder() {
-        super(Material.FIREWORK_ROCKET);
+        super(Material.FIREWORK);
     }
 
     /**

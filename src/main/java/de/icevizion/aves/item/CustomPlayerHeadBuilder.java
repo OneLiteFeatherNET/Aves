@@ -12,7 +12,7 @@ import java.util.UUID;
 public final class CustomPlayerHeadBuilder extends ItemBuilder {
 
     public CustomPlayerHeadBuilder() {
-        super(Material.PLAYER_HEAD);
+        super(Material.SKULL_ITEM);
     }
 
     /**

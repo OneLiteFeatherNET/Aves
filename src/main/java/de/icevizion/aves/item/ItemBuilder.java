@@ -17,7 +17,7 @@ import java.util.Objects;
 
 public class ItemBuilder {
 
-    protected final ItemStack stack;
+    protected ItemStack stack;
 
     public ItemBuilder(Material material) {
         Objects.requireNonNull(material, "Material can not be null");
@@ -85,7 +85,7 @@ public class ItemBuilder {
 
     public ItemBuilder setUnbreakable(boolean unbreakable) {
         ItemMeta meta = getItemMeta();
-        meta.setUnbreakable(unbreakable);
+        meta.spigot().setUnbreakable(unbreakable);
         this.stack.setItemMeta(meta);
         return this;
     }

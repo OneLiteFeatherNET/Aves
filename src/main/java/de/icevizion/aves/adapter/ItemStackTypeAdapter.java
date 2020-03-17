@@ -47,18 +47,6 @@ public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDese
                 }
                 metaObject.add("enchantments", enchantsArray);
             }
-            if (meta.hasLore()) {
-                JsonArray loreArray = new JsonArray();
-                for (String lore : meta.getLore())
-                    loreArray.add(lore);
-                metaObject.add("lore", loreArray);
-            }
-            if (meta.getItemFlags() != null && meta.getItemFlags().size() > 0) {
-                JsonArray flagArray = new JsonArray();
-                for (ItemFlag itemFlag : meta.getItemFlags())
-                    flagArray.add(itemFlag.name());
-                metaObject.add("flags", flagArray);
-            }
             object.add("meta", metaObject);
         }
 

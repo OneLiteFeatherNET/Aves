@@ -30,19 +30,6 @@ public final class BookBuilder extends ItemBuilder {
     }
 
     /**
-     * Sets the generation of the book
-     * @param generation The generation to set
-     * @return
-     */
-
-    public BookBuilder setGeneration(BookMeta.Generation generation) {
-        BookMeta meta = getItemMeta();
-        meta.setGeneration(generation);
-        stack.setItemMeta(meta);
-        return this;
-    }
-
-    /**
      * Add a new page to the book
      * @param side The page side
      * @param content The content of a page

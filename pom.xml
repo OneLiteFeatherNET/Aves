@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.icevizion.lib</groupId>
-    <artifactId>Aves</artifactId>
+    <artifactId>Aves-1.8</artifactId>
     <version>1.0.4-SNAPSHOT</version>
 
     <properties>
@@ -17,9 +17,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
+            <groupId>org.papermc</groupId>
+            <artifactId>paper</artifactId>
+            <version>1.8.8</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -43,6 +43,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
