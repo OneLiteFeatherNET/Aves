@@ -1,102 +1,50 @@
 package de.icevizion.aves.item;
 
-import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
+import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class PotionBuilder extends ItemBuilder {
 
-    public PotionBuilder(PotionItemType potionType) {
-        super(potionType.getMaterial());
+    private final Potion potion;
+    private final List<PotionEffect> effects;
+
+    public PotionBuilder() {
+        super(Material.POTION);
+        potion = new Potion(PotionType.WATER);
+        effects = new ArrayList<>();
     }
 
-    /**
-     * Sets the potion color.
-     * @param color The color to set
-     * @return
-     */
-
-    public PotionBuilder setColor(Color color) {
-        PotionMeta meta = getItemMeta();
-        meta.setColor(color);
-        this.stack.setItemMeta(meta);
+    public PotionBuilder setSplash(boolean splash) {
+        potion.setSplash(splash);
         return this;
     }
 
-    /**
-     * Sets the underlying potion data.
-     * @param potionType The type to add
-     * @return
-     */
-
-    public PotionBuilder setPotionData(PotionType potionType) {
-        PotionMeta meta = getItemMeta();
-        meta.setBasePotionData(new PotionData(potionType));
-        this.stack.setItemMeta(meta);
+    public PotionBuilder addEffect(PotionEffect effect) {
+        effects.add(effect);
         return this;
     }
-
-    /**
-     * Sets the underlying potion data.
-     * @param potionType The type to add
-     * @param extended whether the potion is extended PotionType#isExtendable() must be true
-     * @param upgrade whether the potion is upgraded PotionType#isUpgradable() must be true
-     * @return
-     */
-
-    public PotionBuilder setPotionData(PotionType potionType, boolean extended, boolean upgrade) {
-        PotionMeta meta = getItemMeta();
-        meta.setBasePotionData(new PotionData(potionType, extended, upgrade));
-        this.stack.setItemMeta(meta);
-        return this;
-    }
-
-    /**
-     * Adds a custom potion effect to this potion.
-     * @param potionEffect The potion effect to add
-     * @param overwrite True if any existing effect of the same type should be overwritten
-     * @return
-     */
-
-    public PotionBuilder addPotionEffect(PotionEffect potionEffect, boolean overwrite) {
-        PotionMeta meta = getItemMeta();
-        meta.addCustomEffect(potionEffect, overwrite);
-        this.stack.setItemMeta(meta);
-        return this;
-    }
-
-    /**
-     * Override the default method to return another meta.
-     * @return The {@link PotionMeta}
-     */
 
     @Override
-    protected PotionMeta getItemMeta() {
-        return (PotionMeta) super.getItemMeta();
-    }
+    public ItemStack build() {
+        ItemStack stack = potion.toItemStack(this.stack.getAmount());
+        ItemMeta oldMeta = this.stack.getItemMeta();
+        PotionMeta meta = (PotionMeta) stack.getItemMeta();
 
-    /**
-     * The enum is a wrapper for the existing potion material.
-     */
+        meta.setLore(oldMeta.getLore());
+        meta.setDisplayName(oldMeta.getDisplayName());
+        stack.addEnchantments(oldMeta.getEnchants());
+        effects.forEach(eff -> meta.addCustomEffect(eff, false));
+        oldMeta.getItemFlags().forEach(meta::addItemFlags);
 
-    public enum PotionItemType {
-
-        POTION(Material.POTION),
-        SPLASH(Material.SPLASH_POTION),
-        LINGERING(Material.LINGERING_POTION),
-        TIPPED(Material.TIPPED_ARROW);
-
-        final Material material;
-
-        PotionItemType(Material material) {
-            this.material = material;
-        }
-
-        public Material getMaterial() {
-            return material;
-        }
+        stack.setItemMeta(meta);
+        return stack;
     }
 }

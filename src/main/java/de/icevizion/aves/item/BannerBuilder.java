@@ -10,7 +10,7 @@ import java.util.List;
 public class BannerBuilder extends ItemBuilder{
 
     public BannerBuilder() {
-        super(Material.PURPLE_BANNER);
+        super(Material.BANNER);
     }
 
     public BannerBuilder setColor(DyeColor color) {
