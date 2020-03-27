@@ -5,8 +5,9 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Collections;
 import java.util.Optional;
-import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Contains some methods to work with {@link Player} objects
@@ -29,7 +30,9 @@ public class PlayerUtil {
      */
 
     public static Optional<Player> getRandomPlayer() {
-        Random random = new Random(Bukkit.getOnlinePlayers().size());
-        return (Optional<Player>) Bukkit.getOnlinePlayers().stream().skip(Bukkit.getOnlinePlayers().size() * random.nextInt()).findAny();
+        return Bukkit.getOnlinePlayers().stream().collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+            Collections.shuffle(collected);
+            return collected.stream();
+        })).map(t -> ((Player) t)).findAny();
     }
 }
