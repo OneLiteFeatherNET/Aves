@@ -3,7 +3,9 @@ package de.icevizion.aves.util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Contains some methods to work with {@link Player} objects
@@ -16,7 +18,9 @@ public class PlayerUtil {
      */
 
     public static Optional<Player> getRandomPlayer() {
-        return (Optional<Player>) Bukkit.getOnlinePlayers().stream().skip(Bukkit.getOnlinePlayers().size()
-                * (long)Math.random()).findAny();
+        return Bukkit.getOnlinePlayers().stream().collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+            Collections.shuffle(collected);
+            return collected.stream();
+        })).map(t -> ((Player) t)).findAny();
     }
 }
