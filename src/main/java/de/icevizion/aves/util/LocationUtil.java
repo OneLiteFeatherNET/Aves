@@ -40,6 +40,21 @@ public class LocationUtil {
         return location1.distanceSquared(location2) <= Math.pow(delta, 2);
     }
 
+    public static boolean compare(Location location1, Location location2, boolean angle) {
+        boolean position =  location1.getX() == location2.getX()
+                && location1.getY() == location2.getY()
+                && location1.getZ() == location2.getZ();
+
+        if (!position)
+            return false;
+
+        if (angle) {
+            return location1.getYaw() == location2.getYaw()
+                    && location1.getPitch() == location2.getPitch();
+        }
+        return position;
+    }
+
     /**
      * Checks if the block is solid at the location.
      * @param location The location to check
