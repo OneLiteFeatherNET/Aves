@@ -1,7 +1,6 @@
 package de.icevizion.aves.util;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 
 /**
  * The class contains some methods that work with {@link Location}
