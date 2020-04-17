@@ -91,6 +91,17 @@ public class ItemBuilder {
     }
 
     /**
+     * Sets the durability of the item.
+     *
+     * @param durability the new durability value
+     * @return
+     */
+    public ItemBuilder setDurability(short durability) {
+        this.stack.setDurability(durability);
+        return this;
+    }
+
+    /**
      * Set itemflags which should be ignored when rendering a ItemStack in the Client
      * @param flag The hideflags which shouldn't be rendered
      * @return
