@@ -14,7 +14,7 @@ public class CooldownUtil {
     }
 
     /**
-     * Add a cooldown to a specific player
+     * Add a cooldown to a specific player.
      * @param player The player for the cooldown
      * @param duration The duration for the cooldown
      */
@@ -24,7 +24,7 @@ public class CooldownUtil {
     }
 
     /**
-     * Remove a cooldown from a player
+     * Remove a cooldown from a player.
      * @param player The player to remove
      */
 
@@ -33,7 +33,7 @@ public class CooldownUtil {
     }
 
     /**
-     * Check if a player has currently a cooldown
+     * Check if a player has currently a cooldown.
      * @param player The player to check
      * @return True when the player has a cooldown otherwise false
      */
@@ -51,7 +51,7 @@ public class CooldownUtil {
     }
 
     /**
-     * Returns the map
+     * Returns the map.
      * @return The underlying map
      */
 
