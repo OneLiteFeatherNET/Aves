@@ -140,7 +140,7 @@ public class WrappedLocation {
             throw new IllegalArgumentException("The world can not be null");
         }
 
-        if (location != null) {
+        if (location == null) {
             location = new Location(bukkitWorld, x,y,z);
             location.setYaw(yaw);
             location.setPitch(pitch);
