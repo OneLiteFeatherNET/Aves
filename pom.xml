@@ -6,7 +6,7 @@
 
     <groupId>de.icevizion.lib</groupId>
     <artifactId>Aves-1.8</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
