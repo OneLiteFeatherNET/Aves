@@ -11,18 +11,22 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class CustomPlayerHeadBuilder extends ItemBuilder {
+public final class SkullBuilder extends ItemBuilder {
 
-    public CustomPlayerHeadBuilder() {
+    public SkullBuilder() {
         super(Material.SKULL_ITEM);
-    }
-
-    public CustomPlayerHeadBuilder setSkullType(SkullType type) {
         ItemMeta stackMeta = stack.getItemMeta();
-        ItemStack item = new ItemStack(stack.getType(), stack.getAmount(), (short) type.getData());
+        ItemStack item = new ItemStack(stack.getType(), stack.getAmount(), (short) SkullType.PLAYER.getData());
         item.setItemMeta(stackMeta);
         this.stack = item;
-        return this;
+    }
+
+    public SkullBuilder(SkullType type) {
+        super(Material.SKULL_ITEM);
+        ItemMeta meta = stack.getItemMeta();
+        ItemStack itemStack = new ItemStack(stack.getType(), stack.getAmount(), (short) type.getData());
+        itemStack.setItemMeta(meta);
+        this.stack = itemStack;
     }
 
     /**
@@ -32,7 +36,7 @@ public final class CustomPlayerHeadBuilder extends ItemBuilder {
      * @return
      */
 
-    public CustomPlayerHeadBuilder setSkinOverValues(final String skinValue, final String skinSignature) {
+    public SkullBuilder setSkinOverValues(final String skinValue, final String skinSignature) {
         Objects.requireNonNull(skinValue, "SkinValue can not be null"); 
         Objects.requireNonNull(skinSignature, "SkinSignature can not be null");
         GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null);
@@ -48,7 +52,7 @@ public final class CustomPlayerHeadBuilder extends ItemBuilder {
      * @return
      */
 
-    public CustomPlayerHeadBuilder setSkinOverGameProfile(GameProfile gameProfile) {
+    public SkullBuilder setSkinOverGameProfile(GameProfile gameProfile) {
         Objects.requireNonNull(gameProfile, "Profile can not be null");
         SkullMeta meta = getItemMeta();
         try {
@@ -80,7 +84,7 @@ public final class CustomPlayerHeadBuilder extends ItemBuilder {
         PLAYER(3),
         CREEPER(4);
 
-        private int data;
+        private final int data;
 
         SkullType(int data) {
             this.data = data;
