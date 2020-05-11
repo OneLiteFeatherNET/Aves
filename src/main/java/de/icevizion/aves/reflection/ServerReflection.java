@@ -16,9 +16,9 @@ import java.lang.reflect.Method;
 
 public class ServerReflection {
 
-    private static Class<?> minecraftServerClass;
-    private static Field recentTpsField;
-    private static Method getServerMethod;
+    private static final Class<?> minecraftServerClass;
+    private static final Field recentTpsField;
+    private static final Method getServerMethod;
 
     static {
         minecraftServerClass = new NMSClassResolver().resolveSilent("MinecraftServer");
