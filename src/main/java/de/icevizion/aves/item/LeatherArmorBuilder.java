@@ -2,12 +2,17 @@ package de.icevizion.aves.item;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public final class LeatherArmorBuilder extends ItemBuilder {
 
     public LeatherArmorBuilder(LeatherType type) {
         super(type.getMaterial());
+    }
+
+    public LeatherArmorBuilder(ItemStack itemStack) {
+        super(itemStack);
     }
 
     /**
