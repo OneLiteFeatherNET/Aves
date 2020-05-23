@@ -120,7 +120,7 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder addLore(final String... lore) {
+    public ItemBuilder addLore(String... lore) {
         ItemMeta meta = getItemMeta();
         List<String> currentLore = meta.getLore();
         if (currentLore == null) currentLore = new ArrayList<>();
@@ -136,7 +136,7 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder addLore(final List<String> lore) {
+    public ItemBuilder setLore(List<String> lore) {
         ItemMeta meta = getItemMeta();
         meta.setLore(lore);
         this.stack.setItemMeta(meta);
