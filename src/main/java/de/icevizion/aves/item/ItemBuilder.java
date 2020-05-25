@@ -190,6 +190,18 @@ public class ItemBuilder {
     }
 
     /**
+     * Returns the lore from a item.
+     * @return a empty list when the lore is null otherwise the lore from the stack
+     */
+
+    public List<String> getLore() {
+        if (getItemMeta().getLore() == null) {
+            return new ArrayList<>();
+        }
+        return getItemMeta().getLore();
+    }
+
+    /**
      * Returns from a item the itemmeta
      * @return The itemmeta
      */
