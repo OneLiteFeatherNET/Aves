@@ -87,7 +87,7 @@ public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDese
             List<String> lore = new ArrayList<>();
             for (JsonElement element : loreArray)
                 lore.add(element.getAsString());
-            itemBuilder.addLore(lore);
+            itemBuilder.setLore(lore);
         }
         if (metaObject.has("flags")) {
             JsonArray flagArray = metaObject.getAsJsonArray("flags");
