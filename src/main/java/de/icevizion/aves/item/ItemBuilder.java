@@ -131,6 +131,31 @@ public class ItemBuilder {
     }
 
     /**
+     * Change a specific line of a lore.
+     * @param index The index for the line
+     * @param text The new text for the line
+     * @return
+     */
+
+    public ItemBuilder setLoreLine(int index, String text) {
+        ItemMeta meta = getItemMeta();
+        List<String> currentLore = meta.getLore();
+        if (currentLore == null) {
+            currentLore = new ArrayList<>();
+            currentLore.add(text);
+        }
+
+        if (currentLore.size() < index) {
+            currentLore.add(text);
+        } else {
+            currentLore.set(index, text);
+        }
+        meta.setLore(currentLore);
+        stack.setItemMeta(meta);
+        return this;
+    }
+
+    /**
      * Sets the lore for this item. Removes lore when given null
      * @param lore The lore that will be set
      * @return
