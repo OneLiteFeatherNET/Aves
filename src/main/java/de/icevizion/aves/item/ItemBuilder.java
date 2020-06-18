@@ -35,7 +35,7 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder setAmount(final int amount) {
+    public ItemBuilder setAmount(int amount) {
         this.stack.setAmount(amount);
         return this;
     }
@@ -47,7 +47,7 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder addEnchantment(final Enchantment enchantment, final int level) {
+    public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
         this.stack.addEnchantment(enchantment, level);
         return this;
     }
@@ -59,7 +59,7 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder addUnsafeEnchantment(final Enchantment enchantment, final int level) {
+    public ItemBuilder addUnsafeEnchantment(Enchantment enchantment, int level) {
         this.stack.addUnsafeEnchantment(enchantment, level);
         return this;
     }
@@ -70,7 +70,7 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder setDisplayName(final String name) {
+    public ItemBuilder setDisplayName(String name) {
         ItemMeta meta = getItemMeta();
         meta.setDisplayName(name);
         this.stack.setItemMeta(meta);
@@ -107,7 +107,7 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder addItemFlag(final ItemFlag flag) {
+    public ItemBuilder addItemFlag(ItemFlag flag) {
         ItemMeta meta = getItemMeta();
         meta.addItemFlags(flag);
         this.stack.setItemMeta(meta);
@@ -174,7 +174,7 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder setBlockState(final BlockState blockState) {
+    public ItemBuilder setBlockState(BlockState blockState) {
         BlockStateMeta meta = (BlockStateMeta) getItemMeta();
         meta.setBlockState(blockState);
         setItemMeta(meta);
@@ -187,7 +187,7 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder setRepairCosts(final int repairCosts) {
+    public ItemBuilder setRepairCosts(int repairCosts) {
         Preconditions.checkArgument(repairCosts < 0, "The costs can not be negative");
         Repairable meta = (Repairable) getItemMeta();
         meta.setRepairCost(repairCosts);
@@ -200,7 +200,7 @@ public class ItemBuilder {
      * @return
      */
 
-    private ItemBuilder setItemMeta(final ItemMeta meta) {
+    private ItemBuilder setItemMeta(ItemMeta meta) {
         this.stack.setItemMeta(meta);
         return this;
     }
