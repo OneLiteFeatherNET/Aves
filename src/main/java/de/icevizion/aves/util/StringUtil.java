@@ -69,7 +69,7 @@ public class StringUtil {
      * @return The converted time
      */
 
-    public static String getTimeString(final int time) {
+    public static String getTimeString(int time) {
         if (time <= 0) {
             return "00:00";
         }
