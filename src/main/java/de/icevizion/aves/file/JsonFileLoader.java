@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public final class JsonFileLoader {
 
-    public static <T> void save(final File file, final T object, final Gson gson) {
+    public static <T> void save(File file, T object, Gson gson) {
         try (FileWriter fw = new FileWriter(file)) {
             if (!file.exists())
                 if (file.createNewFile())
@@ -23,7 +23,7 @@ public final class JsonFileLoader {
         }
     }
 
-    public static <T> Optional<T> load(final File file, final Class<T> clazz, final Gson gson) {
+    public static <T> Optional<T> load(File file, Class<T> clazz, Gson gson) {
         if (!file.exists())
             return Optional.empty();
 
@@ -35,7 +35,7 @@ public final class JsonFileLoader {
         }
     }
 
-    public static <T> Optional<T> load(final File file, final Type type, final Gson gson) {
+    public static <T> Optional<T> load(File file, Type type, Gson gson) {
         if (!file.exists())
             return Optional.empty();
 
