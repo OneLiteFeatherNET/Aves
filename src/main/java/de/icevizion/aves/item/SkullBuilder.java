@@ -84,7 +84,7 @@ public final class SkullBuilder extends ItemBuilder {
         PLAYER(3),
         CREEPER(4);
 
-        private final int data;
+        final int data;
 
         SkullType(int data) {
             this.data = data;
