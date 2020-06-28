@@ -24,7 +24,7 @@ public final class TitleUtil {
 
     public static void sendHeaderAndFooter(Player player, String header, String footer) {
         try {
-            final Object packet = getNMSClass("PacketPlayOutPlayerListHeaderFooter").newInstance();
+            Object packet = getNMSClass("PacketPlayOutPlayerListHeaderFooter").newInstance();
             getField(packet.getClass().getDeclaredField("a")).set(packet, chatserial.getMethod("a", String.class).invoke(null, "{\"text\":\"" + header + "\"}"));
             getField(packet.getClass().getDeclaredField("b")).set(packet, chatserial.getMethod("a", String.class).invoke(null, "{\"text\":\"" + footer + "\"}"));
             sendPacket(player, packet);
@@ -35,7 +35,7 @@ public final class TitleUtil {
 
     public static void sendHeaderAndFooter(Collection<Player> players, String header, String footer) {
         try {
-            final Object packet = getNMSClass("PacketPlayOutPlayerListHeaderFooter").newInstance();
+            Object packet = getNMSClass("PacketPlayOutPlayerListHeaderFooter").newInstance();
             getField(packet.getClass().getDeclaredField("a")).set(packet, chatserial.getMethod("a", String.class).invoke(null, "{\"text\":\"" + header + "\"}"));
             getField(packet.getClass().getDeclaredField("b")).set(packet, chatserial.getMethod("a", String.class).invoke(null, "{\"text\":\"" + footer + "\"}"));
             players.forEach(player -> sendPacket(player, packet));
