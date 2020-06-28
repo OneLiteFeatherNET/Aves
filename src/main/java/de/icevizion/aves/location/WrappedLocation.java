@@ -3,6 +3,7 @@ package de.icevizion.aves.location;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.util.Vector;
 
 /**
  * The class is a wrapper for the location class from bukkit.
@@ -66,7 +67,7 @@ public class WrappedLocation {
     }
 
     /**
-     * Give the wrapper the x coordinate.
+     * Set the current x coordinate.
      * @param x The x coordinate to set
      */
 
@@ -75,7 +76,7 @@ public class WrappedLocation {
     }
 
     /**
-     * Give the wrapper the y coordinate.
+     * Set the current z coordinate.
      * @param y The y coordinate to set
      */
 
@@ -84,7 +85,7 @@ public class WrappedLocation {
     }
 
     /**
-     * Give the wrapper the z coordinate.
+     * Set the current the z coordinate.
      * @param z The z coordinate to set
      */
 
@@ -93,7 +94,7 @@ public class WrappedLocation {
     }
 
     /**
-     * Give the wrapper the yaw value.
+     * Set the current yaw value.
      * @param yaw The yaw value to set
      */
 
@@ -102,7 +103,7 @@ public class WrappedLocation {
     }
 
     /**
-     * Give the wrapper the pitch value.
+     * Set the current pitch value.
      * @param pitch The pitch value to set
      */
 
@@ -146,5 +147,14 @@ public class WrappedLocation {
             location.setPitch(pitch);
         }
         return location;
+    }
+
+    /**
+     * Returns the given wrapped location as vector.
+     * @return The location as vector
+     */
+
+    public Vector toVector() {
+        return new Vector(x,y,z);
     }
 }
