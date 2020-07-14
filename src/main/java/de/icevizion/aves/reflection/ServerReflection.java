@@ -26,9 +26,15 @@ public class ServerReflection {
         recentTpsField = new FieldResolver(minecraftServerClass).resolveSilent("recentTps");
     }
 
+    /**
+     * Returns the current TPS from the server.
+     * @return The TPS values as double
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+
     public static double[] getTps() throws IllegalAccessException, InvocationTargetException {
         Object minecraftServer = getServerMethod.invoke(null);
-
         return (double[]) recentTpsField.get(minecraftServer);
     }
 }
