@@ -5,6 +5,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 
+import java.util.Objects;
+
 /**
  * The class is a wrapper for the location class from bukkit.
  */
@@ -111,29 +113,78 @@ public class WrappedLocation {
         this.pitch = pitch;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WrappedLocation that = (WrappedLocation) o;
+        return this.x == that.x && this.y == that.y &&
+                this.z == that.z && this.pitch == that.pitch && this.yaw == that.yaw && this.world.equals(that.world);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(world, x, y, z, yaw, pitch);
+    }
+
+    /**
+     * Returns the current world.
+     * @return the world
+     */
+
     public String getWorld() {
         return world;
     }
+
+    /**
+     * Returns the x value.
+     * @return x value
+     */
 
     public double getX() {
         return x;
     }
 
+    /**
+     * Returns the y value.
+     * @return y value
+     */
+
     public double getY() {
         return y;
     }
+
+    /**
+     * Returns the z value.
+     * @return z value
+     */
 
     public double getZ() {
         return z;
     }
 
+    /**
+     * Returns the pitch value.
+     * @return pitch value
+     */
+
     public float getPitch() {
         return pitch;
     }
 
+    /**
+     * Returns the yaw value.
+     * @return yaw value
+     */
+
     public float getYaw() {
         return yaw;
     }
+
+    /**
+     * Converts the wrapped location to a bukkit location.
+     * @return The bukkit location
+     */
 
     public Location toLocation() {
         World bukkitWorld = Bukkit.getWorld(world);
