@@ -1,6 +1,5 @@
 package de.icevizion.aves.item;
 
-import com.google.common.base.Preconditions;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
@@ -188,7 +187,6 @@ public class ItemBuilder {
      */
 
     public ItemBuilder setRepairCosts(int repairCosts) {
-        Preconditions.checkArgument(repairCosts < 0, "The costs can not be negative");
         Repairable meta = (Repairable) getItemMeta();
         meta.setRepairCost(repairCosts);
         return this;
