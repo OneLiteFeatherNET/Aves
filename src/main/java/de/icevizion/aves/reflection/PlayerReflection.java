@@ -41,6 +41,14 @@ public class PlayerReflection {
         sendPacketMethod.invoke(connection, packet);
     }
 
+    /**
+     * Returns a player's ping.
+     * @param player The player from which the ping is queried
+     * @return The ping as integer
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+
     public static int getPing(Player player) throws InvocationTargetException, IllegalAccessException {
         return (int) pingField.get(getHandleMethod.invoke(player));
     }
