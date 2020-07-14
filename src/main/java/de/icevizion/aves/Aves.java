@@ -2,7 +2,7 @@ package de.icevizion.aves;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Aves extends JavaPlugin {
+public final class Aves extends JavaPlugin {
 
     @Override
     public void onEnable() {
@@ -14,11 +14,9 @@ public class Aves extends JavaPlugin {
                 "/_/    \\_\\_/ \\___||___/");
         System.out.println(String.format("Starting Aves v%s by %s",
                 getDescription().getVersion(), getDescription().getAuthors()));
-        super.onEnable();
     }
 
     @Override
     public void onDisable() {
-        super.onDisable();
     }
 }
