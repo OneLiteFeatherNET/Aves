@@ -1,11 +1,9 @@
 package de.icevizion.aves.item;
 
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 
@@ -18,14 +16,18 @@ public class ItemBuilder {
 
     protected ItemStack stack;
 
+    protected ItemMeta itemMeta;
+
     public ItemBuilder(Material material) {
         Objects.requireNonNull(material, "Material can not be null");
         this.stack = new ItemStack(material);
+        itemMeta = stack.getItemMeta();
     }
 
     public ItemBuilder(ItemStack itemStack) {
         Objects.requireNonNull(itemStack, "ItemStack can not be null");
         this.stack = itemStack;
+        itemMeta = stack.getItemMeta();
     }
 
     /**
@@ -70,9 +72,7 @@ public class ItemBuilder {
      */
 
     public ItemBuilder setDisplayName(String name) {
-        ItemMeta meta = getItemMeta();
-        meta.setDisplayName(name);
-        this.stack.setItemMeta(meta);
+        itemMeta.setDisplayName(name);
         return this;
     }
 
@@ -83,9 +83,7 @@ public class ItemBuilder {
      */
 
     public ItemBuilder setUnbreakable(boolean unbreakable) {
-        ItemMeta meta = getItemMeta();
-        meta.spigot().setUnbreakable(unbreakable);
-        this.stack.setItemMeta(meta);
+        itemMeta.spigot().setUnbreakable(unbreakable);
         return this;
     }
 
@@ -107,9 +105,7 @@ public class ItemBuilder {
      */
 
     public ItemBuilder addItemFlag(ItemFlag flag) {
-        ItemMeta meta = getItemMeta();
-        meta.addItemFlags(flag);
-        this.stack.setItemMeta(meta);
+        itemMeta.addItemFlags(flag);
         return this;
     }
 
@@ -120,12 +116,10 @@ public class ItemBuilder {
      */
 
     public ItemBuilder addLore(String... lore) {
-        ItemMeta meta = getItemMeta();
-        List<String> currentLore = meta.getLore();
+        List<String> currentLore = itemMeta.getLore();
         if (currentLore == null) currentLore = new ArrayList<>();
         currentLore.addAll(Arrays.asList(lore));
-        meta.setLore(currentLore);
-        this.stack.setItemMeta(meta);
+        itemMeta.setLore(currentLore);
         return this;
     }
 
@@ -137,8 +131,7 @@ public class ItemBuilder {
      */
 
     public ItemBuilder setLoreLine(int index, String text) {
-        ItemMeta meta = getItemMeta();
-        List<String> currentLore = meta.getLore();
+        List<String> currentLore = itemMeta.getLore();
         if (currentLore == null) {
             currentLore = new ArrayList<>();
             currentLore.add(text);
@@ -149,8 +142,7 @@ public class ItemBuilder {
         } else {
             currentLore.set(index, text);
         }
-        meta.setLore(currentLore);
-        stack.setItemMeta(meta);
+        itemMeta.setLore(currentLore);
         return this;
     }
 
@@ -161,22 +153,7 @@ public class ItemBuilder {
      */
 
     public ItemBuilder setLore(List<String> lore) {
-        ItemMeta meta = getItemMeta();
-        meta.setLore(lore);
-        this.stack.setItemMeta(meta);
-        return this;
-    }
-
-    /**
-     * Attaches a copy of the passed block state to the item
-     * @param blockState the block state to attach to the block
-     * @return
-     */
-
-    public ItemBuilder setBlockState(BlockState blockState) {
-        BlockStateMeta meta = (BlockStateMeta) getItemMeta();
-        meta.setBlockState(blockState);
-        setItemMeta(meta);
+        itemMeta.setLore(lore);
         return this;
     }
 
@@ -187,7 +164,7 @@ public class ItemBuilder {
      */
 
     public ItemBuilder setRepairCosts(int repairCosts) {
-        Repairable meta = (Repairable) getItemMeta();
+        Repairable meta = (Repairable) itemMeta;
         meta.setRepairCost(repairCosts);
         return this;
     }
@@ -209,6 +186,7 @@ public class ItemBuilder {
      */
 
     public ItemStack build() {
+        stack.setItemMeta(itemMeta);
         return this.stack;
     }
 
@@ -218,10 +196,10 @@ public class ItemBuilder {
      */
 
     public List<String> getLore() {
-        if (getItemMeta().getLore() == null) {
+        if (itemMeta.getLore() == null) {
             return new ArrayList<>();
         }
-        return getItemMeta().getLore();
+        return itemMeta.getLore();
     }
 
     /**
@@ -230,6 +208,6 @@ public class ItemBuilder {
      */
 
     protected ItemMeta getItemMeta() {
-        return this.stack.getItemMeta();
+        return itemMeta;
     }
 }
