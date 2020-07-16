@@ -66,7 +66,7 @@ public class LocationUtil {
      * @return True, if both locations have the same coordinates otherwise false
      */
 
-    public static boolean comapre(Location location, Location location2) {
+    public static boolean compare(Location location, Location location2) {
         return location.getBlockX() == location2.getBlockX()
                 && location.getBlockY() == location.getBlockY()
                 && location.getBlockZ() == location.getBlockZ();
