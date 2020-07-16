@@ -60,12 +60,33 @@ public class LocationUtil {
     }
 
     /**
+     * Checks if 2 locations are equal, only the block locations are considered.
+     * @param location The first location
+     * @param location2 The second location
+     * @return True, if both locations have the same coordinates otherwise false
+     */
+
+    public static boolean comapre(Location location, Location location2) {
+        return location.getBlockX() == location2.getBlockX()
+                && location.getBlockY() == location.getBlockY()
+                && location.getBlockZ() == location.getBlockZ();
+    }
+
+    /**
      * Checks if the block is solid at the location.
      * @param location The location to check
      * @return True when the block is solid otherwise false
      */
 
     public static boolean isSolid(Location location) {
-        return location.getBlock().getType().isBlock();
+        return location.getBlock().getType().isSolid();
     }
+
+    /**
+     * Checks if the block is a block on the location,
+     * @param location The location
+     * @return True when the block is a block otherwise false
+     */
+
+    public static boolean isBlock(Location location) { return location.getBlock().getType().isBlock(); }
 }
