@@ -15,19 +15,18 @@ import java.util.Objects;
 public class ItemBuilder {
 
     protected ItemStack stack;
-
     protected ItemMeta itemMeta;
 
     public ItemBuilder(Material material) {
         Objects.requireNonNull(material, "Material can not be null");
         this.stack = new ItemStack(material);
-        itemMeta = stack.getItemMeta();
+        this.itemMeta = stack.getItemMeta();
     }
 
     public ItemBuilder(ItemStack itemStack) {
         Objects.requireNonNull(itemStack, "ItemStack can not be null");
         this.stack = itemStack;
-        itemMeta = stack.getItemMeta();
+        this.itemMeta = stack.getItemMeta();
     }
 
     /**
