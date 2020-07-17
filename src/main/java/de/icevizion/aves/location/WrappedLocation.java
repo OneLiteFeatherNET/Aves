@@ -22,6 +22,7 @@ public class WrappedLocation {
     private float pitch;
 
     private transient Location location;
+    private transient Vector vector;
 
     /**
      * Creates a new object from the wrapper with the given values.
@@ -75,6 +76,14 @@ public class WrappedLocation {
 
     public void setX(double x) {
         this.x = x;
+
+        if (location != null) {
+            location.setX(x);
+        }
+
+        if (vector != null) {
+            vector.setX(x);
+        }
     }
 
     /**
@@ -84,6 +93,14 @@ public class WrappedLocation {
 
     public void setY(double y) {
         this.y = y;
+
+        if (location != null) {
+            location.setY(y);
+        }
+
+        if (vector != null) {
+            vector.setY(y);
+        }
     }
 
     /**
@@ -93,6 +110,14 @@ public class WrappedLocation {
 
     public void setZ(double z) {
         this.z = z;
+
+        if (location != null) {
+            location.setZ(z);
+        }
+
+        if (vector != null) {
+            vector.setZ(z);
+        }
     }
 
     /**
@@ -102,6 +127,10 @@ public class WrappedLocation {
 
     public void setYaw(float yaw) {
         this.yaw = yaw;
+
+        if (location != null) {
+            location.setYaw(yaw);
+        }
     }
 
     /**
@@ -111,6 +140,10 @@ public class WrappedLocation {
 
     public void setPitch(float pitch) {
         this.pitch = pitch;
+
+        if (location != null) {
+            location.setPitch(pitch);
+        }
     }
 
     @Override
@@ -193,7 +226,7 @@ public class WrappedLocation {
         }
 
         if (location == null) {
-            location = new Location(bukkitWorld, x,y,z);
+            location = new Location(bukkitWorld, x, y, z);
             location.setYaw(yaw);
             location.setPitch(pitch);
         }
@@ -206,6 +239,10 @@ public class WrappedLocation {
      */
 
     public Vector toVector() {
-        return new Vector(x,y,z);
+        if (vector == null) {
+            vector = new Vector(x, y, z);
+        }
+
+        return vector;
     }
 }
