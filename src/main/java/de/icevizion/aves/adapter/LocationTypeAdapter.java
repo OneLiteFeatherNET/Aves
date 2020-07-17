@@ -6,7 +6,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.bukkit.Bukkit;
@@ -25,12 +24,12 @@ public final class LocationTypeAdapter implements JsonSerializer<Location>, Json
     @Override
     public JsonElement serialize(Location location, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject object = new JsonObject();
-        object.add("world", new JsonPrimitive(location.getWorld().getName()));
-        object.add("x", new JsonPrimitive(location.getX()));
-        object.add("y", new JsonPrimitive(location.getY()));
-        object.add("z", new JsonPrimitive(location.getZ()));
-        object.add("yaw", new JsonPrimitive(location.getYaw()));
-        object.add("pitch", new JsonPrimitive(location.getPitch()));
+        object.addProperty("world", location.getWorld().getName());
+        object.addProperty("x", location.getX());
+        object.addProperty("y", location.getY());
+        object.addProperty("z", location.getZ());
+        object.addProperty("yaw", location.getYaw());
+        object.addProperty("pitch", location.getPitch());
         return object;
     }
 

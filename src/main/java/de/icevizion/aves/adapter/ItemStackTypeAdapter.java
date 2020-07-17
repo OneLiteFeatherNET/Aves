@@ -7,7 +7,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import de.icevizion.aves.item.ItemBuilder;
@@ -32,19 +31,19 @@ public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDese
     @Override
     public JsonElement serialize(ItemStack itemStack, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject object = new JsonObject();
-        object.add("material", new JsonPrimitive(itemStack.getType().name()));
-        object.add("amount", new JsonPrimitive(itemStack.getAmount()));
+        object.addProperty("material", itemStack.getType().name());
+        object.addProperty("amount", itemStack.getAmount());
         if (itemStack.hasItemMeta()) {
             JsonObject metaObject = new JsonObject();
             ItemMeta meta = itemStack.getItemMeta();
             if (meta.hasDisplayName())
-                metaObject.add("displayName", new JsonPrimitive(meta.getDisplayName()));
+                metaObject.addProperty("displayName", meta.getDisplayName());
             if (meta.hasEnchants()) {
                 JsonArray enchantsArray = new JsonArray();
                 for (Map.Entry<Enchantment, Integer> enchantEntry : meta.getEnchants().entrySet()) {
                     JsonObject enchantmentObject = new JsonObject();
-                    enchantmentObject.add("enchantment", new JsonPrimitive(enchantEntry.getKey().getName()));
-                    enchantmentObject.add("level", new JsonPrimitive(enchantEntry.getValue()));
+                    enchantmentObject.addProperty("enchantment", enchantEntry.getKey().getName());
+                    enchantmentObject.addProperty("level", enchantEntry.getValue());
                     enchantsArray.add(enchantmentObject);
                 }
                 metaObject.add("enchantments", enchantsArray);
