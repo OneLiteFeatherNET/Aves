@@ -8,7 +8,7 @@ import org.bukkit.inventory.meta.BannerMeta;
 
 import java.util.List;
 
-public final class BannerBuilder extends ItemBuilder{
+public final class BannerBuilder extends ItemBuilder {
 
     public BannerBuilder() {
         super(Material.BANNER);
