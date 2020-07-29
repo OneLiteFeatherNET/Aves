@@ -4,7 +4,7 @@ import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class ColoredBuilder extends ItemBuilder {
+public final class ColoredBuilder extends ItemBuilder {
 
     private final DyeType type;
 
@@ -20,18 +20,19 @@ public class ColoredBuilder extends ItemBuilder {
 
     @SuppressWarnings("deprecation")
     public ColoredBuilder setColor(DyeColor dyeColor) {
-        ItemStack item = new ItemStack(stack.getType(), stack.getAmount(), type.usesWoolID() ? dyeColor.getWoolData() : dyeColor.getDyeData());
+        ItemStack item = new ItemStack(stack.getType(), stack.getAmount(),
+                type.usesWoolID() ? dyeColor.getWoolData() : dyeColor.getDyeData());
         item.setItemMeta(stack.getItemMeta());
         this.stack = item;
         return this;
     }
 
     private DyeType getType(ItemStack itemStack) {
-        for (DyeType type : DyeType.values()) {
-            if (itemStack.getType() == type.getMaterial())
-            return type;
+        int i = 0;
+        while (i < DyeType.values().length && itemStack.getType() == DyeType.values()[i].getMaterial()) {
+            i++;
         }
-        return null;
+        return DyeType.values()[i];
     }
 
     public enum DyeType {
