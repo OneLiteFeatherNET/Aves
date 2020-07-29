@@ -36,12 +36,27 @@ public final class SkullBuilder extends ItemBuilder {
      * @return
      */
 
-    public SkullBuilder setSkinOverValues(final String skinValue, final String skinSignature) {
+    public SkullBuilder setSkinOverValues(String skinValue, String skinSignature) {
         Objects.requireNonNull(skinValue, "SkinValue can not be null"); 
         Objects.requireNonNull(skinSignature, "SkinSignature can not be null");
         GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null);
         gameProfile.getProperties().removeAll( "textures");
         gameProfile.getProperties().put("textures", new Property( "textures", skinValue, skinSignature));
+        setSkinOverGameProfile(gameProfile);
+        return this;
+    }
+
+    /**
+     * Add a skin to a profile
+     * @param skinValue The skin value to add
+     * @return
+     */
+
+    public SkullBuilder setSkinOverValues(String skinValue) {
+        Objects.requireNonNull(skinValue, "SkinValue can not be null");
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null);
+        gameProfile.getProperties().removeAll( "textures");
+        gameProfile.getProperties().put("textures", new Property( "textures", skinValue));
         setSkinOverGameProfile(gameProfile);
         return this;
     }
