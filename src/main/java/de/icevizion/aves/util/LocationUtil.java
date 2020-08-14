@@ -68,8 +68,8 @@ public class LocationUtil {
 
     public static boolean compare(Location location, Location location2) {
         return location.getBlockX() == location2.getBlockX()
-                && location.getBlockY() == location.getBlockY()
-                && location.getBlockZ() == location.getBlockZ();
+                && location.getBlockY() == location2.getBlockY()
+                && location.getBlockZ() == location2.getBlockZ();
     }
 
     /**
