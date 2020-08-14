@@ -18,9 +18,9 @@ import java.lang.reflect.Method;
 
 public class PlayerReflection {
 
-    private static Class<?> craftPlayerClass, entityPlayerClass;
-    private static Method getHandleMethod, sendPacketMethod;
-    private static Field playerConnectionField, pingField;
+    private final static Class<?> craftPlayerClass, entityPlayerClass;
+    private final static Method getHandleMethod, sendPacketMethod;
+    private final static Field playerConnectionField, pingField;
 
     static {
         craftPlayerClass = new OBCClassResolver().resolveSilent("entity.CraftPlayer");
