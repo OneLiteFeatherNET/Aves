@@ -61,7 +61,7 @@ public final class FireworkBuilder extends ItemBuilder {
      * @return
      */
 
-    public Firework spawn(final Location location) {
+    public Firework spawn(Location location) {
         Firework fw = (Firework) location.getWorld().spawnEntity(location, EntityType.FIREWORK);
         fw.setFireworkMeta(getItemMeta());
         return fw;
