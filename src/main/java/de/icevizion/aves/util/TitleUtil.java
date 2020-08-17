@@ -2,6 +2,7 @@ package de.icevizion.aves.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.github.paperspigot.Title;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -20,6 +21,14 @@ public final class TitleUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void sendTitle(Player player, String title, String subtitle, int fadeIn, int stay, int fadeOut) {
+        player.sendTitle(new Title(title, subtitle, fadeIn, stay, fadeOut));
+    }
+
+    public static void sendTitle(Player player, Title.Builder builder) {
+        player.sendTitle(builder.build());
     }
 
     public static void sendHeaderAndFooter(Player player, String header, String footer) {
@@ -44,17 +53,20 @@ public final class TitleUtil {
         }
     }
 
+    @Deprecated
     public static void sendTitles(Player p, String title, String subtitle, int fadeIn, int stay, int fadeOut) {
         sendTimings(p, fadeIn, stay, fadeOut);
         sendTitle(p, title);
         sendSubTitle(p, subtitle);
     }
 
+    @Deprecated
     public static void sendTitle(Player p, String title, int fadeIn, int stay, int fadeOut) {
         sendTimings(p, fadeIn, stay, fadeOut);
         sendTitle(p, title);
     }
 
+    @Deprecated
     public static void sendTitle(Player p, String title) {
         try {
             Object t = TitleUtil.title.newInstance();
@@ -70,11 +82,13 @@ public final class TitleUtil {
         }
     }
 
+    @Deprecated
     public static void sendSubTitle(Player p, String subtitle, int fadeIn, int stay, int fadeOut) {
         sendTimings(p, fadeIn, stay, fadeOut);
         sendSubTitle(p, subtitle);
     }
 
+    @Deprecated
     public static void sendSubTitle(Player p, String subtitle) {
         try {
             Object t = title.newInstance();
@@ -90,6 +104,7 @@ public final class TitleUtil {
         }
     }
 
+    @Deprecated
     public static void sendTimings(Player p, int fadeIn, int stay, int fadeOut) {
         try {
             Object t = title.newInstance();
@@ -111,6 +126,7 @@ public final class TitleUtil {
         }
     }
 
+    @Deprecated
     public static void reset(Player p) {
         try {
             Object t = title.newInstance();
@@ -123,6 +139,7 @@ public final class TitleUtil {
         }
     }
 
+    @Deprecated
     public static void clear(Player p) {
         try {
             Object t = title.newInstance();
