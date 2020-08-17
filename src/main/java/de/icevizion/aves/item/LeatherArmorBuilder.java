@@ -65,7 +65,7 @@ public final class LeatherArmorBuilder extends ItemBuilder {
 
         final Material material;
 
-        LeatherType(final Material material) {
+        LeatherType(Material material) {
             this.material = material;
         }
 
