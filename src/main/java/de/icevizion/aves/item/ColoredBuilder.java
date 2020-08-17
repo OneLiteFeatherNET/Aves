@@ -29,10 +29,10 @@ public final class ColoredBuilder extends ItemBuilder {
 
     private DyeType getType(ItemStack itemStack) {
         int i = 0;
-        while (i < DyeType.values().length && itemStack.getType() == DyeType.values()[i].getMaterial()) {
+        while (i < DyeType.getValues().length && itemStack.getType() != DyeType.getValues()[i].getMaterial()) {
             i++;
         }
-        return DyeType.values()[i];
+        return DyeType.getValues()[i];
     }
 
     public enum DyeType {
@@ -44,6 +44,8 @@ public final class ColoredBuilder extends ItemBuilder {
         CLAY_BLOCK_HARD(Material.HARD_CLAY, true),
         GLASS_BLOCK(Material.STAINED_GLASS, true),
         GLASS_PANE(Material.STAINED_GLASS_PANE, true);
+
+        final static DyeType[] values = values();
 
         final Material material;
         final boolean woolID;
@@ -59,6 +61,10 @@ public final class ColoredBuilder extends ItemBuilder {
 
         public Material getMaterial() {
             return this.material;
+        }
+
+        public static DyeType[] getValues() {
+            return values;
         }
     }
 }
