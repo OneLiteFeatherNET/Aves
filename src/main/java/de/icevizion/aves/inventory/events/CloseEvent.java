@@ -2,7 +2,6 @@ package de.icevizion.aves.inventory.events;
 
 import net.titan.spigot.CloudService;
 import net.titan.spigot.player.CloudPlayer;
-import net.titan.spigotcore.TitanService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
