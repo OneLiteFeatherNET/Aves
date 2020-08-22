@@ -1,19 +1,24 @@
 package de.icevizion.aves;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import net.titan.spigot.CloudService;
+import net.titan.spigot.plugin.Plugin;
 
-public final class Aves extends JavaPlugin {
+public final class Aves extends Plugin {
+
+    private CloudService cloudService;
 
     @Override
     public void onEnable() {
         System.out.println("\n" +
-                "    /\\                 \n" +
-                "   /  \\__   _____  ___ \n" +
-                "  / /\\ \\ \\ / / _ \\/ __|\n" +
-                " / ____ \\ V /  __/\\__ \\\n" +
-                "/_/    \\_\\_/ \\___||___/");
+            "    /\\                 \n" +
+            "   /  \\__   _____  ___ \n" +
+            "  / /\\ \\ \\ / / _ \\/ __|\n" +
+            " / ____ \\ V /  __/\\__ \\\n" +
+            "/_/    \\_\\_/ \\___||___/");
         System.out.printf("Starting Aves v%s by %s%n",
-                getDescription().getVersion(), getDescription().getAuthors());
+            getDescription().getVersion(), getDescription().getAuthors());
+
+        cloudService = getService(CloudService.class);
     }
 
     @Override
