@@ -25,8 +25,6 @@ public class EulerUtil {
      */
 
     public static EulerAngle radiansToEulerAngle(double radians) {
-        double x = Math.cos(radians);
-        double z = Math.sin(radians);
-        return new EulerAngle(x, 0 , z);
+        return new EulerAngle(Math.cos(radians), 0 , Math.sin(radians));
     }
 }
