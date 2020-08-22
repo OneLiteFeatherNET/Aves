@@ -2,7 +2,6 @@ package de.icevizion.aves.inventory.listener;
 
 import de.icevizion.aves.inventory.InventoryBuilder;
 import net.titan.spigot.CloudService;
-import net.titan.spigotcore.TitanService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
