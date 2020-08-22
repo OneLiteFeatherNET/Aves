@@ -1,11 +1,8 @@
 package de.icevizion.aves;
 
-import net.titan.spigot.CloudService;
-import net.titan.spigot.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
-public final class Aves extends Plugin {
-
-    private CloudService cloudService;
+public final class Aves extends JavaPlugin {
 
     @Override
     public void onEnable() {
@@ -17,8 +14,6 @@ public final class Aves extends Plugin {
                 "/_/    \\_\\_/ \\___||___/");
         System.out.printf("Starting Aves v%s by %s%n",
                 getDescription().getVersion(), getDescription().getAuthors());
-
-        cloudService = getService(CloudService.class);
     }
 
     @Override
