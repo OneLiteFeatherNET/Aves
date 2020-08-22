@@ -1,40 +1,24 @@
 package de.icevizion.aves;
 
-import de.icevizion.aves.inventory.InventoryService;
-import de.icevizion.aves.inventory.listener.InventoryBuilderClickListener;
-import de.icevizion.aves.inventory.listener.InventoryBuilderCloseListener;
-import de.icevizion.aves.inventory.listener.InventoryBuilderDragListener;
-import de.icevizion.aves.inventory.listener.InventoryBuilderListener;
 import net.titan.spigot.CloudService;
 import net.titan.spigot.plugin.Plugin;
 
 public final class Aves extends Plugin {
 
+    private CloudService cloudService;
+
     @Override
     public void onEnable() {
         System.out.println("\n" +
-            "    /\\                 \n" +
-            "   /  \\__   _____  ___ \n" +
-            "  / /\\ \\ \\ / / _ \\/ __|\n" +
-            " / ____ \\ V /  __/\\__ \\\n" +
-            "/_/    \\_\\_/ \\___||___/");
+                "    /\\                 \n" +
+                "   /  \\__   _____  ___ \n" +
+                "  / /\\ \\ \\ / / _ \\/ __|\n" +
+                " / ____ \\ V /  __/\\__ \\\n" +
+                "/_/    \\_\\_/ \\___||___/");
         System.out.printf("Starting Aves v%s by %s%n",
-            getDescription().getVersion(), getDescription().getAuthors());
+                getDescription().getVersion(), getDescription().getAuthors());
 
-      CloudService cloudService = getService(CloudService.class);
-
-      //Inventory Builder
-	    InventoryService inventoryService = new InventoryService();
-      addService(inventoryService);
-
-	    InventoryBuilderListener inventoryListener = new InventoryBuilderListener(cloudService);
-
-      getServer().getPluginManager().registerEvents(
-          new InventoryBuilderClickListener(inventoryListener), this);
-      getServer().getPluginManager().registerEvents(
-          new InventoryBuilderCloseListener(inventoryListener), this);
-      getServer().getPluginManager().registerEvents(
-          new InventoryBuilderDragListener(inventoryListener), this);
+        cloudService = getService(CloudService.class);
     }
 
     @Override
