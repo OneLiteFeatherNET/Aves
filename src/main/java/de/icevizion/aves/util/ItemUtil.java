@@ -44,7 +44,7 @@ public class ItemUtil {
     /**
      * Returns the remaining free space in the inventory of a given player.
      * @param player The player from which the remaining place should be determined
-     * @param item For what?
+     * @param item The item to check
      * @return The amount of free space
      */
 
