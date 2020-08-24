@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 
 public final class ActionBar {
 
-    private final static Class<?> chatserial = getNMSClass("IChatBaseComponent$ChatSerializer");
+    private static final Class<?> chatserial = getNMSClass("IChatBaseComponent$ChatSerializer");
 
     private ActionBar() {}
 
