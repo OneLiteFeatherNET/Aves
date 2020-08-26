@@ -221,7 +221,7 @@ public class WrappedLocation {
 
     public Location toLocation() {
         if (location == null) {
-            World bukkitWorld = Bukkit.getWorld(world);
+            World bukkitWorld = Bukkit.getWorld(this.world);
 
             if (bukkitWorld == null) {
                 throw new IllegalArgumentException("The world can not be null");
