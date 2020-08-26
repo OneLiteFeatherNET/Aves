@@ -12,8 +12,7 @@ public final class Aves extends JavaPlugin {
                 "  / /\\ \\ \\ / / _ \\/ __|\n" +
                 " / ____ \\ V /  __/\\__ \\\n" +
                 "/_/    \\_\\_/ \\___||___/");
-        System.out.printf("Starting Aves v%s by %s%n",
-                getDescription().getVersion(), getDescription().getAuthors());
+        System.out.println("Starting Aves v" + getDescription().getVersion());
     }
 
     @Override
