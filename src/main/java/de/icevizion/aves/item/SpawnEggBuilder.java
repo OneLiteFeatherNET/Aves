@@ -10,6 +10,12 @@ public final class SpawnEggBuilder extends ItemBuilder {
         super(Material.MONSTER_EGG);
     }
 
+    /**
+     * Set the type of the spawn egg.
+     * @param type The typ of the egg
+     * @return
+     */
+
     public SpawnEggBuilder setType(EntityType type) {
         SpawnEgg egg = new SpawnEgg(type);
         stack.setData(egg.toItemStack().getData());

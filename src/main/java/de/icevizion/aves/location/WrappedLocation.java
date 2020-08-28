@@ -220,16 +220,18 @@ public class WrappedLocation {
      */
 
     public Location toLocation() {
-        World bukkitWorld = Bukkit.getWorld(world);
-        if (bukkitWorld == null) {
-            throw new IllegalArgumentException("The world can not be null");
-        }
-
         if (location == null) {
+            World bukkitWorld = Bukkit.getWorld(this.world);
+
+            if (bukkitWorld == null) {
+                throw new IllegalArgumentException("The world can not be null");
+            }
+
             location = new Location(bukkitWorld, x, y, z);
             location.setYaw(yaw);
             location.setPitch(pitch);
         }
+
         return location;
     }
 
