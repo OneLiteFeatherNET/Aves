@@ -21,11 +21,12 @@ public class InventoryBuilder {
 
 	private static final InventoryLayout EMPTY_LAYOUT = new InventoryLayout();
 
-	private final String title;
+	private final InventoryLayout layout;
 	private final Map<Integer, ItemBuilder> items;
 	private final Map<Integer, ItemBuilder> backGroundItems;
 	private final Map<Integer, Consumer<ClickEvent>> clickEvents;
 	private Inventory inventory;
+	private String title;
 	private InventoryRows rows;
 	private boolean firstDraw;
 	private boolean drawOnce;
@@ -37,6 +38,7 @@ public class InventoryBuilder {
 	public InventoryBuilder(String title, InventoryRows rows, InventoryLayout layout) {
 		this.title = title;
 		this.rows = rows;
+		this.layout = layout;
 
 		items = Maps.newHashMap();
 		backGroundItems = Maps.newHashMap(layout.getItems());
@@ -66,6 +68,16 @@ public class InventoryBuilder {
 		return ImmutableMap.copyOf(clickEvents);
 	}
 
+	public final Map<Integer, ItemBuilder> getItems() {
+		return items;
+	}
+
+	public final void clearItems() {
+		items.clear();
+		clickEvents.clear();
+		clickEvents.putAll(layout.getClickEvents());
+	}
+
 	public final void setItem(int slot, ItemBuilder itemBuilder, Consumer<ClickEvent> clickEvent) {
 		setItem(slot, itemBuilder);
 		clickEvents.put(slot, clickEvent);
@@ -75,11 +87,21 @@ public class InventoryBuilder {
 		items.put(slot, itemBuilder);
 	}
 
+	public final void removeItem(int slot) {
+		items.remove(slot);
+		clickEvents.remove(slot);
+	}
+
 	public final void setBackgroundItem(int slot, ItemBuilder itemBuilder) {
 		backGroundItems.put(slot, itemBuilder);
 	}
 
 	public final void setBackgroundItems(int fromIndex, int toIndex, ItemBuilder itemBuilder) {
+		int maxSize = rows.getSize() - 1;
+		if(toIndex > maxSize) {
+			toIndex = maxSize;
+		}
+
 		for (int i = fromIndex; i <= toIndex; i++) {
 			setBackgroundItem(i, itemBuilder);
 		}
@@ -91,21 +113,7 @@ public class InventoryBuilder {
 		}
 
 		this.rows = rows;
-		Inventory oldInventory = inventory;
-		inventory = Bukkit.createInventory(new Holder(this), rows.getSize(), title);
-
-		items.clear();
-		backGroundItems.clear();
-		clickEvents.clear();
-
-		firstDraw = true;
-
-		draw();
-		drawItems();
-
-		//TODO fix Concurrent Modification Exception
-		oldInventory.getViewers().forEach(humanEntity -> humanEntity.openInventory(inventory));
-		oldInventory.clear();
+		rebuildInventory();
 	}
 
 	public final void setFirstDraw(boolean firstDraw) {
@@ -126,6 +134,15 @@ public class InventoryBuilder {
 				(slot, item) -> inventory.setItem(slot, Objects.isNull(item) ? null : item.build()));
 	}
 
+	public void setInventoryTitle(String title) {
+		if(this.title.equals(title)) {
+			return;
+		}
+
+		this.title = title;
+		rebuildInventory();
+	}
+
 	protected final Inventory getInventory() {
 		return inventory;
 	}
@@ -144,6 +161,24 @@ public class InventoryBuilder {
 		}
 
 		drawItems();
+	}
+
+	private void rebuildInventory() {
+		Inventory oldInventory = inventory;
+		inventory = Bukkit.createInventory(new Holder(this), rows.getSize(), title);
+
+		items.clear();
+		backGroundItems.clear();
+		clickEvents.clear();
+
+		firstDraw = true;
+
+		draw();
+		drawItems();
+
+		//TODO fix Concurrent Modification Exception
+		oldInventory.getViewers().forEach(humanEntity -> humanEntity.openInventory(inventory));
+		oldInventory.clear();
 	}
 
 	public static final class Holder implements InventoryHolder {
