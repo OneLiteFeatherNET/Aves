@@ -30,7 +30,6 @@ public class InventoryService implements Service {
 
 	public void openInventory(CloudPlayer cloudPlayer, InventoryBuilder inventoryBuilder) {
 		Player player = cloudPlayer.getPlayer();
-		inventoryBuilder.buildInventory();
 		player.openInventory(inventoryBuilder.getInventory());
 	}
 

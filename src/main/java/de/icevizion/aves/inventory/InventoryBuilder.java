@@ -43,6 +43,7 @@ public class InventoryBuilder {
 		clickEvents = Maps.newHashMap(layout.getClickEvents());
 
 		firstDraw = true;
+		buildInventory();
 	}
 
 	public void draw() {
