@@ -130,6 +130,21 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 	}
 
 	/**
+	 * Remove a line from the sidebar
+	 *
+	 * @param row the row
+	 * @return the scoreboard builder
+	 */
+	public ScoreboardBuilder removeLine(int row) {
+		ScoreboardLine line = getRows().get(row);
+		if(Objects.nonNull(line)) {
+			line.delete();
+		}
+
+		return this;
+	}
+
+	/**
 	 * Sets display name of the sidebar objective.
 	 *
 	 * @param key       the key
