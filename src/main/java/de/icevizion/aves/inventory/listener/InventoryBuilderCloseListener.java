@@ -36,8 +36,8 @@ public class InventoryBuilderCloseListener implements Listener {
 
 		InventoryBuilder.Holder holder = optionalHolder.get();
 		CloseEvent closeEvent = new CloseEvent(inventoryListener.getCloudService(), event);
-		boolean denyInventoryClose = holder.getInventoryBuilder().onInventoryClose(closeEvent);
-		if (denyInventoryClose) {
+		holder.getInventoryBuilder().onInventoryClose(closeEvent);
+		if (closeEvent.isCancelled()) {
 			event.getPlayer().openInventory(holder.getInventory());
 		}
 	}

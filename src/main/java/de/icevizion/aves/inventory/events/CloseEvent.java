@@ -13,6 +13,7 @@ public class CloseEvent {
 
 	private final CloudService cloudService;
 	private final InventoryCloseEvent event;
+	private boolean cancelled;
 
 	public CloseEvent(CloudService cloudService, InventoryCloseEvent event) {
 		this.cloudService = cloudService;
@@ -25,5 +26,13 @@ public class CloseEvent {
 
 	public CloudPlayer getCloudPlayer() {
 		return cloudService.getPlayer(getPlayer());
+	}
+
+	public boolean isCancelled() {
+		return cancelled;
+	}
+
+	public void setCancelled(boolean cancelled) {
+		this.cancelled = cancelled;
 	}
 }
