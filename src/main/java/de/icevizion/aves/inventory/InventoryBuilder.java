@@ -52,8 +52,8 @@ public class InventoryBuilder {
 
 	}
 
-	public boolean onInventoryClose(CloseEvent closeEvent) {
-		return false;
+	public void onInventoryClose(CloseEvent closeEvent) {
+
 	}
 
 	public final InventoryRows getRows() {
