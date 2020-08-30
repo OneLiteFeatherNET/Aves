@@ -128,6 +128,16 @@ public class ScoreboardLine {
 		return this;
 	}
 
+	/**
+	 * Deletes the current line
+	 *
+	 * @return the scoreboard builder
+	 */
+	public ScoreboardBuilder delete() {
+		scoreboardBuilder.getBukkitScoreboard().resetScores(entry);
+		return scoreboardBuilder;
+	}
+
 	private String generateRowEntry() {
 		String rowEntry = "§" + randomColorCode() + "§" + randomColorCode() + "§" + randomColorCode();
 		if (scoreboardBuilder.teamExists(rowEntry)) {
