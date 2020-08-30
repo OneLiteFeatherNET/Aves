@@ -49,4 +49,14 @@ public abstract class TranslatedInventory extends InventoryBuilder {
 			setBackgroundItem(i, item);
 		}
 	}
+
+	@Override
+	public final void setInventoryTitle(String key) {
+		setInventoryTitle(key, new Object[0]);
+	}
+
+	public final void setInventoryTitle(String key, Object... arguments) {
+		String title = translator.getString(locale, key, arguments);
+		super.setInventoryTitle(title);
+	}
 }
