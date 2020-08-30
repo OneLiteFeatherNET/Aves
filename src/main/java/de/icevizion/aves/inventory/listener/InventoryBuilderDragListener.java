@@ -11,7 +11,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 
 public class InventoryBuilderDragListener implements Listener {
 
-	public InventoryBuilderListener inventoryListener;
+	private final InventoryBuilderListener inventoryListener;
 
 	public InventoryBuilderDragListener(InventoryBuilderListener inventoryListener) {
 		this.inventoryListener = inventoryListener;

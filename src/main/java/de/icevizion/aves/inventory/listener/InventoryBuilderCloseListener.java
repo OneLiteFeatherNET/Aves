@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public class InventoryBuilderCloseListener implements Listener {
 
-	public InventoryBuilderListener inventoryListener;
+	private final InventoryBuilderListener inventoryListener;
 
 	public InventoryBuilderCloseListener(InventoryBuilderListener inventoryListener) {
 		this.inventoryListener = inventoryListener;

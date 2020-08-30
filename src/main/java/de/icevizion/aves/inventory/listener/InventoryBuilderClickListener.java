@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 public class InventoryBuilderClickListener implements Listener {
 
-	public InventoryBuilderListener inventoryListener;
+	private final InventoryBuilderListener inventoryListener;
 
 	public InventoryBuilderClickListener(InventoryBuilderListener inventoryListener) {
 		this.inventoryListener = inventoryListener;
