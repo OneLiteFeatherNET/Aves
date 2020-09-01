@@ -43,7 +43,7 @@ public class InventoryItem {
 		return this;
 	}
 
-	protected ItemBuilder getItemBuilder() {
+	public ItemBuilder getItemBuilder() {
 		return itemBuilder;
 	}
 }

@@ -3,6 +3,8 @@ package de.icevizion.aves.inventory.events;
 import net.titan.spigot.CloudService;
 import net.titan.spigot.player.CloudPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 /**
@@ -25,6 +27,18 @@ public class ClickEvent {
 
 	public CloudPlayer getCloudPlayer() {
 		return cloudService.getPlayer(getPlayer());
+	}
+
+	public InventoryAction getAction() {
+		return event.getAction();
+	}
+
+	public ClickType getClickType() {
+		return event.getClick();
+	}
+
+	public int getClickedSlot() {
+		return event.getRawSlot();
 	}
 }
 
