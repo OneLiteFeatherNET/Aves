@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -28,13 +29,18 @@ public class InventoryService implements Service {
 		return translatedCache.getCachedInventories();
 	}
 
-	public void openInventory(CloudPlayer cloudPlayer, InventoryBuilder inventoryBuilder) {
+	private void openInventory(CloudPlayer cloudPlayer, InventoryBuilder inventoryBuilder,
+	                           boolean onlyBuildIfNew) {
 		Player player = cloudPlayer.getPlayer();
+		if(!onlyBuildIfNew || Objects.isNull(inventoryBuilder.getInventory())) {
+			inventoryBuilder.buildInventory();
+		}
+
 		player.openInventory(inventoryBuilder.getInventory());
 	}
 
 	public void openPersonalInventory(CloudPlayer cloudPlayer, PersonalInventory personalInventory) {
-		openInventory(cloudPlayer, personalInventory);
+		openInventory(cloudPlayer, personalInventory, false);
 	}
 
 	public void openTranslatedInventory(CloudPlayer cloudPlayer,
@@ -44,6 +50,6 @@ public class InventoryService implements Service {
 				function -> new TranslatedCache());
 		TranslatedInventory translatedInventory = cache.getInventory(cloudPlayer.getLocale(),
 				ifAbsent);
-		openInventory(cloudPlayer, translatedInventory);
+		openInventory(cloudPlayer, translatedInventory, true);
 	}
 }
