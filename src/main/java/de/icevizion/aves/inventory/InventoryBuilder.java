@@ -45,7 +45,6 @@ public class InventoryBuilder {
 		clickEvents = Maps.newHashMap(layout.getClickEvents());
 
 		firstDraw = true;
-		buildInventory();
 	}
 
 	public void draw() {
@@ -65,11 +64,15 @@ public class InventoryBuilder {
 	}
 
 	public final Map<Integer, Consumer<ClickEvent>> getClickEvents() {
-		return ImmutableMap.copyOf(clickEvents);
+		return clickEvents;
 	}
 
 	public final Map<Integer, ItemBuilder> getItems() {
 		return items;
+	}
+
+	public final ItemBuilder getItem(int slot) {
+		return items.get(slot);
 	}
 
 	public final void clearItems() {

@@ -87,8 +87,8 @@ public class ScoreboardObjective {
 	 * @return the display name
 	 */
 	public ScoreboardObjective setDisplayName(String displayName) {
-		if (displayName.length() > 16) {
-			displayName = displayName.substring(0, 16);
+		if (displayName.length() > 32) {
+			displayName = displayName.substring(0, 32);
 		}
 
 		objective.setDisplayName(displayName);
