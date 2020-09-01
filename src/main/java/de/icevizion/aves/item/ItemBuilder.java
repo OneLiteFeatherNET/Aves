@@ -44,15 +44,28 @@ public class ItemBuilder {
     }
 
     /**
-     * Adds the specified Enchantment to this item stack
-     * @param enchantment The enchantment to be add
-     * @param level The level of the enchantment
-     * @return
+     * Add enchantment item builder.
+     *
+     * @param enchantment        the enchantment
+     * @param level              the level
+     * @param ignoreRestrictions ignore restrictions
+     * @return the item builder
      */
-
-    public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
-        this.stack.addEnchantment(enchantment, level);
+    public ItemBuilder addEnchantment(Enchantment enchantment, int level,
+                                      boolean ignoreRestrictions) {
+        itemMeta.addEnchant(enchantment, level, ignoreRestrictions);
         return this;
+    }
+
+    /**
+     * Add enchantment item builder.
+     *
+     * @param enchantment the enchantment
+     * @param level       the level
+     * @return the item builder
+     */
+    public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
+        return addEnchantment(enchantment, level, true);
     }
 
     /**
@@ -62,6 +75,7 @@ public class ItemBuilder {
      * @return
      */
 
+    @Deprecated
     public ItemBuilder addUnsafeEnchantment(Enchantment enchantment, int level) {
         this.stack.addUnsafeEnchantment(enchantment, level);
         return this;
