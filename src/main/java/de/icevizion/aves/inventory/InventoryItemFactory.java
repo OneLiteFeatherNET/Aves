@@ -28,6 +28,10 @@ public abstract class InventoryItemFactory {
 		this.cloudPlayer = cloudPlayer;
 	}
 
+	public Translator getTranslator() {
+		return translator;
+	}
+
 	public final Locale getLocale() {
 		return locale;
 	}
