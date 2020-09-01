@@ -1,6 +1,7 @@
 package de.icevizion.aves.inventory;
 
 import de.icevizion.aves.inventory.events.ClickEvent;
+import de.icevizion.aves.item.ItemBuilder;
 import net.titan.cloudcore.i18n.Translator;
 
 import java.util.Locale;
@@ -30,6 +31,10 @@ public abstract class TranslatedInventory extends InventoryBuilder {
 
 	public final Locale getLocale() {
 		return locale;
+	}
+
+	public final InventoryItem createItem(ItemBuilder itemBuilder) {
+		return new InventoryItem(translator, locale, itemBuilder);
 	}
 
 	public final void setItem(int slot, InventoryItem item, Consumer<ClickEvent> clickEvent) {

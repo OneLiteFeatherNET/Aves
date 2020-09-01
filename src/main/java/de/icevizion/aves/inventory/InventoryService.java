@@ -21,7 +21,7 @@ public class InventoryService implements Service {
 		translatedInventories = Maps.newHashMap();
 	}
 
-	public Map<Locale, TranslatedInventory> getTranslatedInventoriesFromCache(
+	public Map<Locale, TranslatedInventory> getCachedInventories(
 			Class<? extends TranslatedInventory> inventoryClass) {
 		TranslatedCache translatedCache = translatedInventories.computeIfAbsent(inventoryClass,
 				function -> new TranslatedCache());

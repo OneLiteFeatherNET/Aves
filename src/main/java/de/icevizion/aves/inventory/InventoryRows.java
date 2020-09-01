@@ -12,6 +12,8 @@ public enum InventoryRows {
 	FIVE(45),
 	SIX(54);
 
+	private static final InventoryRows[] VALUES = values();
+
 	private final int size;
 
 	InventoryRows(int size) {
@@ -20,5 +22,17 @@ public enum InventoryRows {
 
 	public int getSize() {
 		return size;
+	}
+
+	public static InventoryRows getRows(int size) {
+		InventoryRows requiredRows = ONE;
+		for (InventoryRows rows : VALUES) {
+			if (rows.getSize() >= size) {
+				requiredRows = rows;
+				break;
+			}
+		}
+
+		return requiredRows;
 	}
 }
