@@ -35,4 +35,8 @@ public enum InventoryRows {
 
 		return requiredRows;
 	}
+
+	public static InventoryRows getRows(InventoryRows freeRows, int maxItemsPerRow, int items) {
+		return getRows(freeRows.getSize() + 9 * (int) Math.ceil((double) items / maxItemsPerRow));
+	}
 }
