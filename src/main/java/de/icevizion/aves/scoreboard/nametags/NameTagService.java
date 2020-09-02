@@ -4,9 +4,7 @@ import com.google.common.collect.Maps;
 import net.titan.spigot.CloudService;
 import net.titan.spigot.player.CloudPlayer;
 import net.titan.spigot.plugin.Service;
-import org.bukkit.Server;
 
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -20,6 +18,7 @@ public class NameTagService implements Service {
 	private static final Map<UUID, NameTagScoreboard> nameTagScoreboards = Maps.newHashMap();
 
 	private final CloudService cloudService;
+	private boolean activated;
 
 	public NameTagService(CloudService cloudService) {
 		this.cloudService = cloudService;
@@ -27,6 +26,14 @@ public class NameTagService implements Service {
 
 	public CloudService getCloudService() {
 		return cloudService;
+	}
+
+	public boolean isActivated() {
+		return activated;
+	}
+
+	public void setActivated(boolean activated) {
+		this.activated = activated;
 	}
 
 	public static NameTagScoreboard of(CloudPlayer cloudPlayer) {
@@ -52,6 +59,10 @@ public class NameTagService implements Service {
 	}
 
 	public void removePlayer(CloudPlayer cloudPlayer) {
+		if(!nameTagScoreboards.containsKey(cloudPlayer.getUniqueId())) {
+			return;
+		}
+
 		NameTagScoreboard playerNameTag = nameTagScoreboards.remove(cloudPlayer.getUniqueId());
 		playerNameTag.reset();
 		nameTagScoreboards.values().forEach(
