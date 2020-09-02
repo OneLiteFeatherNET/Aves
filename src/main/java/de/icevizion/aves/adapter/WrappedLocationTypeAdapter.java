@@ -9,9 +9,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import de.icevizion.aves.location.WrappedLocation;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 
 import java.lang.reflect.Type;
 
