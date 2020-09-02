@@ -1,14 +1,15 @@
 package de.icevizion.aves.inventory;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import de.icevizion.aves.inventory.events.ClickEvent;
 import de.icevizion.aves.inventory.events.CloseEvent;
 import de.icevizion.aves.item.ItemBuilder;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -22,6 +23,7 @@ public class InventoryBuilder {
 	private static final InventoryLayout EMPTY_LAYOUT = new InventoryLayout();
 
 	private final InventoryLayout layout;
+	private final Holder holder;
 	private final Map<Integer, ItemBuilder> items;
 	private final Map<Integer, ItemBuilder> backGroundItems;
 	private final Map<Integer, Consumer<ClickEvent>> clickEvents;
@@ -40,6 +42,7 @@ public class InventoryBuilder {
 		this.rows = rows;
 		this.layout = layout;
 
+		holder = new Holder(this);
 		items = Maps.newHashMap();
 		backGroundItems = Maps.newHashMap(layout.getItems());
 		clickEvents = Maps.newHashMap(layout.getClickEvents());
@@ -73,6 +76,14 @@ public class InventoryBuilder {
 
 	public final ItemBuilder getItem(int slot) {
 		return items.get(slot);
+	}
+
+	public Holder getHolder() {
+		return holder;
+	}
+
+	public List<HumanEntity> getViewers() {
+		return inventory.getViewers();
 	}
 
 	public final void clearItems() {
@@ -156,7 +167,7 @@ public class InventoryBuilder {
 
 	protected final void buildInventory(boolean ignoreDrawOnce) {
 		if (Objects.isNull(inventory)) {
-			inventory = Bukkit.createInventory(new Holder(this), rows.getSize(), title);
+			inventory = Bukkit.createInventory(holder, rows.getSize(), title);
 		}
 
 		if (!ignoreDrawOnce && (!drawOnce || firstDraw)) {
@@ -168,7 +179,7 @@ public class InventoryBuilder {
 
 	private void rebuildInventory() {
 		Inventory oldInventory = inventory;
-		inventory = Bukkit.createInventory(new Holder(this), rows.getSize(), title);
+		inventory = Bukkit.createInventory(holder, rows.getSize(), title);
 
 		items.clear();
 		backGroundItems.clear();
