@@ -67,8 +67,9 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 			throw new IllegalArgumentException("No scoreboard is registered for that player");
 		}
 
+		String baseName = Objects.isNull(translator) ? "null" : translator.getBaseName();
 		ScoreboardImpl scoreboard = cachedScoreboards.get(cloudPlayer.getUniqueId());
-		return scoreboard.getCachedTranslations().computeIfAbsent(translator.getBaseName(),
+		return scoreboard.getCachedTranslations().computeIfAbsent(baseName,
 				function -> {
 					ScoreboardBuilder scoreboardBuilder = (ScoreboardBuilder) scoreboard;
 					scoreboardBuilder.setTranslator(translator);

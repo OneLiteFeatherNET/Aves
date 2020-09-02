@@ -5,6 +5,9 @@ import de.icevizion.aves.inventory.listener.InventoryBuilderClickListener;
 import de.icevizion.aves.inventory.listener.InventoryBuilderCloseListener;
 import de.icevizion.aves.inventory.listener.InventoryBuilderDragListener;
 import de.icevizion.aves.inventory.listener.InventoryBuilderListener;
+import de.icevizion.aves.scoreboard.nametags.NameTagService;
+import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerJoinListener;
+import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerQuitListener;
 import net.titan.spigot.CloudService;
 import net.titan.spigot.plugin.Plugin;
 
@@ -35,6 +38,15 @@ public final class Aves extends Plugin {
           new InventoryBuilderCloseListener(inventoryListener), this);
       getServer().getPluginManager().registerEvents(
           new InventoryBuilderDragListener(inventoryListener), this);
+
+      //Name Tags
+      NameTagService nameTagService = new NameTagService(cloudService);
+      addService(nameTagService);
+
+      getServer().getPluginManager().registerEvents(
+          new NameTagPlayerJoinListener(nameTagService), this);
+      getServer().getPluginManager().registerEvents(
+          new NameTagPlayerQuitListener(nameTagService), this);
     }
 
     @Override
