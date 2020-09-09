@@ -1,59 +1,52 @@
 package de.icevizion.aves.util;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.inventivetalent.reflection.resolver.ConstructorResolver;
-import org.inventivetalent.reflection.resolver.FieldResolver;
-import org.inventivetalent.reflection.resolver.MethodResolver;
-import org.inventivetalent.reflection.resolver.minecraft.NMSClassResolver;
-import org.inventivetalent.reflection.resolver.minecraft.OBCClassResolver;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 public final class ActionBar {
 
-    private static final Class<?> iChatBaseComponentClass, chatSerializerClass, packetPlayOutChatClass;
-    private static final Field playerConnectionField;
-    private static final Method getHandleMethod, sendPacketMethod, serializerAMethod;
-    private static final Constructor<?> packetPlayOutChatConstructor;
-
-    static {
-        iChatBaseComponentClass = new NMSClassResolver().resolveSilent("IChatBaseComponent");
-        chatSerializerClass = new NMSClassResolver().resolveSilent("IChatBaseComponent$ChatSerializer");
-        packetPlayOutChatClass = new NMSClassResolver().resolveSilent("PacketPlayOutChat");
-
-        getHandleMethod = new MethodResolver(new OBCClassResolver().resolveSilent("entity.CraftPlayer")).resolveSilent("getHandle");
-        playerConnectionField = new FieldResolver(new NMSClassResolver().resolveSilent("EntityPlayer")).resolveSilent("playerConnection");
-        sendPacketMethod = new MethodResolver(new NMSClassResolver().resolveSilent("PlayerConnection")).resolveSilent("sendPacket");
-        serializerAMethod = new MethodResolver(chatSerializerClass).resolveSilent("a");
-
-        packetPlayOutChatConstructor = new ConstructorResolver(packetPlayOutChatClass).resolveSilent(new Class[] { iChatBaseComponentClass, byte.class });
-    }
+    private static final Class<?> chatserial = getNMSClass("IChatBaseComponent$ChatSerializer");
 
     private ActionBar() {}
 
-    public static void sendActionBar(Player player, String text) {
+    public static void sendActionBar(Player p, String text) {
         try {
-            sendPacket(player, packetPlayOutChatConstructor.newInstance(serializerAMethod.invoke(null, "{\"text\": \"" + text + "\"}"), (byte)2));
+            sendPacket(p, "PacketPlayOutChat", new Class[] { getNMSClass("IChatBaseComponent"), byte.class }, chatserial.getMethod("a", String.class).invoke(null, "{\"text\": \"" + text + "\"}"), (byte)2);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void sendPacket(Player player, Object packet) {
+    private static void sendPacket(Player p, String packetName, Class<?>[] parameterclass, Object... parameters) {
         try {
-            Object nmsPlayer = getNMSPlayer(player);
-            Object connection = playerConnectionField.get(nmsPlayer);
-            sendPacketMethod.invoke(connection, packet);
+            Object nmsPlayer = getNMSPlayer(p);
+            Object connection = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
+            Object packet = Class.forName(nmsPlayer.getClass().getPackage().getName() + "." + packetName).getConstructor(parameterclass).newInstance(parameters);
+            connection.getClass().getMethod("sendPacket", getNMSClass("Packet")).invoke(connection, packet);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static Object getNMSPlayer(Player player) {
+    private static String getVersion() {
+        String name = Bukkit.getServer().getClass().getPackage().getName();
+        return name.substring(name.lastIndexOf('.') + 1) + ".";
+    }
+
+    private static Class<?> getNMSClass(String className) {
+        String fullName = "net.minecraft.server." + getVersion() + className;
+        Class<?> clazz = null;
         try {
-            return getHandleMethod.invoke(player);
+            clazz = Class.forName(fullName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return clazz;
+    }
+
+    private static Object getNMSPlayer(Player p) {
+        try {
+            return p.getClass().getMethod("getHandle").invoke(p);
         } catch (Exception e) {
             e.printStackTrace();
         }
