@@ -12,6 +12,7 @@ public final class SpawnEggBuilder extends ItemBuilder {
 
     /**
      * Set the type of the spawn egg.
+     *
      * @param type The typ of the egg
      * @return
      */
