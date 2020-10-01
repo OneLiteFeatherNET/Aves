@@ -1,6 +1,5 @@
 package de.icevizion.aves.item;
 
-import org.apache.commons.lang.Validate;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,7 +46,9 @@ public final class FireworkBuilder extends ItemBuilder {
      */
 
     public FireworkBuilder setPower(int power) {
-        Validate.isTrue(power < 129, "The power can not be higher than 128");
+        if (power > 128) {
+            throw new IllegalArgumentException("The power can nit be higher than 128");
+        }
         FireworkMeta meta = getItemMeta();
         meta.setPower(power);
         this.stack.setItemMeta(meta);
@@ -60,7 +61,7 @@ public final class FireworkBuilder extends ItemBuilder {
      * @return
      */
 
-    public Firework spawn(final Location location) {
+    public Firework spawn(Location location) {
         Firework fw = (Firework) location.getWorld().spawnEntity(location, EntityType.FIREWORK);
         fw.setFireworkMeta(getItemMeta());
         return fw;

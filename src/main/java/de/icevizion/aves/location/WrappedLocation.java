@@ -3,6 +3,9 @@ package de.icevizion.aves.location;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.util.Vector;
+
+import java.util.Objects;
 
 /**
  * The class is a wrapper for the location class from bukkit.
@@ -19,6 +22,7 @@ public class WrappedLocation {
     private float pitch;
 
     private transient Location location;
+    private transient Vector vector;
 
     /**
      * Creates a new object from the wrapper with the given values.
@@ -66,85 +70,181 @@ public class WrappedLocation {
     }
 
     /**
-     * Give the wrapper the x coordinate.
+     * Set the current x coordinate.
      * @param x The x coordinate to set
      */
 
     public void setX(double x) {
         this.x = x;
+
+        if (location != null) {
+            location.setX(x);
+        }
+
+        if (vector != null) {
+            vector.setX(x);
+        }
     }
 
     /**
-     * Give the wrapper the y coordinate.
+     * Set the current z coordinate.
      * @param y The y coordinate to set
      */
 
     public void setY(double y) {
         this.y = y;
+
+        if (location != null) {
+            location.setY(y);
+        }
+
+        if (vector != null) {
+            vector.setY(y);
+        }
     }
 
     /**
-     * Give the wrapper the z coordinate.
+     * Set the current the z coordinate.
      * @param z The z coordinate to set
      */
 
     public void setZ(double z) {
         this.z = z;
+
+        if (location != null) {
+            location.setZ(z);
+        }
+
+        if (vector != null) {
+            vector.setZ(z);
+        }
     }
 
     /**
-     * Give the wrapper the yaw value.
+     * Set the current yaw value.
      * @param yaw The yaw value to set
      */
 
     public void setYaw(float yaw) {
         this.yaw = yaw;
+
+        if (location != null) {
+            location.setYaw(yaw);
+        }
     }
 
     /**
-     * Give the wrapper the pitch value.
+     * Set the current pitch value.
      * @param pitch The pitch value to set
      */
 
     public void setPitch(float pitch) {
         this.pitch = pitch;
+
+        if (location != null) {
+            location.setPitch(pitch);
+        }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WrappedLocation that = (WrappedLocation) o;
+        return this.x == that.x && this.y == that.y &&
+                this.z == that.z && this.pitch == that.pitch && this.yaw == that.yaw && this.world.equals(that.world);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(world, x, y, z, yaw, pitch);
+    }
+
+    /**
+     * Returns the current world.
+     * @return the world
+     */
 
     public String getWorld() {
         return world;
     }
 
+    /**
+     * Returns the x value.
+     * @return x value
+     */
+
     public double getX() {
         return x;
     }
+
+    /**
+     * Returns the y value.
+     * @return y value
+     */
 
     public double getY() {
         return y;
     }
 
+    /**
+     * Returns the z value.
+     * @return z value
+     */
+
     public double getZ() {
         return z;
     }
+
+    /**
+     * Returns the pitch value.
+     * @return pitch value
+     */
 
     public float getPitch() {
         return pitch;
     }
 
+    /**
+     * Returns the yaw value.
+     * @return yaw value
+     */
+
     public float getYaw() {
         return yaw;
     }
 
-    public Location toLocation() {
-        World bukkitWorld = Bukkit.getWorld(world);
-        if (bukkitWorld == null) {
-            throw new IllegalArgumentException("The world can not be null");
-        }
+    /**
+     * Converts the wrapped location to a bukkit location.
+     * @return The bukkit location
+     */
 
+    public Location toLocation() {
         if (location == null) {
-            location = new Location(bukkitWorld, x,y,z);
+            World bukkitWorld = Bukkit.getWorld(this.world);
+
+            if (bukkitWorld == null) {
+                throw new IllegalArgumentException("The world can not be null");
+            }
+
+            location = new Location(bukkitWorld, x, y, z);
             location.setYaw(yaw);
             location.setPitch(pitch);
         }
+
         return location;
+    }
+
+    /**
+     * Returns the given wrapped location as vector.
+     * @return The location as vector
+     */
+
+    public Vector toVector() {
+        if (vector == null) {
+            vector = new Vector(x, y, z);
+        }
+
+        return vector;
     }
 }

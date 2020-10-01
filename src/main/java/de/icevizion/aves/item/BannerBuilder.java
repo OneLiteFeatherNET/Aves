@@ -3,14 +3,19 @@ package de.icevizion.aves.item;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.banner.Pattern;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 import java.util.List;
 
-public final class BannerBuilder extends ItemBuilder{
+public final class BannerBuilder extends ItemBuilder {
 
     public BannerBuilder() {
         super(Material.BANNER);
+    }
+
+    public BannerBuilder(ItemStack itemStack) {
+        super(itemStack.getType());
     }
 
     public BannerBuilder setColor(DyeColor color) {

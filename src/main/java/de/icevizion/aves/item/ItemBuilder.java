@@ -1,32 +1,35 @@
 package de.icevizion.aves.item;
 
-import com.google.common.base.Preconditions;
+import net.titan.cloudcore.i18n.Translator;
+import net.titan.spigot.player.CloudPlayer;
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class ItemBuilder {
 
     protected ItemStack stack;
+    protected ItemMeta itemMeta;
 
     public ItemBuilder(Material material) {
         Objects.requireNonNull(material, "Material can not be null");
         this.stack = new ItemStack(material);
+        this.itemMeta = stack.getItemMeta();
     }
 
     public ItemBuilder(ItemStack itemStack) {
         Objects.requireNonNull(itemStack, "ItemStack can not be null");
         this.stack = itemStack;
+        this.itemMeta = stack.getItemMeta();
     }
 
     /**
@@ -35,21 +38,34 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder setAmount(final int amount) {
+    public ItemBuilder setAmount(int amount) {
         this.stack.setAmount(amount);
         return this;
     }
 
     /**
-     * Adds the specified Enchantment to this item stack
-     * @param enchantment The enchantment to be add
-     * @param level The level of the enchantment
-     * @return
+     * Add enchantment item builder.
+     *
+     * @param enchantment        the enchantment
+     * @param level              the level
+     * @param ignoreRestrictions ignore restrictions
+     * @return the item builder
      */
-
-    public ItemBuilder addEnchantment(final Enchantment enchantment, final int level) {
-        this.stack.addEnchantment(enchantment, level);
+    public ItemBuilder addEnchantment(Enchantment enchantment, int level,
+                                      boolean ignoreRestrictions) {
+        itemMeta.addEnchant(enchantment, level, ignoreRestrictions);
         return this;
+    }
+
+    /**
+     * Add enchantment item builder.
+     *
+     * @param enchantment the enchantment
+     * @param level       the level
+     * @return the item builder
+     */
+    public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
+        return addEnchantment(enchantment, level, true);
     }
 
     /**
@@ -59,7 +75,8 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder addUnsafeEnchantment(final Enchantment enchantment, final int level) {
+    @Deprecated
+    public ItemBuilder addUnsafeEnchantment(Enchantment enchantment, int level) {
         this.stack.addUnsafeEnchantment(enchantment, level);
         return this;
     }
@@ -70,11 +87,37 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder setDisplayName(final String name) {
-        ItemMeta meta = getItemMeta();
-        meta.setDisplayName(name);
-        this.stack.setItemMeta(meta);
+    public ItemBuilder setDisplayName(String name) {
+        itemMeta.setDisplayName(name);
         return this;
+    }
+
+    /**
+     * Sets translated display name via the Locale.
+     *
+     * @param translator the translator
+     * @param locale     the locale
+     * @param key        the key
+     * @param arguments  the arguments
+     * @return the item builder
+     */
+    public ItemBuilder setDisplayName(Translator translator, Locale locale, String key,
+                                      Object... arguments) {
+        return setDisplayName(translator.getString(locale, key, arguments));
+    }
+
+    /**
+     * Sets translated display name via the CloudPlayer.
+     *
+     * @param translator  the translator
+     * @param cloudPlayer the cloud player
+     * @param key         the key
+     * @param arguments   the arguments
+     * @return the item builder
+     */
+    public ItemBuilder setDisplayName(Translator translator, CloudPlayer cloudPlayer, String key,
+                                      Object... arguments) {
+        return setDisplayName(translator, cloudPlayer.getLocale(), key, arguments);
     }
 
     /**
@@ -84,9 +127,7 @@ public class ItemBuilder {
      */
 
     public ItemBuilder setUnbreakable(boolean unbreakable) {
-        ItemMeta meta = getItemMeta();
-        meta.spigot().setUnbreakable(unbreakable);
-        this.stack.setItemMeta(meta);
+        itemMeta.spigot().setUnbreakable(unbreakable);
         return this;
     }
 
@@ -107,10 +148,8 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder addItemFlag(final ItemFlag flag) {
-        ItemMeta meta = getItemMeta();
-        meta.addItemFlags(flag);
-        this.stack.setItemMeta(meta);
+    public ItemBuilder addItemFlag(ItemFlag flag) {
+        itemMeta.addItemFlags(flag);
         return this;
     }
 
@@ -121,12 +160,33 @@ public class ItemBuilder {
      */
 
     public ItemBuilder addLore(String... lore) {
-        ItemMeta meta = getItemMeta();
-        List<String> currentLore = meta.getLore();
+        List<String> currentLore = itemMeta.getLore();
         if (currentLore == null) currentLore = new ArrayList<>();
         currentLore.addAll(Arrays.asList(lore));
-        meta.setLore(currentLore);
-        this.stack.setItemMeta(meta);
+        itemMeta.setLore(currentLore);
+        return this;
+    }
+
+    /**
+     * Change a specific line of a lore.
+     * @param index The index for the line
+     * @param text The new text for the line
+     * @return
+     */
+
+    public ItemBuilder setLoreLine(int index, String text) {
+        List<String> currentLore = itemMeta.getLore();
+        if (currentLore == null) {
+            currentLore = new ArrayList<>();
+            currentLore.add(text);
+        }
+
+        if (currentLore.size() < index) {
+            currentLore.add(text);
+        } else {
+            currentLore.set(index, text);
+        }
+        itemMeta.setLore(currentLore);
         return this;
     }
 
@@ -137,23 +197,38 @@ public class ItemBuilder {
      */
 
     public ItemBuilder setLore(List<String> lore) {
-        ItemMeta meta = getItemMeta();
-        meta.setLore(lore);
-        this.stack.setItemMeta(meta);
+        itemMeta.setLore(lore);
         return this;
     }
 
     /**
-     * Attaches a copy of the passed block state to the item
-     * @param blockState the block state to attach to the block
-     * @return
+     * Sets translated lore via the Locale.
+     *
+     * @param translator the translator
+     * @param locale     the locale
+     * @param key        the key
+     * @param arguments  the arguments
+     * @return the item builder
      */
+    public ItemBuilder setLore(Translator translator, Locale locale, String key,
+                                      Object... arguments) {
+        String[] lore = translator.getString(locale, key, arguments).split("\n");
+        List<String> loreList = Arrays.asList(lore);
+        return setLore(loreList);
+    }
 
-    public ItemBuilder setBlockState(final BlockState blockState) {
-        BlockStateMeta meta = (BlockStateMeta) getItemMeta();
-        meta.setBlockState(blockState);
-        setItemMeta(meta);
-        return this;
+    /**
+     * Sets translated lore via the CloudPlayer.
+     *
+     * @param translator  the translator
+     * @param cloudPlayer the cloud player
+     * @param key         the key
+     * @param arguments   the arguments
+     * @return the item builder
+     */
+    public ItemBuilder setLore(Translator translator, CloudPlayer cloudPlayer, String key,
+                                      Object... arguments) {
+        return setLore(translator, cloudPlayer.getLocale(), key, arguments);
     }
 
     /**
@@ -162,9 +237,8 @@ public class ItemBuilder {
      * @return
      */
 
-    public ItemBuilder setRepairCosts(final int repairCosts) {
-        Preconditions.checkArgument(repairCosts < 0, "The costs can not be negative");
-        Repairable meta = (Repairable) getItemMeta();
+    public ItemBuilder setRepairCosts(int repairCosts) {
+        Repairable meta = (Repairable) itemMeta;
         meta.setRepairCost(repairCosts);
         return this;
     }
@@ -175,7 +249,7 @@ public class ItemBuilder {
      * @return
      */
 
-    private ItemBuilder setItemMeta(final ItemMeta meta) {
+    private ItemBuilder setItemMeta(ItemMeta meta) {
         this.stack.setItemMeta(meta);
         return this;
     }
@@ -186,6 +260,7 @@ public class ItemBuilder {
      */
 
     public ItemStack build() {
+        stack.setItemMeta(itemMeta);
         return this.stack;
     }
 
@@ -195,10 +270,10 @@ public class ItemBuilder {
      */
 
     public List<String> getLore() {
-        if (getItemMeta().getLore() == null) {
+        if (itemMeta.getLore() == null) {
             return new ArrayList<>();
         }
-        return getItemMeta().getLore();
+        return itemMeta.getLore();
     }
 
     /**
@@ -207,6 +282,6 @@ public class ItemBuilder {
      */
 
     protected ItemMeta getItemMeta() {
-        return this.stack.getItemMeta();
+        return itemMeta;
     }
 }

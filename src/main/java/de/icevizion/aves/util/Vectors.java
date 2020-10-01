@@ -6,7 +6,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Random;
 
-public class VectorUtil {
+public class Vectors {
 
     private final static Random random = new Random();
 

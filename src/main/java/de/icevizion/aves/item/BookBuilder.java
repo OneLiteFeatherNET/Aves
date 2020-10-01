@@ -3,6 +3,7 @@ package de.icevizion.aves.item;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.BookMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,6 +53,18 @@ public final class BookBuilder extends ItemBuilder {
     public BookBuilder addPages(List<String> page) {
         BookMeta meta = getItemMeta();
         meta.setPages(page);
+        stack.setItemMeta(meta);
+        return this;
+    }
+
+    /**
+     * Clears all pages from a book.
+     * @return
+     */
+
+    public BookBuilder clearPages() {
+        BookMeta meta = getItemMeta();
+        meta.setPages(new ArrayList<>());
         stack.setItemMeta(meta);
         return this;
     }

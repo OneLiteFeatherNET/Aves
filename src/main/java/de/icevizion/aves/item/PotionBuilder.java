@@ -22,6 +22,11 @@ public final class PotionBuilder extends ItemBuilder {
         effects = new ArrayList<>();
     }
 
+    public PotionBuilder setType(PotionType type) {
+        potion.setType(type);
+        return this;
+    }
+
     public PotionBuilder setSplash(boolean splash) {
         potion.setSplash(splash);
         return this;

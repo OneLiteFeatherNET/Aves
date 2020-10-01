@@ -8,12 +8,16 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Set;
 
-public class BlockUtil {
+/**
+ * The class includes some auxiliary methods to do something with blocks
+ */
+
+public class Blocks {
 
     /**
      * Gets the BlockFace of the block the player is currently targeting.
      *
-     * @param player the player's whos targeted blocks BlockFace is to be checked.
+     * @param player the player's who's targeted blocks BlockFace is to be checked.
      * @param distance the distance to scan
      * @return the BlockFace of the targeted block, or null if the targeted block is non-occluding.
      */
