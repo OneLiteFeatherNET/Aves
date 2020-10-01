@@ -6,7 +6,7 @@ import org.bukkit.util.EulerAngle;
  * The class contains a helper method that deals with the topic EulerAngle.
  */
 
-public class EulerUtil {
+public class Eulers {
 
     /**
      * Converts a given degree value to an EulerAngle.
