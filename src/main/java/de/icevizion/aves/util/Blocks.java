@@ -12,7 +12,7 @@ import java.util.Set;
  * The class includes some auxiliary methods to do something with blocks
  */
 
-public class BlockUtil {
+public class Blocks {
 
     /**
      * Gets the BlockFace of the block the player is currently targeting.
