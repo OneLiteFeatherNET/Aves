@@ -1,12 +1,10 @@
 package de.icevizion.aves.util;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * The class includes some auxiliary methods to do something with blocks
@@ -26,7 +24,7 @@ public class Blocks {
         if (distance > 100) {
             throw new IllegalArgumentException("The distance to scan must between 0 and 100");
         }
-        List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks((Set<Material>) null, distance);
+        List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(null, distance);
         return lastTwoTargetBlocks.get(1).getFace(lastTwoTargetBlocks.get(0));
     }
 }

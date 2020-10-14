@@ -1,32 +1,18 @@
 package de.icevizion.aves.item;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.UUID;
 
 public final class SkullBuilder extends ItemBuilder {
 
     public SkullBuilder() {
-        super(Material.SKULL_ITEM);
-        ItemMeta stackMeta = stack.getItemMeta();
-        ItemStack item = new ItemStack(stack.getType(), stack.getAmount(), (short) SkullType.PLAYER.getData());
-        item.setItemMeta(stackMeta);
-        this.stack = item;
-    }
-
-    public SkullBuilder(SkullType type) {
-        super(Material.SKULL_ITEM);
-        ItemMeta meta = stack.getItemMeta();
-        ItemStack itemStack = new ItemStack(stack.getType(), stack.getAmount(), (short) type.getData());
-        itemStack.setItemMeta(meta);
-        this.stack = itemStack;
+        super(Material.PLAYER_HEAD);
     }
 
     /**
@@ -36,12 +22,12 @@ public final class SkullBuilder extends ItemBuilder {
      * @return
      */
 
-    public SkullBuilder setSkinOverValues(String skinValue, String skinSignature) {
+    public SkullBuilder setSkinOverValues(String name, String skinValue, String skinSignature) {
         Objects.requireNonNull(skinValue, "SkinValue can not be null"); 
         Objects.requireNonNull(skinSignature, "SkinSignature can not be null");
-        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null);
-        gameProfile.getProperties().put("textures", new Property( "textures", skinValue, skinSignature));
-        setSkinOverGameProfile(gameProfile);
+        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+        profile.setProperty(new ProfileProperty(name, skinValue, skinSignature));
+        getItemMeta().setPlayerProfile(profile);
         return this;
     }
 
@@ -51,31 +37,11 @@ public final class SkullBuilder extends ItemBuilder {
      * @return
      */
 
-    public SkullBuilder setSkinOverValues(String skinValue) {
+    public SkullBuilder setSkinOverValues(String name, String skinValue) {
         Objects.requireNonNull(skinValue, "SkinValue can not be null");
-        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null);
-        gameProfile.getProperties().put("textures", new Property( "textures", skinValue));
-        setSkinOverGameProfile(gameProfile);
-        return this;
-    }
-
-    /**
-     * Set a profile to a player head
-     * @param gameProfile The profile to add
-     * @return
-     */
-
-    public SkullBuilder setSkinOverGameProfile(GameProfile gameProfile) {
-        Objects.requireNonNull(gameProfile, "Profile can not be null");
-        SkullMeta meta = getItemMeta();
-        try {
-            Field field = meta.getClass().getDeclaredField("profile");
-            field.setAccessible(true);
-            field.set(meta, gameProfile);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        stack.setItemMeta(meta);
+        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+        profile.setProperty(new ProfileProperty(name, skinValue));
+        getItemMeta().setPlayerProfile(profile);
         return this;
     }
 
