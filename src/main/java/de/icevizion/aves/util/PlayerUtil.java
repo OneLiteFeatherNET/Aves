@@ -4,7 +4,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.github.paperspigot.Title;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,30 +36,6 @@ public class PlayerUtil {
 
     public static Optional<Player> getRandomPlayer(List<Player> players) {
         return Optional.of(players.get(new Random(players.size()).nextInt(players.size())));
-    }
-
-    /**
-     * Send a title to a given player.
-     * @param player The player who should get the title
-     * @param title The title of the title
-     * @param subtitle The subtitle of the title
-     * @param fadeIn The time how long the title fade in
-     * @param stay The time how long the title stays
-     * @param fadeOut The time how long the title fade out
-     */
-
-    public static void sendTitle(Player player, String title, String subtitle, int fadeIn, int stay, int fadeOut) {
-        player.sendTitle(new Title(title, subtitle, fadeIn, stay, fadeOut));
-    }
-
-    /**
-     * Send a title to a given player.
-     * @param player The player who should get the title
-     * @param builder Builder instance to build a title
-     */
-
-    public static void sendTitle(Player player, Title.Builder builder) {
-        player.sendTitle(builder.build());
     }
 
     /**
