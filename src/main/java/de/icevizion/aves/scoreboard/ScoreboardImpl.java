@@ -74,7 +74,7 @@ public class ScoreboardImpl {
 		}
 
 		Team team = scoreboard.getTeam(teamName.toString());
-		return Optional.of(team);
+		return Optional.ofNullable(team);
 	}
 
 	/**

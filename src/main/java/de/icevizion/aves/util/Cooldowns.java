@@ -5,11 +5,11 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CooldownUtil {
+public class Cooldowns {
 
     private final Map<Player, Long> cooldowns;
 
-    public CooldownUtil() {
+    public Cooldowns() {
         this.cooldowns = new HashMap<>();
     }
 
@@ -38,24 +38,7 @@ public class CooldownUtil {
      * @return True when the player has a cooldown otherwise false
      */
 
-    public boolean hasCooldown(Player player) {
-        if (this.cooldowns.containsKey(player)) {
-            if (cooldowns.get(player) >= System.currentTimeMillis()) {
-                return true;
-            } else {
-                this.cooldowns.remove(player);
-                return false;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns the map.
-     * @return The underlying map
-     */
-
-    public Map<Player, Long> getCooldowns() {
-        return cooldowns;
+    public boolean has(Player player) {
+        return cooldowns.getOrDefault(player, 0L) > 0;
     }
 }
