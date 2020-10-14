@@ -127,7 +127,7 @@ public class ItemBuilder {
      */
 
     public ItemBuilder setUnbreakable(boolean unbreakable) {
-        itemMeta.spigot().setUnbreakable(unbreakable);
+        itemMeta.setUnbreakable(unbreakable);
         return this;
     }
 
@@ -137,6 +137,7 @@ public class ItemBuilder {
      * @param durability the new durability value
      * @return
      */
+    @Deprecated
     public ItemBuilder setDurability(short durability) {
         this.stack.setDurability(durability);
         return this;
