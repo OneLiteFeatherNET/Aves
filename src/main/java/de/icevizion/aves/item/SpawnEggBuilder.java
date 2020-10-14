@@ -18,8 +18,7 @@ public final class SpawnEggBuilder extends ItemBuilder {
      */
 
     public SpawnEggBuilder setType(EntityType type) {
-        SpawnEgg egg = new SpawnEgg(type);
-        stack.setData(egg.toItemStack().getData());
+        stack.setData(new SpawnEgg(type).toItemStack().getData());
         return this;
     }
 }
