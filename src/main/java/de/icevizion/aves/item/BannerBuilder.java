@@ -1,6 +1,5 @@
 package de.icevizion.aves.item;
 
-import org.bukkit.DyeColor;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
@@ -9,28 +8,22 @@ import java.util.List;
 
 public final class BannerBuilder extends ItemBuilder {
 
+    private final BannerMeta bannerMeta;
+
     public BannerBuilder(ItemStack itemStack) {
         super(itemStack.getType());
-    }
-
-    public BannerBuilder setColor(DyeColor color) {
-        BannerMeta meta = getItemMeta();
-        meta.setBaseColor(color);
-        stack.setItemMeta(meta);
-        return this;
+        bannerMeta = getItemMeta();
     }
 
     public BannerBuilder addPattern(int i, Pattern pattern) {
-        BannerMeta meta = getItemMeta();
-        meta.setPattern(i, pattern);
-        stack.setItemMeta(meta);
+        bannerMeta.setPattern(i, pattern);
+        stack.setItemMeta(bannerMeta);
         return this;
     }
 
     public BannerBuilder addPattern(List<Pattern> patterns) {
-        BannerMeta meta = getItemMeta();
-        meta.setPatterns(patterns);
-        stack.setItemMeta(meta);
+        bannerMeta.setPatterns(patterns);
+        stack.setItemMeta(bannerMeta);
         return this;
     }
 
