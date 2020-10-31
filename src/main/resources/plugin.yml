@@ -2,3 +2,4 @@ name: Aves-1.8
 version: 1.0.6
 main: de.icevizion.aves.Aves
 author: IceVizion
+api-version: 1.16
