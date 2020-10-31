@@ -1,17 +1,8 @@
 package de.icevizion.aves;
 
-import de.icevizion.aves.inventory.InventoryService;
-import de.icevizion.aves.inventory.listener.InventoryBuilderClickListener;
-import de.icevizion.aves.inventory.listener.InventoryBuilderCloseListener;
-import de.icevizion.aves.inventory.listener.InventoryBuilderDragListener;
-import de.icevizion.aves.inventory.listener.InventoryBuilderListener;
-import de.icevizion.aves.scoreboard.nametags.NameTagService;
-import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerJoinListener;
-import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerQuitListener;
-import net.titan.spigot.CloudService;
-import net.titan.spigot.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
-public final class Aves extends Plugin {
+public final class Aves extends JavaPlugin {
 
     @Override
     public void onEnable() {
@@ -24,7 +15,7 @@ public final class Aves extends Plugin {
         System.out.printf("Starting Aves v%s by %s%n",
             getDescription().getVersion(), getDescription().getAuthors());
 
-        CloudService cloudService = getService(CloudService.class);
+       /*CloudService cloudService = getService(CloudService.class);
 
       //Inventory Builder
 	    InventoryService inventoryService = new InventoryService();
@@ -46,7 +37,7 @@ public final class Aves extends Plugin {
         getServer().getPluginManager().registerEvents(
                 new NameTagPlayerJoinListener(nameTagService), this);
         getServer().getPluginManager().registerEvents(
-                new NameTagPlayerQuitListener(nameTagService), this);
+                new NameTagPlayerQuitListener(nameTagService), this);*/
     }
 
     @Override
