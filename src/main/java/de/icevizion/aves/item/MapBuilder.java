@@ -38,6 +38,28 @@ public final class MapBuilder extends ItemBuilder {
         return this;
     }
 
+    public MapBuilder removeRenderer(MapRenderer renderer) {
+        MapMeta mapMeta = getItemMeta();
+        MapView mapView = (MapView) mapMeta;
+        mapView.removeRenderer(renderer);
+        stack.setItemMeta(mapMeta);
+        return this;
+    }
+
+    public MapBuilder setMapView(MapViewBuilder viewBuilder) {
+        MapMeta mapMeta = getItemMeta();
+        mapMeta.setMapView(viewBuilder.getView());
+        stack.setItemMeta(mapMeta);
+        return this;
+    }
+
+    public MapBuilder setMapView(MapView mapView) {
+        MapMeta mapMeta = getItemMeta();
+        mapMeta.setMapView(mapView);
+        stack.setItemMeta(itemMeta);
+        return this;
+    }
+
     /**
      * Override the default method to return another meta
      * @return The {@link MapMeta}
