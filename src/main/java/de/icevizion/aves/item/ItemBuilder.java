@@ -92,6 +92,11 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder setModelData(int id) {
+        itemMeta.setCustomModelData(id);
+        return this;
+    }
+
     /**
      * Sets translated display name via the Locale.
      *
@@ -128,18 +133,6 @@ public class ItemBuilder {
 
     public ItemBuilder setUnbreakable(boolean unbreakable) {
         itemMeta.setUnbreakable(unbreakable);
-        return this;
-    }
-
-    /**
-     * Sets the durability of the item.
-     *
-     * @param durability the new durability value
-     * @return
-     */
-    @Deprecated
-    public ItemBuilder setDurability(short durability) {
-        this.stack.setDurability(durability);
         return this;
     }
 
