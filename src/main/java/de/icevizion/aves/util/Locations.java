@@ -75,24 +75,6 @@ public class Locations {
                 && location.getBlockZ() == location2.getBlockZ();
     }
 
-    /**
-     * Checks if the block is solid at the location.
-     * @param location The location to check
-     * @return True when the block is solid otherwise false
-     */
-
-    public static boolean isSolid(Location location) {
-        return location.getBlock().getType().isSolid();
-    }
-
-    /**
-     * Checks if the block is a block on the location,
-     * @param location The location
-     * @return True when the block is a block otherwise false
-     */
-
-    public static boolean isBlock(Location location) { return location.getBlock().getType().isBlock(); }
-
     public static List<Location> addNeightBours(Location location) {
         int blockX = location.getBlockX();
         int blockY = location.getBlockY();
