@@ -1,5 +1,6 @@
 package de.icevizion.aves.util;
 
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -27,4 +28,22 @@ public class Blocks {
         List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(null, distance);
         return lastTwoTargetBlocks.get(1).getFace(lastTwoTargetBlocks.get(0));
     }
+
+    /**
+     * Checks if the block is solid at the location.
+     * @param location The location to check
+     * @return True when the block is solid otherwise false
+     */
+
+    public static boolean isSolid(Location location) {
+        return location.getBlock().getType().isSolid();
+    }
+
+    /**
+     * Checks if the block is a block on the location,
+     * @param location The location
+     * @return True when the block is a block otherwise false
+     */
+
+    public static boolean isBlock(Location location) { return location.getBlock().getType().isBlock(); }
 }
