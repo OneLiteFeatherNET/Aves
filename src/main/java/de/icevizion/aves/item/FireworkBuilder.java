@@ -47,7 +47,7 @@ public final class FireworkBuilder extends ItemBuilder {
 
     public FireworkBuilder setPower(int power) {
         if (power > 128) {
-            throw new IllegalArgumentException("The power can nit be higher than 128");
+            throw new IllegalArgumentException("The power can not be higher than 128");
         }
         FireworkMeta meta = getItemMeta();
         meta.setPower(power);
