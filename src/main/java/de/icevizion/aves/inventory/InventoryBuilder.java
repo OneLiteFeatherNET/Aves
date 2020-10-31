@@ -112,7 +112,7 @@ public class InventoryBuilder {
 
 	public final void setBackgroundItems(int fromIndex, int toIndex, ItemBuilder itemBuilder) {
 		int maxSize = rows.getSize() - 1;
-		if(toIndex > maxSize) {
+		if (toIndex > maxSize) {
 			toIndex = maxSize;
 		}
 
