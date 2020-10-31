@@ -20,7 +20,7 @@ public class PlayerReflection {
 
     private final static Class<?> craftPlayerClass, entityPlayerClass;
     private final static Method getHandleMethod, sendPacketMethod;
-    private final static Field playerConnectionField, pingField;
+    private final static Field playerConnectionField;
 
     static {
         craftPlayerClass = new OBCClassResolver().resolveSilent("entity.CraftPlayer");
@@ -28,7 +28,6 @@ public class PlayerReflection {
         entityPlayerClass = new NMSClassResolver().resolveSilent("EntityPlayer");
         playerConnectionField = new FieldResolver(entityPlayerClass).resolveSilent("playerConnection");
         sendPacketMethod = new MethodResolver(new NMSClassResolver().resolveSilent("PlayerConnection")).resolveSilent("sendPacket");
-        pingField = new FieldResolver(entityPlayerClass).resolveSilent("ping");
     }
 
     public static Object getEntityPlayer(Player player) throws InvocationTargetException, IllegalAccessException {
@@ -39,17 +38,5 @@ public class PlayerReflection {
         Object nmsPlayer = getEntityPlayer(p);
         Object connection = playerConnectionField.get(nmsPlayer);
         sendPacketMethod.invoke(connection, packet);
-    }
-
-    /**
-     * Returns a player's ping.
-     * @param player The player from which the ping is queried
-     * @return The ping as integer
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
-     */
-
-    public static int getPing(Player player) throws InvocationTargetException, IllegalAccessException {
-        return (int) pingField.get(getHandleMethod.invoke(player));
     }
 }
