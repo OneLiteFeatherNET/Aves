@@ -7,8 +7,11 @@ import org.bukkit.map.MapView;
 
 public final class MapBuilder extends ItemBuilder {
 
+    private final MapMeta mapMeta;
+
     public MapBuilder() {
         super(Material.MAP);
+        this.mapMeta = getItemMeta();
     }
 
     /**
@@ -18,9 +21,8 @@ public final class MapBuilder extends ItemBuilder {
      */
 
     public MapBuilder setScaling(boolean scaling) {
-        MapMeta meta = getItemMeta();
-        meta.setScaling(scaling);
-        stack.setItemMeta(meta);
+        mapMeta.setScaling(scaling);
+        stack.setItemMeta(mapMeta);
         return this;
     }
 
@@ -31,15 +33,13 @@ public final class MapBuilder extends ItemBuilder {
      */
 
     public MapBuilder addRenderer(MapRenderer mapRenderer) {
-        MapMeta meta = getItemMeta();
-        MapView mapView = (MapView) meta;
+        MapView mapView = (MapView) mapMeta;
         mapView.addRenderer(mapRenderer);
-        stack.setItemMeta(meta);
+        stack.setItemMeta(mapMeta);
         return this;
     }
 
     public MapBuilder removeRenderer(MapRenderer renderer) {
-        MapMeta mapMeta = getItemMeta();
         MapView mapView = (MapView) mapMeta;
         mapView.removeRenderer(renderer);
         stack.setItemMeta(mapMeta);
@@ -47,14 +47,12 @@ public final class MapBuilder extends ItemBuilder {
     }
 
     public MapBuilder setMapView(MapViewBuilder viewBuilder) {
-        MapMeta mapMeta = getItemMeta();
         mapMeta.setMapView(viewBuilder.getView());
         stack.setItemMeta(mapMeta);
         return this;
     }
 
     public MapBuilder setMapView(MapView mapView) {
-        MapMeta mapMeta = getItemMeta();
         mapMeta.setMapView(mapView);
         stack.setItemMeta(itemMeta);
         return this;

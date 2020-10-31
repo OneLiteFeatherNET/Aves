@@ -7,12 +7,16 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public final class LeatherArmorBuilder extends ItemBuilder {
 
+    private final LeatherArmorMeta meta;
+
     public LeatherArmorBuilder(LeatherType type) {
         super(type.getMaterial());
+        meta = getItemMeta();
     }
 
     public LeatherArmorBuilder(ItemStack itemStack) {
         super(itemStack);
+        meta = getItemMeta();
     }
 
     /**
@@ -22,7 +26,6 @@ public final class LeatherArmorBuilder extends ItemBuilder {
      */
 
     public LeatherArmorBuilder setColor(Color color) {
-        LeatherArmorMeta meta = getItemMeta();
         meta.setColor(color);
         stack.setItemMeta(meta);
         return this;
@@ -37,7 +40,6 @@ public final class LeatherArmorBuilder extends ItemBuilder {
      */
 
     public LeatherArmorBuilder setColor(int red, int green, int blue) {
-        LeatherArmorMeta meta = getItemMeta();
         meta.setColor(Color.fromRGB(red, green, blue));
         stack.setItemMeta(meta);
         return this;

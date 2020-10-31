@@ -9,38 +9,39 @@ import org.bukkit.inventory.meta.FireworkMeta;
 
 public final class FireworkBuilder extends ItemBuilder {
 
+    private final FireworkMeta fireworkMeta;
+
     public FireworkBuilder() {
         super(Material.FIREWORK_ROCKET);
+        this.fireworkMeta = getItemMeta();
     }
 
     /**
-     * Add another effect to this firework
+     * Add another effect to this firework.
      * @param effect The effect to add
      * @return
      */
 
     public FireworkBuilder addEffect(FireworkEffect effect) {
-        FireworkMeta meta = getItemMeta();
-        meta.addEffect(effect);
-        this.stack.setItemMeta(meta);
+        fireworkMeta.addEffect(effect);
+        this.stack.setItemMeta(fireworkMeta);
         return this;
     }
 
     /**
-     * Add several effects to this firework
+     * Add several effects to this firework.
      * @param effects The effects to add
      * @return
      */
 
     public FireworkBuilder addEffects(FireworkEffect... effects) {
-        FireworkMeta meta = getItemMeta();
-        meta.addEffects(effects);
-        this.stack.setItemMeta(meta);
+        fireworkMeta.addEffects(effects);
+        this.stack.setItemMeta(fireworkMeta);
         return this;
     }
 
     /**
-     * Sets the approximate power of the firework. Each level of power is half a second of flight time
+     * Sets the approximate power of the firework. Each level of power is half a second of flight time.
      * @param power The power of the firework
      * @return
      */
@@ -49,26 +50,25 @@ public final class FireworkBuilder extends ItemBuilder {
         if (power > 128) {
             throw new IllegalArgumentException("The power can not be higher than 128");
         }
-        FireworkMeta meta = getItemMeta();
-        meta.setPower(power);
-        this.stack.setItemMeta(meta);
+        fireworkMeta.setPower(power);
+        this.stack.setItemMeta(fireworkMeta);
         return this;
     }
 
     /**
-     * Spawn a firework
+     * Spawn a firework to a given location.
      * @param location The location where the firework spawns
      * @return
      */
 
     public Firework spawn(Location location) {
         Firework fw = (Firework) location.getWorld().spawnEntity(location, EntityType.FIREWORK);
-        fw.setFireworkMeta(getItemMeta());
+        fw.setFireworkMeta(fireworkMeta);
         return fw;
     }
 
     /**
-     * Override the default method to return another meta
+     * Override the default method to return another meta.
      * @return The {@link FireworkMeta}
      */
 
