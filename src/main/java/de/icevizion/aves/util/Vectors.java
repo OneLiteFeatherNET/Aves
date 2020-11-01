@@ -2,6 +2,7 @@ package de.icevizion.aves.util;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.Random;
@@ -9,6 +10,16 @@ import java.util.Random;
 public class Vectors {
 
     private final static Random random = new Random();
+
+    /**
+     * Inverse the direction from a player.
+     * @param player The player from which the direction should be inverted
+     * @return The inverted direction
+     */
+
+    public static Vector inversePlayerDirection(Player player) {
+        return player.getLocation().getDirection().multiply(-1);
+    }
 
     /**
      * Rotates the given vector around the axis X
