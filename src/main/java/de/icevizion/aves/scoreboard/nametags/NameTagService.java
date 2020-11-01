@@ -38,7 +38,7 @@ public class NameTagService implements Service {
 
 	public static NameTagScoreboard of(CloudPlayer cloudPlayer) {
 		if (!nameTagScoreboards.containsKey(cloudPlayer.getUniqueId())) {
-			throw new IllegalArgumentException("No NameTag has been Registered for this player");
+			throw new IllegalArgumentException("No NameTag has been registered for this player");
 		}
 
 		return nameTagScoreboards.get(cloudPlayer.getUniqueId());
