@@ -31,6 +31,7 @@ public class Blocks {
 
     /**
      * Checks if the block is solid at the location.
+     *
      * @param location The location to check
      * @return True when the block is solid otherwise false
      */
@@ -40,7 +41,8 @@ public class Blocks {
     }
 
     /**
-     * Checks if the block is a block on the location,
+     * Checks if the block is a block on the location.
+     *
      * @param location The location
      * @return True when the block is a block otherwise false
      */
