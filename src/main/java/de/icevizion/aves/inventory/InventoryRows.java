@@ -5,6 +5,7 @@ package de.icevizion.aves.inventory;
  */
 
 public enum InventoryRows {
+
 	ONE(9),
 	TWO(18),
 	THREE(27),
