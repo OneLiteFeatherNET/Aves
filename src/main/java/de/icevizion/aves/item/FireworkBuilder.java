@@ -62,6 +62,9 @@ public final class FireworkBuilder extends ItemBuilder {
      */
 
     public Firework spawn(Location location) {
+        if (location == null) {
+            throw new IllegalArgumentException("The location can not be null");
+        }
         Firework fw = (Firework) location.getWorld().spawnEntity(location, EntityType.FIREWORK);
         fw.setFireworkMeta(fireworkMeta);
         return fw;
