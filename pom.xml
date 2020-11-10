@@ -28,6 +28,10 @@
 
     <repositories>
         <repository>
+            <id>gitlab-maven</id>
+            <url>https://gitlab.madfix.me/api/v4/projects/73/packages/maven</url>
+        </repository>
+        <repository>
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
