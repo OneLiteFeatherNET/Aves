@@ -146,6 +146,56 @@ public class WrappedLocation {
         }
     }
 
+    /**
+     * Adds the specified values to the location.
+     * If the {@link Location} is not null, it will also be updated
+     * If the {@link Vector} is not null, it will also be updated
+     * @param x The x value to add
+     * @param y The y value to add
+     * @param z The z value to add
+     */
+
+    public WrappedLocation add(int x, int y, int z) {
+        this.x += x;
+        this.y += y;
+        this.z += z;
+
+        if (location != null) {
+            location.add(x, y, z);
+        }
+
+        if (vector != null) {
+            vector.add(new Vector(x ,y ,z));
+        }
+
+        return this;
+    }
+
+    /**
+     * Subtracts the specified values from the location.
+     * If the {@link Location} is not null, it will also be updated
+     * If the {@link Vector} is not null, it will also be updated
+     * @param x The x value to subtract
+     * @param y The y value to subtract
+     * @param z The z value to subtract
+     */
+
+    public WrappedLocation subtract(int x, int y, int z) {
+        this.x -= x;
+        this.y -= y;
+        this.z -= z;
+
+        if (location != null) {
+            location.subtract(x, y, z);
+        }
+
+        if (vector != null) {
+            vector.subtract(new Vector(x ,y ,z));
+        }
+
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
