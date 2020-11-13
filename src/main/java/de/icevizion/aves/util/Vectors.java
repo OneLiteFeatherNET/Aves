@@ -3,6 +3,7 @@ package de.icevizion.aves.util;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.Random;
@@ -126,22 +127,22 @@ public class Vectors {
         return v;
     }
 
-    public static Vector rotateAboutX(Vector vect, double a) {
-        double Y = Math.cos(a) * vect.getY() - Math.sin(a) * vect.getZ();
-        double Z = Math.sin(a) * vect.getY() + Math.cos(a) * vect.getZ();
-        return vect.setY(Y).setZ(Z);
+    public static Vector rotateAboutX(Vector vector, double a) {
+        double Y = Math.cos(a) * vector.getY() - Math.sin(a) * vector.getZ();
+        double Z = Math.sin(a) * vector.getY() + Math.cos(a) * vector.getZ();
+        return vector.setY(Y).setZ(Z);
     }
 
-    public static Vector rotateAboutY(Vector vect, double b) {
-        double X = Math.cos(b) * vect.getX() + Math.sin(b) * vect.getZ();
-        double Z = -Math.sin(b) * vect.getX() + Math.cos(b) *vect.getZ();
-        return vect.setX(X).setZ(Z);
+    public static Vector rotateAboutY(Vector vector, double b) {
+        double X = Math.cos(b) * vector.getX() + Math.sin(b) * vector.getZ();
+        double Z = -Math.sin(b) * vector.getX() + Math.cos(b) *vector.getZ();
+        return vector.setX(X).setZ(Z);
     }
 
-    public static Vector rotateAboutZ(Vector vect, double c) {
-        double X = Math.cos(c) * vect.getX() - Math.sin(c) * vect.getY();
-        double Y = Math.sin(c) * vect.getX() + Math.cos(c) * vect.getY();
-        return vect.setX(X).setY(Y);
+    public static Vector rotateAboutZ(Vector vector, double c) {
+        double X = Math.cos(c) * vector.getX() - Math.sin(c) * vector.getY();
+        double Y = Math.sin(c) * vector.getX() + Math.cos(c) * vector.getY();
+        return vector.setX(X).setY(Y);
     }
 
     public static Vector getRandomVector() {
@@ -162,6 +163,29 @@ public class Vectors {
         double x = Math.cos(rnd);
         double z = Math.sin(rnd);
         return new Vector(x, 0.0D, z);
+    }
+
+    public static Vector ordinalEdge(int ordinal, BoundingBox bb) {
+        switch (ordinal) {
+            case 0:
+                return new Vector(bb.getMinX(), bb.getMinY(), bb.getMinZ());
+            case 1:
+                return new Vector(bb.getMinX(), bb.getMinY(), bb.getMaxZ());
+            case 2:
+                return new Vector(bb.getMaxX(), bb.getMinY(), bb.getMaxZ());
+            case 3:
+                return new Vector(bb.getMaxX(), bb.getMinY(), bb.getMinZ());
+            case 4:
+                return new Vector(bb.getMinX(), bb.getMaxY(), bb.getMinZ());
+            case 5:
+                return new Vector(bb.getMinX(), bb.getMaxY(), bb.getMaxZ());
+            case 6:
+                return new Vector(bb.getMaxX(), bb.getMaxY(), bb.getMaxZ());
+            case 7:
+                return new Vector(bb.getMaxX(), bb.getMaxY(), bb.getMinZ());
+            default:
+                throw new ArrayIndexOutOfBoundsException(ordinal + " not in 0..7");
+        }
     }
 
     public static Vector getBlockToVector(Block block) {
