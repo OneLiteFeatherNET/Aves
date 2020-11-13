@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
  * @since 18/04/2020 15:44
  */
 
+@Deprecated
 public class ServerHelper {
 
     /**

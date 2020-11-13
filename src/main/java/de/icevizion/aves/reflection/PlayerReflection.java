@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
  * @version 1.0
  * @since 18/04/2020 15:33
  */
-
+@Deprecated
 public class PlayerReflection {
 
     private final static Class<?> craftPlayerClass, entityPlayerClass;
