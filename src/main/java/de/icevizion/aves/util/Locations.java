@@ -3,9 +3,6 @@ package de.icevizion.aves.util;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * The class contains some methods that work with {@link Location}
  */
@@ -73,29 +70,5 @@ public class Locations {
         return location.getBlockX() == location2.getBlockX()
                 && location.getBlockY() == location2.getBlockY()
                 && location.getBlockZ() == location2.getBlockZ();
-    }
-
-    public static List<Location> addNeightBours(Location location) {
-        int blockX = location.getBlockX();
-        int blockY = location.getBlockY();
-        int blockZ = location.getBlockZ();
-
-        List<Location> validLocations = new ArrayList<>();
-
-        for (int y = -1; y < 2; y++) {
-            for (int x =  -1; x < 2; x++) {
-                for (int z = -1; z < 2; z++) {
-                    if (blockY + y < 1 || blockY + y > 255) continue;
-                    Location current = new Location(location.getWorld(), blockX + x, blockY + y, blockZ + z);
-
-                    validLocations.add(current);
-
-                }
-            }
-        }
-
-        return validLocations;
-
-
     }
 }
