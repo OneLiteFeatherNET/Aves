@@ -27,7 +27,7 @@
     <repositories>
         <repository>
             <id>gitlab-maven</id>
-            <url>https://gitlab.madfix.me/api/v4/projects/73/packages/maven</url>
+            <url>https://gitlab.madfix.me/api/v4/groups/28/-/packages/maven/</url>
         </repository>
         <repository>
             <id>papermc</id>
