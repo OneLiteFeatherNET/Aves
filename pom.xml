@@ -54,7 +54,7 @@
         <dependency>
             <groupId>net.titan</groupId>
             <artifactId>cloudspigotapi</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
