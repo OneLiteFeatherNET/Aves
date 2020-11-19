@@ -53,7 +53,7 @@
         </dependency>
         <dependency>
             <groupId>net.titan</groupId>
-            <artifactId>cloudspigotapi</artifactId>
+            <artifactId>cloudspigot</artifactId>
             <version>1.0.1</version>
             <scope>provided</scope>
         </dependency>
