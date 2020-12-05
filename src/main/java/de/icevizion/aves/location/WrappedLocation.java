@@ -61,6 +61,16 @@ public class WrappedLocation {
     }
 
     /**
+     * Converts a given location to a {@link WrappedLocation} with all relevant values.
+     * @param location The location to convert
+     * @return the transformed location as {@link WrappedLocation}
+     */
+
+    public static WrappedLocation of(Location location) {
+        return new WrappedLocation(location.getWorld().getName(), location.getX(), location.getY(), location.getZ());
+    }
+
+    /**
      * Give the wrapper a world name.
      * @param world The world name to set
      */
