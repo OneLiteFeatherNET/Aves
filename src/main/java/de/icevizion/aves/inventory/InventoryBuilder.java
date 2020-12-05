@@ -149,7 +149,7 @@ public class InventoryBuilder {
 	}
 
 	public void setInventoryTitle(String title) {
-		if(this.title.equals(title)) {
+		if (this.title.equals(title)) {
 			return;
 		}
 
