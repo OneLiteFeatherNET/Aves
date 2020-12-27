@@ -11,6 +11,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+/**
+ * @author theEvilReaper
+ * @since 1.0.0
+ * @version 1.0.1
+ */
+
 public final class JsonFileLoader {
 
     /**
@@ -27,6 +33,17 @@ public final class JsonFileLoader {
                 System.out.println("Created new file: " + Files.createFile(path).getFileName().toString());
             }
             gson.toJson(object, TypeToken.get(object.getClass()).getType(), fw);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void save(Path path, TypeToken token, Gson gson) {
+        try (BufferedWriter fw = Files.newBufferedWriter(path)) {
+            if (!Files.exists(path)) {
+                System.out.println("Created new file: " + Files.createFile(path).getFileName().toString());
+            }
+            gson.toJson(token, fw);
         } catch (IOException e) {
             e.printStackTrace();
         }
