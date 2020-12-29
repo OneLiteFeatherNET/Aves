@@ -3,7 +3,14 @@ package de.icevizion.aves.util;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class ItemUtil {
+/**
+ * The class contains some methods to work with {@link ItemStack}.
+ * @author theEvilReaper
+ * @since 1.0.6
+ * @version 1.0.0
+ */
+
+public class Items {
 
     /**
      * Checks if two items are completely equal.

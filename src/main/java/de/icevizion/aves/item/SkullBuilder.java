@@ -22,12 +22,14 @@ public final class SkullBuilder extends ItemBuilder {
      * @return
      */
 
-    public SkullBuilder setSkinOverValues(String name, String skinValue, String skinSignature) {
+    public SkullBuilder setSkinOverValues(UUID uuid, String name, String skinValue, String skinSignature) {
         Objects.requireNonNull(skinValue, "SkinValue can not be null"); 
         Objects.requireNonNull(skinSignature, "SkinSignature can not be null");
-        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+        PlayerProfile profile = Bukkit.createProfile(uuid);
         profile.setProperty(new ProfileProperty(name, skinValue, skinSignature));
-        getItemMeta().setPlayerProfile(profile);
+        SkullMeta skullMeta = getItemMeta();
+        skullMeta.setPlayerProfile(profile);
+        stack.setItemMeta(skullMeta);
         return this;
     }
 
@@ -41,7 +43,9 @@ public final class SkullBuilder extends ItemBuilder {
         Objects.requireNonNull(skinValue, "SkinValue can not be null");
         PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
         profile.setProperty(new ProfileProperty(name, skinValue));
-        getItemMeta().setPlayerProfile(profile);
+        SkullMeta skullMeta = getItemMeta();
+        skullMeta.setPlayerProfile(profile);
+        stack.setItemMeta(skullMeta);
         return this;
     }
 
@@ -53,24 +57,5 @@ public final class SkullBuilder extends ItemBuilder {
     @Override
     protected SkullMeta getItemMeta() {
         return (SkullMeta) super.getItemMeta();
-    }
-
-    public enum SkullType {
-
-        SKELETON(0),
-        SKELETON_WITHER(1),
-        ZOMBIE(2),
-        PLAYER(3),
-        CREEPER(4);
-
-        final int data;
-
-        SkullType(int data) {
-            this.data = data;
-        }
-
-        public int getData() {
-            return data;
-        }
     }
 }

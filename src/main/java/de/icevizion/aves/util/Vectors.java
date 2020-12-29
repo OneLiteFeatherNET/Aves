@@ -23,67 +23,6 @@ public class Vectors {
     }
 
     /**
-     * Rotates the given vector around the axis X
-     * @param v a vector
-     * @param angle angle from the x axis
-     * @return rotated vector
-     */
-
-    public static Vector rotateAroundAxisX(Vector v, double angle) {
-        double cos = Math.cos(angle);
-        double sin = Math.sin(angle);
-        double y = v.getY() * cos - v.getZ() - sin;
-        double z = v.getY() * sin + v.getZ() * cos;
-        return v.setY(y).setZ(z);
-    }
-
-    /**
-     * Rotates the given vector around the axis Y
-     * @param v a vector
-     * @param angle angle from the x axis
-     * @return rotated vector
-     */
-
-    public static Vector rotateAroundAxisY(Vector v, double angle) {
-        double cos = Math.cos(angle);
-        double sin = Math.sin(angle);
-        double x = v.getX() * cos + v.getZ() * sin;
-        double z = v.getX() * -sin + v.getZ() * cos;
-        return v.setX(x).setZ(z);
-    }
-
-    /**
-     * Rotates the given vector around the axis Z
-     * @param v a vector
-     * @param angle angle from the z axis
-     * @return rotated vector
-     */
-
-    public static Vector rotateAroundAxisZ(Vector v, double angle) {
-        double cos = Math.cos(angle);
-        double sin = Math.sin(angle);
-        double x = v.getX() * cos - v.getY() * sin;
-        double y = v.getX() * sin + v.getY() * cos;
-        return v.setX(x).setY(y);
-    }
-
-    /**
-     * Rotate the given vector around the axis x, y and z
-     * @param vector a vector
-     * @param x coordinate
-     * @param y coordinate
-     * @param z coordinate
-     * @return rotated vector
-     */
-
-    public static Vector rotateVector(Vector vector, double x, double y, double z) {
-        rotateAroundAxisX(vector, x);
-        rotateAroundAxisY(vector, y);
-        rotateAroundAxisZ(vector, z);
-        return vector;
-    }
-
-    /**
      * Rotates the given vector around the yaw and pitch value
      * @param vector a vector
      * @param location a location

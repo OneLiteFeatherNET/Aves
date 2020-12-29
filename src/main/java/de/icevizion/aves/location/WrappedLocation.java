@@ -9,6 +9,9 @@ import java.util.Objects;
 
 /**
  * The class is a wrapper for the location class from bukkit.
+ * @author theEvilReaper
+ * @since 1.0.5
+ * @version 1.3.0
  */
 
 public class WrappedLocation {
@@ -58,6 +61,31 @@ public class WrappedLocation {
         this.z = z;
         this.yaw = yaw;
         this.pitch = pitch;
+    }
+
+    /**
+     * Create a new object from that class with the given values.
+     * @param location The location to wrap
+     */
+
+    private WrappedLocation(Location location) {
+        this.world = location.getWorld().getName();
+        this.x = location.getX();
+        this.y = location.getY();
+        this.z = location.getZ();
+        this.yaw = location.getYaw();
+        this.pitch = location.getPitch();
+        this.location = location;
+    }
+
+    /**
+     * Converts a given location to a {@link WrappedLocation} with all relevant values.
+     * @param location The location to convert
+     * @return the transformed location as {@link WrappedLocation}
+     */
+
+    public static WrappedLocation of(Location location) {
+        return new WrappedLocation(location);
     }
 
     /**

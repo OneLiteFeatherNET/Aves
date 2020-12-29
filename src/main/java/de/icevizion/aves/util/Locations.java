@@ -5,6 +5,9 @@ import org.bukkit.block.Block;
 
 /**
  * The class contains some methods that work with {@link Location}
+ * @author theEvilReaper
+ * @since 1.0.0
+ * @version 1.0.0
  */
 public class Locations {
 
