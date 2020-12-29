@@ -9,7 +9,9 @@ import java.util.Objects;
 
 /**
  * The class is a wrapper for the location class from bukkit.
- * since 1.0.5
+ * @author theEvilReaper
+ * @since 1.0.5
+ * @version 1.3.0
  */
 
 public class WrappedLocation {
