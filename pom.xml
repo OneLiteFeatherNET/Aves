@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.icevizion.lib</groupId>
-    <artifactId>Aves-1.8</artifactId>
+    <artifactId>Aves</artifactId>
     <version>1.0.7-SNAPSHOT</version>
 
     <properties>
