@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.icevizion.lib</groupId>
-    <artifactId>aves</artifactId>
-    <version>1.0.7</version>
+    <artifactId>Aves</artifactId>
+    <version>1.0.8-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
