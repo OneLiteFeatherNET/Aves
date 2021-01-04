@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.icevizion.lib</groupId>
-    <artifactId>Aves-1.8</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <artifactId>Aves</artifactId>
+    <version>1.0.8-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -33,10 +33,6 @@
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
-        <repository>
-            <id>inventive-repo</id>
-            <url>https://repo.inventivetalent.org/content/groups/public/</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -47,17 +43,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.inventivetalent</groupId>
-            <artifactId>reflectionhelper</artifactId>
-            <version>1.14.5-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>net.titan</groupId>
             <artifactId>cloudspigot</artifactId>
             <version>1.0.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -89,4 +81,5 @@
             </resource>
         </resources>
     </build>
+
 </project>
