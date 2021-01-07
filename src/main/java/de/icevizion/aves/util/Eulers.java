@@ -8,6 +8,10 @@ import org.bukkit.util.EulerAngle;
 
 public class Eulers {
 
+    public static final EulerAngle BLOCK_HAND_POSE = new EulerAngle(Math.toRadians(-15), Math.toRadians(-45), 0);
+
+    public static final EulerAngle ITEM_HAND_POSE = new EulerAngle(0,0,0);
+
     /**
      * Converts a given degree value to an EulerAngle.
      * @param degrees The degree value
