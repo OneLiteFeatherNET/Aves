@@ -92,8 +92,8 @@ public class Vectors {
     }
 
     public static Vector getBackVector(Location location) {
-        float newZ = (float)(location.getZ() + 1.0D * Math.sin(Math.toRadians(location.getYaw() + 90.0F)));
-        float newX = (float)(location.getX() + 1.0D * Math.cos(Math.toRadians(location.getYaw() + 90.0F)));
+        float newZ = (float)(location.getZ() + Math.sin(Math.toRadians(location.getYaw() + 90.0F)));
+        float newX = (float)(location.getX() + Math.cos(Math.toRadians(location.getYaw() + 90.0F)));
         return new Vector(newX - location.getX(), 0.0D, newZ - location.getZ());
     }
 
