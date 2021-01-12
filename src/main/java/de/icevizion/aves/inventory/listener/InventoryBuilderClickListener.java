@@ -8,8 +8,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * @author Nico (JumpingPxl) Middendorf
@@ -31,18 +29,17 @@ public class InventoryBuilderClickListener implements Listener {
 			return;
 		}
 
-		Optional<InventoryBuilder.Holder> optionalHolder = inventoryListener.getInventoryHolder(event,
-				player);
-		if (!optionalHolder.isPresent()) {
+		var optionalHolder = inventoryListener.getInventoryHolder(event, player);
+		if (optionalHolder.isEmpty()) {
 			return;
 		}
 
 		event.setCancelled(true);
 		InventoryBuilder.Holder holder = optionalHolder.get();
-		Consumer<ClickEvent> clickEventConsumer = holder.getInventoryBuilder().getClickEvents().get(
-				event.getRawSlot());
+		var clickEventConsumer = holder.getInventoryBuilder()
+				.getClickEvents().get(event.getRawSlot());
 		if (Objects.nonNull(clickEventConsumer)) {
-			ClickEvent clickEvent = new ClickEvent(inventoryListener.getCloudService(), event);
+			ClickEvent clickEvent = new ClickEvent(event);
 			clickEventConsumer.accept(clickEvent);
 		}
 	}

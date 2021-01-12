@@ -7,8 +7,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
-import java.util.Optional;
-
 /**
  * @author Nico (JumpingPxl) Middendorf
  */
@@ -28,14 +26,13 @@ public class InventoryBuilderCloseListener implements Listener {
 			return;
 		}
 
-		Optional<InventoryBuilder.Holder> optionalHolder = inventoryListener.getInventoryHolder(event,
-				player);
-		if (!optionalHolder.isPresent()) {
+		var optionalHolder = inventoryListener.getInventoryHolder(event, player);
+		if (optionalHolder.isEmpty()) {
 			return;
 		}
 
 		InventoryBuilder.Holder holder = optionalHolder.get();
-		CloseEvent closeEvent = new CloseEvent(inventoryListener.getCloudService(), event);
+		CloseEvent closeEvent = new CloseEvent(event);
 		holder.getInventoryBuilder().onInventoryClose(closeEvent);
 		if (closeEvent.isCancelled()) {
 			player.openInventory(holder.getInventory());
