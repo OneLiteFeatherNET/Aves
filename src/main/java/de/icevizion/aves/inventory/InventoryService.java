@@ -11,7 +11,10 @@ import java.util.Objects;
 import java.util.function.Function;
 
 /**
+ * This class contains some methods to open the different inventories available in the system.
  * @author Nico (JumpingPxl) Middendorf
+ * @version 1.0.0
+ * @since 1.0.6
  */
 
 public class InventoryService implements Service {
@@ -22,16 +25,29 @@ public class InventoryService implements Service {
 		translatedInventories = Maps.newHashMap();
 	}
 
+	/**
+	 * Get a inventory from the underlying cache.
+	 * @param inventoryClass The class from the inventory
+	 * @return Returns all inventory that matches with the given class
+	 */
+
 	public Map<Locale, TranslatedInventory> getCachedInventories(
 			Class<? extends TranslatedInventory> inventoryClass) {
-		TranslatedCache translatedCache = translatedInventories.computeIfAbsent(inventoryClass,
+		var translatedCache = translatedInventories.computeIfAbsent(inventoryClass,
 				function -> new TranslatedCache());
 		return translatedCache.getCachedInventories();
 	}
 
+	/**
+	 * Opens a {@link PersonalInventory} for a given {@link CloudPlayer}.
+	 * @param cloudPlayer The player to whom the inventory should be opened
+	 * @param inventoryBuilder A valid instance to an {@link InventoryBuilder}
+	 * @param onlyBuildIfNew Whether the inventory should be rebuilt
+	 */
+
 	private void openInventory(CloudPlayer cloudPlayer, InventoryBuilder inventoryBuilder,
 	                           boolean onlyBuildIfNew) {
-		Player player = cloudPlayer.getPlayer();
+		var player = cloudPlayer.getPlayer();
 		if(!onlyBuildIfNew || Objects.isNull(inventoryBuilder.getInventory())) {
 			inventoryBuilder.buildInventory();
 		}
@@ -39,9 +55,23 @@ public class InventoryService implements Service {
 		player.openInventory(inventoryBuilder.getInventory());
 	}
 
+	/**
+	 * Opens a {@link PersonalInventory} for a given {@link CloudPlayer}.
+	 * @param cloudPlayer The player to whom the inventory should be opened
+	 * @param personalInventory A instance to an {@link PersonalInventory}
+	 */
+
 	public void openPersonalInventory(CloudPlayer cloudPlayer, PersonalInventory personalInventory) {
 		openInventory(cloudPlayer, personalInventory, false);
 	}
+
+
+	/**
+	 * Opens an inventory that extends {@link TranslatedInventory} for a given {@link CloudPlayer}.
+	 * @param cloudPlayer The player to whom the inventory should be opened
+	 * @param inventoryClass A class who extends {@link TranslatedInventory}
+	 * @param ifAbsent The function what happens when the player has no registered inventory
+	 */
 
 	public void openTranslatedInventory(CloudPlayer cloudPlayer,
 	                                    Class<? extends TranslatedInventory> inventoryClass,
