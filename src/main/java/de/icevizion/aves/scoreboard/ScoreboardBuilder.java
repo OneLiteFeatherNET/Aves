@@ -31,8 +31,7 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 	 */
 	protected ScoreboardBuilder(Scoreboard scoreboard, CloudPlayer cloudPlayer) {
 		super(scoreboard, cloudPlayer);
-
-		cachedScoreboards.put(cloudPlayer.getUniqueId(), this);
+		cachedScoreboards.putIfAbsent(cloudPlayer.getUniqueId(), this);
 	}
 
 	/**
@@ -43,11 +42,9 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 	 * @return the scoreboard builder
 	 */
 	public static ScoreboardBuilder create(Translator translator, CloudPlayer cloudPlayer) {
-		ScoreboardBuilder scoreboard = (ScoreboardBuilder) cachedScoreboards.get(
-				cloudPlayer.getUniqueId());
+		ScoreboardBuilder scoreboard = (ScoreboardBuilder) cachedScoreboards.get(cloudPlayer.getUniqueId());
 		if (Objects.isNull(scoreboard)) {
-			scoreboard = new ScoreboardBuilder(Bukkit.getScoreboardManager().getNewScoreboard(),
-					cloudPlayer);
+			scoreboard = new ScoreboardBuilder(Bukkit.getScoreboardManager().getNewScoreboard(), cloudPlayer);
 		}
 
 		scoreboard.setTranslator(translator);
@@ -63,7 +60,23 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 	 * @throws IllegalArgumentException if no scoreboard builder is registered to the given player
 	 */
 	public static ScoreboardBuilder of(Translator translator, CloudPlayer cloudPlayer) {
-		if (!cachedScoreboards.containsKey(cloudPlayer.getUniqueId())) {
+		var scoreboard = cachedScoreboards.get(cloudPlayer.getUniqueId());
+
+		if (Objects.isNull(scoreboard)) {
+			throw new IllegalArgumentException("No scoreboard is registered for that player");
+		}
+
+		String baseName = Objects.isNull(translator) ? "null" : translator.getBaseName();
+
+		return scoreboard.getCachedTranslations().computeIfAbsent(baseName,
+				function -> {
+					ScoreboardBuilder scoreboardBuilder = (ScoreboardBuilder) scoreboard;
+					scoreboardBuilder.setTranslator(translator);
+					return scoreboardBuilder;
+				});
+	}
+
+		/*if (!cachedScoreboards.containsKey(cloudPlayer.getUniqueId())) {
 			throw new IllegalArgumentException("No scoreboard is registered for that player");
 		}
 
@@ -75,7 +88,7 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 					scoreboardBuilder.setTranslator(translator);
 					return scoreboardBuilder;
 				});
-	}
+	}*/
 
 	/**
 	 * Add task to the scoreboard builder.
@@ -215,8 +228,7 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 	 * @return the locale
 	 */
 	protected Locale getLocale() {
-		return Objects.isNull(getCloudPlayer()) ? translator.getDefaultLocale()
-				: getCloudPlayer().getLocale();
+		return Objects.isNull(getCloudPlayer()) ? translator.getDefaultLocale() : getCloudPlayer().getLocale();
 	}
 
 	/**
