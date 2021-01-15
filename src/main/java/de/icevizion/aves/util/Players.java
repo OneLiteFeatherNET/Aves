@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Contains some methods to work with {@link Player} objects
  */
-public class PlayerUtil {
+public class Players {
 
     /**
      * Drops the complete inventory content from a player to a specific location.
@@ -91,7 +91,8 @@ public class PlayerUtil {
      */
 
     public static Optional<Player> getRandomPlayer(List<Player> players) {
-        return Optional.of(players.get(new Random(players.size()).nextInt(players.size())));
+        var random = new Random(players.size());
+        return Optional.of(players.get(random.nextInt(players.size())));
     }
 
     /**
@@ -102,7 +103,7 @@ public class PlayerUtil {
      */
 
     public static void sendTab(Player player, String header, String footer) {
-        player.setPlayerListHeaderFooter(new TextComponent(header), new TextComponent(footer));
+        player.setPlayerListHeaderFooter(header, footer);
     }
 
     /**
@@ -113,8 +114,8 @@ public class PlayerUtil {
      */
 
     public static void sendTab(Player player, String[] headers, String[] footers) {
-        BaseComponent[] headerComponents = new BaseComponent[headers.length];
-        BaseComponent[] footerComponents = new BaseComponent[footers.length];
+        var headerComponents = new BaseComponent[headers.length];
+        var footerComponents = new BaseComponent[footers.length];
 
         for (int i = 0; i < headers.length; i++) {
             headerComponents[i] = new TextComponent(headers[i]);
