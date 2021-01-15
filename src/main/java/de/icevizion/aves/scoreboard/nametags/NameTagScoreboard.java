@@ -2,7 +2,6 @@ package de.icevizion.aves.scoreboard.nametags;
 
 import com.google.common.collect.Maps;
 import de.icevizion.aves.scoreboard.ScoreboardBuilder;
-import net.titan.cloudcore.player.rank.Rank;
 import net.titan.spigot.player.CloudPlayer;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -85,8 +84,7 @@ public class NameTagScoreboard {
 	 */
 	public void addPlayer(CloudPlayer cloudPlayer) {
 		NameTagTeam team = getTeam(cloudPlayer);
-		Rank rank = cloudPlayer.getRank();
-		team.setPrefix(rank.getPrefix());
+		team.setPrefix(cloudPlayer.getRank().getPrefix());
 		scoreboard.resetScores(cloudPlayer.getDisplayName());
 	}
 
