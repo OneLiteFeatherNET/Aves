@@ -21,6 +21,9 @@ public class ScoreboardObjective {
 	 * @param scoreboardBuilder the scoreboard builder
 	 * @param objectiveName     the objective name
 	 */
+
+	//TODO: Change to non deprecated method
+
 	protected ScoreboardObjective(ScoreboardBuilder scoreboardBuilder, String objectiveName) {
 		this.scoreboard = scoreboardBuilder;
 
