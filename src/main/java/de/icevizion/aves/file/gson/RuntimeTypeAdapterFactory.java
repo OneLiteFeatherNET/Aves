@@ -19,15 +19,15 @@ import java.util.Map;
 /**
  * @author theEvilReaper
  * @version 1.0.0
- * @since
+ * @since 1.0.9
  **/
 
 public class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
     private final Class<?> baseType;
     private final String typeFieldName;
-    private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<String, Class<?>>();
-    private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<Class<?>, String>();
+    private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<>();
+    private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<>();
     private final boolean maintainType;
 
     private RuntimeTypeAdapterFactory(Class<?> baseType, String typeFieldName, boolean maintainType) {
