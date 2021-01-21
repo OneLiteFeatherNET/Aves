@@ -68,7 +68,8 @@ public final class PotionBuilder extends ItemBuilder {
 
         POTION(Material.POTION),
         SPLASH(Material.SPLASH_POTION),
-        LINGERING(Material.LINGERING_POTION);
+        LINGERING(Material.LINGERING_POTION),
+        TIPPED_ARROW(Material.TIPPED_ARROW);
 
         private final Material material;
 
