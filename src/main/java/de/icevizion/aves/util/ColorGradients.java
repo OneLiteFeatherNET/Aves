@@ -9,7 +9,7 @@ import java.util.Arrays;
 /**
  * Taken from: https://www.spigotmc.org/threads/gradient-chat-particles.470496/#post-3985977
  */
-
+@Deprecated
 public class ColorGradients {
 
     public static Interpolator LINEAR_INTERPOLATOR = ((from, to, max) -> {

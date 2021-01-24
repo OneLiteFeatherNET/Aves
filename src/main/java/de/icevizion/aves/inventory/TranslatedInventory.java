@@ -45,9 +45,22 @@ public abstract class TranslatedInventory extends InventoryBuilder {
 		super.setItem(slot, item.getItemBuilder());
 	}
 
+	/**
+	 * Sets a specified item to a given slot.
+	 * @param slot The slot id
+	 * @param item The item to set
+	 */
+
 	public final void setBackgroundItem(int slot, InventoryItem item) {
 		super.setBackgroundItem(slot, item.getItemBuilder());
 	}
+
+	/**
+	 * Sets a specified item for a specified range.
+	 * @param fromIndex The start index
+ 	 * @param toIndex The end index
+	 * @param item The item to set
+	 */
 
 	public final void setBackgroundItems(int fromIndex, int toIndex, InventoryItem item) {
 		for (int i = fromIndex; i <= toIndex; i++) {
@@ -55,10 +68,21 @@ public abstract class TranslatedInventory extends InventoryBuilder {
 		}
 	}
 
+	/**
+	 * Change the name of the underlying inventory.
+	 * @param key he translation key
+	 */
+
 	@Override
 	public final void setInventoryTitle(String key) {
 		setInventoryTitle(key, new Object[0]);
 	}
+
+	/**
+	 * Change the name of the underlying inventory.
+	 * @param key The translation key
+	 * @param arguments The arguments for the keys
+	 */
 
 	public final void setInventoryTitle(String key, Object... arguments) {
 		String title = translator.getString(locale, key, arguments);

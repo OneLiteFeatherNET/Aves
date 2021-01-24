@@ -50,13 +50,9 @@ public class InventoryBuilder {
 		firstDraw = true;
 	}
 
-	public void draw() {
+	public void draw() { }
 
-	}
-
-	public void onInventoryClose(CloseEvent closeEvent) {
-
-	}
+	public void onInventoryClose(CloseEvent closeEvent) { }
 
 	public final InventoryRows getRows() {
 		return rows;

@@ -1,7 +1,6 @@
 package de.icevizion.aves.scoreboard.nametags.listener;
 
 import de.icevizion.aves.scoreboard.nametags.NameTagService;
-import net.titan.spigot.player.CloudPlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -24,7 +23,7 @@ public class NameTagPlayerJoinListener implements Listener {
 			return;
 		}
 
-		CloudPlayer cloudPlayer = nameTagService.getCloudService().getPlayer(event.getPlayer());
+		var cloudPlayer = nameTagService.getCloud().getPlayer(event.getPlayer());
 		nameTagService.loadPlayer(cloudPlayer);
 	}
 }

@@ -4,6 +4,7 @@ package de.icevizion.aves.util;
  * Taken from: https://www.spigotmc.org/threads/gradient-chat-particles.470496/#post-3985977
  */
 
+@Deprecated
 @FunctionalInterface
 public interface Interpolator {
 

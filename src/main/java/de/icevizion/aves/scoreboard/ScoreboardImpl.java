@@ -69,12 +69,7 @@ public class ScoreboardImpl {
 	 * @return the optional team
 	 */
 	public Optional<Team> getOptionalTeam(Object teamName) {
-		if (!teamExists(teamName)) {
-			return Optional.empty();
-		}
-
-		Team team = scoreboard.getTeam(teamName.toString());
-		return Optional.ofNullable(team);
+		return Optional.ofNullable(scoreboard.getTeam(teamName.toString()));
 	}
 
 	/**
