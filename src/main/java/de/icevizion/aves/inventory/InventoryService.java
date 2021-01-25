@@ -45,7 +45,7 @@ public class InventoryService implements Service {
 	 * @param onlyBuildIfNew Whether the inventory should be rebuilt
 	 */
 
-	private void openInventory(CloudPlayer cloudPlayer, InventoryBuilder inventoryBuilder,
+	public void openInventory(CloudPlayer cloudPlayer, InventoryBuilder inventoryBuilder,
 	                           boolean onlyBuildIfNew) {
 		var player = cloudPlayer.getPlayer();
 		if(!onlyBuildIfNew || Objects.isNull(inventoryBuilder.getInventory())) {
