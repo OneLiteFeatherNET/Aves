@@ -111,6 +111,7 @@ public class NameTagScoreboard {
 	}
 
 	public void reset() {
+		if (teams.isEmpty()) return;
 		teams.forEach((name, nameTagTeam) -> {
 			nameTagTeam.getTeam().removeEntry(name);
 			nameTagTeam.getTeam().addEntry("§0null");
