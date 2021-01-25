@@ -62,14 +62,10 @@ public class NameTagService implements Service {
 	}
 
 	public void removePlayer(CloudPlayer cloudPlayer) {
-		if(!nameTagScoreboards.containsKey(cloudPlayer.getUniqueId())) {
-			return;
-		}
-
-		NameTagScoreboard playerNameTag = nameTagScoreboards.remove(cloudPlayer.getUniqueId());
-		playerNameTag.reset();
-		nameTagScoreboards.values().forEach(
-				nameTagScoreboard -> nameTagScoreboard.removePlayer(cloudPlayer));
+		var playerTag = nameTagScoreboards.remove(cloudPlayer.getUniqueId());
+		if (playerTag == null) return;
+		playerTag.reset();
+		nameTagScoreboards.values().forEach(nameTagScoreboard -> nameTagScoreboard.removePlayer(cloudPlayer));
 	}
 
 	public void removeOnlinePlayers() {
