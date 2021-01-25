@@ -54,34 +54,6 @@ public class InventoryBuilder {
 
 	public void onInventoryClose(CloseEvent closeEvent) { }
 
-	public final InventoryRows getRows() {
-		return rows;
-	}
-
-	public final boolean isFirstDraw() {
-		return firstDraw;
-	}
-
-	public final Map<Integer, Consumer<ClickEvent>> getClickEvents() {
-		return clickEvents;
-	}
-
-	public final Map<Integer, ItemBuilder> getItems() {
-		return items;
-	}
-
-	public final ItemBuilder getItem(int slot) {
-		return items.get(slot);
-	}
-
-	public Holder getHolder() {
-		return holder;
-	}
-
-	public List<HumanEntity> getViewers() {
-		return inventory.getViewers();
-	}
-
 	public final void clearItems() {
 		items.clear();
 		clickEvents.clear();
@@ -117,6 +89,11 @@ public class InventoryBuilder {
 		}
 	}
 
+	/**
+	 * Change the size of the inventory. The inventory will be rebuild when the size changes.
+	 * @param rows The new size of the inventory
+	 */
+
 	public final void setInventorySize(InventoryRows rows) {
 		if (this.rows == rows) {
 			return;
@@ -144,6 +121,11 @@ public class InventoryBuilder {
 				(slot, item) -> inventory.setItem(slot, Objects.isNull(item) ? null : item.build()));
 	}
 
+	/**
+	 * Change the title from the inventory. The inventory will be rebuild when the size changes.
+	 * @param title The new title for the inventory
+	 */
+
 	public void setInventoryTitle(String title) {
 		if (this.title.equals(title)) {
 			return;
@@ -153,9 +135,9 @@ public class InventoryBuilder {
 		rebuildInventory();
 	}
 
-	protected final Inventory getInventory() {
-		return inventory;
-	}
+	/**
+	 * Builds the inventory.
+	 */
 
 	protected final void buildInventory() {
 		buildInventory(false);
@@ -173,6 +155,10 @@ public class InventoryBuilder {
 		drawItems();
 	}
 
+	/**
+	 * The method calls the logic to rebuild the inventory
+	 */
+
 	private void rebuildInventory() {
 		Inventory oldInventory = inventory;
 		inventory = Bukkit.createInventory(holder, rows.getSize(), title);
@@ -189,6 +175,53 @@ public class InventoryBuilder {
 		//TODO fix Concurrent Modification Exception
 		oldInventory.getViewers().forEach(humanEntity -> humanEntity.openInventory(inventory));
 		oldInventory.clear();
+	}
+
+	/**
+	 * Returns the given inventory.
+	 * @return The underlying inventory
+	 */
+
+	protected final Inventory getInventory() {
+		return inventory;
+	}
+
+	/**
+	 * Returns the amount of rows from the inventory.
+	 * @return The enum representation for the row
+	 */
+
+	public final InventoryRows getRows() {
+		return rows;
+	}
+
+	public final boolean isFirstDraw() {
+		return firstDraw;
+	}
+
+	/**
+	 * Returns a map which contains all slots who has a registered {@link ClickEvent}
+	 * @return the underlying map
+	 */
+
+	public final Map<Integer, Consumer<ClickEvent>> getClickEvents() {
+		return clickEvents;
+	}
+
+	public final Map<Integer, ItemBuilder> getItems() {
+		return items;
+	}
+
+	public final ItemBuilder getItem(int slot) {
+		return items.get(slot);
+	}
+
+	public Holder getHolder() {
+		return holder;
+	}
+
+	public List<HumanEntity> getViewers() {
+		return inventory.getViewers();
 	}
 
 	public static final class Holder implements InventoryHolder {
