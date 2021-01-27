@@ -54,7 +54,7 @@ public final class SkullBuilder extends ItemBuilder {
      * @return
      */
 
-    public SkullBuilder setSkinOverValues(String skinValue) {
+    public SkullBuilder setSkinOverValue(String skinValue) {
         Objects.requireNonNull(skinValue, "SkinValue can not be null");
         GameProfile gameProfile = new GameProfile(paramUUID, null);
         gameProfile.getProperties().put("textures", new Property( "textures", skinValue));
