@@ -53,3 +53,5 @@ deploy:jdk11:
     - 'mvn $MAVEN_CLI_OPTS deploy -s ci_settings.xml'
   only:
     - master
+    - dev
+    - dev-1.16
