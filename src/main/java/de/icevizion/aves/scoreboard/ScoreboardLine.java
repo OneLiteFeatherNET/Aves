@@ -80,10 +80,6 @@ public class ScoreboardLine {
 	 * @return the scoreboard line
 	 */
 	public ScoreboardLine setPrefix(String key, Object... arguments) {
-		System.out.println(scoreboardBuilder != null);
-		System.out.println(scoreboardBuilder.getTranslator() != null);
-		System.out.println(scoreboardBuilder.getLocale() != null);
-		System.out.println(scoreboardBuilder.getTranslator().getString(scoreboardBuilder.getLocale(), key) != null);
 		String prefix = scoreboardBuilder.getTranslator().getString(scoreboardBuilder.getLocale(), key,
 				arguments);
 		return setStaticPrefix(prefix);
