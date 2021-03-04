@@ -20,7 +20,7 @@ public class NameTagPlayerQuitListener implements Listener {
 
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
-		var cloudPlayer = nameTagService.getCloud().getPlayer(event.getPlayer());
+		var cloudPlayer = nameTagService.getPlayer(event.getPlayer());
 		nameTagService.removePlayer(cloudPlayer);
 		ScoreboardBuilder.of(null, cloudPlayer).delete();
 	}
