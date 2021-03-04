@@ -1,9 +1,13 @@
 package de.icevizion.aves.scoreboard.nametags;
 
 import com.google.common.collect.Maps;
+import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerJoinListener;
+import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerQuitListener;
 import net.titan.spigot.Cloud;
 import net.titan.spigot.player.CloudPlayer;
 import net.titan.spigot.plugin.Service;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import java.util.Map;
 import java.util.UUID;
@@ -17,24 +21,20 @@ public class NameTagService implements Service {
 
 	private static final Map<UUID, NameTagScoreboard> nameTagScoreboards = Maps.newHashMap();
 
-	private final Cloud cloud;
-
 	private boolean activated;
 
-	public NameTagService() {
-		this.cloud = Cloud.getInstance();
-	}
-
-	public Cloud getCloud() {
-		return cloud;
-	}
-
-	public boolean isActivated() {
-		return activated;
+	public NameTagService(Plugin plugin, boolean activated) {
+		this.activated = activated;
+		plugin.getServer().getPluginManager().registerEvents(new NameTagPlayerJoinListener(this), plugin);
+		plugin.getServer().getPluginManager().registerEvents(new NameTagPlayerQuitListener(this), plugin);
 	}
 
 	public void setActivated(boolean activated) {
 		this.activated = activated;
+	}
+
+	public boolean isActivated() {
+		return activated;
 	}
 
 	public static NameTagScoreboard of(CloudPlayer cloudPlayer) {
@@ -58,28 +58,37 @@ public class NameTagService implements Service {
 	}
 
 	public void loadOnlinePlayers() {
-		cloud.getCurrentOnlinePlayers().forEach(this::loadPlayer);
+		Cloud.getInstance().getCurrentOnlinePlayers().forEach(this::loadPlayer);
 	}
 
 	public void removePlayer(CloudPlayer cloudPlayer) {
 		var playerTag = nameTagScoreboards.remove(cloudPlayer.getUniqueId());
 		if (playerTag == null) return;
 		playerTag.reset();
-		nameTagScoreboards.values().forEach(nameTagScoreboard -> nameTagScoreboard.removePlayer(cloudPlayer));
+		for (NameTagScoreboard scoreboard : nameTagScoreboards.values()) {
+			scoreboard.removePlayer(cloudPlayer);
+		}
 	}
 
 	public void removeOnlinePlayers() {
-		cloud.getCurrentOnlinePlayers().forEach(cloudPlayer -> {
+		for (CloudPlayer cloudPlayer : Cloud.getInstance().getCurrentOnlinePlayers()) {
 			nameTagScoreboards.get(cloudPlayer.getUniqueId()).reset();
-		});
+		}
 	}
 
 	public void addPlayerTeam(CloudPlayer cloudPlayer) {
-		nameTagScoreboards.values().forEach(
-				nameTagScoreboard -> nameTagScoreboard.addPlayer(cloudPlayer));
+		for (NameTagScoreboard scoreboard : nameTagScoreboards.values()) {
+			scoreboard.addPlayer(cloudPlayer);
+		}
 	}
 
 	public void loadOnlinePlayers(NameTagScoreboard nameTagScoreboard) {
-		cloud.getCurrentOnlinePlayers().forEach(nameTagScoreboard::addPlayer);
+		for (CloudPlayer cloudPlayer : Cloud.getInstance().getCurrentOnlinePlayers()) {
+			nameTagScoreboard.addPlayer(cloudPlayer);
+		}
+	}
+
+	public CloudPlayer getPlayer(Player player) {
+		return Cloud.getInstance().getPlayer(player);
 	}
 }

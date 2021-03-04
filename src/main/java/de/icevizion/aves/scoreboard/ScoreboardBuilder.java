@@ -193,7 +193,9 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 	 */
 	public void delete() {
 		unsetScoreboard();
-		getObjectives().forEach((s, scoreboardObjective) -> scoreboardObjective.unregister());
+		for (ScoreboardObjective objective : getObjectives().values()) {
+			objective.unregister();
+		}
 		getObjectives().clear();
 		getTasks().forEach(Task::cancel);
 		cachedScoreboards.remove(getCloudPlayer().getUniqueId());

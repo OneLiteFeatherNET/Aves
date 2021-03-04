@@ -19,11 +19,11 @@ public class NameTagPlayerJoinListener implements Listener {
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
-		if(!nameTagService.isActivated()) {
+		if (!nameTagService.isActivated()) {
 			return;
 		}
 
-		var cloudPlayer = nameTagService.getCloud().getPlayer(event.getPlayer());
+		var cloudPlayer = nameTagService.getPlayer(event.getPlayer());
 		nameTagService.loadPlayer(cloudPlayer);
 	}
 }
