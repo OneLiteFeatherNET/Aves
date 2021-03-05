@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -93,7 +94,7 @@ public class WrappedLocation {
      * @param world The world name to set
      */
 
-    public void setWorld(String world) {
+    public void setWorldName(String world) {
         this.world = world;
     }
 
@@ -249,7 +250,7 @@ public class WrappedLocation {
      * @return the world
      */
 
-    public String getWorld() {
+    public String getWorldName() {
         return world;
     }
 
@@ -330,5 +331,15 @@ public class WrappedLocation {
         }
 
         return vector;
+    }
+
+    /**
+     * Returns the world from the {@link Location}.
+     * @return The underlying world from the bukkit location
+     */
+
+    @Nullable
+    public World getBukkitWorld() {
+        return location == null ? null : location.getWorld();
     }
 }
