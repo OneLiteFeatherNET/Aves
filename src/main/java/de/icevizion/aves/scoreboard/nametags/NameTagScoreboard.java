@@ -66,6 +66,9 @@ public class NameTagScoreboard {
 	 * @param cloudPlayer the cloud player
 	 * @return the name tag team
 	 */
+
+	//TODO: Improve...
+
 	public NameTagTeam getTeam(CloudPlayer cloudPlayer) {
 		return teams.computeIfAbsent(cloudPlayer.getDisplayName(), function -> {
 			Team entryTeam = scoreboard.getEntryTeam(cloudPlayer.getDisplayName());
