@@ -55,6 +55,11 @@
             <version>1.5.25</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.jsoniter</groupId>
+            <artifactId>jsoniter</artifactId>
+            <version>0.9.19</version>
+        </dependency>
 
     </dependencies>
 

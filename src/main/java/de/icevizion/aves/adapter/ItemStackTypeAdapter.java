@@ -26,6 +26,7 @@ import java.util.Map;
  * The adapter use the {@link GsonBuilder} to register a custom adapter with the {@link GsonBuilder#registerTypeAdapter(Type, Object)} method
  * with the parameters {@link ItemStack} class and a instance of the {@link ItemStackTypeAdapter}
  */
+@Deprecated(forRemoval = true)
 public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
 
     @Override
