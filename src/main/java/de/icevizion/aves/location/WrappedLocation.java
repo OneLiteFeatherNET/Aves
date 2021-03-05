@@ -226,11 +226,17 @@ public class WrappedLocation {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        WrappedLocation that = (WrappedLocation) o;
-        return this.x == that.x && this.y == that.y &&
-                this.z == that.z && this.pitch == that.pitch && this.yaw == that.yaw && this.world.equals(that.world);
+        if (o instanceof Location) {
+            Location location = (Location) o;
+            return (this.world.equals(location.getWorld().getName()) &&
+                    this.x == location.getX() && this.y == location.getY() &&
+                    this.z == location.getZ() && this.yaw == location.getYaw() && this.pitch == location.getPitch());
+        } else {
+            WrappedLocation that = (WrappedLocation) o;
+            return this.x == that.x && this.y == that.y &&
+                    this.z == that.z && this.pitch == that.pitch &&
+                    this.yaw == that.yaw && this.world.equals(that.world);
+        }
     }
 
     @Override
