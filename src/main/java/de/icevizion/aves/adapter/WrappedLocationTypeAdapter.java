@@ -23,7 +23,7 @@ public final class WrappedLocationTypeAdapter implements JsonSerializer<WrappedL
     @Override
     public JsonElement serialize(WrappedLocation location, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject object = new JsonObject();
-        object.addProperty("world", location.getWorld());
+        object.addProperty("world", location.getWorldName());
         object.addProperty("x", location.getX());
         object.addProperty("y", location.getY());
         object.addProperty("z", location.getZ());
