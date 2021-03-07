@@ -28,6 +28,10 @@ public class WrappedLocation {
     private transient Location location;
     private transient Vector vector;
 
+    //Constructor for jsoniter serialization
+    public WrappedLocation() {
+    }
+
     /**
      * Creates a new object from the wrapper with the given values.
      * @param world The world name as string
