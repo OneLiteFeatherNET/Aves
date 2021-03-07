@@ -21,8 +21,6 @@ public final class Aves extends JavaPlugin {
             getDescription().getVersion(), getDescription().getAuthors());
         JsoniterSpi.registerTypeDecoder(ItemStack.class, new ItemStackDecoder());
         JsoniterSpi.registerTypeEncoder(ItemStack.class, new ItemStackEncoder());
-        JsoniterSpi.addNewEncoder(TypeLiteral.create(ItemStack.class).getEncoderCacheKey(JsoniterSpi.getCurrentConfig().configName()), new ItemStackEncoder());
-        JsoniterSpi.addNewDecoder(TypeLiteral.create(ItemStack.class).getEncoderCacheKey(JsoniterSpi.getCurrentConfig().configName()), new ItemStackDecoder());
     }
 
     @Override
