@@ -13,6 +13,7 @@ import java.util.Map;
 public final class ItemStackEncoder implements Encoder {
     @Override
     public void encode(Object obj, JsonStream stream) throws IOException {
+        System.out.println(obj.toString());
         if (obj instanceof ItemStack) {
             ItemStack itemStack = (ItemStack) obj;
             Any any = Any.wrapNull();
