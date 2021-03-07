@@ -1,6 +1,7 @@
 package de.icevizion.aves;
 
 import com.jsoniter.spi.JsoniterSpi;
+import com.jsoniter.spi.TypeLiteral;
 import de.icevizion.aves.decoder.ItemStackDecoder;
 import de.icevizion.aves.encoder.ItemStackEncoder;
 import org.bukkit.inventory.ItemStack;
@@ -20,6 +21,8 @@ public final class Aves extends JavaPlugin {
             getDescription().getVersion(), getDescription().getAuthors());
         JsoniterSpi.registerTypeDecoder(ItemStack.class, new ItemStackDecoder());
         JsoniterSpi.registerTypeEncoder(ItemStack.class, new ItemStackEncoder());
+        JsoniterSpi.addNewEncoder(TypeLiteral.create(ItemStack.class).getEncoderCacheKey(JsoniterSpi.getCurrentConfig().configName()), new ItemStackEncoder());
+        JsoniterSpi.addNewDecoder(TypeLiteral.create(ItemStack.class).getEncoderCacheKey(JsoniterSpi.getCurrentConfig().configName()), new ItemStackDecoder());
     }
 
     @Override
