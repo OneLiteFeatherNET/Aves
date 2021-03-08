@@ -11,6 +11,7 @@ import java.util.Locale;
  * @author Nico (JumpingPxl) Middendorf
  */
 
+@Deprecated
 public class InventoryItem {
 
 	private final Translator translator;
