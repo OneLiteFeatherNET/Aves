@@ -29,8 +29,7 @@ public class WrappedLocation {
     private transient Vector vector;
 
     //Constructor for jsoniter serialization
-    public WrappedLocation() {
-    }
+    public WrappedLocation() {}
 
     /**
      * Creates a new object from the wrapper with the given values.
