@@ -10,9 +10,7 @@ import org.bukkit.entity.Player;
 
 public abstract class PersonalInventory extends InventoryBuilder {
 
-	/**
-	 * The variable for the player.
-	 */
+	/*** The variable for the player.*/
 
 	private final Player player;
 
