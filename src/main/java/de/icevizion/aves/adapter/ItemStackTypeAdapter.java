@@ -77,7 +77,7 @@ public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDese
         if (metaObject.has("enchantments")) {
             JsonArray enchantsArray = metaObject.getAsJsonArray("enchantments");
             for (JsonElement enchantElement : enchantsArray) {
-                itemBuilder.addUnsafeEnchantment(
+                itemBuilder.addEnchantment(
                         Enchantment.getByName(((JsonObject) enchantElement).get("enchantment").getAsString()),
                         ((JsonObject) enchantElement).get("level").getAsInt());
             }
