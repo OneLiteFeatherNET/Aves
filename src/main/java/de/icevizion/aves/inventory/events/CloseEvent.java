@@ -33,7 +33,7 @@ public class CloseEvent {
 	 * Returns the {@link CloudPlayer} involved in this event.
 	 * @return the player who is involved in this event
 	 */
-
+	@Deprecated(forRemoval = true)
 	public CloudPlayer getCloudPlayer() {
 		return Cloud.getInstance().getPlayer(getPlayer());
 	}
