@@ -1,7 +1,5 @@
 package de.icevizion.aves.item;
 
-import net.titan.cloudcore.i18n.Translator;
-import net.titan.spigot.player.CloudPlayer;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -12,13 +10,12 @@ import org.bukkit.inventory.meta.Repairable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class ItemBuilder {
 
-    protected ItemStack stack;
-    protected ItemMeta itemMeta;
+    protected final ItemStack stack;
+    protected final ItemMeta itemMeta;
 
     public ItemBuilder(Material material) {
         Objects.requireNonNull(material, "Material can not be null");
@@ -69,19 +66,6 @@ public class ItemBuilder {
     }
 
     /**
-     * Adds the specified Enchantment to this item stack in an unsafe manner
-     * @param enchantment The enchantment to be add
-     * @param level The level of the enchantment
-     * @return
-     */
-
-    @Deprecated
-    public ItemBuilder addUnsafeEnchantment(Enchantment enchantment, int level) {
-        this.stack.addUnsafeEnchantment(enchantment, level);
-        return this;
-    }
-
-    /**
      * Sets the displayname
      * @param name The name to set
      * @return
@@ -95,34 +79,6 @@ public class ItemBuilder {
     public ItemBuilder setModelData(int id) {
         itemMeta.setCustomModelData(id);
         return this;
-    }
-
-    /**
-     * Sets translated display name via the Locale.
-     *
-     * @param translator the translator
-     * @param locale     the locale
-     * @param key        the key
-     * @param arguments  the arguments
-     * @return the item builder
-     */
-    public ItemBuilder setDisplayName(Translator translator, Locale locale, String key,
-                                      Object... arguments) {
-        return setDisplayName(translator.getString(locale, key, arguments));
-    }
-
-    /**
-     * Sets translated display name via the CloudPlayer.
-     *
-     * @param translator  the translator
-     * @param cloudPlayer the cloud player
-     * @param key         the key
-     * @param arguments   the arguments
-     * @return the item builder
-     */
-    public ItemBuilder setDisplayName(Translator translator, CloudPlayer cloudPlayer, String key,
-                                      Object... arguments) {
-        return setDisplayName(translator, cloudPlayer.getLocale(), key, arguments);
     }
 
     /**
@@ -193,36 +149,6 @@ public class ItemBuilder {
     public ItemBuilder setLore(List<String> lore) {
         itemMeta.setLore(lore);
         return this;
-    }
-
-    /**
-     * Sets translated lore via the Locale.
-     *
-     * @param translator the translator
-     * @param locale     the locale
-     * @param key        the key
-     * @param arguments  the arguments
-     * @return the item builder
-     */
-    public ItemBuilder setLore(Translator translator, Locale locale, String key,
-                                      Object... arguments) {
-        String[] lore = translator.getString(locale, key, arguments).split("\n");
-        List<String> loreList = Arrays.asList(lore);
-        return setLore(loreList);
-    }
-
-    /**
-     * Sets translated lore via the CloudPlayer.
-     *
-     * @param translator  the translator
-     * @param cloudPlayer the cloud player
-     * @param key         the key
-     * @param arguments   the arguments
-     * @return the item builder
-     */
-    public ItemBuilder setLore(Translator translator, CloudPlayer cloudPlayer, String key,
-                                      Object... arguments) {
-        return setLore(translator, cloudPlayer.getLocale(), key, arguments);
     }
 
     /**
