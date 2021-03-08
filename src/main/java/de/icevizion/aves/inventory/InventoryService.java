@@ -35,7 +35,7 @@ public class InventoryService {
 	 */
 
 	public void openInventory(Player player, InventoryBuilder inventoryBuilder, boolean onlyBuildIfNew) {
-		if(!onlyBuildIfNew || Objects.isNull(inventoryBuilder.getInventory())) {
+		if (!onlyBuildIfNew || Objects.isNull(inventoryBuilder.getInventory())) {
 			inventoryBuilder.buildInventory();
 		}
 
