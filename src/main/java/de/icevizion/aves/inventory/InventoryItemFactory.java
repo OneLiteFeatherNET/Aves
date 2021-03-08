@@ -11,6 +11,7 @@ import java.util.Objects;
  * @author Nico (JumpingPxl) Middendorf
  */
 
+@Deprecated
 public abstract class InventoryItemFactory {
 
 	private final Translator translator;
