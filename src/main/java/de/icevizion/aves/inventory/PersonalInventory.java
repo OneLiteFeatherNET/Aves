@@ -1,41 +1,43 @@
 package de.icevizion.aves.inventory;
 
-import net.titan.cloudcore.i18n.Translator;
-import net.titan.spigot.player.CloudPlayer;
+import org.bukkit.entity.Player;
 
 /**
  * @author Nico (JumpingPxl) Middendorf
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.6
  */
 
-public abstract class PersonalInventory extends TranslatedInventory {
+public abstract class PersonalInventory extends InventoryBuilder {
 
-	private final CloudPlayer cloudPlayer;
+	/*** The variable for the player.*/
+
+	private final Player player;
 
 	/**
 	 * Creates a new instance from the {@link PersonalInventory}.
-	 * @param translator The instance to a {@link Translator}
-	 * @param cloudPlayer The {@link CloudPlayer} who owns the inventory
+	 * @param player The {@link Player} who owns the inventory
 	 * @param rows The amount of rows
-	 * @param titleKey The key for the inventory name
-	 * @param arguments The arguments if the name contains some variables or so
+	 * @param title The title of the inventory
 	 */
 
-	public PersonalInventory(Translator translator, CloudPlayer cloudPlayer, InventoryRows rows,
-	                         String titleKey, Object... arguments) {
-		super(translator, cloudPlayer.getLocale(), rows, titleKey, arguments);
-		this.cloudPlayer = cloudPlayer;
+	public PersonalInventory(Player player, InventoryRows rows, String title) {
+		super(title, rows);
+		this.player = player;
 	}
+
+	/**
+	 * Draws the content into the inventory.
+	 */
 
 	public abstract void draw();
 
 	/**
-	 * Returns the {@link CloudPlayer} who owns the inventory.
+	 * Returns the {@link Player} who owns the inventory.
 	 * @return The underlying player
 	 */
 
-	public final CloudPlayer getCloudPlayer() {
-		return cloudPlayer;
+	public Player getPlayer() {
+		return player;
 	}
 }

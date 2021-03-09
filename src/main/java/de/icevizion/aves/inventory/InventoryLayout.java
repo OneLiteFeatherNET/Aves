@@ -1,17 +1,17 @@
 package de.icevizion.aves.inventory;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import de.icevizion.aves.inventory.events.ClickEvent;
 import de.icevizion.aves.item.ItemBuilder;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * This class represents a layout where all items are located for an inventory.
  * @author Nico (JumpingPxl) Middendorf
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.6
  */
 
@@ -21,8 +21,8 @@ public class InventoryLayout {
 	private final Map<Integer, Consumer<ClickEvent>> clickEvents;
 
 	public InventoryLayout() {
-		items = Maps.newHashMap();
-		clickEvents = Maps.newHashMap();
+		items = new HashMap<>();
+		clickEvents = new HashMap<>();
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class InventoryLayout {
 
 	public void setItem(int slot, ItemBuilder itemBuilder, Consumer<ClickEvent> clickEvent) {
 		setItem(slot, itemBuilder);
-		clickEvents.put(slot, clickEvent);
+		clickEvents.putIfAbsent(slot, clickEvent);
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class InventoryLayout {
 	 */
 
 	public void setItem(int slot, ItemBuilder itemBuilder) {
-		items.put(slot, itemBuilder);
+		items.putIfAbsent(slot, itemBuilder);
 	}
 
 	/**

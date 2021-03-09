@@ -45,7 +45,7 @@
         <dependency>
             <groupId>net.titan</groupId>
             <artifactId>cloudspigot</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.mojang/authlib -->

@@ -35,6 +35,7 @@ public class ClickEvent {
 	 * @return the player who is involved in this event
 	 */
 
+	@Deprecated
 	public CloudPlayer getCloudPlayer() {
 		return Cloud.getInstance().getPlayer(getPlayer());
 	}
