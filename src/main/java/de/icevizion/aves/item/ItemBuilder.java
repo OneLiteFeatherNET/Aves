@@ -76,6 +76,12 @@ public class ItemBuilder {
         return this;
     }
 
+    /**
+     * Sets the model data.
+     * @param id The id of the model data
+     * @return
+     */
+
     public ItemBuilder setModelData(int id) {
         itemMeta.setCustomModelData(id);
         return this;
