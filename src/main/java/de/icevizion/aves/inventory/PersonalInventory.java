@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 
 /**
  * @author Nico (JumpingPxl) Middendorf
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.6
  */
 

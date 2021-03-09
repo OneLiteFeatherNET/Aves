@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 /**
  * This class represents a layout where all items are located for an inventory.
  * @author Nico (JumpingPxl) Middendorf
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.6
  */
 
