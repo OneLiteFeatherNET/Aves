@@ -1,6 +1,5 @@
 package de.icevizion.aves.inventory;
 
-import com.google.common.collect.Maps;
 import de.icevizion.aves.inventory.events.ClickEvent;
 import de.icevizion.aves.inventory.events.CloseEvent;
 import de.icevizion.aves.item.ItemBuilder;
@@ -9,6 +8,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,10 +43,9 @@ public class InventoryBuilder {
 		this.layout = layout;
 
 		holder = new Holder(this);
-		items = Maps.newHashMap();
-		backGroundItems = Maps.newHashMap(layout.getItems());
-		clickEvents = Maps.newHashMap(layout.getClickEvents());
-
+		items = new HashMap<>();
+		backGroundItems = new HashMap<>(layout.getItems());
+		clickEvents = new HashMap<>(layout.getClickEvents());
 		firstDraw = true;
 	}
 
@@ -171,6 +170,8 @@ public class InventoryBuilder {
 
 		draw();
 		drawItems();
+
+		if (oldInventory.getViewers().isEmpty()) return;
 
 		//TODO fix Concurrent Modification Exception
 		oldInventory.getViewers().forEach(humanEntity -> humanEntity.openInventory(inventory));
