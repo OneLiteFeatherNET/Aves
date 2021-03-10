@@ -62,17 +62,17 @@ public class TranslatedItem {
 
     public ItemStack get(Locale locale) {
         if (objectCache == null) {
-            objectCache = new TranslatedObjectCache<ItemStack>(locale1 -> {
+            objectCache = new TranslatedObjectCache<>(locale1 -> {
                 var builder = ItemBuilder.ofClone(itemStack)
                         .setDisplayName(messageProvider.getMessage(nameTextData.getKey(),
                                 locale1, nameTextData.getArguments()).toJson().toString());
 
                 String lore = null;
                 if (loreCache != null) {
-                    lore = loreCache.generateMessage(locale);
+                    lore = loreCache.generateMessage(locale1);
                 } else if (loreTextData != null){
                     lore = messageProvider.getTextProvider()
-                            .format(loreTextData.getKey(), locale, loreTextData.getArguments());
+                            .format(loreTextData.getKey(), locale1, loreTextData.getArguments());
                 }
 
                 if (lore != null)
