@@ -1,7 +1,6 @@
 package de.icevizion.aves;
 
 import com.jsoniter.spi.JsoniterSpi;
-import com.jsoniter.spi.TypeLiteral;
 import de.icevizion.aves.decoder.ItemStackDecoder;
 import de.icevizion.aves.encoder.ItemStackEncoder;
 import org.bukkit.inventory.ItemStack;
