@@ -53,9 +53,25 @@ public class InventoryLayout implements Cloneable {
         }
     }
 
+    public InventoryLayout repeatItem(int slot, int toSlot, ItemStack itemStack) {
+        return repeatItem(slot, toSlot, itemStack, null);
+    }
+
+    public InventoryLayout repeatItem(int slot, int toSlot, ItemBuilder itemBuilder) {
+        return repeatItem(slot, toSlot, itemBuilder, null);
+    }
+
     public InventoryLayout repeatItem(int slot, int toSlot, ItemStack itemStack, Consumer<InventoryClickEvent> clickEvent) {
         for (int i = slot; i <= toSlot; i++) {
             item(i, itemStack, clickEvent);
+        }
+
+        return this;
+    }
+
+    public InventoryLayout repeatItem(int slot, int toSlot, ItemBuilder itemBuilder, Consumer<InventoryClickEvent> clickEvent) {
+        for (int i = slot; i <= toSlot; i++) {
+            item(i, itemBuilder, clickEvent);
         }
 
         return this;
