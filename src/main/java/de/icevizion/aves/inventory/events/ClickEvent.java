@@ -66,5 +66,9 @@ public class ClickEvent {
 	public int getClickedSlot() {
 		return event.getRawSlot();
 	}
+
+	public InventoryClickEvent getEvent() {
+		return event;
+	}
 }
 
