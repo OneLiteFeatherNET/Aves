@@ -1,5 +1,6 @@
 package de.icevizion.aves.tinventory;
 
+import at.rxcki.strigiformes.MessageProvider;
 import de.icevizion.aves.item.ItemBuilder;
 import de.icevizion.aves.tinventory.translated.TranslatedSlot;
 import org.bukkit.Material;
@@ -23,7 +24,11 @@ public class InventoryLayout implements Cloneable {
         contents = new ISlot[size];
     }
 
-    public void applyLayout(ItemStack[] invContents, Locale locale) {
+    public void applyLayout(ItemStack[] invContents) {
+        applyLayout(invContents, null, null);
+    }
+
+    public void applyLayout(ItemStack[] invContents, Locale locale, MessageProvider messageProvider) {
         for (int i = 0; i < invContents.length; i++) {
             var slot = getContents()[i];
             if (slot == null)
@@ -36,7 +41,14 @@ public class InventoryLayout implements Cloneable {
             if (slot == EMPTY_SLOT) {
                 invContents[i] = null;
             } else {
-                invContents[i] = (slot instanceof TranslatedSlot) ? ((TranslatedSlot) slot).getItem(locale) : slot.getItem();
+                if (slot instanceof TranslatedSlot) {
+                    if (((TranslatedSlot) slot).getTranslatedItem().getMessageProvider() == null)
+                        ((TranslatedSlot) slot).getTranslatedItem().messageProvider(messageProvider);
+
+                    invContents[i] = ((TranslatedSlot) slot).getItem(locale);
+                } else {
+                    invContents[i] = slot.getItem();
+                }
             }
         }
     }

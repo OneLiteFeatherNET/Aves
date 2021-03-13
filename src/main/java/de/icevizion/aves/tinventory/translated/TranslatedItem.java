@@ -92,6 +92,10 @@ public class TranslatedItem {
         return objectCache.get(locale);
     }
 
+    public MessageProvider getMessageProvider() {
+        return messageProvider;
+    }
+
     public TranslatedItem messageProvider(MessageProvider messageProvider) {
         this.messageProvider = messageProvider;
 

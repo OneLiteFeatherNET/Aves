@@ -1,8 +1,13 @@
 package de.icevizion.aves.tinventory;
 
+import at.rxcki.strigiformes.MessageProvider;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
@@ -21,6 +26,8 @@ public abstract class InventoryBuilder implements Listener {
     private InventoryLayout dataLayout;
     private final CompletableFuture<InventoryLayout> dataLayoutFuture;
     protected boolean dataLayoutValid = false, dataLayoutProcessing = false;
+
+    protected JavaPlugin plugin;
 
     public InventoryBuilder(InventoryRows rows, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
         this.rows = rows;
@@ -45,7 +52,7 @@ public abstract class InventoryBuilder implements Listener {
         }
 
         this.rows = InventoryRows.getRows(slots);
-        this.inventoryLayout = new InventoryLayout(rows.getSize());
+        this.inventoryLayout = new InventoryLayout(slots);
 
         this.dataLayoutFuture = new CompletableFuture<>();
         this.dataLayoutFuture.thenApplyAsync(dataLayoutProvider);
@@ -76,35 +83,9 @@ public abstract class InventoryBuilder implements Listener {
 
     // =========
 
-    protected void updateInventory(Inventory inventory, String title, Locale locale, boolean applyLayout) {
-        applyLayout |= !inventoryLayoutValid;
-
-        if (((Holder) inventory.getHolder()).getInventoryTitle().equals(title)) {
-            var contents = inventory.getContents();
-            var viewers = inventory.getViewers();
-            var holder = (Holder) inventory.getHolder();
-
-            inventory = Bukkit.createInventory(holder, getRows().getSize(), title);
-            holder.setInventory(inventory);
-            holder.setInventoryTitle(title);
-            inventory.setContents(contents);
-
-            for (var viewer : viewers) {
-                viewer.openInventory(inventory);
-            }
-        }
-
-        if (applyLayout) {
-            getInventoryLayout().applyLayout(inventory.getContents(), locale);
-        }
-
-        synchronized (getDataLayoutFuture()) {
-            if (!dataLayoutValid && !dataLayoutProcessing) {
-                getDataLayoutFuture().complete(getDataLayout());
-            } else {
-                getDataLayout().applyLayout(inventory.getContents(), locale);
-            }
-        }
+    public void registerListener(JavaPlugin plugin) {
+        this.plugin = plugin;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     public void invalidateInventoryLayout() {
@@ -126,6 +107,37 @@ public abstract class InventoryBuilder implements Listener {
             }
         } else {
             dataLayoutValid = false;
+        }
+    }
+
+    protected void updateInventory(Inventory inventory, String title, Locale locale, MessageProvider messageProvider, boolean applyLayout) {
+        applyLayout |= !inventoryLayoutValid;
+
+        if (((Holder) inventory.getHolder()).getInventoryTitle().equals(title)) {
+            var contents = inventory.getContents();
+            var viewers = inventory.getViewers();
+            var holder = (Holder) inventory.getHolder();
+
+            inventory = Bukkit.createInventory(holder, getRows().getSize(), title);
+            holder.setInventory(inventory);
+            holder.setInventoryTitle(title);
+            inventory.setContents(contents);
+
+            for (var viewer : viewers) {
+                viewer.openInventory(inventory);
+            }
+        }
+
+        if (applyLayout) {
+            getInventoryLayout().applyLayout(inventory.getContents(), locale, messageProvider);
+        }
+
+        synchronized (getDataLayoutFuture()) {
+            if (!dataLayoutValid && !dataLayoutProcessing || getDataLayout() == null) {
+                getDataLayoutFuture().complete(getDataLayout());
+            } else {
+                getDataLayout().applyLayout(inventory.getContents(), locale, messageProvider);
+            }
         }
     }
 

@@ -2,6 +2,11 @@ package de.icevizion.aves.tinventory;
 
 import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;
+import at.rxcki.strigiformes.text.TextData;
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.Locale;
@@ -15,10 +20,14 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
     private final MessageProvider messageProvider;
     private final TranslatedObjectCache<Inventory> inventoryTranslatedObjectCache;
 
+    private TextData titleData;
+
+    private Function<InventoryCloseEvent, Boolean> closeListener;
 
     public GlobalTranslatedInventoryBuilder(InventoryRows rows, MessageProvider messageProvider, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
         super(rows, dataLayoutProvider);
         this.messageProvider = messageProvider;
+
         inventoryTranslatedObjectCache = createCache();
     }
 
@@ -30,10 +39,14 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
 
     private TranslatedObjectCache<Inventory> createCache() {
         return new TranslatedObjectCache<>(locale -> {
+            var holder = new Holder(this);
+            var title = messageProvider.getTextProvider().format(titleData, locale);
+            var inventory = Bukkit.createInventory(holder, getRows().getSize(), title);
+            holder.setInventory(inventory);
 
+            updateInventory(inventory, title, locale, messageProvider, true);
 
-//Todo
-            return null;
+            return inventory;
         });
     }
 
@@ -52,15 +65,67 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
 
     @Override
     protected void updateInventory() {
-
+        for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
+            var locale = entry.getKey();
+            updateInventory(entry.getValue(), messageProvider.getTextProvider().format(titleData, locale), locale, messageProvider, true);
+        }
     }
 
     @Override
     protected void applyDataLayout() {
         synchronized (getDataLayoutFuture()) {
             for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
-                getDataLayout().applyLayout(entry.getValue().getContents(), entry.getKey());
+                getDataLayout().applyLayout(entry.getValue().getContents(), entry.getKey(), messageProvider);
             }
         }
+    }
+
+    //Event listeners
+    @EventHandler
+    public void onClose(InventoryCloseEvent event) {
+        if (!(event.getView().getTopInventory().getHolder() instanceof Holder)
+                || ((Holder) event.getView().getTopInventory().getHolder()).getInventoryBuilder() != this)
+            return;
+
+        if (closeListener != null) {
+            var closeInv = closeListener.apply(event);
+            var holder = (Holder) event.getView().getTopInventory().getHolder();
+
+            if (!closeInv) {
+                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getPlayer().openInventory(holder.getInventory()), 3);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onClick(InventoryClickEvent event) {
+        if (!(event.getView().getTopInventory().getHolder() instanceof Holder)
+                || ((Holder) event.getView().getTopInventory().getHolder()).getInventoryBuilder() != this)
+            return;
+
+        var dataSlot = getDataLayout().getContents()[event.getSlot()];
+        if (dataSlot != null && dataSlot.getClickListener() != null) {
+            dataSlot.getClickListener().accept(event);
+            return;
+        }
+
+        var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
+        if (layoutSlot != null && layoutSlot.getClickListener() != null) {
+            layoutSlot.getClickListener().accept(event);
+        }
+    }
+
+    public TextData getTitleData() {
+        return titleData;
+    }
+
+    public void setTitleData(TextData titleData) {
+        this.titleData = titleData;
+    }
+
+    public GlobalTranslatedInventoryBuilder setCloseListener(Function<InventoryCloseEvent, Boolean> closeListener) {
+        this.closeListener = closeListener;
+
+        return this;
     }
 }

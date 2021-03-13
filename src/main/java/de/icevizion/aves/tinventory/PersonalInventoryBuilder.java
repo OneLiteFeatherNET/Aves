@@ -1,47 +1,27 @@
 package de.icevizion.aves.tinventory;
 
-import org.bukkit.inventory.Inventory;
+import org.bukkit.entity.Player;
 
-import java.util.Locale;
-import java.util.UUID;
 import java.util.function.Function;
 
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public class PersonalInventoryBuilder extends InventoryBuilder{
+public class PersonalInventoryBuilder extends GlobalInventoryBuilder {
 
-    private final UUID uuid;
-    private Inventory inventory;
+    private final Player player;
 
-    public PersonalInventoryBuilder(InventoryRows rows, Function<InventoryLayout, InventoryLayout> dataLayoutProvider, UUID uuid) {
-        super(rows, dataLayoutProvider);
-        this.uuid = uuid;
+    public PersonalInventoryBuilder(String title, InventoryRows rows, Player player, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
+        super(title, rows, dataLayoutProvider);
+        this.player = player;
     }
 
-    public PersonalInventoryBuilder(int slots, Function<InventoryLayout, InventoryLayout> dataLayoutProvider, UUID uuid) {
-        super(slots, dataLayoutProvider);
-        this.uuid = uuid;
+    public PersonalInventoryBuilder(String title, int slots, Player player, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
+        super(title, slots, dataLayoutProvider);
+        this.player = player;
     }
 
-    @Override
-    public Inventory getInventory(Locale locale) {
-        return null;
-    }
-
-
-    @Override
-    protected boolean isInventoryOpened() {
-        return inventory != null && !inventory.getViewers().isEmpty();
-    }
-
-    @Override
-    protected void updateInventory() {
-
-    }
-
-    @Override
-    protected void applyDataLayout() {
-
+    public void openInventory() {
+        player.openInventory(getInventory());
     }
 }
