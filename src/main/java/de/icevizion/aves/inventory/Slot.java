@@ -1,4 +1,4 @@
-package de.icevizion.aves.tinventory;
+package de.icevizion.aves.inventory;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
 

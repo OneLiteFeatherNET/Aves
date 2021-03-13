@@ -1,6 +1,6 @@
-package de.icevizion.aves.tinventory.translated;
+package de.icevizion.aves.inventory.translated;
 
-import de.icevizion.aves.tinventory.Slot;
+import de.icevizion.aves.inventory.Slot;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;

@@ -1,245 +1,162 @@
 package de.icevizion.aves.inventory;
 
-import de.icevizion.aves.inventory.events.ClickEvent;
-import de.icevizion.aves.inventory.events.CloseEvent;
-import de.icevizion.aves.item.ItemBuilder;
+import at.rxcki.strigiformes.MessageProvider;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /**
- * @author Nico (JumpingPxl) Middendorf
+ * @author Patrick Zdarsky / Rxcki
  */
+public abstract class InventoryBuilder implements Listener {
 
-public class InventoryBuilder {
+    private final InventoryRows rows;
 
-	private static final InventoryLayout EMPTY_LAYOUT = new InventoryLayout();
+    private InventoryLayout inventoryLayout;
+    protected boolean inventoryLayoutValid = true;
 
-	private final InventoryLayout layout;
-	private final Holder holder;
-	private final Map<Integer, ItemBuilder> items;
-	private final Map<Integer, ItemBuilder> backGroundItems;
-	private final Map<Integer, Consumer<ClickEvent>> clickEvents;
-	private Inventory inventory;
-	private String title;
-	private InventoryRows rows;
-	private boolean firstDraw;
-	private boolean drawOnce;
+    private InventoryLayout dataLayout;
+    private final CompletableFuture<InventoryLayout> dataLayoutFuture;
+    protected boolean dataLayoutValid = false, dataLayoutProcessing = false;
 
-	public InventoryBuilder(String title, InventoryRows rows) {
-		this(title, rows, EMPTY_LAYOUT);
-	}
+    protected JavaPlugin plugin;
 
-	public InventoryBuilder(String title, InventoryRows rows, InventoryLayout layout) {
-		this.title = title;
-		this.rows = rows;
-		this.layout = layout;
+    public InventoryBuilder(InventoryRows rows, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
+        this.rows = rows;
+        this.inventoryLayout = new InventoryLayout(rows.getSize());
 
-		holder = new Holder(this);
-		items = new HashMap<>();
-		backGroundItems = new HashMap<>(layout.getItems());
-		clickEvents = new HashMap<>(layout.getClickEvents());
-		firstDraw = true;
-	}
+        this.dataLayoutFuture = new CompletableFuture<>();
+        this.dataLayoutFuture.thenApplyAsync(dataLayoutProvider);
+        this.dataLayoutFuture.thenAcceptAsync(inventoryLayout1 -> {
+            synchronized (dataLayoutFuture) {
+                dataLayout = inventoryLayout1;
+                dataLayoutProcessing = false;
+                dataLayoutValid = true;
 
-	public void draw() { }
+                applyDataLayout();
+            }
+        });
+    }
 
-	public void onInventoryClose(CloseEvent closeEvent) { }
+    public InventoryBuilder(int slots, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
+        if (slots > InventoryRows.SIX.getSize()) {
+            throw new IllegalArgumentException("Maximum amount of slots for an inventory is 54!");
+        }
 
-	public final void clearItems() {
-		items.clear();
-		clickEvents.clear();
-		clickEvents.putAll(layout.getClickEvents());
-	}
+        this.rows = InventoryRows.getRows(slots);
+        this.inventoryLayout = new InventoryLayout(slots);
 
-	public final void setItem(int slot, ItemBuilder itemBuilder, Consumer<ClickEvent> clickEvent) {
-		setItem(slot, itemBuilder);
-		clickEvents.put(slot, clickEvent);
-	}
+        this.dataLayoutFuture = new CompletableFuture<>();
+        this.dataLayoutFuture.thenApplyAsync(dataLayoutProvider);
+        this.dataLayoutFuture.thenAcceptAsync(inventoryLayout1 -> {
+            synchronized (dataLayoutFuture) {
+                dataLayout = inventoryLayout1;
+                dataLayoutProcessing = false;
+                dataLayoutValid = true;
 
-	public final void setItem(int slot, ItemBuilder itemBuilder) {
-		items.put(slot, itemBuilder);
-	}
+                applyDataLayout();
+            }
+        });
+    }
 
-	public final void removeItem(int slot) {
-		items.remove(slot);
-		clickEvents.remove(slot);
-	}
+    //Abstract methods
 
-	public final void setBackgroundItem(int slot, ItemBuilder itemBuilder) {
-		backGroundItems.put(slot, itemBuilder);
-	}
+    public Inventory getInventory() {
+        return getInventory(null);
+    }
 
-	public final void setBackgroundItems(int fromIndex, int toIndex, ItemBuilder itemBuilder) {
-		int maxSize = rows.getSize() - 1;
-		if (toIndex > maxSize) {
-			toIndex = maxSize;
-		}
+    public abstract Inventory getInventory(Locale locale);
 
-		for (int i = fromIndex; i <= toIndex; i++) {
-			setBackgroundItem(i, itemBuilder);
-		}
-	}
+    protected abstract boolean isInventoryOpened();
 
-	/**
-	 * Change the size of the inventory. The inventory will be rebuild when the size changes.
-	 * @param rows The new size of the inventory
-	 */
+    protected abstract void updateInventory();
 
-	public final void setInventorySize(InventoryRows rows) {
-		if (this.rows == rows) {
-			return;
-		}
+    protected abstract void applyDataLayout();
 
-		this.rows = rows;
-		rebuildInventory();
-	}
+    // =========
 
-	public final void setFirstDraw(boolean firstDraw) {
-		this.firstDraw = firstDraw;
-	}
+    public void registerListener(JavaPlugin plugin) {
+        this.plugin = plugin;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+    }
 
-	public final void setDrawOnce(boolean drawOnce) {
-		this.drawOnce = drawOnce;
-	}
+    public void invalidateInventoryLayout() {
+        inventoryLayoutValid = false;
 
-	public final void drawItems() {
-		inventory.clear();
-		firstDraw = false;
+        if (isInventoryOpened()) {
+            updateInventory();
+        }
+    }
 
-		backGroundItems.forEach((slot, item) -> inventory.setItem(slot, item.build()));
+    public void invalidateDataLayout() {
+        if (isInventoryOpened()) {
+            synchronized (dataLayoutFuture) {
+                if (dataLayoutProcessing) {
+                    dataLayoutFuture.cancel(true);
+                }
+                dataLayoutFuture.complete(dataLayout);
+                dataLayoutProcessing = true;
+            }
+        } else {
+            dataLayoutValid = false;
+        }
+    }
 
-		items.forEach(
-				(slot, item) -> inventory.setItem(slot, Objects.isNull(item) ? null : item.build()));
-	}
+    protected void updateInventory(Inventory inventory, String title, Locale locale, MessageProvider messageProvider, boolean applyLayout) {
+        applyLayout |= !inventoryLayoutValid;
 
-	/**
-	 * Change the title from the inventory. The inventory will be rebuild when the size changes.
-	 * @param title The new title for the inventory
-	 */
+        if (((Holder) inventory.getHolder()).getInventoryTitle().equals(title)) {
+            var contents = inventory.getContents();
+            var viewers = inventory.getViewers();
+            var holder = (Holder) inventory.getHolder();
 
-	public void setInventoryTitle(String title) {
-		if (this.title.equals(title)) {
-			return;
-		}
+            inventory = Bukkit.createInventory(holder, getRows().getSize(), title);
+            holder.setInventory(inventory);
+            holder.setInventoryTitle(title);
+            inventory.setContents(contents);
 
-		this.title = title;
-		rebuildInventory();
-	}
+            for (var viewer : viewers) {
+                viewer.openInventory(inventory);
+            }
+        }
 
-	/**
-	 * Builds the inventory.
-	 */
+        if (applyLayout) {
+            getInventoryLayout().applyLayout(inventory.getContents(), locale, messageProvider);
+        }
 
-	protected final void buildInventory() {
-		buildInventory(false);
-	}
+        synchronized (getDataLayoutFuture()) {
+            if (!dataLayoutValid && !dataLayoutProcessing || getDataLayout() == null) {
+                getDataLayoutFuture().complete(getDataLayout());
+            } else {
+                getDataLayout().applyLayout(inventory.getContents(), locale, messageProvider);
+            }
+        }
+    }
 
-	protected final void buildInventory(boolean ignoreDrawOnce) {
-		if (Objects.isNull(inventory)) {
-			inventory = Bukkit.createInventory(holder, rows.getSize(), title);
-		}
+    //Getters and Setters
+    public InventoryRows getRows() {
+        return rows;
+    }
 
-		if (!ignoreDrawOnce && (!drawOnce || firstDraw)) {
-			draw();
-		}
+    public InventoryLayout getInventoryLayout() {
+        return inventoryLayout;
+    }
 
-		drawItems();
-	}
+    public InventoryBuilder setInventoryLayout(InventoryLayout inventoryLayout) {
+        this.inventoryLayout = inventoryLayout;
+        return this;
+    }
 
-	/**
-	 * The method calls the logic to rebuild the inventory
-	 */
+    public InventoryLayout getDataLayout() {
+        return dataLayout;
+    }
 
-	private void rebuildInventory() {
-		Inventory oldInventory = inventory;
-		inventory = Bukkit.createInventory(holder, rows.getSize(), title);
-
-		items.clear();
-		backGroundItems.clear();
-		clickEvents.clear();
-
-		firstDraw = true;
-
-		draw();
-		drawItems();
-
-		if (oldInventory.getViewers().isEmpty()) return;
-
-		//TODO fix Concurrent Modification Exception
-		oldInventory.getViewers().forEach(humanEntity -> humanEntity.openInventory(inventory));
-		oldInventory.clear();
-	}
-
-	/**
-	 * Returns the given inventory.
-	 * @return The underlying inventory
-	 */
-
-	protected final Inventory getInventory() {
-		return inventory;
-	}
-
-	/**
-	 * Returns the amount of rows from the inventory.
-	 * @return The enum representation for the row
-	 */
-
-	public final InventoryRows getRows() {
-		return rows;
-	}
-
-	public final boolean isFirstDraw() {
-		return firstDraw;
-	}
-
-	/**
-	 * Returns a map which contains all slots who has a registered {@link ClickEvent}
-	 * @return the underlying map
-	 */
-
-	public final Map<Integer, Consumer<ClickEvent>> getClickEvents() {
-		return clickEvents;
-	}
-
-	public final Map<Integer, ItemBuilder> getItems() {
-		return items;
-	}
-
-	public final ItemBuilder getItem(int slot) {
-		return items.get(slot);
-	}
-
-	public Holder getHolder() {
-		return holder;
-	}
-
-	public List<HumanEntity> getViewers() {
-		return inventory.getViewers();
-	}
-
-	public static final class Holder implements InventoryHolder {
-
-		private final InventoryBuilder inventoryBuilder;
-
-		private Holder(InventoryBuilder inventoryBuilder) {
-			this.inventoryBuilder = inventoryBuilder;
-		}
-
-		@Override
-		public Inventory getInventory() {
-			return inventoryBuilder.inventory;
-		}
-
-		public InventoryBuilder getInventoryBuilder() {
-			return inventoryBuilder;
-		}
-	}
+    public CompletableFuture<InventoryLayout> getDataLayoutFuture() {
+        return dataLayoutFuture;
+    }
 }
