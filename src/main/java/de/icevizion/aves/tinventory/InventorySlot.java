@@ -3,7 +3,9 @@ package de.icevizion.aves.tinventory;
 import de.icevizion.aves.item.ItemBuilder;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -13,19 +15,19 @@ public class InventorySlot extends Slot {
 
     private ItemStack itemStack;
 
-    public InventorySlot(ItemStack itemStack) {
+    public InventorySlot(@NotNull ItemStack itemStack) {
         this.itemStack = itemStack;
     }
 
-    public InventorySlot(ItemStack itemStack, Consumer<InventoryClickEvent> clickListener) {
+    public InventorySlot(@NotNull ItemStack itemStack, Consumer<InventoryClickEvent> clickListener) {
         this.itemStack = itemStack;
         this.clickListener = clickListener;
     }
-    public InventorySlot(ItemBuilder itemBuilder) {
+    public InventorySlot(@NotNull ItemBuilder itemBuilder) {
         this.itemStack = itemBuilder.build();
     }
 
-    public InventorySlot(ItemBuilder itemBuilder, Consumer<InventoryClickEvent> clickListener) {
+    public InventorySlot(@NotNull ItemBuilder itemBuilder, Consumer<InventoryClickEvent> clickListener) {
         this.itemStack = itemBuilder.build();
         this.clickListener = clickListener;
     }
@@ -33,5 +35,23 @@ public class InventorySlot extends Slot {
     @Override
     public ItemStack getItem() {
         return itemStack;
+    }
+
+    public InventorySlot setItemStack(@NotNull ItemStack itemStack) {
+        this.itemStack = itemStack;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InventorySlot)) return false;
+        InventorySlot that = (InventorySlot) o;
+        return itemStack.equals(that.itemStack);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(itemStack);
     }
 }

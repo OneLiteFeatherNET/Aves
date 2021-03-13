@@ -12,6 +12,13 @@ public abstract class Slot implements ISlot {
     protected Consumer<InventoryClickEvent> clickListener;
     protected boolean draggable;
 
+    public Slot() {
+    }
+
+    public Slot(Consumer<InventoryClickEvent> clickListener) {
+        this.clickListener = clickListener;
+    }
+
     @Override
     public boolean isDraggable() {
         return draggable;

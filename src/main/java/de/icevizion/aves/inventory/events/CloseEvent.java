@@ -57,4 +57,8 @@ public class CloseEvent {
 	public void setCancelled(boolean cancelled) {
 		this.cancelled = cancelled;
 	}
+
+	public InventoryCloseEvent getEvent() {
+		return event;
+	}
 }
