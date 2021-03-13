@@ -43,7 +43,7 @@ public class InventoryLayout implements Cloneable {
             } else {
                 if (slot instanceof TranslatedSlot) {
                     if (((TranslatedSlot) slot).getTranslatedItem().getMessageProvider() == null)
-                        ((TranslatedSlot) slot).getTranslatedItem().messageProvider(messageProvider);
+                        ((TranslatedSlot) slot).getTranslatedItem().setMessageProvider(messageProvider);
 
                     invContents[i] = ((TranslatedSlot) slot).getItem(locale);
                 } else {

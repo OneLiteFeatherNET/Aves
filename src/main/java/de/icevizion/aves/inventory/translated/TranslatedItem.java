@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  */
 public class TranslatedItem {
 
-    private final ItemStack itemStack;
+    private ItemStack itemStack;
     private MessageProvider messageProvider;
     private TranslatedObjectCache<ItemStack> objectCache;
 
@@ -31,23 +31,23 @@ public class TranslatedItem {
         this.itemStack = itemStack;
     }
 
-    public TranslatedItem displayName(String key, Object... arguments) {
+    public TranslatedItem setDisplayName(String key, Object... arguments) {
         this.nameTextData = new TextData(key, arguments);
 
         return this;
     }
 
-    public TranslatedItem displayName(TextData textData) {
+    public TranslatedItem setDisplayName(TextData textData) {
         this.nameTextData = textData;
 
         return this;
     }
 
-    public TranslatedItem lore(String key, Object... arguments) {
-        return lore(new TextData(key, arguments));
+    public TranslatedItem setLore(String key, Object... arguments) {
+        return setLore(new TextData(key, arguments));
     }
 
-    public TranslatedItem lore(TextData textData) {
+    public TranslatedItem setLore(TextData textData) {
         if (loreCache != null)
             throw new IllegalStateException("Tried to set simple lore but CompoundMessage is already set");
         loreTextData = textData;
@@ -55,7 +55,7 @@ public class TranslatedItem {
         return this;
     }
 
-    public TranslatedItem lore(CompoundMessageCache messageCache) {
+    public TranslatedItem setLore(CompoundMessageCache messageCache) {
         if (loreTextData != null)
             throw new IllegalStateException("Tried to set CompoundMessage lore but simple lore is already set");
         loreCache = messageCache;
@@ -98,15 +98,19 @@ public class TranslatedItem {
         return messageProvider;
     }
 
-    public TranslatedItem messageProvider(MessageProvider messageProvider) {
+    public TranslatedItem setMessageProvider(MessageProvider messageProvider) {
         this.messageProvider = messageProvider;
 
         return this;
     }
 
+    public void setItemStack(ItemStack itemStack) {
+        this.itemStack = itemStack;
+    }
+
     public static TranslatedItem of(ItemStack itemStack, MessageProvider messageProvider) {
         TranslatedItem translatedItem = new TranslatedItem(itemStack);
-        translatedItem.messageProvider(messageProvider);
+        translatedItem.setMessageProvider(messageProvider);
         //Todo: Register in ItemRegistry
 
         return translatedItem;
@@ -122,6 +126,10 @@ public class TranslatedItem {
 
     public static TranslatedItem of(ItemBuilder itemBuilder) {
         return TranslatedItem.of(itemBuilder.build(), null);
+    }
+
+    public static TranslatedItem empty() {
+        return new TranslatedItem(null);
     }
 
     public TranslatedSlot toSlot(Consumer<InventoryClickEvent> clickListener) {
