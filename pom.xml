@@ -37,6 +37,11 @@
 
     <dependencies>
         <dependency>
+            <artifactId>strigiformes-core</artifactId>
+            <groupId>at.rxcki</groupId>
+            <version>0.0.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>com.destroystokyo.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.16.3-R0.1-SNAPSHOT</version>
