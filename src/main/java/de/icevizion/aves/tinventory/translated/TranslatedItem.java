@@ -5,6 +5,7 @@ import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.message.CompoundMessageCache;
 import at.rxcki.strigiformes.text.TextData;
 import de.icevizion.aves.item.ItemBuilder;
+import de.icevizion.aves.tinventory.ItemRegistry;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
@@ -81,7 +82,10 @@ public class TranslatedItem {
                 if (lore != null)
                     builder.setLore(Arrays.asList(lore.split("\n")));
 
-                return builder.build();
+                var item = builder.build();
+                ItemRegistry.register(itemStack, item);
+
+                return item;
             });
         }
 
