@@ -37,4 +37,8 @@ public class TranslatedSlot extends Slot {
         this.translatedItem = translatedItem;
         return this;
     }
+
+    public TranslatedItem getTranslatedItem() {
+        return translatedItem;
+    }
 }
