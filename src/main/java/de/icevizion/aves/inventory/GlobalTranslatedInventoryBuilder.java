@@ -1,4 +1,4 @@
-package de.icevizion.aves.tinventory;
+package de.icevizion.aves.inventory;
 
 import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;

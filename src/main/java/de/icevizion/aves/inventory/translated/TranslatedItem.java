@@ -1,11 +1,11 @@
-package de.icevizion.aves.tinventory.translated;
+package de.icevizion.aves.inventory.translated;
 
 import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.message.CompoundMessageCache;
 import at.rxcki.strigiformes.text.TextData;
 import de.icevizion.aves.item.ItemBuilder;
-import de.icevizion.aves.tinventory.ItemRegistry;
+import de.icevizion.aves.inventory.ItemRegistry;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
