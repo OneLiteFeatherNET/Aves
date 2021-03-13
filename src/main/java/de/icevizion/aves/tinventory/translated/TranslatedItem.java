@@ -1,4 +1,4 @@
-package de.icevizion.aves.tinventory;
+package de.icevizion.aves.tinventory.translated;
 
 import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;
@@ -61,6 +61,9 @@ public class TranslatedItem {
     }
 
     public ItemStack get(Locale locale) {
+        if (locale == null || messageProvider == null)
+            return itemStack;
+
         if (objectCache == null) {
             objectCache = new TranslatedObjectCache<>(locale1 -> {
                 var builder = ItemBuilder.ofClone(itemStack)
