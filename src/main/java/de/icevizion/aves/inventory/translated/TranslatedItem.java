@@ -6,10 +6,12 @@ import at.rxcki.strigiformes.message.CompoundMessageCache;
 import at.rxcki.strigiformes.text.TextData;
 import de.icevizion.aves.item.ItemBuilder;
 import de.icevizion.aves.inventory.ItemRegistry;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -120,5 +122,12 @@ public class TranslatedItem {
 
     public static TranslatedItem of(ItemBuilder itemBuilder) {
         return TranslatedItem.of(itemBuilder.build(), null);
+    }
+
+    public TranslatedSlot toSlot(Consumer<InventoryClickEvent> clickListener) {
+        return new TranslatedSlot(this, clickListener);
+    }
+    public TranslatedSlot toSlot() {
+        return toSlot(null);
     }
 }
