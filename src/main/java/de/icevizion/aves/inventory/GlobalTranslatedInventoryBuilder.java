@@ -4,6 +4,7 @@ import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.text.TextData;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -69,6 +70,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
         for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
             var locale = entry.getKey();
             updateInventory(entry.getValue(), messageProvider.getTextProvider().format(titleData, locale), locale, messageProvider, true);
+            entry.getValue().getViewers().forEach(humanEntity -> ((Player) humanEntity).updateInventory());
         }
     }
 
@@ -80,6 +82,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
                 var contents = entry.getValue().getContents();
                 getInventoryLayout().applyLayout(contents, entry.getKey(), messageProvider);
                 entry.getValue().setContents(contents);
+                entry.getValue().getViewers().forEach(humanEntity -> ((Player) humanEntity).updateInventory());
             }
         }
     }
