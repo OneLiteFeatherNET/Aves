@@ -17,4 +17,6 @@ public interface ISlot extends Cloneable{
 
     Consumer<InventoryClickEvent> getClickListener();
     ISlot setClickListener(Consumer<InventoryClickEvent> clickListener);
+
+    ISlot clone();
 }

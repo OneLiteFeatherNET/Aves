@@ -18,7 +18,7 @@ public class InventoryLayout implements Cloneable {
 
     private static final InventorySlot EMPTY_SLOT = new InventorySlot(new ItemStack(Material.AIR));
 
-    private final ISlot[] contents;
+    private ISlot[] contents;
 
     public InventoryLayout(int size) {
         contents = new ISlot[size];
@@ -129,6 +129,17 @@ public class InventoryLayout implements Cloneable {
         return contents;
     }
 
+    @Override
+    public InventoryLayout clone() {
+        try {
+            var clone = (InventoryLayout) super.clone();
+            clone.contents = contents.clone();
+
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException("This should never happen", e);
+        }
+    }
 
     @Override
     public String toString() {

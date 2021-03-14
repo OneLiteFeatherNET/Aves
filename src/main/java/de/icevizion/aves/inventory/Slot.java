@@ -2,6 +2,7 @@ package de.icevizion.aves.inventory;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -39,5 +40,14 @@ public abstract class Slot implements ISlot {
     public ISlot setClickListener(Consumer<InventoryClickEvent> clickListener) {
         this.clickListener = clickListener;
         return this;
+    }
+
+    @Override
+    public ISlot clone() {
+        try {
+            return (ISlot) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException("This should never happen", e);
+        }
     }
 }

@@ -13,12 +13,12 @@ public class PersonalTranslatedInventoryBuilder extends GlobalTranslatedInventor
 
     private final Player player;
 
-    public PersonalTranslatedInventoryBuilder(InventoryRows rows, MessageProvider messageProvider, Function<InventoryLayout, InventoryLayout> dataLayoutProvider, Player player) {
+    public PersonalTranslatedInventoryBuilder(InventoryRows rows, MessageProvider messageProvider, Player player, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
         super(rows, messageProvider, dataLayoutProvider);
         this.player = player;
     }
 
-    public PersonalTranslatedInventoryBuilder(int slots, MessageProvider messageProvider, Function<InventoryLayout, InventoryLayout> dataLayoutProvider, Player player) {
+    public PersonalTranslatedInventoryBuilder(int slots, MessageProvider messageProvider, Player player, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
         super(slots, messageProvider, dataLayoutProvider);
         this.player = player;
     }
