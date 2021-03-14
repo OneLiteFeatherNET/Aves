@@ -71,8 +71,8 @@ public class TranslatedItem {
             objectCache = new TranslatedObjectCache<>(locale1 -> {
                 var builder = ItemBuilder.ofClone(itemStack);
                 if (nameTextData != null) {
-                    builder.setDisplayName(messageProvider.getMessage(nameTextData.getKey(),
-                            locale1, nameTextData.getArguments()).toJson().toString());
+                    builder.setDisplayName(messageProvider.getTextProvider().format(nameTextData.getKey(),
+                            locale1, nameTextData.getArguments()));
                 }
 
                 String lore = null;
