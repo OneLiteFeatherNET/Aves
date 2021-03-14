@@ -17,6 +17,14 @@ public class MapViewBuilder {
         this.mapView = mapView;
     }
 
+    public static MapViewBuilder of(ItemStack stack) {
+        return new MapViewBuilder(stack);
+    }
+
+    public static MapViewBuilder of(MapView mapView) {
+        return new MapViewBuilder(mapView);
+    }
+
     public MapViewBuilder setCenterX(int x) {
         mapView.setCenterX(x);
         return this;
