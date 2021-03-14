@@ -76,7 +76,9 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
     protected void applyDataLayout() {
         synchronized (getDataLayoutFuture()) {
             for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
-                getDataLayout().applyLayout(entry.getValue().getContents(), entry.getKey(), messageProvider);
+                var contents = entry.getValue().getContents();
+                getInventoryLayout().applyLayout(contents, entry.getKey(), messageProvider);
+                entry.getValue().setContents(contents);
             }
         }
     }

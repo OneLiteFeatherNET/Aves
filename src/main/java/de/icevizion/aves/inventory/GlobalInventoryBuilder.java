@@ -106,7 +106,9 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
     @Override
     protected void applyDataLayout() {
         synchronized (getDataLayoutFuture()) {
-            getDataLayout().applyLayout(inventory.getContents(), null, null);
+            var contents = inventory.getContents();
+            getDataLayout().applyLayout(contents, null, null);
+            inventory.setContents(contents);
         }
     }
 }
