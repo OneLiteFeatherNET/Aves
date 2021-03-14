@@ -16,7 +16,8 @@ import java.util.function.Function;
  */
 public class GlobalInventoryBuilder extends InventoryBuilder {
 
-    private String title;
+    private final String title;
+
     private Inventory inventory;
     private Holder holder;
 

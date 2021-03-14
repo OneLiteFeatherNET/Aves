@@ -1,6 +1,7 @@
 package de.icevizion.aves.inventory;
 
 import de.icevizion.aves.item.ItemBuilder;
+import de.icevizion.aves.util.Items;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,7 @@ public class InventorySlot extends Slot {
         this.itemStack = itemStack;
         this.clickListener = clickListener;
     }
+
     public InventorySlot(@NotNull ItemBuilder itemBuilder) {
         this.itemStack = itemBuilder.build();
     }

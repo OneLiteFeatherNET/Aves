@@ -7,7 +7,9 @@ import org.bukkit.inventory.InventoryHolder;
  * @author Patrick Zdarsky / Rxcki
  */
 public class Holder implements InventoryHolder {
+
     private final InventoryBuilder inventoryBuilder;
+
     private String inventoryTitle;
     private Inventory inventory;
 

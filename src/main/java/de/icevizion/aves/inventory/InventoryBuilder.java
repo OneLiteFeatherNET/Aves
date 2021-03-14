@@ -82,7 +82,7 @@ public abstract class InventoryBuilder implements Listener {
 
     public void registerListener(JavaPlugin plugin) {
         this.plugin = plugin;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     public void invalidateInventoryLayout() {

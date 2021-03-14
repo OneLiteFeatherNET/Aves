@@ -20,6 +20,10 @@ public class InventoryLayout implements Cloneable {
 
     private ISlot[] contents;
 
+    public InventoryLayout(InventoryRows rows) {
+        this.contents = new ISlot[rows.getSize()];
+    }
+
     public InventoryLayout(int size) {
         contents = new ISlot[size];
     }
@@ -42,10 +46,13 @@ public class InventoryLayout implements Cloneable {
                 invContents[i] = null;
             } else {
                 if (slot instanceof TranslatedSlot) {
-                    if (((TranslatedSlot) slot).getTranslatedItem().getMessageProvider() == null)
-                        ((TranslatedSlot) slot).getTranslatedItem().setMessageProvider(messageProvider);
+                    var translatedSlot = (TranslatedSlot) slot;
 
-                    invContents[i] = ((TranslatedSlot) slot).getItem(locale);
+                    if (translatedSlot.getTranslatedItem().getMessageProvider() == null) {
+                        translatedSlot.getTranslatedItem().setMessageProvider(messageProvider);
+                    }
+
+                    invContents[i] = translatedSlot.getItem(locale);
                 } else {
                     invContents[i] = slot.getItem();
                 }
