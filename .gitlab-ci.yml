@@ -19,7 +19,7 @@ verify:
   script:
     - 'mvn $MAVEN_CLI_OPTS verify -s ci_settings.xml'
   except:
-    - master
+    - merge_requests
 
 
 deploy-jdk11:
