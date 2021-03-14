@@ -43,6 +43,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
             var title = messageProvider.getTextProvider().format(titleData, locale);
             var inventory = Bukkit.createInventory(holder, getRows().getSize(), title);
             holder.setInventory(inventory);
+            holder.setInventoryTitle(title);
 
             updateInventory(inventory, title, locale, messageProvider, true);
 
