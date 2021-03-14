@@ -40,6 +40,7 @@
             <artifactId>strigiformes-core</artifactId>
             <groupId>at.rxcki</groupId>
             <version>0.0.2-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.destroystokyo.paper</groupId>
