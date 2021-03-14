@@ -77,7 +77,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
     @Override
     protected void applyDataLayout() {
         synchronized (getDataLayoutFuture()) {
-            System.out.println("Applying data layouts");
+            System.out.println("Applying data layouts " +getDataLayout());
             for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
                 var contents = entry.getValue().getContents();
                 getInventoryLayout().applyLayout(contents, entry.getKey(), messageProvider);
