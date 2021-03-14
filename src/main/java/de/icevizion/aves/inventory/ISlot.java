@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public interface ISlot extends Cloneable{
+public interface ISlot extends Cloneable {
 
     boolean isDraggable();
     ISlot setDraggable(boolean enabled);
