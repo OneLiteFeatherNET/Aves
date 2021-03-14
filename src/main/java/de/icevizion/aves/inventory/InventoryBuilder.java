@@ -126,14 +126,18 @@ public abstract class InventoryBuilder implements Listener {
         }
 
         if (applyLayout) {
-            getInventoryLayout().applyLayout(inventory.getContents(), locale, messageProvider);
+            var contents = inventory.getContents();
+            getInventoryLayout().applyLayout(contents, locale, messageProvider);
+            inventory.setContents(contents);
         }
 
         synchronized (getDataLayoutFuture()) {
             if (!dataLayoutValid && !dataLayoutProcessing || getDataLayout() == null) {
                 getDataLayoutFuture().complete(getDataLayout());
             } else {
-                getDataLayout().applyLayout(inventory.getContents(), locale, messageProvider);
+                var contents = inventory.getContents();
+                getDataLayout().applyLayout(contents, locale, messageProvider);
+                inventory.setContents(contents);
             }
         }
     }
