@@ -111,6 +111,7 @@ public abstract class InventoryBuilder implements Listener {
     protected void handleClick(InventoryClickEvent event) {
         if (getDataLayout() != null) {
             var dataSlot = getDataLayout().getContents()[event.getSlot()];
+            System.out.println("Click on datalayout: "+dataSlot);
             if (dataSlot != null && dataSlot.getClickListener() != null) {
                 dataSlot.getClickListener().accept(event);
                 return;
@@ -119,6 +120,7 @@ public abstract class InventoryBuilder implements Listener {
 
         if (getInventoryLayout() != null) {
             var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
+            System.out.println("Click on inventoryLayout: "+layoutSlot);
             if (layoutSlot != null && layoutSlot.getClickListener() != null) {
                 layoutSlot.getClickListener().accept(event);
             }
