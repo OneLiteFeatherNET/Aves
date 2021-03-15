@@ -56,4 +56,11 @@ public class InventorySlot extends Slot {
     public int hashCode() {
         return Objects.hash(itemStack);
     }
+
+    @Override
+    public String toString() {
+        return "InventorySlot{" +
+                "itemStack=" + itemStack +
+                "} " + super.toString();
+    }
 }
