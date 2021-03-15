@@ -41,4 +41,11 @@ public class TranslatedSlot extends Slot {
     public TranslatedItem getTranslatedItem() {
         return translatedItem;
     }
+
+    @Override
+    public String toString() {
+        return "TranslatedSlot{" +
+                "translatedItem=" + translatedItem +
+                "} " + super.toString();
+    }
 }

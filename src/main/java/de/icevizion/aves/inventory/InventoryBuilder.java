@@ -60,6 +60,7 @@ public abstract class InventoryBuilder implements Listener {
                 dataLayoutProcessing = false;
                 dataLayoutValid = true;
 
+                System.out.println("Received DataLayout "+inventoryLayout1);
                 applyDataLayout();
             }
         });
@@ -109,6 +110,9 @@ public abstract class InventoryBuilder implements Listener {
     }
 
     protected void handleClick(InventoryClickEvent event) {
+        if (event.getSlot() < 0 || event.getSlot() > getRows().getSize()-1)
+            return; //Not within this inventory
+
         if (getDataLayout() != null) {
             var dataSlot = getDataLayout().getContents()[event.getSlot()];
             System.out.println("Click on datalayout: "+dataSlot);

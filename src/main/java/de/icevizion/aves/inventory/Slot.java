@@ -48,4 +48,12 @@ public abstract class Slot implements ISlot {
             throw new IllegalStateException("This should never happen", e);
         }
     }
+
+    @Override
+    public String toString() {
+        return "Slot{" +
+                "clickListener=" + clickListener +
+                ", draggable=" + draggable +
+                '}';
+    }
 }
