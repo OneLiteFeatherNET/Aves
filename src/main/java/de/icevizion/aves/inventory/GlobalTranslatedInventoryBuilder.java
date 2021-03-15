@@ -110,16 +110,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
                 || ((Holder) event.getView().getTopInventory().getHolder()).getInventoryBuilder() != this)
             return;
 
-        var dataSlot = getDataLayout().getContents()[event.getSlot()];
-        if (dataSlot != null && dataSlot.getClickListener() != null) {
-            dataSlot.getClickListener().accept(event);
-            return;
-        }
-
-        var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
-        if (layoutSlot != null && layoutSlot.getClickListener() != null) {
-            layoutSlot.getClickListener().accept(event);
-        }
+        handleClick(event);
     }
 
     public TextData getTitleData() {

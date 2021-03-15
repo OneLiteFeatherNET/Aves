@@ -57,16 +57,7 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
         if (event.getView().getTopInventory().getHolder() != holder)
             return;
 
-        var dataSlot = getDataLayout().getContents()[event.getSlot()];
-        if (dataSlot != null && dataSlot.getClickListener() != null) {
-            dataSlot.getClickListener().accept(event);
-            return;
-        }
-
-        var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
-        if (layoutSlot != null && layoutSlot.getClickListener() != null) {
-            layoutSlot.getClickListener().accept(event);
-        }
+        handleClick(event);
     }
 
     @EventHandler

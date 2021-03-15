@@ -3,6 +3,7 @@ package de.icevizion.aves.inventory;
 import at.rxcki.strigiformes.MessageProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -104,6 +105,23 @@ public abstract class InventoryBuilder implements Listener {
             }
         } else {
             dataLayoutValid = false;
+        }
+    }
+
+    protected void handleClick(InventoryClickEvent event) {
+        if (getDataLayout() != null) {
+            var dataSlot = getDataLayout().getContents()[event.getSlot()];
+            if (dataSlot != null && dataSlot.getClickListener() != null) {
+                dataSlot.getClickListener().accept(event);
+                return;
+            }
+        }
+
+        if (getInventoryLayout() != null) {
+            var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
+            if (layoutSlot != null && layoutSlot.getClickListener() != null) {
+                layoutSlot.getClickListener().accept(event);
+            }
         }
     }
 
