@@ -32,8 +32,8 @@ public abstract class InventoryBuilder implements Listener {
         this.inventoryLayout = new InventoryLayout(rows.getSize());
 
         this.dataLayoutFuture = new CompletableFuture<>();
-        this.dataLayoutFuture.thenApplyAsync(dataLayoutProvider);
-        this.dataLayoutFuture.thenAcceptAsync(inventoryLayout1 -> {
+        this.dataLayoutFuture.thenApplyAsync(dataLayoutProvider)
+            .thenAcceptAsync(inventoryLayout1 -> {
             synchronized (dataLayoutFuture) {
                 dataLayout = inventoryLayout1;
                 dataLayoutProcessing = false;
