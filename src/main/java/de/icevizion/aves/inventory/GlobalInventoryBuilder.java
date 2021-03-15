@@ -100,10 +100,12 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
     @Override
     protected void applyDataLayout() {
         synchronized (getDataLayoutFuture()) {
-            var contents = inventory.getContents();
-            getDataLayout().applyLayout(contents, null, null);
-            inventory.setContents(contents);
-            inventory.getViewers().forEach(humanEntity -> ((Player) humanEntity).updateInventory());
+            if (getDataLayout() != null) {
+                var contents = inventory.getContents();
+                getDataLayout().applyLayout(contents, null, null);
+                inventory.setContents(contents);
+                inventory.getViewers().forEach(humanEntity -> ((Player) humanEntity).updateInventory());
+            }
         }
     }
 }
