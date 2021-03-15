@@ -19,6 +19,14 @@ public final class LeatherArmorBuilder extends ItemBuilder {
         meta = getItemMeta();
     }
 
+    public static LeatherArmorBuilder of(LeatherType type) {
+        return new LeatherArmorBuilder(type);
+    }
+
+    public static LeatherArmorBuilder of(ItemStack stack) {
+        return new LeatherArmorBuilder(stack);
+    }
+
     /**
      * Sets the color of the armor
      * @param color The color to set

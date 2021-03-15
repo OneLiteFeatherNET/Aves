@@ -137,6 +137,7 @@ public class TranslatedItem {
     public TranslatedSlot toSlot(Consumer<InventoryClickEvent> clickListener) {
         return new TranslatedSlot(this, clickListener);
     }
+
     public TranslatedSlot toSlot() {
         return toSlot(null);
     }

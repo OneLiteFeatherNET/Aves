@@ -16,7 +16,7 @@ import java.util.function.Function;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public class GlobalTranslatedInventoryBuilder extends InventoryBuilder{
+public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
 
     private final MessageProvider messageProvider;
     private final TranslatedObjectCache<Inventory> inventoryTranslatedObjectCache;
