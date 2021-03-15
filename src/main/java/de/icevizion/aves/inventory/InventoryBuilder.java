@@ -39,6 +39,7 @@ public abstract class InventoryBuilder implements Listener {
                 dataLayoutProcessing = false;
                 dataLayoutValid = true;
 
+                System.out.println("Received DataLayout "+inventoryLayout1);
                 applyDataLayout();
             }
         });
