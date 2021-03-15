@@ -80,7 +80,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
             System.out.println("Applying data layouts " +getDataLayout());
             for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
                 var contents = entry.getValue().getContents();
-                getInventoryLayout().applyLayout(contents, entry.getKey(), messageProvider);
+                getDataLayout().applyLayout(contents, entry.getKey(), messageProvider);
                 entry.getValue().setContents(contents);
                 entry.getValue().getViewers().forEach(humanEntity -> ((Player) humanEntity).updateInventory());
             }
