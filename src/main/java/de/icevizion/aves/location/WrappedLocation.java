@@ -15,7 +15,7 @@ import java.util.Objects;
  * @version 1.3.0
  */
 
-public class WrappedLocation {
+public class WrappedLocation implements Cloneable {
 
     private String world;
     private double x;
@@ -99,6 +99,15 @@ public class WrappedLocation {
 
     public void setWorldName(String world) {
         this.world = world;
+
+        if (world != null) {
+            World bukkitWorld = Bukkit.getWorld(this.world);
+
+            if (bukkitWorld == null) {
+                throw new IllegalArgumentException("The world can not be null");
+            }
+            location = new Location(bukkitWorld, x, y, z, yaw, pitch);
+        }
     }
 
     /**
@@ -344,5 +353,21 @@ public class WrappedLocation {
     @Nullable
     public World getBukkitWorld() {
         return location == null ? null : location.getWorld();
+    }
+
+
+    /**
+     * Creates a copy from the {@link WrappedLocation}.
+     * @return the copied object
+     */
+
+    @Override
+    public WrappedLocation clone() {
+        try {
+            return (WrappedLocation) super.clone();
+        } catch (CloneNotSupportedException exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 }
