@@ -16,7 +16,6 @@ public final class ItemStackEncoder implements Encoder {
     public void encode(Object object, JsonStream jsonStream) throws IOException {
         if (object == null) {
             jsonStream.writeNull();
-            return;
         } else {
             if (object instanceof ItemStack) {
                 ItemStack stack = (ItemStack) object;
@@ -48,7 +47,7 @@ public final class ItemStackEncoder implements Encoder {
                     map.put("meta", metaMap);
                 }
                 jsonStream.writeVal(HashMap.class, map);
-             }
+            }
         }
     }
 }
