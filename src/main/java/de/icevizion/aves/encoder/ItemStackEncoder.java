@@ -2,6 +2,7 @@ package de.icevizion.aves.encoder;
 
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.Encoder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
@@ -27,9 +28,13 @@ public final class ItemStackEncoder implements Encoder {
                     var meta = stack.getItemMeta();
                     if (meta.hasDisplayName())
                         metaMap.put("displayName", meta.getDisplayName());
-                    if (!meta.getItemFlags().isEmpty())
-                        metaMap.put("flags", meta.getItemFlags().stream().map(itemFlag -> itemFlag.name()).collect(Collectors.toList()));
-
+                    if (!meta.getItemFlags().isEmpty()) {
+                        var flags = new ArrayList<>();
+                        for (ItemFlag flag : meta.getItemFlags()) {
+                            flags.add(flag.name());
+                        }
+                        metaMap.put("flags", flags);
+                    }
                     if (!meta.getEnchants().isEmpty()) {
                         var enchantments = new ArrayList<>();
                         for (var entry : meta.getEnchants().entrySet()) {
