@@ -1,13 +1,13 @@
 package de.icevizion.aves.scoreboard;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import net.titan.cloudcore.task.Task;
 import net.titan.spigot.player.CloudPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,10 +36,10 @@ public class ScoreboardImpl {
 		this.scoreboard = scoreboard;
 		this.cloudPlayer = cloudPlayer;
 
-		tasks = Sets.newHashSet();
-		rows = Maps.newHashMap();
-		objectives = Maps.newHashMap();
-		cachedTranslations = Maps.newHashMap();
+		tasks = new HashSet<>();
+		rows = new HashMap<>();
+		objectives = new HashMap<>();
+		cachedTranslations = new HashMap<>();
 	}
 
 	/**
