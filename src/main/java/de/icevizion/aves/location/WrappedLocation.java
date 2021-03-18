@@ -1,9 +1,12 @@
 package de.icevizion.aves.location;
 
+import com.jsoniter.annotation.JsonIgnore;
+import com.jsoniter.any.Any;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -12,7 +15,7 @@ import java.util.Objects;
  * The class is a wrapper for the location class from bukkit.
  * @author theEvilReaper
  * @since 1.0.5
- * @version 1.3.0
+ * @version 1.3.1
  */
 
 public class WrappedLocation implements Cloneable {
@@ -25,7 +28,10 @@ public class WrappedLocation implements Cloneable {
     private float yaw;
     private float pitch;
 
+    @JsonIgnore
     private transient Location location;
+
+    @JsonIgnore
     private transient Vector vector;
 
     //Constructor for jsoniter serialization
@@ -40,12 +46,7 @@ public class WrappedLocation implements Cloneable {
      */
 
     public WrappedLocation(String world, double x, double y, double z) {
-        this.world = world;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.yaw = 0;
-        this.pitch = 0;
+        this(world, x, y,z, 0,0);
     }
 
     /**
@@ -83,12 +84,36 @@ public class WrappedLocation implements Cloneable {
     }
 
     /**
+     * Create a new object from that class with the given values.
+     * @param any The read only data container
+     */
+
+    private WrappedLocation(Any any) {
+        this.world = any.get("world").toString();
+        this.x = any.get("x").toDouble();
+        this.y = any.get("y").toDouble();
+        this.z = any.get("z").toDouble();
+        this.yaw = any.get("yaw").toFloat();
+        this.pitch = any.get("pitch").toFloat();
+    }
+
+    /**
+     * Converts a given location to a {@link WrappedLocation} with all relevant values.
+     * @param any The read only data container
+     * @return the transformed location as {@link WrappedLocation}
+     */
+
+    public static WrappedLocation of(@NotNull Any any) {
+        return new WrappedLocation(any);
+    }
+
+    /**
      * Converts a given location to a {@link WrappedLocation} with all relevant values.
      * @param location The location to convert
      * @return the transformed location as {@link WrappedLocation}
      */
 
-    public static WrappedLocation of(Location location) {
+    public static WrappedLocation of(@NotNull Location location) {
         return new WrappedLocation(location);
     }
 
