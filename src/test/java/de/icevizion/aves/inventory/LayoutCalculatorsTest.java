@@ -37,4 +37,12 @@ public class LayoutCalculatorsTest {
 
         assertArrayEquals(expected, arr);
     }
+
+    @Test
+    public void frame() {
+        var arr = LayoutCalculators.frame(10, 31);
+        var expected = new int[] {10, 28, 11, 29, 12, 30, 13, 31, 19, 22};
+
+        assertArrayEquals(expected, arr);
+    }
 }
