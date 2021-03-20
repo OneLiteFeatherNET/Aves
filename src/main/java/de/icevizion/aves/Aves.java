@@ -30,25 +30,25 @@ public final class Aves extends JavaPlugin {
 
 
 
-        var builder = new GlobalInventoryBuilder("Navigator", InventoryRows.THREE, inventoryLayout -> {
-            //Data loading
-            var layout = inventoryLayout == null ? new InventoryLayout(InventoryRows.THREE.getSize()) : inventoryLayout;
-
-            var counter = 0;
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                layout.item(counter, new ItemBuilder(Material.SKELETON_SKULL).setDisplayName(player.getName()), event -> {});
-                counter++;
-            }
-
-            return layout;
-        });
-
-        //Configure layout
-        var layout = builder.getInventoryLayout();
-        layout.item(9, new ItemBuilder(Material.STONE), event -> {});
-
-        //Retrieve inventory to open it by a player
-        builder.getInventory();
+//        var builder = new GlobalInventoryBuilder("Navigator", InventoryRows.THREE, inventoryLayout -> {
+//            //Data loading
+//            var layout = inventoryLayout == null ? new InventoryLayout(InventoryRows.THREE.getSize()) : inventoryLayout;
+//
+//            var counter = 0;
+//            for (Player player : Bukkit.getOnlinePlayers()) {
+//                layout.item(counter, new ItemBuilder(Material.SKELETON_SKULL).setDisplayName(player.getName()), event -> {});
+//                counter++;
+//            }
+//
+//            return layout;
+//        });
+//
+//        //Configure layout
+//        var layout = builder.getInventoryLayout();
+//        layout.item(9, new ItemBuilder(Material.STONE), event -> {});
+//
+//        //Retrieve inventory to open it by a player
+//        builder.getInventory();
     }
 
     @Override
