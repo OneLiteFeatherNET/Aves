@@ -23,8 +23,6 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
 
     private TextData titleData;
 
-    private Function<InventoryCloseEvent, Boolean> closeListener;
-
     public GlobalTranslatedInventoryBuilder(InventoryRows rows, MessageProvider messageProvider, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
         super(rows, dataLayoutProvider);
         this.messageProvider = messageProvider;
@@ -96,14 +94,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
                 || ((Holder) event.getView().getTopInventory().getHolder()).getInventoryBuilder() != this)
             return;
 
-        if (closeListener != null) {
-            var closeInv = closeListener.apply(event);
-            var holder = (Holder) event.getView().getTopInventory().getHolder();
-
-            if (!closeInv) {
-                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getPlayer().openInventory(holder.getInventory()), 3);
-            }
-        }
+        handleClose(event);
     }
 
     @EventHandler
@@ -121,11 +112,5 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
 
     public void setTitleData(TextData titleData) {
         this.titleData = titleData;
-    }
-
-    public GlobalTranslatedInventoryBuilder setCloseListener(Function<InventoryCloseEvent, Boolean> closeListener) {
-        this.closeListener = closeListener;
-
-        return this;
     }
 }
