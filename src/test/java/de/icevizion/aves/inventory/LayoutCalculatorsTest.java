@@ -29,4 +29,12 @@ public class LayoutCalculatorsTest {
 
         assertArrayEquals(expected, arr);
     }
+
+    @Test
+    public void fillColumn() {
+        var arr = LayoutCalculators.fillColumn(InventoryRows.FOUR, 2);
+        var expected = new int[]{2, 11, 20, 29};
+
+        assertArrayEquals(expected, arr);
+    }
 }

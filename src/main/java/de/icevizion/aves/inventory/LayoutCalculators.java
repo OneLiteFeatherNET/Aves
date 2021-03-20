@@ -1,5 +1,7 @@
 package de.icevizion.aves.inventory;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * @author Patrick Zdarsky / Rxcki
  */
@@ -41,6 +43,23 @@ public class LayoutCalculators {
             arr[i] = (int) Math.floor(y*9) + x;
 
             System.out.println("x: "+x+" y: "+y+" xSquare: "+xSquare+" ySquare: "+xSquare+" arr: "+arr[i]);
+        }
+
+        return arr;
+    }
+
+    public static int[] fillRow(@NotNull InventoryRows row) {
+        return repeat(row.getSize()-9, row.getSize()-1);
+    }
+
+    public static int[] fillColumn(@NotNull InventoryRows rows, int column) {
+        if (column < 0 || column > 8) {
+            throw new IllegalArgumentException("Column cant be less than 0 or more than 8");
+        }
+
+        var arr = new int[rows.getRowCount()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = i*9 + column;
         }
 
         return arr;
