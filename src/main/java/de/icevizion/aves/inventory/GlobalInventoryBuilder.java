@@ -41,14 +41,7 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
         if (event.getView().getTopInventory().getHolder() != holder)
             return;
 
-        if (closeListener != null) {
-            var closeInv = closeListener.apply(event);
-            var holder = (Holder) event.getView().getTopInventory().getHolder();
-
-            if (!closeInv) {
-                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getPlayer().openInventory(holder.getInventory()), 3);
-            }
-        }
+        handleClose(event);
     }
 
     @EventHandler
