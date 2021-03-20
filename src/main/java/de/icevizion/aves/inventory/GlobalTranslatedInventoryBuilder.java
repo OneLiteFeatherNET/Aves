@@ -52,6 +52,10 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
 
     @Override
     public Inventory getInventory(Locale locale) {
+        if (!dataLayoutValid || !inventoryLayoutValid) {
+            updateInventory();
+        }
+
         return inventoryTranslatedObjectCache.get(locale);
     }
 
