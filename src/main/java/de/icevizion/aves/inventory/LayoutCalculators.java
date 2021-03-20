@@ -40,8 +40,6 @@ public class LayoutCalculators {
             var y = y1 + ySquare;
 
             arr[i] = (int) Math.floor(y*9) + x;
-
-            System.out.println("x: "+x+" y: "+y+" xSquare: "+xSquare+" ySquare: "+xSquare+" arr: "+arr[i]);
         }
 
         return arr;
