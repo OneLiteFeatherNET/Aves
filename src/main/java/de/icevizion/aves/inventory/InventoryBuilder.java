@@ -108,8 +108,10 @@ public abstract class InventoryBuilder implements Listener {
                 }
                 dataLayoutFuture.complete(dataLayout);
                 dataLayoutProcessing = true;
+                System.out.println("DataLayout invalidated on open inv, requested data...");
             }
         } else {
+            System.out.println("DataLayout invalidated on closed inv");
             dataLayoutValid = false;
         }
     }
@@ -120,7 +122,6 @@ public abstract class InventoryBuilder implements Listener {
 
         if (getDataLayout() != null) {
             var dataSlot = getDataLayout().getContents()[event.getSlot()];
-            System.out.println("Click on datalayout: "+dataSlot);
             if (dataSlot != null && dataSlot.getClickListener() != null) {
                 dataSlot.getClickListener().accept(event);
                 return;
@@ -129,7 +130,6 @@ public abstract class InventoryBuilder implements Listener {
 
         if (getInventoryLayout() != null) {
             var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
-            System.out.println("Click on inventoryLayout: "+layoutSlot);
             if (layoutSlot != null && layoutSlot.getClickListener() != null) {
                 layoutSlot.getClickListener().accept(event);
             }
