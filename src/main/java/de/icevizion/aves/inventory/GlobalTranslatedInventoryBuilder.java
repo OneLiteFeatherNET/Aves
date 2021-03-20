@@ -23,15 +23,15 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
 
     private TextData titleData;
 
-    public GlobalTranslatedInventoryBuilder(InventoryRows rows, MessageProvider messageProvider, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
-        super(rows, dataLayoutProvider);
+    public GlobalTranslatedInventoryBuilder(InventoryRows rows, MessageProvider messageProvider) {
+        super(rows);
         this.messageProvider = messageProvider;
 
         inventoryTranslatedObjectCache = createCache();
     }
 
-    public GlobalTranslatedInventoryBuilder(int slots, MessageProvider messageProvider, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
-        super(slots, dataLayoutProvider);
+    public GlobalTranslatedInventoryBuilder(int slots, MessageProvider messageProvider) {
+        super(slots);
         this.messageProvider = messageProvider;
         inventoryTranslatedObjectCache = createCache();
     }
@@ -78,7 +78,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
 
     @Override
     protected void applyDataLayout() {
-        synchronized (getDataLayoutFuture()) {
+        synchronized (this) {
             if (getDataLayout() != null) {
                 System.out.println("Applying data layouts " + getDataLayout());
                 for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {

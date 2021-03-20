@@ -11,13 +11,13 @@ public class PersonalInventoryBuilder extends GlobalInventoryBuilder {
 
     private final Player player;
 
-    public PersonalInventoryBuilder(String title, InventoryRows rows, Player player, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
-        super(title, rows, dataLayoutProvider);
+    public PersonalInventoryBuilder(String title, InventoryRows rows, Player player) {
+        super(title, rows);
         this.player = player;
     }
 
-    public PersonalInventoryBuilder(String title, int slots, Player player, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
-        super(title, slots, dataLayoutProvider);
+    public PersonalInventoryBuilder(String title, int slots, Player player) {
+        super(title, slots);
         this.player = player;
     }
 

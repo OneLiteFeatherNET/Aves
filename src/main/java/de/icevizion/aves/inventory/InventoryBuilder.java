@@ -1,7 +1,9 @@
 package de.icevizion.aves.inventory;
 
 import at.rxcki.strigiformes.MessageProvider;
-import de.icevizion.aves.Aves;
+import co.aikar.taskchain.TaskChain;
+import co.aikar.taskchain.TaskChainFactory;
+import de.icevizion.aves.ServiceRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -10,7 +12,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
@@ -24,51 +25,26 @@ public abstract class InventoryBuilder implements Listener {
     protected boolean inventoryLayoutValid = true;
 
     private InventoryLayout dataLayout;
-    private final CompletableFuture<InventoryLayout> dataLayoutFuture;
-    protected boolean dataLayoutValid = false, dataLayoutProcessing = false;
+    private TaskChain<InventoryLayout> dataLayoutChain;
+    private Function<TaskChain<InventoryLayout>, TaskChain<InventoryLayout>> dataLayoutChainFunction;
+    protected boolean dataLayoutValid = false;
 
     protected Function<InventoryCloseEvent, Boolean> closeListener;
 
     protected JavaPlugin plugin;
 
-    public InventoryBuilder(InventoryRows rows, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
+    public InventoryBuilder(InventoryRows rows) {
         this.rows = rows;
         this.inventoryLayout = new InventoryLayout(rows.getSize());
-
-        this.dataLayoutFuture = new CompletableFuture<>();
-        this.dataLayoutFuture.thenApplyAsync(dataLayoutProvider)
-            .thenAcceptAsync(inventoryLayout1 -> {
-            synchronized (dataLayoutFuture) {
-                dataLayout = inventoryLayout1;
-                dataLayoutProcessing = false;
-                dataLayoutValid = true;
-
-                System.out.println("Received DataLayout "+inventoryLayout1);
-                applyDataLayout();
-            }
-        });
     }
 
-    public InventoryBuilder(int slots, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
+    public InventoryBuilder(int slots) {
         if (slots > InventoryRows.SIX.getSize()) {
             throw new IllegalArgumentException("Maximum amount of slots for an inventory is 54!");
         }
 
         this.rows = InventoryRows.getRows(slots);
         this.inventoryLayout = new InventoryLayout(slots);
-
-        this.dataLayoutFuture = new CompletableFuture<>();
-        this.dataLayoutFuture.thenApplyAsync(dataLayoutProvider)
-            .thenAcceptAsync(inventoryLayout1 -> {
-            synchronized (dataLayoutFuture) {
-                dataLayout = inventoryLayout1;
-                dataLayoutProcessing = false;
-                dataLayoutValid = true;
-
-                System.out.println("Received DataLayout "+inventoryLayout1);
-                applyDataLayout();
-            }
-        });
     }
 
     //Abstract methods
@@ -101,13 +77,13 @@ public abstract class InventoryBuilder implements Listener {
     }
 
     public void invalidateDataLayout() {
+        if (dataLayoutChain == null) {
+            throw new IllegalStateException("Tried to invalidate DataLayout with no TaskChain configured");
+        }
+
         if (isInventoryOpened()) {
-            synchronized (dataLayoutFuture) {
-                if (dataLayoutProcessing) {
-                    dataLayoutFuture.cancel(true);
-                }
-                dataLayoutFuture.complete(dataLayout);
-                dataLayoutProcessing = true;
+            synchronized (dataLayoutChain) {
+                retrieveDataLayout();
                 System.out.println("DataLayout invalidated on open inv, requested data...");
             }
         } else {
@@ -173,9 +149,9 @@ public abstract class InventoryBuilder implements Listener {
             plugin.getLogger().info("UpdateInventory applied the InventoryLayout!");
         }
 
-        synchronized (getDataLayoutFuture()) {
-            if (!dataLayoutValid && !dataLayoutProcessing) {
-                getDataLayoutFuture().complete(getDataLayout());
+        synchronized (this) {
+            if (!dataLayoutValid && dataLayoutChain == null) {
+                retrieveDataLayout();
             } else {
                 if (getDataLayout() != null) {
                     var contents = inventory.getContents();
@@ -183,6 +159,36 @@ public abstract class InventoryBuilder implements Listener {
                     inventory.setContents(contents);
                 }
             }
+        }
+    }
+
+    protected void retrieveDataLayout() {
+        synchronized (this) {
+            if (dataLayoutChainFunction == null)
+                return;
+
+            if (dataLayoutChain != null) {
+                dataLayoutChain.abortChain();
+            }
+
+            TaskChainFactory factory = ServiceRegistry.getService("TaskChainFactory");
+            dataLayoutChain = factory.newChain()
+                    .current(() -> TaskChain.getCurrentChain().setTaskData("dataLayout", getDataLayout()))
+                    .returnData("dataLayout");
+
+            dataLayoutChain = dataLayoutChainFunction.apply(dataLayoutChain);
+
+            dataLayoutChain.current(input -> {
+                dataLayout = input;
+                dataLayoutValid = true;
+
+                System.out.println("Received DataLayout "+input);
+                applyDataLayout();
+                dataLayoutChain = null;
+                return null;
+            });
+
+            dataLayoutChain.execute();
         }
     }
 
@@ -204,12 +210,14 @@ public abstract class InventoryBuilder implements Listener {
         return dataLayout;
     }
 
-    public CompletableFuture<InventoryLayout> getDataLayoutFuture() {
-        return dataLayoutFuture;
-    }
-
     public InventoryBuilder setCloseListener(Function<InventoryCloseEvent, Boolean> closeListener) {
         this.closeListener = closeListener;
+
+        return this;
+    }
+
+    public InventoryBuilder setDataLayoutChainFunction(Function<TaskChain<InventoryLayout>, TaskChain<InventoryLayout>> setupFunction) {
+        dataLayoutChainFunction = setupFunction;
 
         return this;
     }

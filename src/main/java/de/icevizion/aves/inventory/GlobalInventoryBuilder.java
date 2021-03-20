@@ -21,15 +21,15 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
     private Inventory inventory;
     private Holder holder;
 
-    public GlobalInventoryBuilder(String title, InventoryRows rows, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
-        super(rows, dataLayoutProvider);
+    public GlobalInventoryBuilder(String title, InventoryRows rows) {
+        super(rows);
         this.title = title;
 
         holder = new Holder(this);
     }
 
-    public GlobalInventoryBuilder(String title, int slots, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
-        super(slots, dataLayoutProvider);
+    public GlobalInventoryBuilder(String title, int slots) {
+        super(slots);
         this.title = title;
 
         holder = new Holder(this);
@@ -97,7 +97,7 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
 
     @Override
     protected void applyDataLayout() {
-        synchronized (getDataLayoutFuture()) {
+        synchronized (this) {
             if (getDataLayout() != null) {
                 var contents = inventory.getContents();
                 getDataLayout().applyLayout(contents, null, null);
