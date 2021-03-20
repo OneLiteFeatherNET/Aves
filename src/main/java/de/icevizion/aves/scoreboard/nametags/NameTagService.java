@@ -5,7 +5,6 @@ import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerJoinListener;
 import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerQuitListener;
 import net.titan.spigot.Cloud;
 import net.titan.spigot.player.CloudPlayer;
-import net.titan.spigot.plugin.Service;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -17,7 +16,7 @@ import java.util.function.Consumer;
  * @author Nico (JumpingPxl) Middendorf
  */
 
-public class NameTagService implements Service {
+public class NameTagService {
 
 	private static final Map<UUID, NameTagScoreboard> nameTagScoreboards = Maps.newHashMap();
 

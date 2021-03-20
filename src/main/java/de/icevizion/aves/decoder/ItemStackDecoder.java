@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ItemStackDecoder implements Decoder {
+
     @Override
     public Object decode(JsonIterator jsonIterator) throws IOException {
         Any any = jsonIterator.readAny();
@@ -32,7 +33,9 @@ public final class ItemStackDecoder implements Decoder {
 
         Any meta = any.get("meta");
 
-        if (meta.get("displayName") != null) itemBuilder.setDisplayName(meta.get("displayName").toString());
+        if (meta.get("displayName") != null) {
+            itemBuilder.setDisplayName(meta.get("displayName").toString());
+        }
         if (meta.get("enchantments") != null) {
             List<Any> enchantments = meta.get("enchantments").asList();
             for (Any enchantment : enchantments) {
