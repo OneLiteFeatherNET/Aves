@@ -30,7 +30,6 @@ public class LayoutCalculators {
         var width = (x2-x1) + 1;
         var height = (y2-y1) + 1;
 
-        //Maybe ceil()?
         var arr = new int[(int) Math.floor(width * height)];
 
         for (int i = 0; i < arr.length; i++) {
@@ -43,6 +42,31 @@ public class LayoutCalculators {
             arr[i] = (int) Math.floor(y*9) + x;
 
             System.out.println("x: "+x+" y: "+y+" xSquare: "+xSquare+" ySquare: "+xSquare+" arr: "+arr[i]);
+        }
+
+        return arr;
+    }
+
+    public static int[] frame(int firstCornerSlot, int lastCornerSlot) {
+        var x1 = firstCornerSlot % 9;
+        var y1 = Math.floor(firstCornerSlot / 9.0);
+
+        var x2 = lastCornerSlot % 9;
+        var y2 = Math.floor(lastCornerSlot / 9.0);
+
+        var width = (x2-x1) + 1;
+        var height = (y2-y1) + 1;
+
+        var arr = new int[(int) ((width-2)*2 + (height-2)*2 + 4)];
+        var index = 0;
+
+        for (int i = 0; i < width; i++) {
+            arr[index++] = (int) y1*9+x1+i;
+            arr[index++] = (int) y2*9+x1+i;
+        }
+        for (int i = 0; i < height-2; i++) {
+            arr[index++] = (int) (y1+1+i)*9+x1;
+            arr[index++] = (int) (y1+1+i)*9+x2;
         }
 
         return arr;
