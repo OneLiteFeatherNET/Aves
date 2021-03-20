@@ -150,8 +150,8 @@ public abstract class InventoryBuilder implements Listener {
     protected void updateInventory(Inventory inventory, String title, Locale locale, MessageProvider messageProvider, boolean applyLayout) {
         applyLayout |= !inventoryLayoutValid;
 
-        if (((Holder) inventory.getHolder()).getInventoryTitle().equals(title)) {
-            plugin.getLogger().info("UpdateInventory called!");
+        if (!((Holder) inventory.getHolder()).getInventoryTitle().equals(title)) {
+            plugin.getLogger().info("UpdateInventory is updating the title!");
             var contents = inventory.getContents();
             var viewers = inventory.getViewers();
             var holder = (Holder) inventory.getHolder();
@@ -170,6 +170,7 @@ public abstract class InventoryBuilder implements Listener {
             var contents = inventory.getContents();
             getInventoryLayout().applyLayout(contents, locale, messageProvider);
             inventory.setContents(contents);
+            plugin.getLogger().info("UpdateInventory applied the InventoryLayout!");
         }
 
         synchronized (getDataLayoutFuture()) {
