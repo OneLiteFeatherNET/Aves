@@ -77,15 +77,13 @@ public abstract class InventoryBuilder implements Listener {
     }
 
     public void invalidateDataLayout() {
-        if (dataLayoutChain == null) {
+        if (dataLayoutChainFunction == null) {
             throw new IllegalStateException("Tried to invalidate DataLayout with no TaskChain configured");
         }
 
         if (isInventoryOpened()) {
-            synchronized (dataLayoutChain) {
-                retrieveDataLayout();
-                System.out.println("DataLayout invalidated on open inv, requested data...");
-            }
+            retrieveDataLayout();
+            System.out.println("DataLayout invalidated on open inv, requested data...");
         } else {
             System.out.println("DataLayout invalidated on closed inv");
             dataLayoutValid = false;
