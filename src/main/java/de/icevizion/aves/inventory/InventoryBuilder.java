@@ -4,6 +4,7 @@ import at.rxcki.strigiformes.MessageProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,6 +25,8 @@ public abstract class InventoryBuilder implements Listener {
     private InventoryLayout dataLayout;
     private final CompletableFuture<InventoryLayout> dataLayoutFuture;
     protected boolean dataLayoutValid = false, dataLayoutProcessing = false;
+
+    protected Function<InventoryCloseEvent, Boolean> closeListener;
 
     protected JavaPlugin plugin;
 
@@ -132,6 +135,17 @@ public abstract class InventoryBuilder implements Listener {
         }
     }
 
+    protected void handleClose(InventoryCloseEvent event) {
+        if (closeListener != null) {
+            var closeInv = closeListener.apply(event);
+            var holder = (Holder) event.getView().getTopInventory().getHolder();
+
+            if (!closeInv) {
+                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getPlayer().openInventory(holder.getInventory()), 3);
+            }
+        }
+    }
+
     protected void updateInventory(Inventory inventory, String title, Locale locale, MessageProvider messageProvider, boolean applyLayout) {
         applyLayout |= !inventoryLayoutValid;
 
@@ -189,5 +203,11 @@ public abstract class InventoryBuilder implements Listener {
 
     public CompletableFuture<InventoryLayout> getDataLayoutFuture() {
         return dataLayoutFuture;
+    }
+
+    public InventoryBuilder setCloseListener(Function<InventoryCloseEvent, Boolean> closeListener) {
+        this.closeListener = closeListener;
+
+        return this;
     }
 }

@@ -21,8 +21,6 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
     private Inventory inventory;
     private Holder holder;
 
-    private Function<InventoryCloseEvent, Boolean> closeListener;
-
     public GlobalInventoryBuilder(String title, InventoryRows rows, Function<InventoryLayout, InventoryLayout> dataLayoutProvider) {
         super(rows, dataLayoutProvider);
         this.title = title;
