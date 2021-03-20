@@ -1,6 +1,7 @@
 package de.icevizion.aves.inventory;
 
 import at.rxcki.strigiformes.MessageProvider;
+import de.icevizion.aves.Aves;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -150,6 +151,7 @@ public abstract class InventoryBuilder implements Listener {
         applyLayout |= !inventoryLayoutValid;
 
         if (((Holder) inventory.getHolder()).getInventoryTitle().equals(title)) {
+            plugin.getLogger().info("UpdateInventory called!");
             var contents = inventory.getContents();
             var viewers = inventory.getViewers();
             var holder = (Holder) inventory.getHolder();
