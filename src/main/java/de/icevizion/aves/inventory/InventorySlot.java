@@ -4,6 +4,7 @@ import de.icevizion.aves.item.ItemBuilder;
 import de.icevizion.aves.util.Items;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -59,8 +60,10 @@ public class InventorySlot extends Slot {
 
     @Override
     public String toString() {
+        var stack = itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof SkullMeta ? "ItemStack{Skull}" : itemStack.toString();
+
         return "InventorySlot{" +
-                "itemStack=" + itemStack +
+                "itemStack=" + stack +
                 "} " + super.toString();
     }
 }
