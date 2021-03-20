@@ -73,7 +73,7 @@ public class LayoutCalculators {
     }
 
     public static int[] fillRow(@NotNull InventoryRows row) {
-        return repeat(row.getSize()-9, row.getSize()-1);
+        return repeat(row.getSize()-9, row.getSize());
     }
 
     public static int[] fillColumn(@NotNull InventoryRows rows, int column) {
