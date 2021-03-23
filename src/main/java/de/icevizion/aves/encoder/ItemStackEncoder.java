@@ -2,7 +2,9 @@ package de.icevizion.aves.encoder;
 
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.Encoder;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Repairable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +23,17 @@ public final class ItemStackEncoder implements Encoder {
                 Map<String, Object> map = new HashMap<>();
                 map.put("material", stack.getType().name());
                 map.put("amount", stack.getAmount());
+
+                if (stack.getItemMeta() instanceof Damageable) {
+                    var damageAble = (Damageable) stack.getItemMeta();
+                    map.put("durability", damageAble.getDamage());
+                }
+
+                if (stack.getItemMeta() instanceof Repairable) {
+                    var repairAble = (Repairable) stack.getItemMeta();
+                    map.put("repairCost", repairAble.getRepairCost());
+                }
+
                 if (stack.hasItemMeta()) {
                     var metaMap = new HashMap<String, Object>();
                     var meta = stack.getItemMeta();
