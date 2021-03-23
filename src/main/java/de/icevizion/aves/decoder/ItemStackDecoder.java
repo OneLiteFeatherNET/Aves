@@ -61,6 +61,19 @@ public final class ItemStackDecoder implements Decoder {
                 itemBuilder.addItemFlag(ItemFlag.valueOf(flagElement.toString()));
             }
         }
+
+        var additionalData = any.get("durability");
+
+        if (additionalData.valueType() != ValueType.INVALID) {
+            itemBuilder.setDurability(additionalData.toInt());
+        }
+
+        additionalData = any.get("repairCost");
+
+        if (additionalData.valueType() != ValueType.INVALID) {
+            itemBuilder.setRepairCosts(additionalData.toInt());
+        }
+
         return itemBuilder.build();
     }
 }
