@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 
@@ -166,6 +167,19 @@ public class ItemBuilder {
     }
 
     /**
+     * Set the durability to an item
+     * @param durability The durability to set
+     * @return
+     */
+
+    public ItemBuilder setDurability(int durability) {
+        var damageAble = (Damageable)itemMeta;
+        damageAble.setDamage(durability);
+        stack.setItemMeta(itemMeta);
+        return this;
+    }
+
+    /**
      * Sets the repair penalty
      * @param repairCosts repair penalty
      * @return
@@ -174,6 +188,7 @@ public class ItemBuilder {
     public ItemBuilder setRepairCosts(int repairCosts) {
         Repairable meta = (Repairable) itemMeta;
         meta.setRepairCost(repairCosts);
+        stack.setItemMeta(itemMeta);
         return this;
     }
 
