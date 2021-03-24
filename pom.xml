@@ -27,15 +27,25 @@
     <repositories>
         <repository>
             <id>gitlab-maven</id>
-            <url>https://gitlab.madfix.me/api/v4/groups/28/-/packages/maven/</url>
+            <url>https://gitlab.madfix.me/api/v4/groups/27/-/packages/maven/</url>
         </repository>
         <repository>
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>aikar</id>
+            <url>https://repo.aikar.co/content/groups/aikar/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <artifactId>strigiformes-core</artifactId>
+            <groupId>at.rxcki</groupId>
+            <version>0.0.2-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.destroystokyo.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -47,6 +57,12 @@
             <artifactId>cloudspigot</artifactId>
             <version>1.0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>co.aikar</groupId>
+            <artifactId>taskchain-bukkit</artifactId>
+            <version>3.7.2</version>
+            <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.mojang/authlib -->
         <dependency>
@@ -103,6 +119,12 @@
                             </excludes>
                         </filter>
                     </filters>
+                    <relocations>
+                        <relocation>
+                            <pattern>co.aikar.taskchain</pattern>
+                            <shadedPattern>de.icevizion.aves.taskchain</shadedPattern>
+                        </relocation>
+                    </relocations>
                 </configuration>
                 <executions>
                     <execution>

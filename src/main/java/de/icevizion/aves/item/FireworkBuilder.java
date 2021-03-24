@@ -16,6 +16,10 @@ public final class FireworkBuilder extends ItemBuilder {
         this.fireworkMeta = getItemMeta();
     }
 
+    public static FireworkBuilder of() {
+        return new FireworkBuilder();
+    }
+
     /**
      * Add another effect to this firework.
      * @param effect The effect to add
