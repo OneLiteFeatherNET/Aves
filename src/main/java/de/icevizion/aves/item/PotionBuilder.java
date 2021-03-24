@@ -22,6 +22,14 @@ public final class PotionBuilder extends ItemBuilder {
         potionMeta = getItemMeta();
     }
 
+    public static PotionBuilder of(PotionType type) {
+        return new PotionBuilder(type);
+    }
+
+    public static PotionBuilder of(ItemStack stack) {
+        return new PotionBuilder(stack);
+    }
+
     public PotionBuilder setColor(Color color) {
         potionMeta.setColor(color);
         stack.setItemMeta(potionMeta);

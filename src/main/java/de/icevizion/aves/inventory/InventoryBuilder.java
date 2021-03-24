@@ -1,245 +1,222 @@
 package de.icevizion.aves.inventory;
 
-import de.icevizion.aves.inventory.events.ClickEvent;
-import de.icevizion.aves.inventory.events.CloseEvent;
-import de.icevizion.aves.item.ItemBuilder;
+import at.rxcki.strigiformes.MessageProvider;
+import co.aikar.taskchain.TaskChain;
+import co.aikar.taskchain.TaskChainFactory;
+import de.icevizion.aves.ServiceRegistry;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.Locale;
+import java.util.function.Function;
 
 /**
- * @author Nico (JumpingPxl) Middendorf
+ * @author Patrick Zdarsky / Rxcki
  */
+public abstract class InventoryBuilder implements Listener {
 
-public class InventoryBuilder {
+    private final InventoryRows rows;
 
-	private static final InventoryLayout EMPTY_LAYOUT = new InventoryLayout();
+    private InventoryLayout inventoryLayout;
+    protected boolean inventoryLayoutValid = true;
 
-	private final InventoryLayout layout;
-	private final Holder holder;
-	private final Map<Integer, ItemBuilder> items;
-	private final Map<Integer, ItemBuilder> backGroundItems;
-	private final Map<Integer, Consumer<ClickEvent>> clickEvents;
-	private Inventory inventory;
-	private String title;
-	private InventoryRows rows;
-	private boolean firstDraw;
-	private boolean drawOnce;
+    private InventoryLayout dataLayout;
+    private TaskChain<InventoryLayout> dataLayoutChain;
+    private Function<TaskChain<InventoryLayout>, TaskChain<InventoryLayout>> dataLayoutChainFunction;
+    protected boolean dataLayoutValid = false;
 
-	public InventoryBuilder(String title, InventoryRows rows) {
-		this(title, rows, EMPTY_LAYOUT);
-	}
+    protected Function<InventoryCloseEvent, Boolean> closeListener;
 
-	public InventoryBuilder(String title, InventoryRows rows, InventoryLayout layout) {
-		this.title = title;
-		this.rows = rows;
-		this.layout = layout;
+    protected JavaPlugin plugin;
 
-		holder = new Holder(this);
-		items = new HashMap<>();
-		backGroundItems = new HashMap<>(layout.getItems());
-		clickEvents = new HashMap<>(layout.getClickEvents());
-		firstDraw = true;
-	}
+    public InventoryBuilder(InventoryRows rows) {
+        this.rows = rows;
+        this.inventoryLayout = new InventoryLayout(rows.getSize());
+    }
 
-	public void draw() { }
+    public InventoryBuilder(int slots) {
+        if (slots > InventoryRows.SIX.getSize()) {
+            throw new IllegalArgumentException("Maximum amount of slots for an inventory is 54!");
+        }
 
-	public void onInventoryClose(CloseEvent closeEvent) { }
+        this.rows = InventoryRows.getRows(slots);
+        this.inventoryLayout = new InventoryLayout(slots);
+    }
 
-	public final void clearItems() {
-		items.clear();
-		clickEvents.clear();
-		clickEvents.putAll(layout.getClickEvents());
-	}
+    //Abstract methods
 
-	public final void setItem(int slot, ItemBuilder itemBuilder, Consumer<ClickEvent> clickEvent) {
-		setItem(slot, itemBuilder);
-		clickEvents.put(slot, clickEvent);
-	}
+    public Inventory getInventory() {
+        return getInventory(null);
+    }
 
-	public final void setItem(int slot, ItemBuilder itemBuilder) {
-		items.put(slot, itemBuilder);
-	}
+    public abstract Inventory getInventory(Locale locale);
 
-	public final void removeItem(int slot) {
-		items.remove(slot);
-		clickEvents.remove(slot);
-	}
+    protected abstract boolean isInventoryOpened();
 
-	public final void setBackgroundItem(int slot, ItemBuilder itemBuilder) {
-		backGroundItems.put(slot, itemBuilder);
-	}
+    protected abstract void updateInventory();
 
-	public final void setBackgroundItems(int fromIndex, int toIndex, ItemBuilder itemBuilder) {
-		int maxSize = rows.getSize() - 1;
-		if (toIndex > maxSize) {
-			toIndex = maxSize;
-		}
+    protected abstract void applyDataLayout();
 
-		for (int i = fromIndex; i <= toIndex; i++) {
-			setBackgroundItem(i, itemBuilder);
-		}
-	}
+    // =========
 
-	/**
-	 * Change the size of the inventory. The inventory will be rebuild when the size changes.
-	 * @param rows The new size of the inventory
-	 */
+    public void registerListener(JavaPlugin plugin) {
+        this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
 
-	public final void setInventorySize(InventoryRows rows) {
-		if (this.rows == rows) {
-			return;
-		}
+    public void invalidateInventoryLayout() {
+        inventoryLayoutValid = false;
 
-		this.rows = rows;
-		rebuildInventory();
-	}
+        if (isInventoryOpened()) {
+            updateInventory();
+        }
+    }
 
-	public final void setFirstDraw(boolean firstDraw) {
-		this.firstDraw = firstDraw;
-	}
+    public void invalidateDataLayout() {
+        if (dataLayoutChainFunction == null) {
+            throw new IllegalStateException("Tried to invalidate DataLayout with no TaskChain configured");
+        }
 
-	public final void setDrawOnce(boolean drawOnce) {
-		this.drawOnce = drawOnce;
-	}
+        if (isInventoryOpened()) {
+            retrieveDataLayout();
+            System.out.println("DataLayout invalidated on open inv, requested data...");
+        } else {
+            System.out.println("DataLayout invalidated on closed inv");
+            dataLayoutValid = false;
+        }
+    }
 
-	public final void drawItems() {
-		inventory.clear();
-		firstDraw = false;
+    protected void handleClick(InventoryClickEvent event) {
+        if (event.getSlot() < 0 || event.getSlot() > getRows().getSize()-1)
+            return; //Not within this inventory
 
-		backGroundItems.forEach((slot, item) -> inventory.setItem(slot, item.build()));
+        if (getDataLayout() != null) {
+            var dataSlot = getDataLayout().getContents()[event.getSlot()];
+            if (dataSlot != null && dataSlot.getClickListener() != null) {
+                dataSlot.getClickListener().accept(event);
+                return;
+            }
+        }
 
-		items.forEach(
-				(slot, item) -> inventory.setItem(slot, Objects.isNull(item) ? null : item.build()));
-	}
+        if (getInventoryLayout() != null) {
+            var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
+            if (layoutSlot != null && layoutSlot.getClickListener() != null) {
+                layoutSlot.getClickListener().accept(event);
+            }
+        }
+    }
 
-	/**
-	 * Change the title from the inventory. The inventory will be rebuild when the size changes.
-	 * @param title The new title for the inventory
-	 */
+    protected void handleClose(InventoryCloseEvent event) {
+        if (closeListener != null) {
+            var closeInv = closeListener.apply(event);
+            var holder = (Holder) event.getView().getTopInventory().getHolder();
 
-	public void setInventoryTitle(String title) {
-		if (this.title.equals(title)) {
-			return;
-		}
+            if (!closeInv) {
+                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getPlayer().openInventory(holder.getInventory()), 3);
+            }
+        }
+    }
 
-		this.title = title;
-		rebuildInventory();
-	}
+    protected void updateInventory(Inventory inventory, String title, Locale locale, MessageProvider messageProvider, boolean applyLayout) {
+        applyLayout |= !inventoryLayoutValid;
 
-	/**
-	 * Builds the inventory.
-	 */
+        if (!((Holder) inventory.getHolder()).getInventoryTitle().equals(title)) {
+            plugin.getLogger().info("UpdateInventory is updating the title!");
+            var contents = inventory.getContents();
+            var viewers = inventory.getViewers();
+            var holder = (Holder) inventory.getHolder();
 
-	protected final void buildInventory() {
-		buildInventory(false);
-	}
+            inventory = Bukkit.createInventory(holder, getRows().getSize(), title);
+            holder.setInventory(inventory);
+            holder.setInventoryTitle(title);
+            inventory.setContents(contents);
 
-	protected final void buildInventory(boolean ignoreDrawOnce) {
-		if (Objects.isNull(inventory)) {
-			inventory = Bukkit.createInventory(holder, rows.getSize(), title);
-		}
+            for (var viewer : viewers) {
+                viewer.openInventory(inventory);
+            }
+        }
 
-		if (!ignoreDrawOnce && (!drawOnce || firstDraw)) {
-			draw();
-		}
+        if (applyLayout) {
+            var contents = inventory.getContents();
+            getInventoryLayout().applyLayout(contents, locale, messageProvider);
+            inventory.setContents(contents);
+            plugin.getLogger().info("UpdateInventory applied the InventoryLayout!");
+        }
 
-		drawItems();
-	}
+        synchronized (this) {
+            if (!dataLayoutValid && dataLayoutChain == null) {
+                retrieveDataLayout();
+            } else {
+                if (getDataLayout() != null) {
+                    var contents = inventory.getContents();
+                    getDataLayout().applyLayout(contents, locale, messageProvider);
+                    inventory.setContents(contents);
+                }
+            }
+        }
+    }
 
-	/**
-	 * The method calls the logic to rebuild the inventory
-	 */
+    protected void retrieveDataLayout() {
+        synchronized (this) {
+            if (dataLayoutChainFunction == null)
+                return;
 
-	private void rebuildInventory() {
-		Inventory oldInventory = inventory;
-		inventory = Bukkit.createInventory(holder, rows.getSize(), title);
+            if (dataLayoutChain != null) {
+                dataLayoutChain.abortChain();
+            }
 
-		items.clear();
-		backGroundItems.clear();
-		clickEvents.clear();
+            TaskChainFactory factory = ServiceRegistry.getService("TaskChainFactory");
+            dataLayoutChain = factory.newChain()
+                    .current(() -> TaskChain.getCurrentChain().setTaskData("dataLayout", getDataLayout()))
+                    .returnData("dataLayout");
 
-		firstDraw = true;
+            dataLayoutChain = dataLayoutChainFunction.apply(dataLayoutChain);
 
-		draw();
-		drawItems();
+            dataLayoutChain.current(input -> {
+                dataLayout = input;
+                dataLayoutValid = true;
 
-		if (oldInventory.getViewers().isEmpty()) return;
+                System.out.println("Received DataLayout "+input);
+                applyDataLayout();
+                dataLayoutChain = null;
+                return null;
+            });
 
-		//TODO fix Concurrent Modification Exception
-		oldInventory.getViewers().forEach(humanEntity -> humanEntity.openInventory(inventory));
-		oldInventory.clear();
-	}
+            dataLayoutChain.execute();
+        }
+    }
 
-	/**
-	 * Returns the given inventory.
-	 * @return The underlying inventory
-	 */
+    //Getters and Setters
+    public InventoryRows getRows() {
+        return rows;
+    }
 
-	protected final Inventory getInventory() {
-		return inventory;
-	}
+    public InventoryLayout getInventoryLayout() {
+        return inventoryLayout;
+    }
 
-	/**
-	 * Returns the amount of rows from the inventory.
-	 * @return The enum representation for the row
-	 */
+    public InventoryBuilder setInventoryLayout(InventoryLayout inventoryLayout) {
+        this.inventoryLayout = inventoryLayout;
+        return this;
+    }
 
-	public final InventoryRows getRows() {
-		return rows;
-	}
+    public InventoryLayout getDataLayout() {
+        return dataLayout;
+    }
 
-	public final boolean isFirstDraw() {
-		return firstDraw;
-	}
+    public InventoryBuilder setCloseListener(Function<InventoryCloseEvent, Boolean> closeListener) {
+        this.closeListener = closeListener;
 
-	/**
-	 * Returns a map which contains all slots who has a registered {@link ClickEvent}
-	 * @return the underlying map
-	 */
+        return this;
+    }
 
-	public final Map<Integer, Consumer<ClickEvent>> getClickEvents() {
-		return clickEvents;
-	}
+    public InventoryBuilder setDataLayoutChainFunction(Function<TaskChain<InventoryLayout>, TaskChain<InventoryLayout>> setupFunction) {
+        dataLayoutChainFunction = setupFunction;
 
-	public final Map<Integer, ItemBuilder> getItems() {
-		return items;
-	}
-
-	public final ItemBuilder getItem(int slot) {
-		return items.get(slot);
-	}
-
-	public Holder getHolder() {
-		return holder;
-	}
-
-	public List<HumanEntity> getViewers() {
-		return inventory.getViewers();
-	}
-
-	public static final class Holder implements InventoryHolder {
-
-		private final InventoryBuilder inventoryBuilder;
-
-		private Holder(InventoryBuilder inventoryBuilder) {
-			this.inventoryBuilder = inventoryBuilder;
-		}
-
-		@Override
-		public Inventory getInventory() {
-			return inventoryBuilder.inventory;
-		}
-
-		public InventoryBuilder getInventoryBuilder() {
-			return inventoryBuilder;
-		}
-	}
+        return this;
+    }
 }

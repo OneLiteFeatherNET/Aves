@@ -15,6 +15,10 @@ public final class BannerBuilder extends ItemBuilder {
         bannerMeta = getItemMeta();
     }
 
+    public static BannerBuilder of(ItemStack stack) {
+        return new BannerBuilder(stack);
+    }
+
     public BannerBuilder addPattern(int i, Pattern pattern) {
         bannerMeta.setPattern(i, pattern);
         stack.setItemMeta(bannerMeta);
