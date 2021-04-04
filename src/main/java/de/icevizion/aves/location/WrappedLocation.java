@@ -269,17 +269,30 @@ public class WrappedLocation implements Cloneable {
             return (this.world.equals(location.getWorld().getName()) &&
                     this.x == location.getX() && this.y == location.getY() &&
                     this.z == location.getZ() && this.yaw == location.getYaw() && this.pitch == location.getPitch());
-        } else {
+        } else if (o instanceof WrappedLocation) {
             WrappedLocation that = (WrappedLocation) o;
             return this.x == that.x && this.y == that.y &&
                     this.z == that.z && this.pitch == that.pitch &&
                     this.yaw == that.yaw && this.world.equals(that.world);
         }
+        return false;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(world, x, y, z, yaw, pitch);
+    }
+
+
+    /**
+     * Returns the class and its contents as a string.
+     * @return the builded string
+     */
+
+    @Override
+    public String toString() {
+        return "WrappedLocation{" + "world='" + world + ", x=" + x + ", y=" + y +
+                ", z=" + z + ", yaw=" + yaw + ", pitch=" + pitch + '}';
     }
 
     /**

@@ -12,13 +12,11 @@ import java.util.UUID;
 /**
  * With the SkullBuilder, player heads can be easily created with a custom texture.
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.0.1
  * @since 1.0.0
  */
 
 public final class SkullBuilder extends ItemBuilder {
-
-    private static final UUID paramUUID = UUID.randomUUID();
 
     private final SkullMeta skullMeta;
 
@@ -42,7 +40,7 @@ public final class SkullBuilder extends ItemBuilder {
     public SkullBuilder setSkinOverValues(String skinValue, String skinSignature) {
         Objects.requireNonNull(skinValue, "SkinValue can not be null");
         Objects.requireNonNull(skinSignature, "SkinSignature can not be null");
-        GameProfile gameProfile = new GameProfile(paramUUID, null);
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null);
         gameProfile.getProperties().put("textures", new Property( "textures", skinValue, skinSignature));
         setSkinOverGameProfile(gameProfile);
         return this;
@@ -56,7 +54,7 @@ public final class SkullBuilder extends ItemBuilder {
 
     public SkullBuilder setSkinOverValue(String skinValue) {
         Objects.requireNonNull(skinValue, "SkinValue can not be null");
-        GameProfile gameProfile = new GameProfile(paramUUID, null);
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null);
         gameProfile.getProperties().put("textures", new Property( "textures", skinValue));
         setSkinOverGameProfile(gameProfile);
         return this;
