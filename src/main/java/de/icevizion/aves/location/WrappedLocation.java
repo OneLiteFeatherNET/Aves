@@ -353,7 +353,7 @@ public class WrappedLocation implements Cloneable {
      * Converts the wrapped location to a bukkit location.
      * @return The bukkit location
      */
-
+    @JsonIgnore
     public Location toLocation() {
         if (location == null) {
             World bukkitWorld = Bukkit.getWorld(this.world);
@@ -374,7 +374,7 @@ public class WrappedLocation implements Cloneable {
      * Returns the given wrapped location as vector.
      * @return The location as vector
      */
-
+    @JsonIgnore
     public Vector toVector() {
         if (vector == null) {
             vector = new Vector(x, y, z);
@@ -388,7 +388,7 @@ public class WrappedLocation implements Cloneable {
      * @return The underlying world from the bukkit location
      */
 
-    @Nullable
+    @Nullable @JsonIgnore
     public World getBukkitWorld() {
         return location == null ? null : location.getWorld();
     }
