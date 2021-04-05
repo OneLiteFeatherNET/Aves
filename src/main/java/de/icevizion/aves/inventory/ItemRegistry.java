@@ -15,8 +15,11 @@ public class ItemRegistry {
 
     public static void register(ItemStack itemStack, ItemStack other) {
         var otherUuid = registry.get(other);
+        System.out.println("Is the received uuid null? " + (otherUuid == null));
         if (otherUuid == null) {
             otherUuid = UUID.randomUUID();
+            System.out.println("Is the generated uuid null? " + (otherUuid == null));
+            System.out.println("The generated uuid is: " + otherUuid.toString());
             registry.put(other, otherUuid);
         }
         registry.put(itemStack, otherUuid);
