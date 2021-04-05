@@ -4,7 +4,6 @@ import at.rxcki.strigiformes.MessageProvider;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
-import java.util.function.Function;
 
 /**
  * @author Patrick Zdarsky / Rxcki
