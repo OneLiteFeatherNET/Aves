@@ -11,7 +11,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.Locale;
-import java.util.function.Function;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -80,7 +79,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
     protected void applyDataLayout() {
         synchronized (this) {
             if (getDataLayout() != null) {
-                System.out.println("Applying data layouts " + getDataLayout());
+                //System.out.println("Applying data layouts " + getDataLayout());
                 for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
                     var contents = entry.getValue().getContents();
                     getDataLayout().applyLayout(contents, entry.getKey(), messageProvider);
@@ -110,9 +109,19 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
         handleClick(event);
     }
 
+    /**
+     * Returns the {@link TextData} from the builder.
+     * @return The underlying value
+     */
+
     public TextData getTitleData() {
         return titleData;
     }
+
+    /**
+     * Overwrites the current {@link TextData} with a new one.
+     * @param titleData The {@link TextData} to set.
+     */
 
     public void setTitleData(TextData titleData) {
         this.titleData = titleData;
