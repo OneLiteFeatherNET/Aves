@@ -180,7 +180,7 @@ public abstract class InventoryBuilder implements Listener {
                 dataLayout = input;
                 dataLayoutValid = true;
 
-                System.out.println("Received DataLayout "+input);
+                //System.out.println("Received DataLayout "+input);
                 applyDataLayout();
                 dataLayoutChain = null;
                 return null;
