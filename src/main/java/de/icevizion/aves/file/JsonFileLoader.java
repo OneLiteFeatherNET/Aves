@@ -37,14 +37,14 @@ public final class JsonFileLoader {
         }
     }
 
-
     /**
      * Load a given file and parse to the give class.
      * @param path is the where the file is located
      * @param clazz is the to parsed class
      * @param <T> is generic type for the object value
-     * @return a optonial with the object instance
+     * @return a {@link Optional} with the object instance
      */
+
     public static <T> Optional<T> load(Path path, Class<T> clazz) {
         if (!Files.exists(path))
             return Optional.empty();
