@@ -50,8 +50,7 @@ public class InventorySlot extends Slot {
         if (this == o) return true;
         if (!(o instanceof InventorySlot)) return false;
         InventorySlot that = (InventorySlot) o;
-        return Items.isSameItem(itemStack, that.itemStack);
-       // return itemStack.equals(that.itemStack);
+        return itemStack.equals(that.itemStack);
     }
 
     @Override
