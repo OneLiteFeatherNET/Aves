@@ -134,7 +134,11 @@ public class InventoryLayout implements Cloneable {
         return this;
     }
 
-    //Todo: Utility functions like repeat() to repeat a given item for a vertical or horizontal row and stuff
+    /**
+     * Clears the specific slot from the {@link InventoryLayout}.
+     * @param slot The slot to clear
+     * @return
+     */
 
     public InventoryLayout clear(int slot) {
         contents[slot] = null;
@@ -142,9 +146,19 @@ public class InventoryLayout implements Cloneable {
         return this;
     }
 
+    /**
+     * Returns the array which contains all valid {@link ISlot}.
+     * @return the underlying array
+     */
+
     public ISlot[] getContents() {
         return contents;
     }
+
+    /**
+     * Clones the underlying {@link InventoryLayout}.
+     * @return
+     */
 
     @Override
     public InventoryLayout clone() {
