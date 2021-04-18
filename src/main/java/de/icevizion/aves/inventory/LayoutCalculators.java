@@ -61,12 +61,12 @@ public class LayoutCalculators {
         var index = 0;
 
         for (int i = 0; i < width; i++) {
-            arr[index++] = (int) y1*INVENTORY_WIDTH+x1+i;
-            arr[index++] = (int) y2*INVENTORY_WIDTH+x1+i;
+            arr[index++] = (int) y1*INVENTORY_WIDTH + x1 + i;
+            arr[index++] = (int) y2*INVENTORY_WIDTH + x1 + i;
         }
         for (int i = 0; i < height-2; i++) {
-            arr[index++] = (int) (y1+1+i)*INVENTORY_WIDTH+x1;
-            arr[index++] = (int) (y1+1+i)*INVENTORY_WIDTH+x2;
+            arr[index++] = (int) (y1+1+i)*INVENTORY_WIDTH + x1;
+            arr[index++] = (int) (y1+1+i)*INVENTORY_WIDTH + x2;
         }
 
         return arr;
@@ -77,7 +77,7 @@ public class LayoutCalculators {
     }
 
     public static int[] fillColumn(@NotNull InventoryRows rows, int column) {
-        if (column < 0 || column > INVENTORY_WIDTH-1) {
+        if (column < 0 || column > INVENTORY_WIDTH - 1) {
             throw new IllegalArgumentException("Column cant be less than 0 or more than 8");
         }
 
