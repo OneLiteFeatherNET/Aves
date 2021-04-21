@@ -133,10 +133,12 @@ public class NameTagScoreboard {
 
 	public void reset() {
 		if (teams.isEmpty()) return;
-		teams.forEach((name, nameTagTeam) -> {
-			nameTagTeam.getTeam().removeEntry(name);
-			nameTagTeam.getTeam().unregister();
-		});
+
+		for (var entry : teams.entrySet()) {
+			entry.getValue().getTeam().removeEntry(entry.getKey());
+			entry.getValue().getTeam().unregister();
+		}
+
 		teams.clear();
 	}
 }

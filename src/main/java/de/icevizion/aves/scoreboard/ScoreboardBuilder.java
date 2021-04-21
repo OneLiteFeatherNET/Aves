@@ -198,7 +198,11 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 			objective.unregister();
 		}
 		getObjectives().clear();
-		getTasks().forEach(Task::cancel);
+
+		if (!getTasks().isEmpty()) {
+			getTasks().forEach(Task::cancel);
+		}
+
 		cachedScoreboards.remove(getCloudPlayer().getUniqueId());
 	}
 

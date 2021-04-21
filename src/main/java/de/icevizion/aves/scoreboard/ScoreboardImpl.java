@@ -21,7 +21,10 @@ public class ScoreboardImpl {
 
 	private final Scoreboard scoreboard;
 	private final CloudPlayer cloudPlayer;
+
+	//For what?
 	private final Set<Task> tasks;
+
 	private final Map<Integer, ScoreboardLine> rows;
 	private final Map<String, ScoreboardObjective> objectives;
 	private final Map<String, ScoreboardBuilder> cachedTranslations;
@@ -47,7 +50,7 @@ public class ScoreboardImpl {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ScoreboardImpl that = (ScoreboardImpl) o;
-		return cloudPlayer.getUniqueId().equals(cloudPlayer.getUniqueId());
+		return cloudPlayer.getUniqueId().equals(that.cloudPlayer.getUniqueId());
 	}
 
 	@Override
