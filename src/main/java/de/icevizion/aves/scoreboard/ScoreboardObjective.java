@@ -26,15 +26,28 @@ public class ScoreboardObjective {
 
 	protected ScoreboardObjective(ScoreboardBuilder scoreboardBuilder, String objectiveName) {
 		this.scoreboard = scoreboardBuilder;
-
-		Objective currentObjective = scoreboardBuilder.getBukkitScoreboard().getObjective(
+		var currentObjective = scoreboardBuilder.getBukkitScoreboard().getObjective(
 				objectiveName);
-		if (Objects.isNull(currentObjective)) {
+		if (currentObjective == null) {
 			objective = scoreboardBuilder.getBukkitScoreboard().registerNewObjective(objectiveName,
 					"dummy");
 		} else {
 			objective = currentObjective;
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ScoreboardObjective that = (ScoreboardObjective) o;
+		return Objects.equals(scoreboard.getCloudPlayer().getUniqueId(), that.scoreboard.getCloudPlayer().getUniqueId())
+				&& Objects.equals(objective.getName(), that.objective.getName());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(scoreboard.getCloudPlayer().getUniqueId(), objective.getName());
 	}
 
 	/**
