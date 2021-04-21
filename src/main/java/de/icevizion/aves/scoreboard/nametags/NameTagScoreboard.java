@@ -86,7 +86,7 @@ public class NameTagScoreboard {
 	public NameTagTeam getTeam(CloudPlayer cloudPlayer) {
 		return teams.computeIfAbsent(cloudPlayer.getDisplayName(), function -> {
 			Team entryTeam = scoreboard.getEntryTeam(cloudPlayer.getDisplayName());
-			if (Objects.nonNull(entryTeam) && !entryTeam.getEntries().contains("§0null")) {
+			if (Objects.nonNull(entryTeam) && !entryTeam.getEntries().isEmpty()) {
 				return new NameTagTeam(this, entryTeam);
 			}
 
@@ -102,6 +102,7 @@ public class NameTagScoreboard {
 	public void addPlayer(CloudPlayer cloudPlayer) {
 		NameTagTeam team = getTeam(cloudPlayer);
 		team.setPrefix(cloudPlayer.getRank().getPrefix());
+		//TODO: WHAT?
 		scoreboard.resetScores(cloudPlayer.getDisplayName());
 	}
 
@@ -113,7 +114,6 @@ public class NameTagScoreboard {
 	public void removePlayer(CloudPlayer cloudPlayer) {
 		Team team = getTeam(cloudPlayer).getTeam();
 		team.removeEntry(cloudPlayer.getDisplayName());
-		team.addEntry("§0null");
 		team.unregister();
 		teams.remove(cloudPlayer.getDisplayName());
 	}
@@ -122,16 +122,17 @@ public class NameTagScoreboard {
 	 * Load name tag scoreboard.
 	 */
 	public void load() {
+		var now = System.currentTimeMillis();
 		nameTagService.addPlayerTeam(cloudPlayer);
 		nameTagService.loadOnlinePlayers(this);
 		scoreboardBuilder.setScoreboard();
+		System.out.println("Time taken: " + (System.currentTimeMillis() - now));
 	}
 
 	public void reset() {
 		if (teams.isEmpty()) return;
 		teams.forEach((name, nameTagTeam) -> {
 			nameTagTeam.getTeam().removeEntry(name);
-			nameTagTeam.getTeam().addEntry("§0null");
 			nameTagTeam.getTeam().unregister();
 		});
 		teams.clear();
