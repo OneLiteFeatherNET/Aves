@@ -1,6 +1,7 @@
 package de.icevizion.aves.inventory;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -85,7 +86,7 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
         }
 
         updateInventory(inventory, title, null, null, applyLayout);
-        inventory.getViewers().forEach(humanEntity -> ((Player) humanEntity).updateInventory());
+        update();
     }
 
     @Override
@@ -95,8 +96,16 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
                 var contents = inventory.getContents();
                 getDataLayout().applyLayout(contents, null, null);
                 inventory.setContents(contents);
-                inventory.getViewers().forEach(humanEntity -> ((Player) humanEntity).updateInventory());
+                update();
             }
+        }
+    }
+
+    protected void update() {
+        if (inventory.getViewers().isEmpty()) return;
+
+        for (HumanEntity viewer : inventory.getViewers()) {
+            ((Player)viewer).updateInventory();
         }
     }
 }
