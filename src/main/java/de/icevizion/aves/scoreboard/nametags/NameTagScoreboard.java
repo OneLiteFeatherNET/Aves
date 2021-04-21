@@ -100,7 +100,9 @@ public class NameTagScoreboard {
 	 * @param cloudPlayer the cloud player
 	 */
 	public void addPlayer(CloudPlayer cloudPlayer) {
+		var now = System.currentTimeMillis();
 		NameTagTeam team = getTeam(cloudPlayer);
+		System.out.println("Generated team in " + (System.currentTimeMillis() - now) + "ms");
 		team.setPrefix(cloudPlayer.getRank().getPrefix());
 		//TODO: WHAT?
 		scoreboard.resetScores(cloudPlayer.getDisplayName());
@@ -126,7 +128,7 @@ public class NameTagScoreboard {
 		nameTagService.addPlayerTeam(cloudPlayer);
 		nameTagService.loadOnlinePlayers(this);
 		scoreboardBuilder.setScoreboard();
-		System.out.println("Time taken: " + (System.currentTimeMillis() - now));
+		System.out.println("Load Time takes: " + (System.currentTimeMillis() - now));
 	}
 
 	public void reset() {
