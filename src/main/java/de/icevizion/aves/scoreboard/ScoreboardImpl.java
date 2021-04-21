@@ -42,6 +42,19 @@ public class ScoreboardImpl {
 		cachedTranslations = new HashMap<>();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ScoreboardImpl that = (ScoreboardImpl) o;
+		return cloudPlayer.getUniqueId().equals(cloudPlayer.getUniqueId());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(cloudPlayer.getUniqueId());
+	}
+
 	/**
 	 * Gets bukkit scoreboard.
 	 *
@@ -78,9 +91,8 @@ public class ScoreboardImpl {
 	 * @param teamName the team name
 	 * @return the boolean
 	 */
-	public boolean teamExists(Object teamName) {
-		Team team = scoreboard.getTeam(teamName.toString());
-		return Objects.nonNull(team);
+	public boolean teamExists(String teamName) {
+		return scoreboard.getTeam(teamName) != null;
 	}
 
 	/**

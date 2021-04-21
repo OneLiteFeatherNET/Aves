@@ -1,6 +1,5 @@
 package de.icevizion.aves.scoreboard.nametags;
 
-import com.google.common.collect.Maps;
 import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerJoinListener;
 import de.icevizion.aves.scoreboard.nametags.listener.NameTagPlayerQuitListener;
 import net.titan.spigot.Cloud;
@@ -8,6 +7,7 @@ import net.titan.spigot.player.CloudPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 public class NameTagService {
 
-	private static final Map<UUID, NameTagScoreboard> nameTagScoreboards = Maps.newHashMap();
+	private static final Map<UUID, NameTagScoreboard> nameTagScoreboards = new HashMap<>();
 
 	private boolean activated;
 
@@ -51,7 +51,7 @@ public class NameTagService {
 	}
 
 	public void loadPlayer(CloudPlayer cloudPlayer) {
-		NameTagScoreboard nameTagScoreboard = nameTagScoreboards.computeIfAbsent(
+		var nameTagScoreboard = nameTagScoreboards.computeIfAbsent(
 				cloudPlayer.getUniqueId(), function -> NameTagScoreboard.of(this, cloudPlayer));
 		nameTagScoreboard.load();
 	}

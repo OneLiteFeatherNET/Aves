@@ -1,6 +1,5 @@
 package de.icevizion.aves.scoreboard;
 
-import com.google.common.collect.Maps;
 import net.titan.cloudcore.i18n.Translator;
 import net.titan.cloudcore.task.Task;
 import net.titan.spigot.player.CloudPlayer;
@@ -8,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -19,7 +19,7 @@ import java.util.UUID;
 
 public class ScoreboardBuilder extends ScoreboardImpl {
 
-	private static final Map<UUID, ScoreboardImpl> cachedScoreboards = Maps.newHashMap();
+	private static final Map<UUID, ScoreboardImpl> cachedScoreboards = new HashMap<>();
 
 	private Translator translator;
 
@@ -193,6 +193,7 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 	 */
 	public void delete() {
 		unsetScoreboard();
+
 		for (ScoreboardObjective objective : getObjectives().values()) {
 			objective.unregister();
 		}
@@ -216,7 +217,7 @@ public class ScoreboardBuilder extends ScoreboardImpl {
 	 * @return the locale
 	 */
 	protected Locale getLocale() {
-		return Objects.isNull(getCloudPlayer()) ? translator.getDefaultLocale() : getCloudPlayer().getLocale();
+		return getCloudPlayer() == null ? translator.getDefaultLocale() : getCloudPlayer().getLocale();
 	}
 
 	/**

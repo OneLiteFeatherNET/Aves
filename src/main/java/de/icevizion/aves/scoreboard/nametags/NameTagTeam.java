@@ -5,15 +5,14 @@ import net.titan.spigot.player.CloudPlayer;
 import org.bukkit.scoreboard.Team;
 
 import java.util.Locale;
-import java.util.Random;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Nico (JumpingPxl) Middendorf
  */
 
 public class NameTagTeam {
-
-	private static final Random RANDOM = new Random();
 
 	private final NameTagScoreboard nameTag;
 	private final Team team;
@@ -30,8 +29,21 @@ public class NameTagTeam {
 			teamName = teamName.substring(0, 15);
 		}
 
-		team = nameTag.getScoreboard().registerNewTeam(teamName + RANDOM.nextInt(10));
+		team = nameTag.getScoreboard().registerNewTeam(teamName + ThreadLocalRandom.current().nextInt(10));
 		team.addEntry(cloudPlayer.getDisplayName());
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		NameTagTeam that = (NameTagTeam) o;
+		return team.getName().equals(that.team.getName());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(team.getName());
 	}
 
 	public Team getTeam() {

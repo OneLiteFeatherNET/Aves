@@ -3,15 +3,14 @@ package de.icevizion.aves.scoreboard;
 import org.bukkit.ChatColor;
 import org.bukkit.scoreboard.Team;
 
-import java.util.Random;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Nico (JumpingPxl) Middendorf
  */
 
 public class ScoreboardLine {
-
-	private static final Random RANDOM = new Random();
 
 	private final ScoreboardBuilder scoreboardBuilder;
 	private final Team team;
@@ -30,6 +29,19 @@ public class ScoreboardLine {
 
 		team = scoreboardBuilder.getTeam(row);
 		entry = generateRowEntry();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ScoreboardLine that = (ScoreboardLine) o;
+		return row == that.row && entry.equals(that.entry);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(entry, row);
 	}
 
 	/**
@@ -52,9 +64,13 @@ public class ScoreboardLine {
 	 * @return the scoreboard builder
 	 */
 	public ScoreboardBuilder setStaticValue(String value) {
-		String[] teamStrings = calculateValueStrings(value);
-		team.setPrefix(teamStrings[0]);
-		team.setSuffix(teamStrings[1]);
+		var teamStrings = calculateValueStrings(value);
+		if (teamStrings.length == 1) {
+			team.setPrefix(teamStrings[0]);
+		} else {
+			team.setPrefix(teamStrings[0]);
+			team.setSuffix(teamStrings[1]);
+		}
 		return apply();
 	}
 
@@ -140,6 +156,7 @@ public class ScoreboardLine {
 
 	private String generateRowEntry() {
 		String rowEntry = "§" + randomColorCode() + "§" + randomColorCode() + "§" + randomColorCode();
+
 		if (scoreboardBuilder.teamExists(rowEntry)) {
 			return generateRowEntry();
 		}
@@ -149,7 +166,7 @@ public class ScoreboardLine {
 
 	private String[] calculateValueStrings(String string) {
 		if (string.length() <= 16) {
-			return new String[]{string, ""};
+			return new String[]{string};
 		}
 
 		String prefix = string.substring(0, 16);
@@ -175,6 +192,6 @@ public class ScoreboardLine {
 	}
 
 	private int randomColorCode() {
-		return RANDOM.nextInt(10);
+		return ThreadLocalRandom.current().nextInt(10);
 	}
 }

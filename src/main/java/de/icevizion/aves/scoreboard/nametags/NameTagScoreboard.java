@@ -1,11 +1,11 @@
 package de.icevizion.aves.scoreboard.nametags;
 
-import com.google.common.collect.Maps;
 import de.icevizion.aves.scoreboard.ScoreboardBuilder;
 import net.titan.spigot.player.CloudPlayer;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class NameTagScoreboard {
 		scoreboardBuilder = ScoreboardBuilder.create(null, cloudPlayer);
 		scoreboard = scoreboardBuilder.getBukkitScoreboard();
 
-		teams = Maps.newHashMap();
+		teams = new HashMap<>();
 	}
 
 	/**
@@ -40,6 +40,20 @@ public class NameTagScoreboard {
 	 */
 	public static NameTagScoreboard of(NameTagService nameTagService, CloudPlayer cloudPlayer) {
 		return new NameTagScoreboard(nameTagService, cloudPlayer);
+	}
+
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		NameTagScoreboard that = (NameTagScoreboard) o;
+		return cloudPlayer.getUniqueId().equals(that.cloudPlayer.getUniqueId());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(cloudPlayer.getUniqueId());
 	}
 
 	/**
