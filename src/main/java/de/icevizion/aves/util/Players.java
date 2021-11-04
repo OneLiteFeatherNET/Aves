@@ -4,11 +4,13 @@ import de.icevizion.aves.item.IItem;
 import de.icevizion.aves.item.TranslatedItem;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.ItemEntity;
 import net.minestom.server.entity.Player;
-import net.minestom.server.inventory.PlayerInventory;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -26,27 +28,27 @@ public class Players {
      * @param player The player from which the inventory should be dropped
      */
 
-    public static void dropInventory(@NotNull Player player) {
-        Objects.requireNonNull(player, "The given player can not be null");
-
-        PlayerInventory playerInventory = player.getInventory();
-
-        if (playerInventory.getItemStacks().length != 0) {
-            dropInventory(player.getPosition(), playerInventory.getItemStacks());
-        }
+    public static void dropPlayerInventory(@NotNull Player player) {
+        Objects.requireNonNull(player.getInstance(), "The instance from the player can not be null");
+        dropItemStacks(player.getInstance(), player.getPosition(), player.getInventory().getItemStacks());
     }
 
     /**
      * Drops a certain amount of items to a given location.
-     * @param location The location where the items should be dropped.
      * @param content The items stored in a array
      */
 
-    public static void dropInventory(Pos location, ItemStack[] content) {
-        if (content == null) {
-            throw new IllegalArgumentException("The array can not be null");
+    public static void dropItemStacks(@NotNull Instance instance, @NotNull Pos pos, ItemStack... content) {
+        if (content == null || content.length == 0) {
+            throw new IllegalArgumentException("The array can not be null or empty");
         } else {
             for (int i = 0; i < content.length; i++) {
+                ItemEntity entity = new ItemEntity(content[i]);
+                entity.setMergeable(true);
+                entity.setPickupDelay(Duration.ofMillis(3));
+                entity.setInstance(instance, pos.withY(y -> y + 1.5));
+                entity.setVelocity(pos.direction().mul(6));
+                entity.spawn();
             }
         }
     }
@@ -100,18 +102,10 @@ public class Players {
 
     public static void setArmor(Player player, int index, ItemStack stack) {
         switch (index) {
-            case 0:
-                player.getInventory().setHelmet(stack);
-                break;
-            case 1:
-                player.getInventory().setChestplate(stack);
-                break;
-            case 2:
-                player.getInventory().setLeggings(stack);
-                break;
-            case 3:
-                player.getInventory().setBoots(stack);
-                break;
+            case 0 -> player.getInventory().setHelmet(stack);
+            case 1 -> player.getInventory().setChestplate(stack);
+            case 2 -> player.getInventory().setLeggings(stack);
+            case 3 -> player.getInventory().setBoots(stack);
         }
     }
 
@@ -122,6 +116,7 @@ public class Players {
      */
 
     public static Optional<Player> getRandomPlayer(List<Player> players) {
+        if (players.isEmpty()) return Optional.empty();
         var random = new Random(players.size());
         return Optional.of(players.get(random.nextInt(players.size())));
     }
