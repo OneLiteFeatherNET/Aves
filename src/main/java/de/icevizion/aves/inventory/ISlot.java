@@ -1,7 +1,7 @@
 package de.icevizion.aves.inventory;
 
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.item.ItemStack;
 
 import java.util.function.Consumer;
 
@@ -10,13 +10,11 @@ import java.util.function.Consumer;
  */
 public interface ISlot extends Cloneable {
 
-    boolean isDraggable();
-    ISlot setDraggable(boolean enabled);
-
     ItemStack getItem();
 
-    Consumer<InventoryClickEvent> getClickListener();
-    ISlot setClickListener(Consumer<InventoryClickEvent> clickListener);
+    Consumer<InventoryPreClickEvent> getClickListener();
+
+    ISlot setClickListener(Consumer<InventoryPreClickEvent> clickListener);
 
     ISlot clone();
 }

@@ -1,7 +1,7 @@
 package de.icevizion.aves.util;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import net.minestom.server.entity.Player;
+import net.minestom.server.item.ItemStack;
 
 /**
  * The class contains some methods to work with {@link ItemStack}.
@@ -13,20 +13,6 @@ import org.bukkit.inventory.ItemStack;
 public class Items {
 
     /**
-     * Checks if two items are completely equal.
-     * @param firstItem The first item to check
-     * @param secondItem The second item to check
-     * @return True when the items are equal otherwise false
-     */
-
-    public static boolean isSameItem(ItemStack firstItem, ItemStack secondItem) {
-        return firstItem != null && secondItem != null
-                && firstItem.getType() == secondItem.getType()
-                && firstItem.getItemMeta() != null && secondItem.getItemMeta() != null
-                && firstItem.getItemMeta().getDisplayName().equals(secondItem.getItemMeta().getDisplayName());
-    }
-
-    /**
      * Returns the number of a specific item that is in a player's inventory
      * @param player The player to be appointed by
      * @param item The item to check
@@ -35,11 +21,11 @@ public class Items {
 
     public static int getAmountFromItem(Player player, ItemStack item) {
         int amount = 0;
-        if (player.getInventory().getContents().length != 0) {
+        if (player.getInventory().getItemStacks().length != 0) {
             int i = 0;
-            while (i < player.getInventory().getContents().length) {
-                if (player.getInventory().getContents()[i].getType() == item.getType()) {
-                    amount += player.getInventory().getContents()[i].getAmount();
+            while (i < player.getInventory().getItemStacks().length) {
+                if (player.getInventory().getItemStacks()[i].isSimilar(item)) {
+                    amount += player.getInventory().getItemStacks()[i].getAmount();
                 }
                 i++;
             }
@@ -59,13 +45,14 @@ public class Items {
         int spaceCount = 0;
 
         for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack currentStack = player.getInventory().getItem(i);
+            ItemStack currentStack = player.getInventory().getItemStacks()[i];
             if (currentStack == null) {
                 spaceCount += 64;
+                continue;
             }
 
-            if (isSameItem(currentStack, item)) {
-                spaceCount += currentStack.getMaxStackSize() - item.getAmount();
+            if (currentStack.isSimilar(item)) {
+                spaceCount += currentStack.getAmount() - item.getAmount();
             }
         }
 

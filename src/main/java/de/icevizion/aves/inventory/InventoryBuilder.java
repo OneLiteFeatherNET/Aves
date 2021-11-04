@@ -1,15 +1,15 @@
 package de.icevizion.aves.inventory;
 
 import at.rxcki.strigiformes.MessageProvider;
-import co.aikar.taskchain.TaskChain;
-import co.aikar.taskchain.TaskChainFactory;
-import de.icevizion.aves.ServiceRegistry;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.plugin.java.JavaPlugin;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.event.inventory.InventoryCloseEvent;
+import net.minestom.server.event.inventory.InventoryOpenEvent;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.inventory.Inventory;
+import net.minestom.server.item.Material;
+import net.minestom.server.timer.SchedulerManager;
+import net.minestom.server.utils.time.TimeUnit;
 
 import java.util.Locale;
 import java.util.function.Function;
@@ -17,21 +17,20 @@ import java.util.function.Function;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public abstract class InventoryBuilder implements Listener {
+public abstract class InventoryBuilder {
 
+    private static final SchedulerManager schedulerManager = MinecraftServer.getSchedulerManager();
     private final InventoryRows rows;
 
     private InventoryLayout inventoryLayout;
     protected boolean inventoryLayoutValid = true;
 
     private InventoryLayout dataLayout;
-    private TaskChain<InventoryLayout> dataLayoutChain;
-    private Function<TaskChain<InventoryLayout>, TaskChain<InventoryLayout>> dataLayoutChainFunction;
     protected boolean dataLayoutValid = false;
 
     protected Function<InventoryCloseEvent, Boolean> closeListener;
+    protected Function<InventoryOpenEvent, Boolean> openFunction;
 
-    protected JavaPlugin plugin;
 
     public InventoryBuilder(InventoryRows rows) {
         this.rows = rows;
@@ -61,13 +60,6 @@ public abstract class InventoryBuilder implements Listener {
 
     protected abstract void applyDataLayout();
 
-    // =========
-
-    public void registerListener(JavaPlugin plugin) {
-        this.plugin = plugin;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
-    }
-
     public void invalidateInventoryLayout() {
         inventoryLayoutValid = false;
 
@@ -77,9 +69,9 @@ public abstract class InventoryBuilder implements Listener {
     }
 
     public void invalidateDataLayout() {
-        if (dataLayoutChainFunction == null) {
+      /*  if (dataLayoutChainFunction == null) {
             throw new IllegalStateException("Tried to invalidate DataLayout with no TaskChain configured");
-        }
+        }*/
 
         if (isInventoryOpened()) {
             retrieveDataLayout();
@@ -90,7 +82,7 @@ public abstract class InventoryBuilder implements Listener {
         }
     }
 
-    protected void handleClick(InventoryClickEvent event) {
+    protected void handleClick(InventoryPreClickEvent event) {
         if (event.getSlot() < 0 || event.getSlot() > getRows().getSize()-1)
             return; //Not within this inventory
 
@@ -112,11 +104,9 @@ public abstract class InventoryBuilder implements Listener {
 
     protected void handleClose(InventoryCloseEvent event) {
         if (closeListener != null) {
-            var closeInv = closeListener.apply(event);
-            var holder = (Holder) event.getView().getTopInventory().getHolder();
-
-            if (!closeInv) {
-                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getPlayer().openInventory(holder.getInventory()), 3);
+            if (!closeListener.apply(event)) {
+                schedulerManager.buildTask(()
+                        -> event.setNewInventory(getInventory())).delay(150, TimeUnit.MILLISECOND).schedule();
             }
         }
     }
@@ -124,44 +114,41 @@ public abstract class InventoryBuilder implements Listener {
     protected void updateInventory(Inventory inventory, String title, Locale locale, MessageProvider messageProvider, boolean applyLayout) {
         applyLayout |= !inventoryLayoutValid;
 
-        if (!((Holder) inventory.getHolder()).getInventoryTitle().equals(title)) {
-            plugin.getLogger().info("UpdateInventory is updating the title!");
-            var contents = inventory.getContents();
-            var viewers = inventory.getViewers();
-            var holder = (Holder) inventory.getHolder();
+        var titleComponent = LegacyComponentSerializer.legacyAmpersand().deserialize(title);
 
-            inventory = Bukkit.createInventory(holder, getRows().getSize(), title);
-            holder.setInventory(inventory);
-            holder.setInventoryTitle(title);
-            inventory.setContents(contents);
-
-            for (var viewer : viewers) {
-                viewer.openInventory(inventory);
-            }
+        if (!inventory.getTitle().contains(titleComponent)) {
+            System.out.println("UpdateInventory is updating the title");
+            inventory.setTitle(titleComponent);
         }
 
         if (applyLayout) {
-            var contents = inventory.getContents();
+            var contents = inventory.getItemStacks();
             getInventoryLayout().applyLayout(contents, locale, messageProvider);
-            inventory.setContents(contents);
-            plugin.getLogger().info("UpdateInventory applied the InventoryLayout!");
+            for (int i = 0; i < contents.length; i++) {
+                if (contents[i].getMaterial() == Material.AIR) continue;
+                inventory.setItemStack(i, contents[i]);
+            }
+            System.out.println("UpdateInventory applied the InventoryLayout!");
         }
 
         synchronized (this) {
-            if (!dataLayoutValid && dataLayoutChain == null) {
+            if (!dataLayoutValid /*&& dataLayoutChain == null*/) {
                 retrieveDataLayout();
             } else {
                 if (getDataLayout() != null) {
-                    var contents = inventory.getContents();
+                    var contents = inventory.getItemStacks();
                     getDataLayout().applyLayout(contents, locale, messageProvider);
-                    inventory.setContents(contents);
+                    for (int i = 0; i < contents.length; i++) {
+                        if (contents[i].getMaterial() == Material.AIR) continue;
+                        inventory.setItemStack(i, contents[i]);
+                    }
                 }
             }
         }
     }
 
     protected void retrieveDataLayout() {
-        synchronized (this) {
+       /*synchronized (this) {
             if (dataLayoutChainFunction == null)
                 return;
 
@@ -187,7 +174,7 @@ public abstract class InventoryBuilder implements Listener {
             });
 
             dataLayoutChain.execute();
-        }
+        }*/
     }
 
     //Getters and Setters
@@ -214,9 +201,8 @@ public abstract class InventoryBuilder implements Listener {
         return this;
     }
 
-    public InventoryBuilder setDataLayoutChainFunction(Function<TaskChain<InventoryLayout>, TaskChain<InventoryLayout>> setupFunction) {
-        dataLayoutChainFunction = setupFunction;
-
+    public InventoryBuilder setOpenFunction(Function<InventoryOpenEvent, Boolean> openFunction) {
+        this.openFunction = openFunction;
         return this;
     }
 }

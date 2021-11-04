@@ -1,12 +1,13 @@
 package de.icevizion.aves.util;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import de.icevizion.aves.item.IItem;
+import de.icevizion.aves.item.TranslatedItem;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Player;
+import net.minestom.server.inventory.PlayerInventory;
+import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,19 +26,14 @@ public class Players {
      * @param player The player from which the inventory should be dropped
      */
 
-    public static void dropInventory(Player player) {
+    public static void dropInventory(@NotNull Player player) {
         Objects.requireNonNull(player, "The given player can not be null");
 
         PlayerInventory playerInventory = player.getInventory();
 
-        if (playerInventory.getContents().length != 0) {
-            dropInventory(player.getLocation(), playerInventory.getContents());
+        if (playerInventory.getItemStacks().length != 0) {
+            dropInventory(player.getPosition(), playerInventory.getItemStacks());
         }
-
-        if (playerInventory.getArmorContents().length != 0) {
-            dropInventory(player.getLocation(), playerInventory.getArmorContents());
-        }
-
     }
 
     /**
@@ -46,28 +42,11 @@ public class Players {
      * @param content The items stored in a array
      */
 
-    public static void dropInventory(Location location, ItemStack[] content) {
+    public static void dropInventory(Pos location, ItemStack[] content) {
         if (content == null) {
             throw new IllegalArgumentException("The array can not be null");
         } else {
             for (int i = 0; i < content.length; i++) {
-                location.getWorld().dropItemNaturally(location, content[i]);
-            }
-        }
-    }
-
-    /**
-     * Drops a certain amount of items to a given location.
-     * @param location The location where the items should be dropped.
-     * @param content The items stored in a list
-     */
-
-    public static void dropInventory(Location location, List<ItemStack> content) {
-        if (content == null || content.isEmpty()) {
-            throw new IllegalArgumentException("The list can not be null or empty");
-        } else {
-            for (int i = 0; i < content.size(); i++) {
-                location.getWorld().dropItem(location, content.get(i));
             }
         }
     }
@@ -78,10 +57,62 @@ public class Players {
      */
 
     public static Optional<Player> getRandomPlayer() {
-        return Bukkit.getOnlinePlayers().stream().collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+        return MinecraftServer.getConnectionManager().getOnlinePlayers().stream().collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
             Collections.shuffle(collected);
             return collected.stream();
-        })).map(t -> ((Player) t)).findAny();
+        })).findAny();
+    }
+
+    public static void updateEquipment(Player player, IItem[] armorItems, IItem[] hotBarItems, int[] shiftedSlots) {
+        if (shiftedSlots != null && shiftedSlots.length != hotBarItems.length) {
+            throw new IllegalArgumentException("The length from shiftedSlots has not the same length with the underlying array");
+        }
+
+        player.getInventory().clear();
+      //  var cloudPlayer = Cloud.getInstance().getPlayer(player);
+
+        if (armorItems != null) {
+            for (int i = 0; i < armorItems.length; i++) {
+                if (armorItems[i] == null) continue;
+                if (armorItems[i] instanceof TranslatedItem) {
+                  //  setArmor(player, i, armorItems[i].get(cloudPlayer.getLocale()));
+                    return;
+                } else {
+                   // setArmor(player, i, armorItems[i].get());
+                }
+            }
+        }
+
+        if (hotBarItems != null) {
+            for (int i = 0; i < hotBarItems.length; i++) {
+                if (hotBarItems[i] == null) continue;
+                //Shift slots according to shiftedSlots array
+                int slot = shiftedSlots == null ? i : shiftedSlots[i];
+
+                if (hotBarItems[i] instanceof TranslatedItem) {
+                  //  player.getInventory().setItem(slot, hotBarItems[i].get(cloudPlayer.getLocale()));
+                } else {
+                  //  player.getInventory().setItem(slot, hotBarItems[i].get());
+                }
+            }
+        }
+    }
+
+    public static void setArmor(Player player, int index, ItemStack stack) {
+        switch (index) {
+            case 0:
+                player.getInventory().setHelmet(stack);
+                break;
+            case 1:
+                player.getInventory().setChestplate(stack);
+                break;
+            case 2:
+                player.getInventory().setLeggings(stack);
+                break;
+            case 3:
+                player.getInventory().setBoots(stack);
+                break;
+        }
     }
 
     /**
@@ -93,38 +124,5 @@ public class Players {
     public static Optional<Player> getRandomPlayer(List<Player> players) {
         var random = new Random(players.size());
         return Optional.of(players.get(random.nextInt(players.size())));
-    }
-
-    /**
-     * Send tab and footer to a given player.
-     * @param player The player who should get the information
-     * @param header The header line
-     * @param footer The footer line
-     */
-
-    public static void sendTab(Player player, String header, String footer) {
-        player.setPlayerListHeaderFooter(header, footer);
-    }
-
-    /**
-     * Send tab and footer to a given player.
-     * @param player The player who should get the information
-     * @param headers Multiple header lines
-     * @param footers Multiple footer line
-     */
-
-    public static void sendTab(Player player, String[] headers, String[] footers) {
-        var headerComponents = new BaseComponent[headers.length];
-        var footerComponents = new BaseComponent[footers.length];
-
-        for (int i = 0; i < headers.length; i++) {
-            headerComponents[i] = new TextComponent(headers[i]);
-        }
-
-        for (int i = 0; i < footers.length; i++) {
-            headerComponents[i] = new TextComponent(footers[i]);
-        }
-
-        player.setPlayerListHeaderFooter(headerComponents, footerComponents);
     }
 }

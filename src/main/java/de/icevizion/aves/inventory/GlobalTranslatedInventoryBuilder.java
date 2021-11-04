@@ -3,14 +3,13 @@ package de.icevizion.aves.inventory;
 import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.text.TextData;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.Inventory;
+import net.minestom.server.event.inventory.InventoryCloseEvent;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.inventory.Inventory;
+import net.minestom.server.item.Material;
 
 import java.util.Locale;
+import java.util.function.Consumer;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -37,14 +36,9 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
 
     private TranslatedObjectCache<Inventory> createCache() {
         return new TranslatedObjectCache<>(locale -> {
-            var holder = new Holder(this);
             var title = messageProvider.getTextProvider().format(titleData, locale);
-            var inventory = Bukkit.createInventory(holder, getRows().getSize(), title);
-            holder.setInventory(inventory);
-            holder.setInventoryTitle(title);
-
+            var inventory = new Inventory(getRows().getType(), title);
             updateInventory(inventory, title, locale, messageProvider, true);
-
             return inventory;
         });
     }
@@ -71,7 +65,10 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
         for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
             var locale = entry.getKey();
             updateInventory(entry.getValue(), messageProvider.getTextProvider().format(titleData, locale), locale, messageProvider, true);
-            entry.getValue().getViewers().forEach(humanEntity -> ((Player) humanEntity).updateInventory());
+            Inventory value = entry.getValue();
+
+            if (value.getViewers().isEmpty()) continue;
+            value.update();
         }
     }
 
@@ -81,33 +78,39 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
             if (getDataLayout() != null) {
                 //System.out.println("Applying data layouts " + getDataLayout());
                 for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
-                    var contents = entry.getValue().getContents();
+                    var contents = entry.getValue().getItemStacks();
                     getDataLayout().applyLayout(contents, entry.getKey(), messageProvider);
-                    entry.getValue().setContents(contents);
-                    entry.getValue().getViewers().forEach(humanEntity -> ((Player) humanEntity).updateInventory());
+                    for (int i = 0; i < contents.length; i++) {
+                        if (contents[i].getMaterial() == Material.AIR) continue;
+                        entry.getValue().setItemStack(i, contents[i]);
+                        entry.getValue().update();
+                    }
                 }
             }
         }
     }
 
-    //Event listeners
-    @EventHandler
-    public void onClose(InventoryCloseEvent event) {
-        if (!(event.getView().getTopInventory().getHolder() instanceof Holder)
-                || ((Holder) event.getView().getTopInventory().getHolder()).getInventoryBuilder() != this)
-            return;
-
-        handleClose(event);
+    private Consumer<InventoryPreClickEvent> preClickListener() {
+        return clickEvent -> {
+            for (Inventory value : inventoryTranslatedObjectCache.asMap().values()) {
+                if (value.getViewers().contains(clickEvent.getPlayer())) {
+                    handleClick(clickEvent);
+                }
+            }
+        };
     }
 
-    @EventHandler
-    public void onClick(InventoryClickEvent event) {
-        if (!(event.getView().getTopInventory().getHolder() instanceof Holder)
-                || ((Holder) event.getView().getTopInventory().getHolder()).getInventoryBuilder() != this)
-            return;
-
-        handleClick(event);
+    private Consumer<InventoryCloseEvent> closeListener() {
+        return closeEvent -> {
+            for (Inventory value : inventoryTranslatedObjectCache.asMap().values()) {
+                if (value.getViewers().contains(closeEvent.getPlayer())) {
+                    handleClose(closeEvent);
+                }
+            }
+        };
     }
+
+
 
     /**
      * Returns the {@link TextData} from the builder.

@@ -2,7 +2,9 @@ package de.icevizion.aves.util;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class StringUtil {
 
@@ -17,8 +19,8 @@ public class StringUtil {
      * @return The progressbar as string
      */
 
-    public static String getProgressBar(int current, int max, int totalBars, char symbol, ChatColor completedColor,
-                                        ChatColor notCompletedColor) {
+    public static String getProgressBar(int current, int max, int totalBars, char symbol, NamedTextColor completedColor,
+                                        NamedTextColor notCompletedColor) {
         float percent = (float) current / max;
         int progressBars = (int) (totalBars * percent);
         return Strings.repeat("" + completedColor + symbol, progressBars)
@@ -31,18 +33,18 @@ public class StringUtil {
      * @return The converted health as string
      */
 
-    public static String getHealthString(double paramHealth) {
+    public static Component getHealthString(double paramHealth) {
         int health = (int) Math.round(paramHealth);
         health /= 2;
         int healthAway = 10 - health;
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < health; i++) {
-            builder.append(ChatColor.RED).append("♥");
+            builder.append(NamedTextColor.RED).append("♥");
         }
         for (int i = 0; i < healthAway; i++) {
-            builder.append(ChatColor.GRAY).append("♥");
+            builder.append(NamedTextColor.GRAY).append("♥");
         }
-        return builder.toString();
+        return LegacyComponentSerializer.legacySection().deserialize(builder.toString());
     }
 
     /**
@@ -76,5 +78,9 @@ public class StringUtil {
         int minutes = time / 60;
         int seconds = time % 60;
         return Joiner.on(":").join((minutes < 10) ? "0" + minutes : minutes, (seconds < 10) ? "0" + seconds : seconds);
+    }
+
+    public static String trim(String text, int length) {
+        return text.length() > length ? text.substring(0, length) : text;
     }
 }

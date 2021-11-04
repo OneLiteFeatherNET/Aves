@@ -1,8 +1,9 @@
 package de.icevizion.aves.inventory.translated;
 
 import de.icevizion.aves.inventory.Slot;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
+import de.icevizion.aves.item.TranslatedItem;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -19,7 +20,7 @@ public class TranslatedSlot extends Slot {
         this.translatedItem = translatedItem;
     }
 
-    public TranslatedSlot(@NotNull TranslatedItem translatedItem, Consumer<InventoryClickEvent> clickListener) {
+    public TranslatedSlot(@NotNull TranslatedItem translatedItem, Consumer<InventoryPreClickEvent> clickListener) {
         super(clickListener);
         this.translatedItem = translatedItem;
     }
