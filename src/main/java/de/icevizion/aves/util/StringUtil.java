@@ -8,6 +8,8 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class StringUtil {
 
+    public static String UTF_8_HEART = "♥";
+
     /**
      * Creates a progress bar for the given values.
      * @param current The current amount
@@ -39,10 +41,10 @@ public class StringUtil {
         int healthAway = 10 - health;
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < health; i++) {
-            builder.append(NamedTextColor.RED).append("♥");
+            builder.append(NamedTextColor.RED).append(UTF_8_HEART);
         }
         for (int i = 0; i < healthAway; i++) {
-            builder.append(NamedTextColor.GRAY).append("♥");
+            builder.append(NamedTextColor.GRAY).append(UTF_8_HEART);
         }
         return LegacyComponentSerializer.legacySection().deserialize(builder.toString());
     }
@@ -78,9 +80,5 @@ public class StringUtil {
         int minutes = time / 60;
         int seconds = time % 60;
         return Joiner.on(":").join((minutes < 10) ? "0" + minutes : minutes, (seconds < 10) ? "0" + seconds : seconds);
-    }
-
-    public static String trim(String text, int length) {
-        return text.length() > length ? text.substring(0, length) : text;
     }
 }
