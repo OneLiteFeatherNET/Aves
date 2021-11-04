@@ -1,14 +1,20 @@
 package de.icevizion.aves.resourcepack;
 
+import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.GlobalEventHandler;
+import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerResourcePackStatusEvent;
 import net.minestom.server.resourcepack.ResourcePack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.function.Consumer;
 
 /**
+ * //TODO: Add missing class documentation header
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
@@ -16,36 +22,138 @@ import java.util.function.Consumer;
 
 public class ResourcePackHandler {
 
+    //private static final ResourcePack EMPTY_RESOURCE_PACK = ResourcePack.optional("", null);
+    private static final GlobalEventHandler GLOBAL_EVENT_HANDLER = MinecraftServer.getGlobalEventHandler();
+
     private final ResourcePack resourcePack;
+    private final HashSet<Integer> resourcePackCache;
     private ResourcePackCondition condition;
     private Consumer<PlayerResourcePackStatusEvent> eventConsumer;
 
+    /**
+     * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
+     * @param resourcePack An instance from a {@link ResourcePack}
+     */
+
+    public ResourcePackHandler(ResourcePack resourcePack) {
+        this.resourcePack = resourcePack;
+        this.resourcePackCache = new HashSet<>();
+        this.condition = null;
+    }
+
+    /**
+     * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
+     * @param resourcePack An instance from a {@link ResourcePack}
+     * @param condition The given {@link ResourcePackCondition}
+     */
+
+
     public ResourcePackHandler(ResourcePack resourcePack, ResourcePackCondition condition) {
         this.resourcePack = resourcePack;
+        this.resourcePackCache = new HashSet<>();
         this.condition = condition;
         this.eventConsumer = handleResourcePackChange();
     }
 
-    public ResourcePackHandler(ResourcePack resourcePack) {
-        this.resourcePack = resourcePack;
+    /**
+     * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
+     * @param url The url to the pack
+     * @param hash The hash value
+     * @param force If the pack should be foreced or not
+     */
+
+    public ResourcePackHandler(@NotNull String url, @Nullable String hash, boolean force) {
+        this.resourcePack = force ? ResourcePack.forced(url, hash) : ResourcePack.optional(url, hash);
+        this.resourcePackCache = new HashSet<>();
         this.condition = null;
     }
 
+    /**
+     * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
+     * @param url The url to the pack
+     * @param hash The hash value
+     * @param forceMessage The message which the player see when he accept the resource pack
+     */
+
+    public ResourcePackHandler(@NotNull String url, @Nullable String hash, @Nullable Component forceMessage) {
+        this.resourcePack = ResourcePack.forced(url, hash, forceMessage);
+        this.resourcePackCache = new HashSet<>();
+        this.condition = null;
+    }
+
+    /**
+     * Add a condition what happen when the {@link PlayerResourcePackStatusEvent} is called from the server.
+     * The handling musst includes all parameters from {@link ResourcePackCondition}
+     * @param condition The condition to set
+     */
+
     public ResourcePackHandler setCondition(ResourcePackCondition condition) {
         this.condition = condition;
+        this.eventConsumer = handleResourcePackChange();
         return this;
     }
 
-    public void registerListener() {
-        MinecraftServer.getGlobalEventHandler().addListener(PlayerResourcePackStatusEvent.class, eventConsumer);
+    /**
+     * Add a pre defined {@link ResourcePackCondition} to the handler
+     */
+
+    public ResourcePackHandler setDefaultCondition() {
+        this.condition = new DefaultResourcePackCondition(resourcePackCache);
+        this.eventConsumer = handleResourcePackChange();
+        return this;
     }
 
-    public void set(@NotNull Player player) {
-        if (resourcePack == null) return;
-        player.setResourcePack(resourcePack);
+    /**
+     * Add some listener to handle the resource pack handling.
+     */
+
+    public ResourcePackHandler withListener() {
+        GLOBAL_EVENT_HANDLER.addListener(PlayerResourcePackStatusEvent.class, eventConsumer);
+        GLOBAL_EVENT_HANDLER.addListener(PlayerDisconnectEvent.class, event -> resourcePackCache.remove(event.getPlayer().getEntityId()));
+        return this;
     }
+
+    /**
+     * Register a command which allow that players can load or reload the resource pack
+     */
+
+    public ResourcePackHandler withCommand() {
+        MinecraftServer.getCommandManager().register(new ResourcePackCommand(this));
+        return this;
+    }
+
+    /**
+     * Set the resource pack to a given player.
+     * @param player The player who receives the pack
+     * @return true when the player can receive the pack otherwise false
+     */
+
+    public boolean setPack(@NotNull Player player) {
+        if (resourcePack == null) return false;
+        player.setResourcePack(resourcePack);
+        resourcePackCache.add(player.getEntityId());
+        return true;
+    }
+
+    /*public boolean reloadPack(@NotNull Player player) {
+        if (!resourcePackCache.contains(player.getEntityId())) {
+            setPack(player);
+        }
+
+        player.setResourcePack(EMPTY_RESOURCE_PACK);
+
+        return true;
+    }*/
+
+    /**
+     * Creates the consumer for the {@link PlayerResourcePackStatusEvent}.
+     * @return the created consumer
+     */
 
     private Consumer<PlayerResourcePackStatusEvent> handleResourcePackChange() {
+        if (condition == null) {
+            throw new IllegalStateException("Can't register the handler for the resource pack change because the 'ResourcePackCondition' is null");
+        }
         return event -> condition.handleStatus(event.getPlayer(), event.getStatus());
     }
 }

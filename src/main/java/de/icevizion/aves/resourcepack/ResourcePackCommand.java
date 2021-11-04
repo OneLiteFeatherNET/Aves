@@ -8,13 +8,16 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author theEvilReaper
  * @version 1.0.0
- * @since
+ * @since 1.0.0
  **/
 
 public class ResourcePackCommand extends Command {
 
-    public ResourcePackCommand() {
-        super("rsp", "resourcepack");
+    private final ResourcePackHandler resourcePackHandler;
+
+    public ResourcePackCommand(ResourcePackHandler resourcePackHandler) {
+        super("rsp", "resource");
+        this.resourcePackHandler = resourcePackHandler;
 
 
         var argumentType = ArgumentType.String("args");
@@ -31,8 +34,8 @@ public class ResourcePackCommand extends Command {
             var player = (Player) commandSender;
 
             switch (input) {
-                case "reload" -> player.sendMessage("Reloading pack");
-                case "load" -> player.sendMessage("load");
+                case "load" -> loadPack(player);
+                case "reload" -> player.sendMessage("load");
             }
         });
     }
@@ -42,6 +45,11 @@ public class ResourcePackCommand extends Command {
     }
 
     private void loadPack(@NotNull Player player) {
+        if (!resourcePackHandler.setPack(player)) {
+            player.sendMessage("Unable to set pack");
+            return;
+        }
 
+        player.sendMessage("RessourcePack gesetzt");
     }
 }
