@@ -2,9 +2,9 @@ package de.icevizion.aves.encoder;
 
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.Encoder;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Repairable;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.minestom.server.item.ItemStack;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,51 +18,50 @@ public final class ItemStackEncoder implements Encoder {
         if (object == null) {
             jsonStream.writeNull();
         } else {
-            if (object instanceof ItemStack) {
-                ItemStack stack = (ItemStack) object;
-                Map<String, Object> map = new HashMap<>();
-                map.put("material", stack.getType().name());
-                map.put("amount", stack.getAmount());
+          if (object instanceof ItemStack stack) {
+              Map<String, Object> map = new HashMap<>();
+              map.put("material", stack.getMaterial().name());
+              map.put("amount", stack.getAmount());
 
-                if (stack.getItemMeta() instanceof Damageable) {
-                    var damageAble = (Damageable) stack.getItemMeta();
-                    map.put("durability", damageAble.getDamage());
-                }
+              var meta = stack.getMeta();
 
-                if (stack.getItemMeta() instanceof Repairable) {
-                    var repairAble = (Repairable) stack.getItemMeta();
-                    map.put("repairCost", repairAble.getRepairCost());
-                }
+              map.put("damage", meta.getDamage());
 
-                if (stack.hasItemMeta()) {
-                    var metaMap = new HashMap<String, Object>();
-                    var meta = stack.getItemMeta();
-                    if (meta.hasDisplayName())
-                        metaMap.put("displayName", meta.getDisplayName());
-                    if (!meta.getItemFlags().isEmpty()) {
-                        var flags = new ArrayList<>();
-                        for (var flag : meta.getItemFlags()) {
-                            flags.add(flag.name());
-                        }
-                        metaMap.put("flags", flags);
-                    }
-                    if (!meta.getEnchants().isEmpty()) {
-                        var enchantments = new ArrayList<>();
-                        for (var entry : meta.getEnchants().entrySet()) {
-                            var enchantMap = new HashMap<String, Object>();
-                            enchantMap.put("enchantment", entry.getKey().getKey().getKey());
-                            enchantMap.put("level", entry.getValue());
-                            enchantments.add(enchantMap);
-                        }
-                        metaMap.put("enchantments", enchantments);
-                    }
-                    if (meta.hasLore()) {
-                        metaMap.put("lore", meta.getLore());
-                    }
+              if (meta.getCustomModelData() != 0) {
+                  map.put("customModelData", meta.getCustomModelData());
+              }
 
-                    map.put("meta", metaMap);
-                }
-                jsonStream.writeVal(HashMap.class, map);
+              var metaMap = new HashMap<String, Object>();
+
+
+              if (meta.getDisplayName() != null) {
+                  metaMap.put("displayName", LegacyComponentSerializer.legacySection().serialize(meta.getDisplayName()));
+              }
+
+              if (!meta.getEnchantmentMap().isEmpty()) {
+                  var enchantments = new ArrayList<>();
+                  for (var entry : meta.getEnchantmentMap().entrySet()) {
+                      var enchantMap = new HashMap<String, Object>();
+                      enchantMap.put("enchantment", entry.getKey().name());
+                      enchantMap.put("level", entry.getValue());
+                      enchantments.add(enchantMap);
+                  }
+
+                  map.put("enchantment", enchantments);
+              }
+
+              if (!meta.getLore().isEmpty()) {
+                  var loreLines = new ArrayList<>();
+
+                  for (Component component : meta.getLore()) {
+                      loreLines.add(LegacyComponentSerializer.legacySection().serialize(component));
+                  }
+
+                  map.put("lore", loreLines);
+              }
+
+              map.put("meta", metaMap);
+              jsonStream.writeVal(HashMap.class, map);
             }
         }
     }

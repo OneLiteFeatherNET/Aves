@@ -1,9 +1,8 @@
 package de.icevizion.aves.inventory;
 
-import de.icevizion.aves.item.ItemBuilder;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.ItemStackBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -28,30 +27,30 @@ public class InventorySlot extends Slot {
     /**
      * Creates a new instance from the {@link InventorySlot}.
      * @param itemStack The {@link ItemStack} to set
-     * @param clickListener The {@link InventoryClickEvent} to set.
+     * @param clickListener The {@link InventoryPreClickEvent} to set.
      */
 
-    public InventorySlot(@NotNull ItemStack itemStack, Consumer<InventoryClickEvent> clickListener) {
+    public InventorySlot(@NotNull ItemStack itemStack, Consumer<InventoryPreClickEvent> clickListener) {
         this.itemStack = itemStack;
         this.clickListener = clickListener;
     }
 
     /**
      * Creates a new instance from the {@link InventorySlot}.
-     * @param itemBuilder The {@link ItemBuilder} were the item will be built from
+     * @param itemBuilder The {@link ItemStackBuilder} were the item will be built from
      */
 
-    public InventorySlot(@NotNull ItemBuilder itemBuilder) {
+    public InventorySlot(@NotNull ItemStackBuilder itemBuilder) {
         this.itemStack = itemBuilder.build();
     }
 
     /**
      * Creates a new instance from the {@link InventorySlot}.
-     * @param itemBuilder The {@link ItemBuilder} were the item will be built from
-     * @param clickListener The {@link InventoryClickEvent} to set.
+     * @param itemBuilder The {@link ItemStackBuilder} were the item will be built from
+     * @param clickListener The {@link InventoryPreClickEvent} to set.
      */
 
-    public InventorySlot(@NotNull ItemBuilder itemBuilder, Consumer<InventoryClickEvent> clickListener) {
+    public InventorySlot(@NotNull ItemStackBuilder itemBuilder, Consumer<InventoryPreClickEvent> clickListener) {
         this.itemStack = itemBuilder.build();
         this.clickListener = clickListener;
     }
@@ -86,8 +85,6 @@ public class InventorySlot extends Slot {
 
     @Override
     public String toString() {
-        var stack = itemStack.hasItemMeta() &&
-                itemStack.getItemMeta() instanceof SkullMeta ? "ItemStack{Skull}" : itemStack.toString();
-        return "InventorySlot{" + "itemStack=" + stack + "} " + super.toString();
+        return "InventorySlot{" + "itemStack=" + itemStack.toString() + "} " + super.toString();
     }
 }

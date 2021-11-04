@@ -1,6 +1,6 @@
 package de.icevizion.aves.inventory;
 
-import org.bukkit.event.inventory.InventoryClickEvent;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
 
 import java.util.function.Consumer;
 
@@ -9,33 +9,21 @@ import java.util.function.Consumer;
  */
 public abstract class Slot implements ISlot {
 
-    protected Consumer<InventoryClickEvent> clickListener;
-    protected boolean draggable;
+    protected Consumer<InventoryPreClickEvent> clickListener;
 
     public Slot() { }
 
-    public Slot(Consumer<InventoryClickEvent> clickListener) {
+    public Slot(Consumer<InventoryPreClickEvent> clickListener) {
         this.clickListener = clickListener;
     }
 
     @Override
-    public boolean isDraggable() {
-        return draggable;
-    }
-
-    @Override
-    public ISlot setDraggable(boolean enabled) {
-        draggable = enabled;
-        return this;
-    }
-
-    @Override
-    public Consumer<InventoryClickEvent> getClickListener() {
+    public Consumer<InventoryPreClickEvent> getClickListener() {
         return clickListener;
     }
 
     @Override
-    public ISlot setClickListener(Consumer<InventoryClickEvent> clickListener) {
+    public ISlot setClickListener(Consumer<InventoryPreClickEvent> clickListener) {
         this.clickListener = clickListener;
         return this;
     }
@@ -51,9 +39,6 @@ public abstract class Slot implements ISlot {
 
     @Override
     public String toString() {
-        return "Slot{" +
-                "clickListener=" + clickListener +
-                ", draggable=" + draggable +
-                '}';
+        return "Slot{" + "clickListener=" + clickListener + '}';
     }
 }

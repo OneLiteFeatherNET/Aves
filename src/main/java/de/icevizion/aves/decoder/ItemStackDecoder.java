@@ -1,18 +1,10 @@
 package de.icevizion.aves.decoder;
 
 import com.jsoniter.JsonIterator;
-import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.jsoniter.spi.Decoder;
-import de.icevizion.aves.item.ItemBuilder;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class ItemStackDecoder implements Decoder {
 
@@ -20,7 +12,7 @@ public final class ItemStackDecoder implements Decoder {
     public Object decode(JsonIterator jsonIterator) throws IOException {
         Any any = jsonIterator.readAny();
 
-        Material material = Material.getMaterial(any.get("material").toString());
+     /*   Material material = Material.getMaterial(any.get("material").toString());
 
         if (material == null) {
             material = Material.STONE;
@@ -74,6 +66,7 @@ public final class ItemStackDecoder implements Decoder {
             itemBuilder.setRepairCosts(additionalData.toInt());
         }
 
-        return itemBuilder.build();
+        return itemBuilder.build();*/
+        return null;
     }
 }

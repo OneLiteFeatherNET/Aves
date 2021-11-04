@@ -1,16 +1,12 @@
 package de.icevizion.aves.inventory;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.inventory.Inventory;
+import net.minestom.server.event.inventory.InventoryCloseEvent;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.inventory.Inventory;
+import net.minestom.server.item.Material;
 
 import java.util.Locale;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -20,45 +16,33 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
     private final String title;
 
     private Inventory inventory;
-    private Holder holder;
+    //private Holder holder;
 
     public GlobalInventoryBuilder(String title, InventoryRows rows) {
         super(rows);
         this.title = title;
-
-        holder = new Holder(this);
     }
 
     public GlobalInventoryBuilder(String title, int slots) {
         super(slots);
         this.title = title;
 
-        holder = new Holder(this);
     }
 
-    //Event listeners
-    @EventHandler
-    public void onClose(InventoryCloseEvent event) {
-        if (event.getView().getTopInventory().getHolder() != holder)
-            return;
-
-        handleClose(event);
+    private Consumer<InventoryPreClickEvent> preClickListener() {
+        return clickEvent -> {
+            if (this.inventory.getViewers().contains(clickEvent.getPlayer())) {
+                handleClick(clickEvent);
+            }
+        };
     }
 
-    @EventHandler
-    public void onClick(InventoryClickEvent event) {
-        if (event.getView().getTopInventory().getHolder() != holder)
-            return;
-
-        handleClick(event);
-    }
-
-    @EventHandler
-    public void onDrag(InventoryDragEvent event) {
-        if (event.getView().getTopInventory().getHolder() != holder)
-            return;
-
-        //Todo:
+    private Consumer<InventoryCloseEvent> closeListener() {
+        return closeEvent -> {
+            if (this.inventory.getViewers().contains(closeEvent.getPlayer())) {
+                handleClose(closeEvent);
+            }
+        };
     }
 
     @Override
@@ -79,9 +63,7 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
     protected void updateInventory() {
         boolean applyLayout = !inventoryLayoutValid;
         if (inventory == null) {
-            inventory = Bukkit.createInventory((holder = new Holder(this)), getRows().getSize(), title);
-            holder.setInventory(inventory);
-            holder.setInventoryTitle(title);
+            this.inventory = new Inventory(getRows().getType(), title);
             applyLayout = true;
         }
 
@@ -93,9 +75,12 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
     protected void applyDataLayout() {
         synchronized (this) {
             if (getDataLayout() != null) {
-                var contents = inventory.getContents();
+                var contents = inventory.getItemStacks();
                 getDataLayout().applyLayout(contents, null, null);
-                inventory.setContents(contents);
+                for (int i = 0; i < contents.length; i++) {
+                    if (contents[i].getMaterial() == Material.AIR) continue;
+                    this.inventory.setItemStack(i, contents[i]);
+                }
                 update();
             }
         }
@@ -103,9 +88,6 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
 
     protected void update() {
         if (inventory.getViewers().isEmpty()) return;
-
-        for (HumanEntity viewer : inventory.getViewers()) {
-            ((Player)viewer).updateInventory();
-        }
+        inventory.update();
     }
 }

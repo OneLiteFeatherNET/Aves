@@ -1,8 +1,6 @@
 package de.icevizion.aves.inventory;
 
-import org.bukkit.entity.Player;
-
-import java.util.function.Function;
+import net.minestom.server.entity.Player;
 
 /**
  * @author Patrick Zdarsky / Rxcki

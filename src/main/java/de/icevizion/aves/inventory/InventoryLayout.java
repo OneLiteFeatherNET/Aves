@@ -1,11 +1,10 @@
 package de.icevizion.aves.inventory;
 
 import at.rxcki.strigiformes.MessageProvider;
-import de.icevizion.aves.item.ItemBuilder;
 import de.icevizion.aves.inventory.translated.TranslatedSlot;
-import org.bukkit.Material;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.ItemStackBuilder;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -14,9 +13,12 @@ import java.util.function.Consumer;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
+
 public class InventoryLayout implements Cloneable {
 
-    private static final InventorySlot EMPTY_SLOT = new InventorySlot(new ItemStack(Material.AIR));
+    public static final Consumer<InventoryPreClickEvent> CANCEL_CONSUMER = clickEvent -> clickEvent.setCancelled(true);
+
+    private static final InventorySlot EMPTY_SLOT = new InventorySlot(ItemStack.AIR);
 
     private ISlot[] contents;
 
@@ -28,121 +30,149 @@ public class InventoryLayout implements Cloneable {
         contents = new ISlot[size];
     }
 
-    public void applyLayout(ItemStack[] invContents) {
-        applyLayout(invContents, null, null);
+    public void applyLayout(ItemStack[] itemStacks) {
+        applyLayout(itemStacks, null, null);
     }
 
-    public void applyLayout(ItemStack[] invContents, Locale locale, MessageProvider messageProvider) {
-        for (int i = 0; i < invContents.length; i++) {
-            var slot = getContents()[i];
-            if (slot == null)
+    public void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider) {
+        for (int i = 0; i < itemStacks.length; i++) {
+            ISlot slot = contents[i];
+
+            if (slot == null) {
                 continue;
+            }
 
             if (slot instanceof TranslatedSlot && locale == null) {
                 throw new IllegalArgumentException("Tried to apply the InventoryLayout with an Translated slot and provided no locale!");
             }
-
             if (slot == EMPTY_SLOT) {
-                invContents[i] = null;
+                itemStacks[i] = null;
             } else {
                 if (slot instanceof TranslatedSlot) {
-                    var translatedSlot = (TranslatedSlot) slot;
+                    TranslatedSlot translatedSlot = (TranslatedSlot) slot;
 
                     if (translatedSlot.getTranslatedItem().getMessageProvider() == null) {
                         translatedSlot.getTranslatedItem().setMessageProvider(messageProvider);
                     }
 
-                    invContents[i] = translatedSlot.getItem(locale);
+                    itemStacks[i] = translatedSlot.getItem(locale);
                 } else {
-                    invContents[i] = slot.getItem();
+                    itemStacks[i] = slot.getItem();
                 }
             }
         }
     }
 
-    public InventoryLayout item(int[] arr, ItemStack itemStack) {
-        for (int j : arr) {
-            item(j, itemStack);
-        }
-
+    public InventoryLayout setItem(int slot, ItemStackBuilder itemBuilder, Consumer<InventoryPreClickEvent> clickEvent) {
+        this.contents[slot] = new InventorySlot(itemBuilder, clickEvent);
         return this;
     }
 
-    public InventoryLayout item(int[] arr, ItemBuilder itemBuilder) {
-        for (int j : arr) {
-            item(j, itemBuilder);
-        }
-
+    public InventoryLayout setItem(int slot, ItemStack itemStack, Consumer<InventoryPreClickEvent> clickEvent) {
+        this.contents[slot] = new InventorySlot(itemStack, clickEvent);
         return this;
     }
 
-    public InventoryLayout item(int[] arr, ISlot slot) {
-        for (int j : arr) {
-            item(j, slot);
-        }
-
+    public InventoryLayout setItem(int slot, ISlot iSlot, Consumer<InventoryPreClickEvent> clickEvent) {
+        iSlot.setClickListener(clickEvent);
+        contents[slot] = iSlot;
         return this;
     }
 
-    public InventoryLayout item(int[] arr, ItemStack itemStack, Consumer<InventoryClickEvent> clickEvent) {
-        for (int j : arr) {
-            item(j, itemStack, clickEvent);
-        }
-
-        return this;
+    public InventoryLayout setItem(int slot, ItemStack itemStack) {
+        return setItem(slot, itemStack, null);
     }
 
-    public InventoryLayout item(int[] arr, ItemBuilder itemBuilder, Consumer<InventoryClickEvent> clickEvent) {
-        for (int j : arr) {
-            item(j, itemBuilder, clickEvent);
-        }
-
-        return this;
+    public InventoryLayout setItem(int slot, ItemStackBuilder itemBuilder) {
+        return setItem(slot, itemBuilder, null);
     }
 
-    public InventoryLayout item(int slot, ItemStack itemStack, Consumer<InventoryClickEvent> clickEvent) {
-        contents[slot] = new InventorySlot(itemStack, clickEvent);
-
-        return this;
-    }
-
-    public InventoryLayout item(int slot, ItemBuilder itemBuilder, Consumer<InventoryClickEvent> clickEvent) {
-        contents[slot] = new InventorySlot(itemBuilder, clickEvent);
-
-        return this;
-    }
-
-    public InventoryLayout item(int slot, ItemStack itemStack) {
-        return item(slot, itemStack, null);
-    }
-
-    public InventoryLayout item(int slot, ItemBuilder itemBuilder) {
-        return item(slot, itemBuilder, null);
-    }
-
-    public InventoryLayout item (int slot, ISlot slotItem) {
+    public InventoryLayout setItem(int slot, ISlot slotItem) {
         contents[slot] = slotItem;
+        return this;
+    }
 
+    public InventoryLayout setItems(int[] array, ItemStackBuilder itemBuilder, Consumer<InventoryPreClickEvent> clickEvent) {
+        for (int i = 0; i < array.length; i++) {
+            setItem(array[i], itemBuilder, clickEvent);
+        }
+        return this;
+    }
+
+    public InventoryLayout setItems(int[] array, ItemStack stack, Consumer<InventoryPreClickEvent> clickEvent) {
+        for (int i = 0; i < array.length; i++) {
+            setItem(array[i], stack, clickEvent);
+        }
+        return this;
+    }
+
+    public InventoryLayout setItems(int[] array, ItemStackBuilder itemBuilder) {
+        for (int i = 0; i < array.length; i++) {
+            setItem(array[i], itemBuilder);
+        }
+        return this;
+    }
+
+    public InventoryLayout setItems(int[] array, ItemStack stack) {
+        for (int i = 0; i < array.length; i++) {
+            setItem(array[i], stack);
+        }
+        return this;
+    }
+
+    public InventoryLayout setItems(int[] array, ISlot slot) {
+        for (int i = 0; i < array.length; i++) {
+            setItem(array[i] , slot);
+        }
+        return this;
+    }
+
+    public InventoryLayout setNonClickItem(int slot, ItemStack itemStack) {
+        this.contents[slot] = new InventorySlot(itemStack, CANCEL_CONSUMER);
+        return this;
+    }
+
+    public InventoryLayout setNonClickItem(int slot, ISlot slotItem) {
+        slotItem.setClickListener(CANCEL_CONSUMER);
+        contents[slot] = slotItem;
+        return this;
+    }
+
+    public InventoryLayout setNonClickItems(int[] array, ISlot slot) {
+        for (int i = 0; i < array.length; i++) {
+            setNonClickItem(array[i] , slot);
+        }
+        return this;
+    }
+
+    public InventoryLayout setNonClickItems(int[] array, ItemStackBuilder itemBuilder) {
+        for (int i = 0; i < array.length; i++) {
+            setItem(array[i], itemBuilder, CANCEL_CONSUMER);
+        }
+        return this;
+    }
+
+    public InventoryLayout setNonClickItems(int[] array, ItemStack stack) {
+        for (int i = 0; i < array.length; i++) {
+            setItem(array[i], stack, CANCEL_CONSUMER);
+        }
+        return this;
+    }
+
+    public InventoryLayout blank(int slot) {
+        this.contents[slot] = EMPTY_SLOT;
         return this;
     }
 
     public InventoryLayout blank(int... slots) {
-        for (int j : slots) {
-            contents[j] = EMPTY_SLOT;
+        for (int i = 0; i < slots.length; i++) {
+            contents[slots[i]] = EMPTY_SLOT;
         }
-
         return this;
     }
 
-    /**
-     * Clears the specific slot from the {@link InventoryLayout}.
-     * @param slot The slot to clear
-     * @return
-     */
-
     public InventoryLayout clear(int slot) {
         contents[slot] = null;
-
         return this;
     }
 
@@ -155,15 +185,10 @@ public class InventoryLayout implements Cloneable {
         return contents;
     }
 
-    /**
-     * Clones the underlying {@link InventoryLayout}.
-     * @return
-     */
-
     @Override
     public InventoryLayout clone() {
         try {
-            var clone = (InventoryLayout) super.clone();
+            InventoryLayout clone = (InventoryLayout) super.clone();
             clone.contents = contents.clone();
 
             return clone;
@@ -174,9 +199,7 @@ public class InventoryLayout implements Cloneable {
 
     @Override
     public String toString() {
-        return "InventoryLayout{" +
-                "contents=" + Arrays.toString(contents) +
-                '}';
+        return "InventoryLayout{" + "contents=" + Arrays.toString(contents) + '}';
     }
 
     @Override

@@ -1,6 +1,6 @@
 package de.icevizion.aves.inventory;
 
-import org.bukkit.inventory.ItemStack;
+import net.minestom.server.item.ItemStack;
 
 import java.util.Map;
 import java.util.UUID;
