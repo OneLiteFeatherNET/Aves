@@ -3,7 +3,6 @@ package de.icevizion.aves.resourcepack;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author theEvilReaper
@@ -13,12 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class ResourcePackCommand extends Command {
 
-    private final ResourcePackHandler resourcePackHandler;
-
     public ResourcePackCommand(ResourcePackHandler resourcePackHandler) {
         super("rsp", "resource");
-        this.resourcePackHandler = resourcePackHandler;
-
 
         var argumentType = ArgumentType.String("args");
 
@@ -30,26 +25,13 @@ public class ResourcePackCommand extends Command {
 
         addSyntax((commandSender, commandContext) -> {
             var input = (String) commandContext.get("args");
+            if ("load".equals(input)) {
+                if (resourcePackHandler.setPack((Player)commandSender)) {
 
-            var player = (Player) commandSender;
+                } else {
 
-            switch (input) {
-                case "load" -> loadPack(player);
-                case "reload" -> player.sendMessage("load");
+                }
             }
         });
-    }
-
-    private void reloadPack(@NotNull Player player) {
-
-    }
-
-    private void loadPack(@NotNull Player player) {
-        if (!resourcePackHandler.setPack(player)) {
-            player.sendMessage("Unable to set pack");
-            return;
-        }
-
-        player.sendMessage("RessourcePack gesetzt");
     }
 }

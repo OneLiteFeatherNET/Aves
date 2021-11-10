@@ -59,7 +59,7 @@ public class ResourcePackHandler {
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
      * @param url The url to the pack
      * @param hash The hash value
-     * @param force If the pack should be foreced or not
+     * @param force If the pack should be forced or not
      */
 
     public ResourcePackHandler(@NotNull String url, @Nullable String hash, boolean force) {
@@ -72,7 +72,7 @@ public class ResourcePackHandler {
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
      * @param url The url to the pack
      * @param hash The hash value
-     * @param forceMessage The message which the player see when he accept the resource pack
+     * @param forceMessage The message which the player see when he accepts the resource pack
      */
 
     public ResourcePackHandler(@NotNull String url, @Nullable String hash, @Nullable Component forceMessage) {
@@ -94,7 +94,7 @@ public class ResourcePackHandler {
     }
 
     /**
-     * Add a pre defined {@link ResourcePackCondition} to the handler
+     * Add a pre defined {@link ResourcePackCondition} to the handler.
      */
 
     public ResourcePackHandler setDefaultCondition() {
@@ -109,7 +109,7 @@ public class ResourcePackHandler {
 
     public ResourcePackHandler withListener() {
         GLOBAL_EVENT_HANDLER.addListener(PlayerResourcePackStatusEvent.class, eventConsumer);
-        GLOBAL_EVENT_HANDLER.addListener(PlayerDisconnectEvent.class, event -> resourcePackCache.remove(event.getPlayer().getEntityId()));
+        GLOBAL_EVENT_HANDLER.addListener(PlayerDisconnectEvent.class, event -> invalidateId(event.getPlayer().getEntityId()));
         return this;
     }
 
@@ -129,21 +129,15 @@ public class ResourcePackHandler {
      */
 
     public boolean setPack(@NotNull Player player) {
-        if (resourcePack == null) return false;
+        if (resourcePack == null || resourcePackCache.contains(player.getEntityId())) return false;
         player.setResourcePack(resourcePack);
         resourcePackCache.add(player.getEntityId());
         return true;
     }
 
-    /*public boolean reloadPack(@NotNull Player player) {
-        if (!resourcePackCache.contains(player.getEntityId())) {
-            setPack(player);
-        }
-
-        player.setResourcePack(EMPTY_RESOURCE_PACK);
-
-        return true;
-    }*/
+    public void invalidateId(int id) {
+        this.resourcePackCache.remove(id);
+    }
 
     /**
      * Creates the consumer for the {@link PlayerResourcePackStatusEvent}.
