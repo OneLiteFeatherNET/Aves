@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * @author theEvilReaper
  * @version 1.0.0
- * @since
+ * @since 1.0.0
  **/
 
 public class Vec2D implements Cloneable, Comparable<Vec2D> {
