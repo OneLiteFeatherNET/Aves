@@ -1,6 +1,5 @@
-package de.icevizion.aves.inventory.translated;
+package de.icevizion.aves.inventory.slot;
 
-import de.icevizion.aves.inventory.Slot;
 import de.icevizion.aves.item.TranslatedItem;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
