@@ -6,7 +6,7 @@ import java.util.Locale;
 
 /**
  * Represents an item which can be translated or not.
- * The implementation for an non translated item is {@link Item} and for translated items
+ * The implementation for a non translated item is {@link Item} and for translated items
  * is the {@link TranslatedItem} the implementation
  * @author theEvilReaper
  * @version 1.0.0
