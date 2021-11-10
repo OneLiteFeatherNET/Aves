@@ -5,7 +5,7 @@ import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.message.CompoundMessageCache;
 import at.rxcki.strigiformes.text.TextData;
 import de.icevizion.aves.inventory.InventoryLayout;
-import de.icevizion.aves.inventory.translated.TranslatedSlot;
+import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
