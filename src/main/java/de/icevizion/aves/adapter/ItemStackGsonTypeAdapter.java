@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The ItemStackTypeAdapter allows to serialize and deserialize from {@link ItemStack} into a valid json object or from a json object into {@link ItemStack}
+ * The ItemStackTypeAdapter allows serializing and deserialize from {@link ItemStack} into a valid json object or from a json object into {@link ItemStack}
  * The adapter use the {@link GsonBuilder} to register a custom adapter with the {@link GsonBuilder#registerTypeAdapter(Type, Object)} method
  * with the parameters {@link ItemStack} class and a instance of the {@link ItemStackGsonTypeAdapter}
  */
