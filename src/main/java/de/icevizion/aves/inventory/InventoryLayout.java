@@ -49,9 +49,7 @@ public class InventoryLayout implements Cloneable {
             if (slot == EMPTY_SLOT) {
                 itemStacks[i] = null;
             } else {
-                if (slot instanceof TranslatedSlot) {
-                    TranslatedSlot translatedSlot = (TranslatedSlot) slot;
-
+                if (slot instanceof TranslatedSlot translatedSlot) {
                     if (translatedSlot.getTranslatedItem().getMessageProvider() == null) {
                         translatedSlot.getTranslatedItem().setMessageProvider(messageProvider);
                     }
@@ -206,8 +204,7 @@ public class InventoryLayout implements Cloneable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof InventoryLayout)) return false;
-        InventoryLayout that = (InventoryLayout) o;
+        if (!(o instanceof InventoryLayout that)) return false;
         return Arrays.equals(contents, that.contents);
     }
 
