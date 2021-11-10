@@ -8,7 +8,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class StringUtil {
 
-    public static String UTF_8_HEART = "♥";
+    public static final String UTF_8_HEART = "♥";
 
     /**
      * Creates a progress bar for the given values.
