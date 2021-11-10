@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 /**
@@ -117,7 +117,6 @@ public class Players {
 
     public static Optional<Player> getRandomPlayer(List<Player> players) {
         if (players.isEmpty()) return Optional.empty();
-        var random = new Random(players.size());
-        return Optional.of(players.get(random.nextInt(players.size())));
+        return Optional.of(players.get(ThreadLocalRandom.current().nextInt(players.size())));
     }
 }
