@@ -1,7 +1,8 @@
 package de.icevizion.aves.inventory;
 
 import at.rxcki.strigiformes.MessageProvider;
-import de.icevizion.aves.inventory.translated.TranslatedSlot;
+import de.icevizion.aves.inventory.slot.ISlot;
+import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.ItemStackBuilder;
