@@ -1,4 +1,4 @@
-package de.icevizion.aves.inventory;
+package de.icevizion.aves.inventory.slot;
 
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 
