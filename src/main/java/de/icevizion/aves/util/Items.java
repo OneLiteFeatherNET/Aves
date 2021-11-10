@@ -12,7 +12,7 @@ import net.minestom.server.item.ItemStack;
 
 public class Items {
 
-    public static final int MAX_STACK_SIZE = 64;
+    public static int MAX_STACK_SIZE = 64;
 
     /**
      * Returns the number of a specific item that is in a player's inventory
