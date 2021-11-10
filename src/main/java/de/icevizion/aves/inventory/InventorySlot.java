@@ -1,5 +1,6 @@
 package de.icevizion.aves.inventory;
 
+import de.icevizion.aves.inventory.slot.Slot;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.ItemStackBuilder;
