@@ -12,6 +12,8 @@ import net.minestom.server.item.ItemStack;
 
 public class Items {
 
+    public static final int MAX_STACK_SIZE = 64;
+
     /**
      * Returns the number of a specific item that is in a player's inventory
      * @param player The player to be appointed by
@@ -47,7 +49,7 @@ public class Items {
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack currentStack = player.getInventory().getItemStacks()[i];
             if (currentStack == null) {
-                spaceCount += 64;
+                spaceCount += MAX_STACK_SIZE;
                 continue;
             }
 
