@@ -65,7 +65,13 @@ public class Players {
      */
 
     public static Optional<Player> getRandomPlayer() {
-        return MinecraftServer.getConnectionManager().getOnlinePlayers().stream().collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+        var players = MinecraftServer.getConnectionManager().getOnlinePlayers();
+
+        if (players.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return players.stream().collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
             Collections.shuffle(collected);
             return collected.stream();
         })).findAny();
@@ -141,7 +147,7 @@ public class Players {
      * @return a random player
      */
 
-    public static Optional<Player> getRandomPlayer(List<Player> players) {
+    public static Optional<Player> getRandomPlayer(@NotNull List<Player> players) {
         if (players.isEmpty()) return Optional.empty();
         return Optional.of(players.get(ThreadLocalRandom.current().nextInt(players.size())));
     }
