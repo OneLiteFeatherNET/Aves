@@ -1,9 +1,8 @@
 package de.icevizion.aves.inventory;
 
-import org.junit.Test;
 
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Patrick Zdarsky / Rxcki
