@@ -74,8 +74,7 @@ public class InventorySlot extends Slot {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof InventorySlot)) return false;
-        InventorySlot that = (InventorySlot) o;
+        if (!(o instanceof InventorySlot that)) return false;
         return itemStack.equals(that.itemStack);
     }
 
