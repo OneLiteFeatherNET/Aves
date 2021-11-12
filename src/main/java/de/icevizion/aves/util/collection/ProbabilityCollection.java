@@ -8,7 +8,7 @@ import java.util.SplittableRandom;
 import java.util.TreeSet;
 
 /**
- * Taken from https://github.com/lewysDavies/Java-Probability-Collection/blob/master/src/main/java/com/lewdev/probabilitylib/ProbabilityCollection.java
+ * Taken from <a href="https://github.com/lewysDavies/Java-Probability-Collection/blob/master/src/main/java/com/lewdev/probabilitylib/ProbabilityCollection.java">https://github.com/lewysDavies/Java-Probability-Collection/blob/master/src/main/java/com/lewdev/probabilitylib/ProbabilityCollection.java</a>
  *
  * ProbabilityCollection for retrieving random elements based on probability.
  * <br>
