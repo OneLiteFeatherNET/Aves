@@ -42,7 +42,7 @@ public class Vec2D implements Cloneable, Comparable<Vec2D> {
         return this;
     }
 
-    public Vec2D add(Vec2D vec2) {
+    public Vec2D add(@NotNull Vec2D vec2) {
         x += vec2.x;
         z += vec2.z;
         return this;
