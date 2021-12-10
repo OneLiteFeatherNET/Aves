@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * @version 1.0.2
  */
 
+@Deprecated
 public final class JsonFileLoader {
 
     /**
