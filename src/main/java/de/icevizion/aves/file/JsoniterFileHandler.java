@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * The class represents the implementation of the {@link FileHandler} for the Jsoniter library.
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.1.0

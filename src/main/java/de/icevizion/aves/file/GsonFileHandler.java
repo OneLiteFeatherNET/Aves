@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 /**
+ * The class represents the implementation of the {@link FileHandler} for the {@link com.google.gson.Gson} library.
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.1.0

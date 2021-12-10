@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 /**
+ * The class represents the base logic to load or save json files.
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
