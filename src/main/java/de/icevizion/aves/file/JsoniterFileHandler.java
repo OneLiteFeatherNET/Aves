@@ -42,7 +42,7 @@ public class JsoniterFileHandler implements FileHandler {
     /**
      * Load a given file and parse to the give class.
      * @param path is the where the file is located
-     * @param clazz is the to parsed class
+     * @param clazz Represents the class which should be loaded
      * @param <T> is generic type for the object value
      * @return a {@link Optional} with the object instance
      */
