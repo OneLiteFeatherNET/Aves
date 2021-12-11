@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * @version 1.0.2
  */
 
-@Deprecated
+@Deprecated(forRemoval = true, since = "Use Gson/Jsoniter FileHandler instead")
 public final class JsonFileLoader {
 
     /**
