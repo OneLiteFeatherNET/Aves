@@ -1,5 +1,0 @@
-name: ${artifactId}
-version: ${version}
-main: de.icevizion.aves.Aves
-author: IceVizion
-api-version: 1.16
