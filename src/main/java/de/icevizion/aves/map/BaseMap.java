@@ -23,7 +23,6 @@ public class BaseMap {
     /**
      * Empty constructor for jsoniter.
      */
-
     public BaseMap() { }
 
     /**
@@ -33,7 +32,6 @@ public class BaseMap {
      * @param builders The builders from the map
      * @param spawn    The spawn location from the map
      */
-
     public BaseMap(@NotNull String name, Pos spawn, String... builders) {
         if (name.isEmpty()) {
             throw new IllegalArgumentException("The name can not be null or empty");
@@ -49,7 +47,6 @@ public class BaseMap {
      *
      * @param name     The name from the map
      */
-
     public static BaseMap of(String name) {
         return new BaseMap(name, null);
     }
@@ -61,7 +58,6 @@ public class BaseMap {
      * @param name     The name from the map
      * @param spawn    The spawn location from the map
      */
-
     public static BaseMap of(String name, Pos spawn) {
         return new BaseMap(name, spawn, "Team");
     }
@@ -74,7 +70,6 @@ public class BaseMap {
      * @param builders The builders from the map
      * @param spawn    The spawn location from the map
      */
-
     public static BaseMap of(String name, Pos spawn, String... builders) {
         return new BaseMap(name, spawn, builders);
     }
@@ -84,7 +79,6 @@ public class BaseMap {
      * @param o The object to compare
      * @return True if the given object is the same otherwise false
      */
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -97,7 +91,6 @@ public class BaseMap {
      * Overrides hashCode from the object class.
      * @return A hash value
      */
-
     @Override
     public int hashCode() {
         return Objects.hash(name);
@@ -107,7 +100,6 @@ public class BaseMap {
      * Set the name of a map
      * @param name The name to set
      */
-
     public void setName(String name) {
         this.name = name;
     }
@@ -116,7 +108,6 @@ public class BaseMap {
      * Set the builder of a map
      * @param builders The builder's to set
      */
-
     public void setBuilders(String... builders) {
         this.builders = builders;
     }
@@ -125,18 +116,15 @@ public class BaseMap {
      * Set the spawn location of a map
      * @param spawn The spawn location to set
      */
-
     public void setSpawn(Pos spawn) {
         this.spawn = spawn;
     }
-
 
     /**
      * Returns the map name.
      *
      * @return The name of the map
      */
-
     public String getName() {
         return name;
     }
@@ -146,7 +134,6 @@ public class BaseMap {
      *
      * @return The builders of the map
      */
-
     public String[] getBuilders() {
         return builders;
     }
@@ -156,7 +143,6 @@ public class BaseMap {
      *
      * @return The spawn of the map
      */
-
     public Pos getSpawn() {
         return spawn;
     }
