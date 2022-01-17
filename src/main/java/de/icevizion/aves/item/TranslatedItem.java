@@ -66,10 +66,8 @@ public class TranslatedItem implements IItem {
      * @param arguments Arguments that may be needed for the name
      * @return
      */
-
     public TranslatedItem setDisplayName(@NotNull String key, Object... arguments) {
         this.nameTextData = new TextData(key, arguments);
-
         return this;
     }
 
@@ -78,7 +76,6 @@ public class TranslatedItem implements IItem {
      * @param textData The displayname as {@link TextData}
      * @return
      */
-
     public TranslatedItem setDisplayName(@NotNull TextData textData) {
         this.nameTextData = textData;
         return this;
@@ -90,7 +87,6 @@ public class TranslatedItem implements IItem {
      * @param arguments Arguments for the lore. The array is optional
      * @return
      */
-
     public TranslatedItem setLore(@NotNull String key, Object... arguments) {
         return setLore(new TextData(key, arguments));
     }
@@ -100,12 +96,10 @@ public class TranslatedItem implements IItem {
      * @param textData the lore as {@link TextData}
      * @return
      */
-
     public TranslatedItem setLore(TextData textData) {
         if (loreCache != null)
             throw new IllegalStateException("Tried to set simple lore but CompoundMessage is already set");
         loreTextData = textData;
-
         return this;
     }
 
@@ -114,12 +108,10 @@ public class TranslatedItem implements IItem {
      * @param messageCache The lore as {@link CompoundMessageCache}
      * @return
      */
-
     public TranslatedItem setLore(CompoundMessageCache messageCache) {
         if (loreTextData != null)
             throw new IllegalStateException("Tried to set CompoundMessage lore but simple lore is already set");
         loreCache = messageCache;
-
         return this;
     }
 
@@ -128,7 +120,6 @@ public class TranslatedItem implements IItem {
      * @param messageProvider The provider to set
      * @return
      */
-
     public TranslatedItem setMessageProvider(@NotNull MessageProvider messageProvider) {
         this.messageProvider = messageProvider;
         return this;
@@ -139,7 +130,6 @@ public class TranslatedItem implements IItem {
      * @param clickListener The {@link InventoryPreClickEvent} to set
      * @return the created {@link TranslatedSlot}
      */
-
     public TranslatedSlot toSlot(Consumer<InventoryPreClickEvent> clickListener) {
         return new TranslatedSlot(this, clickListener);
     }
@@ -148,7 +138,6 @@ public class TranslatedItem implements IItem {
      * Returns a {@link TranslatedSlot} which includes the underlying {@link ItemStack} without a event handler.
      * @return the created {@link TranslatedSlot}
      */
-
     public TranslatedSlot toSlot() {
         return toSlot(null);
     }
@@ -157,7 +146,6 @@ public class TranslatedItem implements IItem {
      * Returns a {@link TranslatedSlot} which is not clickable .
      * @return the created {@link TranslatedSlot}
      */
-
     public TranslatedSlot toNonClickSlot() {
         return new TranslatedSlot(this, InventoryLayout.CANCEL_CONSUMER);
     }
@@ -176,7 +164,6 @@ public class TranslatedItem implements IItem {
      * @param locale The locale to get the right stack
      * @return the fetched {@link ItemStack}
      */
-
     @Override
     public ItemStack get(@NotNull Locale locale) {
         if (messageProvider == null)
@@ -229,7 +216,6 @@ public class TranslatedItem implements IItem {
      * Returns the given instance from the {@link MessageProvider}.
      * @return The underlying value
      */
-
     public MessageProvider getMessageProvider() {
         return messageProvider;
     }
