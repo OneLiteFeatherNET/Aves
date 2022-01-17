@@ -5,11 +5,11 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.Player;
 
 /**
+ * //TODO: Finish command
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
  **/
-
 public class ResourcePackCommand extends Command {
 
     public ResourcePackCommand(ResourcePackHandler resourcePackHandler) {
