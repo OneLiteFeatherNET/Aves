@@ -16,7 +16,6 @@ import java.util.Objects;
  * @version 1.0.0
  * @since 1.0.13
  **/
-
 public record Item(ItemStack itemStack) implements IItem {
 
     /**
@@ -24,7 +23,6 @@ public record Item(ItemStack itemStack) implements IItem {
      *
      * @param itemStack The {@link ItemStack} for the {@link Item}
      */
-
     public Item(@NotNull ItemStack itemStack) {
         this.itemStack = itemStack;
     }
@@ -35,7 +33,6 @@ public record Item(ItemStack itemStack) implements IItem {
      * @param itemBuilder A valid instance from a {@link ItemStackBuilder}
      * @return The created instance from {@link Item}
      */
-
     public static Item of(@NotNull ItemStackBuilder itemBuilder) {
         return new Item(itemBuilder.build());
     }
@@ -46,7 +43,6 @@ public record Item(ItemStack itemStack) implements IItem {
      * @param material The material for the {@link ItemStack}
      * @return The created instance from {@link Item}
      */
-
     public static Item of(@NotNull Material material) {
         return new Item(ItemStack.of(material));
     }
@@ -58,7 +54,6 @@ public record Item(ItemStack itemStack) implements IItem {
      * @param locale The locale from the player
      * @return The fetched stack
      */
-
     @Override
     public ItemStack get(@NotNull Locale locale) {
         return itemStack;

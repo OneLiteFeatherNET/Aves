@@ -12,7 +12,6 @@ import java.util.Locale;
  * @version 1.0.0
  * @since 1.0.13
  **/
-
 public interface IItem {
 
     /**
@@ -20,7 +19,6 @@ public interface IItem {
      * This method should only be used if there is no translation
      * @return the underlying stack
      */
-
     default ItemStack get() {
         return get(null);
     }
@@ -30,6 +28,5 @@ public interface IItem {
      * @param locale The locale to get the right stack
      * @return the fetched stack
      */
-
     ItemStack get(Locale locale);
 }
