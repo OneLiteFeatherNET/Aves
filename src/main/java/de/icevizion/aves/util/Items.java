@@ -9,7 +9,6 @@ import net.minestom.server.item.ItemStack;
  * @since 1.0.6
  * @version 1.0.0
  */
-
 public class Items {
 
     public static int MAX_STACK_SIZE = 64;
@@ -20,7 +19,6 @@ public class Items {
      * @param item The item to check
      * @return The amount of the given item but returns with zero when the item does not occur in the inventory
      */
-
     public static int getAmountFromItem(Player player, ItemStack item) {
         int amount = 0;
         if (player.getInventory().getItemStacks().length != 0) {
@@ -32,7 +30,6 @@ public class Items {
                 i++;
             }
         }
-
         return amount;
     }
 
@@ -42,7 +39,6 @@ public class Items {
      * @param item The item to check
      * @return The amount of free space
      */
-
     public static int getFreeSpace(Player player, ItemStack item) {
         int spaceCount = 0;
 
@@ -52,12 +48,10 @@ public class Items {
                 spaceCount += MAX_STACK_SIZE;
                 continue;
             }
-
             if (currentStack.isSimilar(item)) {
                 spaceCount += currentStack.getAmount() - item.getAmount();
             }
         }
-
         return spaceCount;
     }
 }

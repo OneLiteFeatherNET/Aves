@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 
 /**
  * Contains some methods to work with {@link Player} objects
+ * @author theEvilReaper
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class Players {
 
@@ -33,7 +36,6 @@ public class Players {
      * Drops the complete inventory content from a player to a specific location.
      * @param player The player from which the inventory should be dropped
      */
-
     public static void dropPlayerInventory(@NotNull Player player) {
         Objects.requireNonNull(player.getInstance(), "The instance from the player can not be null");
         dropItemStacks(player.getInstance(), player.getPosition(), player.getInventory().getItemStacks());
@@ -43,7 +45,6 @@ public class Players {
      * Drops a certain amount of items to a given location.
      * @param content The items stored in an array
      */
-
     public static void dropItemStacks(@NotNull Instance instance, @NotNull Pos pos, ItemStack... content) {
         if (content == null || content.length == 0) {
             throw new IllegalArgumentException("The array can not be null or empty");
@@ -63,7 +64,6 @@ public class Players {
      * Choose a random player from all players who are currently online.
      * @return a random player
      */
-
     public static Optional<Player> getRandomPlayer() {
         var players = MinecraftServer.getConnectionManager().getOnlinePlayers();
 
@@ -85,7 +85,6 @@ public class Players {
      * @param hotBarItems The hot bar items as array
      * @param shiftedSlots An array with contains shifted layout only for the hotbar
      */
-
     public static void updateEquipment(@NotNull Player player,  @NotNull IItem[] armorItems,
                                        @NotNull IItem[] hotBarItems, int... shiftedSlots) {
         updateEquipment(player, armorItems, hotBarItems, null, shiftedSlots);
@@ -100,7 +99,6 @@ public class Players {
      * @param locale The {@link Locale} for {@link TranslatedItem}
      * @param shiftedSlots An array with contains shifted layout only for the hotbar
      */
-
     public static void updateEquipment(@NotNull Player player, @NotNull IItem[] armorItems,
                                        @NotNull IItem[] hotBarItems, @Nullable Locale locale, int... shiftedSlots) {
         if (shiftedSlots != null && shiftedSlots.length != hotBarItems.length) {
@@ -146,7 +144,6 @@ public class Players {
      * @param players A list which contains some player objects
      * @return a random player
      */
-
     public static Optional<Player> getRandomPlayer(@NotNull List<Player> players) {
         if (players.isEmpty()) return Optional.empty();
         return Optional.of(players.get(ThreadLocalRandom.current().nextInt(players.size())));
