@@ -14,15 +14,13 @@ import java.util.HashSet;
 import java.util.function.Consumer;
 
 /**
- * //TODO: Add missing class documentation header
+ * The class can be used to manage the allocation of the resource pack to the players
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
  **/
-
 public class ResourcePackHandler {
 
-    //private static final ResourcePack EMPTY_RESOURCE_PACK = ResourcePack.optional("", null);
     private static final GlobalEventHandler GLOBAL_EVENT_HANDLER = MinecraftServer.getGlobalEventHandler();
 
     private final ResourcePack resourcePack;
@@ -34,7 +32,6 @@ public class ResourcePackHandler {
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
      * @param resourcePack An instance from a {@link ResourcePack}
      */
-
     public ResourcePackHandler(ResourcePack resourcePack) {
         this.resourcePack = resourcePack;
         this.resourcePackCache = new HashSet<>();
@@ -46,8 +43,6 @@ public class ResourcePackHandler {
      * @param resourcePack An instance from a {@link ResourcePack}
      * @param condition The given {@link ResourcePackCondition}
      */
-
-
     public ResourcePackHandler(ResourcePack resourcePack, ResourcePackCondition condition) {
         this.resourcePack = resourcePack;
         this.resourcePackCache = new HashSet<>();
@@ -61,7 +56,6 @@ public class ResourcePackHandler {
      * @param hash The hash value
      * @param force If the pack should be forced or not
      */
-
     public ResourcePackHandler(@NotNull String url, @Nullable String hash, boolean force) {
         this.resourcePack = force ? ResourcePack.forced(url, hash) : ResourcePack.optional(url, hash);
         this.resourcePackCache = new HashSet<>();
@@ -74,7 +68,6 @@ public class ResourcePackHandler {
      * @param hash The hash value
      * @param forceMessage The message which the player see when he accepts the resource pack
      */
-
     public ResourcePackHandler(@NotNull String url, @Nullable String hash, @Nullable Component forceMessage) {
         this.resourcePack = ResourcePack.forced(url, hash, forceMessage);
         this.resourcePackCache = new HashSet<>();
@@ -86,7 +79,6 @@ public class ResourcePackHandler {
      * The handling musst includes all parameters from {@link ResourcePackCondition}
      * @param condition The condition to set
      */
-
     public ResourcePackHandler setCondition(ResourcePackCondition condition) {
         this.condition = condition;
         this.eventConsumer = handleResourcePackChange();
@@ -96,7 +88,6 @@ public class ResourcePackHandler {
     /**
      * Add a pre defined {@link ResourcePackCondition} to the handler.
      */
-
     public ResourcePackHandler setDefaultCondition() {
         this.condition = new DefaultResourcePackCondition(resourcePackCache);
         this.eventConsumer = handleResourcePackChange();
@@ -106,7 +97,6 @@ public class ResourcePackHandler {
     /**
      * Add some listener to handle the resource pack handling.
      */
-
     public ResourcePackHandler withListener() {
         GLOBAL_EVENT_HANDLER.addListener(PlayerResourcePackStatusEvent.class, eventConsumer);
         GLOBAL_EVENT_HANDLER.addListener(PlayerDisconnectEvent.class, event -> invalidateId(event.getPlayer().getEntityId()));
@@ -116,7 +106,6 @@ public class ResourcePackHandler {
     /**
      * Register a command which allow that players can load or reload the resource pack
      */
-
     public ResourcePackHandler withCommand() {
         MinecraftServer.getCommandManager().register(new ResourcePackCommand(this));
         return this;
@@ -127,7 +116,6 @@ public class ResourcePackHandler {
      * @param player The player who receives the pack
      * @return true when the player can receive the pack otherwise false
      */
-
     public boolean setPack(@NotNull Player player) {
         if (resourcePack == null || resourcePackCache.contains(player.getEntityId())) return false;
         player.setResourcePack(resourcePack);
@@ -135,6 +123,10 @@ public class ResourcePackHandler {
         return true;
     }
 
+    /**
+     * Invalidates an id (player entity id) in the underlying cache
+     * @param id the id from the user
+     */
     public void invalidateId(int id) {
         this.resourcePackCache.remove(id);
     }
@@ -143,7 +135,6 @@ public class ResourcePackHandler {
      * Creates the consumer for the {@link PlayerResourcePackStatusEvent}.
      * @return the created consumer
      */
-
     private Consumer<PlayerResourcePackStatusEvent> handleResourcePackChange() {
         if (condition == null) {
             throw new IllegalStateException("Can't register the handler for the resource pack change because the 'ResourcePackCondition' is null");
