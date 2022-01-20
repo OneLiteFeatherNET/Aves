@@ -1,11 +1,12 @@
-package de.icevizion.aves.inventory;
+package de.icevizion.aves.inventory.util;
 
+import de.icevizion.aves.inventory.InventoryRows;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public class LayoutCalculators {
+public class LayoutCalculator {
 
     private static final int INVENTORY_WIDTH = 9;
 
