@@ -1,5 +1,5 @@
 {
-  "entrypoint": "de.iceivizion.aves.Aves",
+  "entrypoint": "de.icevizion.aves.Aves",
   "name": "Aves",
   "version": "1.1.0-SNAPSHOT"
 }
