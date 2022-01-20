@@ -1,10 +1,12 @@
 package de.icevizion.aves.inventory;
 
 import at.rxcki.strigiformes.MessageProvider;
+import de.icevizion.aves.inventory.function.CloseFunction;
+import de.icevizion.aves.inventory.function.OpenFunction;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
-import net.minestom.server.event.inventory.InventoryOpenEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.item.Material;
@@ -12,12 +14,11 @@ import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.utils.time.TimeUnit;
 
 import java.util.Locale;
-import java.util.function.Function;
 
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public abstract class InventoryBuilder {
+public abstract class InventoryBuilder implements SizeChecker{
 
     private static final SchedulerManager schedulerManager = MinecraftServer.getSchedulerManager();
     private final InventoryRows rows;
@@ -28,22 +29,24 @@ public abstract class InventoryBuilder {
     private InventoryLayout dataLayout;
     protected boolean dataLayoutValid = false;
 
-    protected Function<InventoryCloseEvent, Boolean> closeListener;
-    protected Function<InventoryOpenEvent, Boolean> openFunction;
-
+    protected OpenFunction openFunction;
+    protected CloseFunction closeFunction;
 
     public InventoryBuilder(InventoryRows rows) {
+        checkSize(rows.getSize());
         this.rows = rows;
         this.inventoryLayout = new InventoryLayout(rows.getSize());
     }
 
     public InventoryBuilder(int slots) {
-        if (slots > InventoryRows.SIX.getSize()) {
-            throw new IllegalArgumentException("Maximum amount of slots for an inventory is 54!");
-        }
+        checkSize(slots);
 
         this.rows = InventoryRows.getRows(slots);
         this.inventoryLayout = new InventoryLayout(slots);
+    }
+
+    public void registerGlobally() {
+        MinecraftServer.getGlobalEventHandler().addListener(InventoryPreClickEvent.class, this::handleClick);
     }
 
     //Abstract methods
@@ -54,7 +57,7 @@ public abstract class InventoryBuilder {
 
     public abstract Inventory getInventory(Locale locale);
 
-    protected abstract boolean isInventoryOpened();
+    protected abstract boolean isInventoryOpen();
 
     protected abstract void updateInventory();
 
@@ -63,7 +66,7 @@ public abstract class InventoryBuilder {
     public void invalidateInventoryLayout() {
         inventoryLayoutValid = false;
 
-        if (isInventoryOpened()) {
+        if (isInventoryOpen()) {
             updateInventory();
         }
     }
@@ -73,7 +76,7 @@ public abstract class InventoryBuilder {
             throw new IllegalStateException("Tried to invalidate DataLayout with no TaskChain configured");
         }*/
 
-        if (isInventoryOpened()) {
+        if (isInventoryOpen()) {
             retrieveDataLayout();
             System.out.println("DataLayout invalidated on open inv, requested data...");
         } else {
@@ -103,8 +106,8 @@ public abstract class InventoryBuilder {
     }
 
     protected void handleClose(InventoryCloseEvent event) {
-        if (closeListener != null) {
-            if (!closeListener.apply(event)) {
+        if (closeFunction != null) {
+            if (!closeFunction.onClose(event)) {
                 schedulerManager.buildTask(()
                         -> event.setNewInventory(getInventory())).delay(150, TimeUnit.MILLISECOND).schedule();
             }
@@ -116,7 +119,7 @@ public abstract class InventoryBuilder {
 
         var titleComponent = LegacyComponentSerializer.legacyAmpersand().deserialize(title);
 
-        if (!inventory.getTitle().contains(titleComponent)) {
+        if (!Component.EQUALS.test(inventory.getTitle(), titleComponent)) {
             System.out.println("UpdateInventory is updating the title");
             inventory.setTitle(titleComponent);
         }
@@ -182,8 +185,24 @@ public abstract class InventoryBuilder {
         return rows;
     }
 
-    public InventoryLayout getInventoryLayout() {
-        return inventoryLayout;
+    /**
+     * Set's the open function to the builder
+     * @param openFunction The function to set
+     */
+
+    public InventoryBuilder setOpenFunction(OpenFunction openFunction) {
+        this.openFunction = openFunction;
+        return this;
+    }
+
+    /**
+     * Set's the close function to the builder
+     * @param closeFunction The function to set
+     */
+
+    public InventoryBuilder setCloseFunction(CloseFunction closeFunction) {
+        this.closeFunction = closeFunction;
+        return this;
     }
 
     public InventoryBuilder setInventoryLayout(InventoryLayout inventoryLayout) {
@@ -191,18 +210,11 @@ public abstract class InventoryBuilder {
         return this;
     }
 
+    public InventoryLayout getInventoryLayout() {
+        return inventoryLayout;
+    }
+
     public InventoryLayout getDataLayout() {
         return dataLayout;
-    }
-
-    public InventoryBuilder setCloseListener(Function<InventoryCloseEvent, Boolean> closeListener) {
-        this.closeListener = closeListener;
-
-        return this;
-    }
-
-    public InventoryBuilder setOpenFunction(Function<InventoryOpenEvent, Boolean> openFunction) {
-        this.openFunction = openFunction;
-        return this;
     }
 }
