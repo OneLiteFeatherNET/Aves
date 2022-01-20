@@ -33,6 +33,17 @@ public class Players {
     public static ItemPlacer ITEM_PLACER;
 
     /**
+     * Checks if a player has an instance or not
+     * When the instance is null then the method will throw an exception
+     * @param player The player to check
+     */
+    public static void hasInstance(@NotNull Player player) {
+        if (player.getInstance() == null) {
+            throw new IllegalArgumentException("The instance from a player can not be null");
+        }
+    }
+
+    /**
      * Drops the complete inventory content from a player to a specific location.
      * @param player The player from which the inventory should be dropped
      */
