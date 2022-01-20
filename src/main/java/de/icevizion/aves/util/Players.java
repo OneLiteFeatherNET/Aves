@@ -117,8 +117,8 @@ public class Players {
         }
 
         if (ITEM_PLACER == null) {
-            ITEM_PLACER = ItemPlacer.DEFAULT;
-            System.out.println("Set `ItemPlacer Interface` to default implementation");
+            ITEM_PLACER = ItemPlacer.FALLBACK;
+            System.out.println("Set `ItemPlacer Interface` to fallback implementation");
         }
 
         player.getInventory().clear();
