@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 /**
- * The builder can be used to build a translated {@link net.minestom.server.inventory.Inventory} for a single {@link Player}
+ * The builder can be used to build a translated {@link net.minestom.server.inventory.Inventory} for a single {@link Player}.
  * @author Patrick Zdarsky / Rxcki
  * @version 1.0.1
  * @since 1.0.12
