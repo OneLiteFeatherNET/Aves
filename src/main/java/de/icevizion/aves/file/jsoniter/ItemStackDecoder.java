@@ -1,4 +1,4 @@
-package de.icevizion.aves.decoder;
+package de.icevizion.aves.file.jsoniter;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;

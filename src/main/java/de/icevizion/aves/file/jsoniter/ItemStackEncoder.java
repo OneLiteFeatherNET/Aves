@@ -1,4 +1,4 @@
-package de.icevizion.aves.encoder;
+package de.icevizion.aves.file.jsoniter;
 
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.Encoder;
@@ -32,7 +32,6 @@ public final class ItemStackEncoder implements Encoder {
               }
 
               var metaMap = new HashMap<String, Object>();
-
 
               if (meta.getDisplayName() != null) {
                   metaMap.put("displayName", LegacyComponentSerializer.legacySection().serialize(meta.getDisplayName()));
