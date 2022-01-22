@@ -14,7 +14,6 @@ import java.util.Optional;
  * @version 1.0.0
  * @since 1.1.0
  **/
-
 public record GsonFileHandler(@NotNull Gson gson) implements FileHandler {
 
     /**
@@ -23,7 +22,6 @@ public record GsonFileHandler(@NotNull Gson gson) implements FileHandler {
      * @param object The object to save
      * @param <T> A generic type for the object value
      */
-
     @Override
     public <T> void save(@NotNull Path path, @NotNull T object) {
         try (var outputStream = Files.newBufferedWriter(path, UTF_8)) {
@@ -43,7 +41,6 @@ public record GsonFileHandler(@NotNull Gson gson) implements FileHandler {
      * @param <T> is generic type for the object value
      * @return a {@link Optional} with the object instance
      */
-
     @Override
     public <T> Optional<T> load(@NotNull Path path, @NotNull Class<T> clazz) {
         if (!Files.exists(path)) {
@@ -55,7 +52,6 @@ public record GsonFileHandler(@NotNull Gson gson) implements FileHandler {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-
         return Optional.empty();
     }
 }

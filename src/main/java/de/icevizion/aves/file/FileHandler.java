@@ -13,7 +13,6 @@ import java.util.Optional;
  * @version 1.0.0
  * @since 1.0.0
  **/
-
 public interface FileHandler {
 
     Charset UTF_8 = StandardCharsets.UTF_8;
@@ -24,7 +23,6 @@ public interface FileHandler {
      * @param object The object to save
      * @param <T> A generic type for the object value
      */
-
     <T> void save(@NotNull Path path, @NotNull T object);
 
     /**
@@ -34,6 +32,5 @@ public interface FileHandler {
      * @param <T> is generic type for the object value
      * @return a {@link Optional} with the object instance
      */
-
     <T> Optional<T> load(@NotNull Path path, @NotNull Class<T> clazz);
 }
