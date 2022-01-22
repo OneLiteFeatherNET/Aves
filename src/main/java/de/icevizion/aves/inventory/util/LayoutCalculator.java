@@ -1,6 +1,6 @@
 package de.icevizion.aves.inventory.util;
 
-import de.icevizion.aves.inventory.InventoryRows;
+import de.icevizion.aves.inventory.InventoryRow;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -73,11 +73,11 @@ public class LayoutCalculator {
         return arr;
     }
 
-    public static int[] fillRow(@NotNull InventoryRows row) {
+    public static int[] fillRow(@NotNull InventoryRow row) {
         return repeat(row.getSize()-9, row.getSize());
     }
 
-    public static int[] fillColumn(@NotNull InventoryRows rows, int column) {
+    public static int[] fillColumn(@NotNull InventoryRow rows, int column) {
         if (column < 0 || column > INVENTORY_WIDTH - 1) {
             throw new IllegalArgumentException("Column cant be less than 0 or more than 8");
         }
