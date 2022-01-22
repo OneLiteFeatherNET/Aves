@@ -26,7 +26,7 @@ public class TranslatedSlot extends Slot {
 
     @Override
     public ItemStack getItem() {
-        throw new UnsupportedOperationException("This TranslatedSlot needs a locale to retrieve the Item");
+        throw new UnsupportedOperationException("This TranslatedSlot needs a locale to retrieve the item");
     }
 
     public ItemStack getItem(Locale locale) {
