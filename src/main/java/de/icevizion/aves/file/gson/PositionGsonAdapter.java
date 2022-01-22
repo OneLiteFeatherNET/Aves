@@ -1,4 +1,4 @@
-package de.icevizion.aves.adapter;
+package de.icevizion.aves.file.gson;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
