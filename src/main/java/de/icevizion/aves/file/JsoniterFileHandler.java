@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 1.1.0
  **/
-
 public class JsoniterFileHandler implements FileHandler {
 
     /**
@@ -27,7 +26,6 @@ public class JsoniterFileHandler implements FileHandler {
      * @param object The object to save
      * @param <T> A generic type for the object value
      */
-
     public <T> void save(@NotNull Path path, @NotNull T object) {
         try (OutputStream outputStream = Files.newOutputStream(path)) {
             if (!Files.exists(path)) {
@@ -46,7 +44,6 @@ public class JsoniterFileHandler implements FileHandler {
      * @param <T> is generic type for the object value
      * @return a {@link Optional} with the object instance
      */
-
     public <T> Optional<T> load(@NotNull Path path, @NotNull Class<T> clazz) {
         if (!Files.exists(path))
             return Optional.empty();
