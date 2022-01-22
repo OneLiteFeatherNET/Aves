@@ -32,7 +32,7 @@ public class ResourcePackHandler {
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
      * @param resourcePack An instance from a {@link ResourcePack}
      */
-    public ResourcePackHandler(ResourcePack resourcePack) {
+    public ResourcePackHandler(@NotNull ResourcePack resourcePack) {
         this.resourcePack = resourcePack;
         this.resourcePackCache = new HashSet<>();
         this.condition = null;
@@ -43,7 +43,7 @@ public class ResourcePackHandler {
      * @param resourcePack An instance from a {@link ResourcePack}
      * @param condition The given {@link ResourcePackCondition}
      */
-    public ResourcePackHandler(ResourcePack resourcePack, ResourcePackCondition condition) {
+    public ResourcePackHandler(@NotNull ResourcePack resourcePack, ResourcePackCondition condition) {
         this.resourcePack = resourcePack;
         this.resourcePackCache = new HashSet<>();
         this.condition = condition;
@@ -137,7 +137,7 @@ public class ResourcePackHandler {
      */
     private Consumer<PlayerResourcePackStatusEvent> handleResourcePackChange() {
         if (condition == null) {
-            throw new IllegalStateException("Can't register the handler for the resource pack change because the 'ResourcePackCondition' is null");
+            throw new IllegalStateException("Can't register the handler because the 'ResourcePackCondition' is null");
         }
         return event -> condition.handleStatus(event.getPlayer(), event.getStatus());
     }
