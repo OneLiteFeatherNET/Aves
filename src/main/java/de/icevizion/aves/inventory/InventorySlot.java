@@ -11,6 +11,8 @@ import java.util.function.Consumer;
 
 /**
  * @author Patrick Zdarsky / Rxcki
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class InventorySlot extends Slot {
 
@@ -20,7 +22,6 @@ public class InventorySlot extends Slot {
      * Creates a new instance from the {@link InventorySlot}.
      * @param itemStack The {@link ItemStack} to set
      */
-
     public InventorySlot(@NotNull ItemStack itemStack) {
         this.itemStack = itemStack;
     }
@@ -30,7 +31,6 @@ public class InventorySlot extends Slot {
      * @param itemStack The {@link ItemStack} to set
      * @param clickListener The {@link InventoryPreClickEvent} to set.
      */
-
     public InventorySlot(@NotNull ItemStack itemStack, Consumer<InventoryPreClickEvent> clickListener) {
         this.itemStack = itemStack;
         this.clickListener = clickListener;
@@ -40,7 +40,6 @@ public class InventorySlot extends Slot {
      * Creates a new instance from the {@link InventorySlot}.
      * @param itemBuilder The {@link ItemStackBuilder} were the item will be built from
      */
-
     public InventorySlot(@NotNull ItemStackBuilder itemBuilder) {
         this.itemStack = itemBuilder.build();
     }
@@ -50,25 +49,27 @@ public class InventorySlot extends Slot {
      * @param itemBuilder The {@link ItemStackBuilder} were the item will be built from
      * @param clickListener The {@link InventoryPreClickEvent} to set.
      */
-
     public InventorySlot(@NotNull ItemStackBuilder itemBuilder, Consumer<InventoryPreClickEvent> clickListener) {
         this.itemStack = itemBuilder.build();
         this.clickListener = clickListener;
     }
 
     /**
-     * Return the current {@link ItemStack}.
-     * @return the {@link ItemStack}
+     * Set the {@link ItemStack} for the {@link InventorySlot}.
+     * @param itemStack The stack to set
      */
-
-    @Override
-    public ItemStack getItem() {
-        return itemStack;
-    }
-
     public InventorySlot setItemStack(@NotNull ItemStack itemStack) {
         this.itemStack = itemStack;
         return this;
+    }
+
+    /**
+     * Return the current {@link ItemStack}.
+     * @return the {@link ItemStack}
+     */
+    @Override
+    public ItemStack getItem() {
+        return itemStack;
     }
 
     @Override
@@ -83,6 +84,10 @@ public class InventorySlot extends Slot {
         return Objects.hash(itemStack);
     }
 
+    /**
+     * Returns a text representation of the {@link InventorySlot}.
+     * @return a string which contains some attributes from the slot
+     */
     @Override
     public String toString() {
         return "InventorySlot{" + "itemStack=" + itemStack.toString() + "} " + super.toString();
