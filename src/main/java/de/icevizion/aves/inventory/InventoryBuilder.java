@@ -6,43 +6,81 @@ import de.icevizion.aves.inventory.function.OpenFunction;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.event.EventFilter;
+import net.minestom.server.event.EventListener;
+import net.minestom.server.event.EventNode;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
+import net.minestom.server.event.inventory.InventoryOpenEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.event.trait.InventoryEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.item.Material;
 import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.utils.time.TimeUnit;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
 /**
  * @author Patrick Zdarsky / Rxcki
+ * @version 1.1.0
+ * @since 1.0.12
  */
-public abstract class InventoryBuilder implements SizeChecker{
+public abstract class InventoryBuilder implements SizeChecker {
 
-    private static final SchedulerManager schedulerManager = MinecraftServer.getSchedulerManager();
-    private final InventoryRows rows;
+    protected static final SchedulerManager SCHEDULER_MANAGER = MinecraftServer.getSchedulerManager();
+    protected static final Logger LOGGER = LoggerFactory.getLogger(MinecraftServer.class);
+
+    protected final EventNode<InventoryEvent> inventoryNode = EventNode.type("inventories", EventFilter.INVENTORY);
+
+    private final InventoryRow rows;
 
     private InventoryLayout inventoryLayout;
-    protected boolean inventoryLayoutValid = true;
-
     private InventoryLayout dataLayout;
+
+    protected boolean inventoryLayoutValid = true;
     protected boolean dataLayoutValid = false;
 
     protected OpenFunction openFunction;
     protected CloseFunction closeFunction;
 
-    public InventoryBuilder(InventoryRows rows) {
-        checkSize(rows.getSize());
+    protected EventListener<InventoryOpenEvent> openEventListener;
+    protected EventListener<InventoryPreClickEvent> clickEventListener;
+    protected EventListener<InventoryCloseEvent> closeEventListener;
+
+    public InventoryBuilder(@NotNull InventoryRow rows) {
+        checkInventorySize(rows.getSize());
         this.rows = rows;
         this.inventoryLayout = new InventoryLayout(rows.getSize());
     }
 
     public InventoryBuilder(int slots) {
-        checkSize(slots);
+        checkInventorySize(slots);
 
-        this.rows = InventoryRows.getRows(slots);
+        this.rows = InventoryRow.getRows(slots);
         this.inventoryLayout = new InventoryLayout(slots);
+    }
+
+    public void registerInNode() {
+        this.clickEventListener = EventListener.of(InventoryPreClickEvent.class, this::handleClick);
+
+        if (openFunction != null) {
+            this.inventoryNode.addListener(openEventListener);
+        }
+
+        if (closeFunction != null) {
+            this.inventoryNode.addListener(closeEventListener);
+        }
+
+        this.inventoryNode.addListener(clickEventListener);
+        MinecraftServer.getGlobalEventHandler().addChild(this.inventoryNode);
+    }
+
+    public void unregister() {
+        MinecraftServer.getGlobalEventHandler().removeChild(this.inventoryNode);
     }
 
     public void registerGlobally() {
@@ -72,15 +110,11 @@ public abstract class InventoryBuilder implements SizeChecker{
     }
 
     public void invalidateDataLayout() {
-      /*  if (dataLayoutChainFunction == null) {
-            throw new IllegalStateException("Tried to invalidate DataLayout with no TaskChain configured");
-        }*/
-
         if (isInventoryOpen()) {
             retrieveDataLayout();
-            System.out.println("DataLayout invalidated on open inv, requested data...");
+            LOGGER.info("DataLayout invalidated on open inv, requested data...");
         } else {
-            System.out.println("DataLayout invalidated on closed inv");
+            LOGGER.info("DataLayout invalidated on closed inv");
             dataLayoutValid = false;
         }
     }
@@ -97,18 +131,22 @@ public abstract class InventoryBuilder implements SizeChecker{
             }
         }
 
-        if (getInventoryLayout() != null) {
-            var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
-            if (layoutSlot != null && layoutSlot.getClickListener() != null) {
-                layoutSlot.getClickListener().accept(event);
-            }
+        var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
+        if (layoutSlot != null && layoutSlot.getClickListener() != null) {
+            layoutSlot.getClickListener().accept(event);
+        }
+    }
+
+    protected void handleOpen(InventoryOpenEvent event) {
+        if (openFunction != null) {
+            openFunction.onOpen(event);
         }
     }
 
     protected void handleClose(InventoryCloseEvent event) {
         if (closeFunction != null) {
             if (!closeFunction.onClose(event)) {
-                schedulerManager.buildTask(()
+                SCHEDULER_MANAGER.buildTask(()
                         -> event.setNewInventory(getInventory())).delay(150, TimeUnit.MILLISECOND).schedule();
             }
         }
@@ -120,7 +158,7 @@ public abstract class InventoryBuilder implements SizeChecker{
         var titleComponent = LegacyComponentSerializer.legacyAmpersand().deserialize(title);
 
         if (!Component.EQUALS.test(inventory.getTitle(), titleComponent)) {
-            System.out.println("UpdateInventory is updating the title");
+            LOGGER.info("UpdateInventory is updating the title");
             inventory.setTitle(titleComponent);
         }
 
@@ -131,7 +169,7 @@ public abstract class InventoryBuilder implements SizeChecker{
                 if (contents[i].getMaterial() == Material.AIR) continue;
                 inventory.setItemStack(i, contents[i]);
             }
-            System.out.println("UpdateInventory applied the InventoryLayout!");
+           LOGGER.info("UpdateInventory applied the InventoryLayout!");
         }
 
         synchronized (this) {
@@ -181,7 +219,7 @@ public abstract class InventoryBuilder implements SizeChecker{
     }
 
     //Getters and Setters
-    public InventoryRows getRows() {
+    public InventoryRow getRows() {
         return rows;
     }
 
@@ -189,9 +227,14 @@ public abstract class InventoryBuilder implements SizeChecker{
      * Set's the open function to the builder
      * @param openFunction The function to set
      */
-
     public InventoryBuilder setOpenFunction(OpenFunction openFunction) {
         this.openFunction = openFunction;
+
+        if (openEventListener != null) {
+            LOGGER.info("Overwriting open event listener");
+        }
+
+        this.openEventListener = EventListener.of(InventoryOpenEvent.class, this::handleOpen);
         return this;
     }
 
@@ -199,21 +242,40 @@ public abstract class InventoryBuilder implements SizeChecker{
      * Set's the close function to the builder
      * @param closeFunction The function to set
      */
-
     public InventoryBuilder setCloseFunction(CloseFunction closeFunction) {
         this.closeFunction = closeFunction;
+
+        if (closeEventListener != null) {
+            LOGGER.info("Overwriting close event listener");
+        }
+
+        this.closeEventListener = EventListener.of(InventoryCloseEvent.class, this::handleClose);
         return this;
     }
 
-    public InventoryBuilder setInventoryLayout(InventoryLayout inventoryLayout) {
+    /**
+     * Set a new instance of the {@link InventoryLayout} to the builder
+     * @param inventoryLayout The layout to set
+     */
+    public InventoryBuilder setInventoryLayout(@NotNull InventoryLayout inventoryLayout) {
         this.inventoryLayout = inventoryLayout;
         return this;
     }
 
+    /**
+     * Returns the underlying {@link InventoryLayout}.
+     * @return the given layout
+     */
+    @NotNull
     public InventoryLayout getInventoryLayout() {
         return inventoryLayout;
     }
 
+    /**
+     * Get underlying data {@link InventoryLayout}.
+     * @return the given layout
+     */
+    @Nullable
     public InventoryLayout getDataLayout() {
         return dataLayout;
     }
