@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class Players {
+public final class Players {
 
     public static Duration ITEM_DURATION = Duration.ofMillis(3);
     public static ItemPlacer ITEM_PLACER;
@@ -126,8 +126,8 @@ public class Players {
         if (armorItems != null) {
             for (int i = 0; i < armorItems.length; i++) {
                 if (armorItems[i] == null) continue;
-                if (armorItems[i] instanceof TranslatedItem && locale != null) {
-                    ITEM_PLACER.setItem(player, i, armorItems[i].get(locale), true);
+                if (armorItems[i] instanceof TranslatedItem item && locale != null) {
+                    ITEM_PLACER.setItem(player, i, item.get(locale), true);
                     return;
                 } else {
                     ITEM_PLACER.setItem(player, i, armorItems[i].get(), true);
@@ -141,8 +141,8 @@ public class Players {
                 //Shift slots according to shiftedSlots array
                 int slot = shiftedSlots == null ? i : shiftedSlots[i];
 
-                if (hotBarItems[i] instanceof TranslatedItem && locale != null) {
-                    ITEM_PLACER.setItem(player, slot, hotBarItems[i].get(locale));
+                if (hotBarItems[i] instanceof TranslatedItem item && locale != null) {
+                    ITEM_PLACER.setItem(player, slot, item.get(locale));
                 } else {
                     ITEM_PLACER.setItem(player, i, hotBarItems[i].get());
                 }
