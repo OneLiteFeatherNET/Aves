@@ -4,6 +4,7 @@ import at.rxcki.strigiformes.MessageProvider;
 import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.ItemStackBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,6 @@ import java.util.function.Consumer;
  * @since 1.0.12
  * @version 1.0.0
  */
-
 public class InventoryLayout implements Cloneable {
 
     public static final Consumer<InventoryPreClickEvent> CANCEL_CONSUMER = clickEvent -> clickEvent.setCancelled(true);
@@ -26,8 +26,8 @@ public class InventoryLayout implements Cloneable {
 
     private ISlot[] contents;
 
-    public InventoryLayout(@NotNull InventoryRow rows) {
-        this.contents = new ISlot[rows.getSize()];
+    public InventoryLayout(@NotNull InventoryType type) {
+        this.contents = new ISlot[type.getSize()];
     }
 
     public InventoryLayout(int size) {
