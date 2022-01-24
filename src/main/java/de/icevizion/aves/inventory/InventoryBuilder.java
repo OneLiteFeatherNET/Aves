@@ -4,7 +4,6 @@ import at.rxcki.strigiformes.MessageProvider;
 import de.icevizion.aves.inventory.function.CloseFunction;
 import de.icevizion.aves.inventory.function.OpenFunction;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventListener;
@@ -14,6 +13,7 @@ import net.minestom.server.event.inventory.InventoryOpenEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.trait.InventoryEvent;
 import net.minestom.server.inventory.Inventory;
+import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.Material;
 import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.utils.time.TimeUnit;
@@ -36,7 +36,7 @@ public abstract class InventoryBuilder implements SizeChecker {
 
     protected final EventNode<InventoryEvent> inventoryNode = EventNode.type("inventories", EventFilter.INVENTORY);
 
-    private final InventoryRow rows;
+    private InventoryType type;
 
     private InventoryLayout inventoryLayout;
     private InventoryLayout dataLayout;
@@ -51,17 +51,8 @@ public abstract class InventoryBuilder implements SizeChecker {
     protected EventListener<InventoryPreClickEvent> clickEventListener;
     protected EventListener<InventoryCloseEvent> closeEventListener;
 
-    public InventoryBuilder(@NotNull InventoryRow rows) {
-        checkInventorySize(rows.getSize());
-        this.rows = rows;
-        this.inventoryLayout = new InventoryLayout(rows.getSize());
-    }
-
-    public InventoryBuilder(int slots) {
-        checkInventorySize(slots);
-
-        this.rows = InventoryRow.getRows(slots);
-        this.inventoryLayout = new InventoryLayout(slots);
+    public InventoryBuilder(@NotNull InventoryType type) {
+        checkInventorySize(type.getSize());
     }
 
     public void registerInNode() {
@@ -120,7 +111,7 @@ public abstract class InventoryBuilder implements SizeChecker {
     }
 
     protected void handleClick(InventoryPreClickEvent event) {
-        if (event.getSlot() < 0 || event.getSlot() > getRows().getSize()-1)
+        if (event.getSlot() < 0 || event.getSlot() > type.getSize() - 1)
             return; //Not within this inventory
 
         if (getDataLayout() != null) {
@@ -152,14 +143,12 @@ public abstract class InventoryBuilder implements SizeChecker {
         }
     }
 
-    protected void updateInventory(Inventory inventory, String title, Locale locale, MessageProvider messageProvider, boolean applyLayout) {
+    protected void updateInventory(Inventory inventory, Component title, Locale locale, MessageProvider messageProvider, boolean applyLayout) {
         applyLayout |= !inventoryLayoutValid;
 
-        var titleComponent = LegacyComponentSerializer.legacyAmpersand().deserialize(title);
-
-        if (!Component.EQUALS.test(inventory.getTitle(), titleComponent)) {
+        if (!Component.EQUALS.test(inventory.getTitle(), title)) {
             LOGGER.info("UpdateInventory is updating the title");
-            inventory.setTitle(titleComponent);
+            inventory.setTitle(title);
         }
 
         if (applyLayout) {
@@ -218,9 +207,8 @@ public abstract class InventoryBuilder implements SizeChecker {
         }*/
     }
 
-    //Getters and Setters
-    public InventoryRow getRows() {
-        return rows;
+    public InventoryType getType() {
+        return type;
     }
 
     /**
