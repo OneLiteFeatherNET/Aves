@@ -1,6 +1,8 @@
 package de.icevizion.aves.inventory;
 
 import net.minestom.server.entity.Player;
+import net.minestom.server.inventory.InventoryType;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The builder can be used to build a {@link net.minestom.server.inventory.Inventory} for a single {@link Player}.
@@ -14,23 +16,12 @@ public class PersonalInventoryBuilder extends GlobalInventoryBuilder {
 
     /**
      * Creates a new instance from the {@link PersonalTranslatedInventoryBuilder} with the given values.
-     * @param title The title for the {@link net.minestom.server.inventory.Inventory}
-     * @param rows The amount of rows for the {@link net.minestom.server.inventory.Inventory}
-     * @param player The player who owns the {@link net.minestom.server.inventory.Inventory}
+     * @param title The title for the inventory
+     * @param type The type for the inventory
+     * @param player The player who owns the inventory
      */
-    public PersonalInventoryBuilder(String title, InventoryRow rows, Player player) {
-        super(title, rows);
-        this.player = player;
-    }
-
-    /**
-     * Creates a new instance from the {@link PersonalTranslatedInventoryBuilder} with the given values.
-     * @param title The title for the {@link net.minestom.server.inventory.Inventory}
-     * @param slots The amount of slots of the {@link net.minestom.server.inventory.Inventory}
-     * @param player The player who owns the {@link net.minestom.server.inventory.Inventory}
-     */
-    public PersonalInventoryBuilder(String title, int slots, Player player) {
-        super(title, slots);
+    public PersonalInventoryBuilder(String title, @NotNull InventoryType type, Player player) {
+        super(title, type);
         this.player = player;
     }
 
