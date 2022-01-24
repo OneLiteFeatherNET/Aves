@@ -1,5 +1,7 @@
 package de.icevizion.aves.inventory;
 
+import net.minestom.server.inventory.InventoryType;
+
 /**
  * Contains some method which checks if a given value is not higher than a maximum value.
  * @author theEvilReaper
@@ -9,11 +11,11 @@ package de.icevizion.aves.inventory;
 interface SizeChecker {
 
     /**
-     * Checks if a given amount of slots is not higher than {@link InventoryRow#SIX}.
+     * Checks if a given amount of slots is not higher than {@link InventoryType#CHEST_6_ROW}.
      * @param slots The amount of slots to check
      */
     default void checkInventorySize(int slots) {
-        checkSize(slots, InventoryRow.SIX.getSize());
+        checkSize(slots, InventoryType.CHEST_6_ROW.getSize());
     }
 
     /**
@@ -23,7 +25,7 @@ interface SizeChecker {
      */
     default void checkSize(int value, int max) {
         if (value > max) {
-            throw new IllegalArgumentException("Maximum amount of slots for an inventory is 54!");
+            throw new IllegalArgumentException(String.format("The given minimum %s is higher than the maximum %s", value, max));
         }
     }
 }
