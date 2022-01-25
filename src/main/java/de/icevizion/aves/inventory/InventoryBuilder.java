@@ -53,6 +53,7 @@ public abstract class InventoryBuilder implements SizeChecker {
 
     public InventoryBuilder(@NotNull InventoryType type) {
         checkInventorySize(type.getSize());
+        this.type = type;
     }
 
     public void registerInNode() {
@@ -79,12 +80,7 @@ public abstract class InventoryBuilder implements SizeChecker {
     }
 
     //Abstract methods
-
-    public Inventory getInventory() {
-        return getInventory(null);
-    }
-
-    public abstract Inventory getInventory(Locale locale);
+    public abstract Inventory getInventory(@Nullable Locale locale);
 
     protected abstract boolean isInventoryOpen();
 
@@ -207,6 +203,19 @@ public abstract class InventoryBuilder implements SizeChecker {
         }*/
     }
 
+    /**
+     * Returns the underlying inventory.
+     * Please note this method ignores the translation context
+     * @return the given inventory
+     */
+    public Inventory getInventory() {
+        return getInventory(null);
+    }
+
+    /**
+     * Returns the given {@link InventoryType} for the inventory.
+     * @return the given type
+     */
     public InventoryType getType() {
         return type;
     }
