@@ -15,7 +15,7 @@ public class LayoutCalculator {
             throw new IllegalArgumentException("fromSlot cannot be higher that toSlot!");
         }
 
-        var arr = new int[toSlot-fromSlot];
+        var arr = new int[toSlot - fromSlot];
         for (int i = 0; i < arr.length; i++) {
             arr[i] = fromSlot + i;
         }
@@ -49,6 +49,9 @@ public class LayoutCalculator {
     }
 
     public static int[] frame(int firstCornerSlot, int lastCornerSlot) {
+        if (firstCornerSlot == lastCornerSlot) {
+            throw new IllegalArgumentException("The values are the same");
+        }
         var x1 = firstCornerSlot % INVENTORY_WIDTH;
         var y1 = Math.floor(firstCornerSlot / (double)INVENTORY_WIDTH);
 
