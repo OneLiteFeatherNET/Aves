@@ -1,11 +1,13 @@
 package de.icevizion.aves.npc;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,13 +19,23 @@ import java.util.UUID;
 public final class NPCBuilder {
 
     private Instance instance;
+    private String name;
     private Pos pos;
     private PlayerSkin playerSkin;
     private NPCInteraction interaction;
-    private List<String> lines;
+    private List<String> lines = new ArrayList<>();
 
     public NPCBuilder withInstance(@NotNull Instance instance) {
         this.instance = instance;
+        return this;
+    }
+
+    public NPCBuilder withName(@NotNull String name) {
+        if (name.trim().isEmpty()) {
+            throw new RuntimeException("The name can not be empty");
+        }
+
+        this.name = name;
         return this;
     }
 
@@ -53,6 +65,10 @@ public final class NPCBuilder {
     }
 
     public NPC build() {
-        return new MinestomNPC(UUID.randomUUID(), instance, Component.empty(), playerSkin, pos).setInteraction(interaction);
+        if (lines.isEmpty()) {
+            return new MinestomNPC(UUID.randomUUID(), instance, name, Component.text(name, NamedTextColor.GREEN), playerSkin, pos).setInteraction(interaction);
+        }
+
+        return new LinedNPC(UUID.randomUUID(), instance, name, Component.text(name, NamedTextColor.GREEN), playerSkin, pos, lines).setInteraction(interaction);
     }
 }
