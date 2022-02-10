@@ -20,7 +20,7 @@ public class NPCPool {
 
     private static final Team NPC_TEAM;
 
-    private final Map<UUID, NPC> npcMap;
+    private final Map<UUID, MinestomNPC> npcMap;
 
     static {
         NPC_TEAM = MinecraftServer.getTeamManager().createTeam(
@@ -32,8 +32,8 @@ public class NPCPool {
         this.npcMap = new HashMap<>();
     }
 
-    public void add(@NotNull NPC npc) {
-        this.npcMap.put(npc.getUuid(), npc);
+    public void add(@NotNull MinestomNPC npc) {
+        this.npcMap.put(npc.getUUID(), npc);
     }
 
     public void remove(@NotNull UUID uuid) {
@@ -41,7 +41,7 @@ public class NPCPool {
     }
 
     @Nullable
-    NPC getNPC(@NotNull UUID uuid) {
+    MinestomNPC getNPC(@NotNull UUID uuid) {
         return this.npcMap.get(uuid);
     }
 }
