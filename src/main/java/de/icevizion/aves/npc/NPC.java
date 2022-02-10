@@ -23,8 +23,19 @@ public sealed interface NPC permits MinestomNPC {
      */
     NPC setInteraction(NPCInteraction npcInteraction);
 
+    /**
+     * Returns the {@link Instance} from the npc.
+     * @return the given instance
+     */
     @NotNull
     Instance getInstance();
+
+    /**
+     * Returns the name of npc.
+     * @return the given name
+     */
+    @NotNull
+    String getName();
 
     /**
      * Returns the uuid from the {@link NPC}.
@@ -45,7 +56,7 @@ public sealed interface NPC permits MinestomNPC {
      * @return the given skin data
      */
     @NotNull
-    PlayerSkin getPlayerSkin();
+    PlayerSkin getSkin();
 
     /**
      * Returns the spawn position from the npc.
