@@ -13,9 +13,9 @@ import org.jetbrains.annotations.NotNull;
 public interface NPCInteraction {
 
     /**
-     * Handles what happen when an interaction is make on a {@link NPC}.
+     * Handles what happen when an interaction is make on a {@link MinestomNPC}.
      * @param player The player who interacts with the npc
      * @param npc The npc who is involved in the interaction
      */
-    void interaction(@NotNull Player player, @NotNull NPC npc);
+    void interaction(@NotNull Player player, @NotNull MinestomNPC npc);
 }

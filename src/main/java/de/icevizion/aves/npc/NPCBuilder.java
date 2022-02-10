@@ -1,27 +1,29 @@
 package de.icevizion.aves.npc;
 
+import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.PlayerSkin;
-import net.minestom.server.entity.fakeplayer.FakePlayerController;
+import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.2.0
  **/
-public class NPCBuilder {
+public final class NPCBuilder {
 
-    private String name;
+    private Instance instance;
     private Pos pos;
     private PlayerSkin playerSkin;
     private NPCInteraction interaction;
     private List<String> lines;
 
-    public NPCBuilder withName(@NotNull String name) {
-        this.name = name;
+    public NPCBuilder withInstance(@NotNull Instance instance) {
+        this.instance = instance;
         return this;
     }
 
@@ -51,6 +53,6 @@ public class NPCBuilder {
     }
 
     public NPC build() {
-        return new NPC(name, pos, playerSkin, interaction);
+        return new MinestomNPC(UUID.randomUUID(), instance, Component.empty(), playerSkin, pos).setInteraction(interaction);
     }
 }
