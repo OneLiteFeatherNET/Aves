@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
  * @version 1.0.0
  * @since 1.0.0
  **/
-
 @FunctionalInterface
 public interface ResourcePackCondition {
 
@@ -20,6 +19,5 @@ public interface ResourcePackCondition {
      * @param player The player who deals with the {@link net.minestom.server.resourcepack.ResourcePack}
      * @param resourcePackStatus The {@link ResourcePackStatus} from the event
      */
-
     void handleStatus(@NotNull Player player, @NotNull ResourcePackStatus resourcePackStatus);
 }

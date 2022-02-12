@@ -15,10 +15,6 @@
 
     <repositories>
         <repository>
-            <id>spongepowered</id>
-            <url>https://repo.spongepowered.org/maven</url>
-        </repository>
-        <repository>
             <id>jitpack</id>
             <url>https://jitpack.io</url>
         </repository>
@@ -28,13 +24,14 @@
         <dependency>
             <groupId>com.github.Minestom</groupId>
             <artifactId>Minestom</artifactId>
-            <version>872a49d</version>
+            <version>7f9f33d462</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.jboss.shrinkwrap.resolver</groupId>
                     <artifactId>shrinkwrap-resolver-depchain</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.PatrickZdarsky</groupId>
@@ -51,7 +48,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.8.1</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -114,5 +111,4 @@
             </resource>
         </resources>
     </build>
-
 </project>

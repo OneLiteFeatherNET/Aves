@@ -2,6 +2,7 @@ package de.icevizion.aves.file;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.output.JsonStream;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,12 +13,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * The class represents the implementation of the {@link FileHandler} for the Jsoniter library.
  * @author theEvilReaper
- * @since 1.0.0
- * @version 1.0.2
- */
-
-public final class JsonFileLoader {
+ * @version 1.0.0
+ * @since 1.1.0
+ **/
+public class JsoniterFileHandler implements FileHandler {
 
     /**
      * Saves a given object into a file.
@@ -25,8 +26,7 @@ public final class JsonFileLoader {
      * @param object The object to save
      * @param <T> A generic type for the object value
      */
-
-    public static <T> void save(Path path, T object) {
+    public <T> void save(@NotNull Path path, @NotNull T object) {
         try (OutputStream outputStream = Files.newOutputStream(path)) {
             if (!Files.exists(path)) {
                 System.out.println("Created new file: " + Files.createFile(path).getFileName().toString());
@@ -40,16 +40,15 @@ public final class JsonFileLoader {
     /**
      * Load a given file and parse to the give class.
      * @param path is the where the file is located
-     * @param clazz is the to parsed class
+     * @param clazz Represents the class which should be loaded
      * @param <T> is generic type for the object value
      * @return a {@link Optional} with the object instance
      */
-
-    public static <T> Optional<T> load(Path path, Class<T> clazz) {
+    public <T> Optional<T> load(@NotNull Path path, @NotNull Class<T> clazz) {
         if (!Files.exists(path))
             return Optional.empty();
 
-        try (BufferedReader fr = Files.newBufferedReader(path)) {
+        try (BufferedReader fr = Files.newBufferedReader(path, UTF_8)) {
             return Optional.of(JsonIterator.deserialize(fr.lines().collect(Collectors.joining()), clazz));
         } catch (Exception e) {
             e.printStackTrace();

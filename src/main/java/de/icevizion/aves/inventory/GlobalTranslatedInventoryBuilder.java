@@ -3,13 +3,13 @@ package de.icevizion.aves.inventory;
 import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.text.TextData;
-import net.minestom.server.event.inventory.InventoryCloseEvent;
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.Inventory;
+import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.Material;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
-import java.util.function.Consumer;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -21,30 +21,23 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
 
     private TextData titleData;
 
-    public GlobalTranslatedInventoryBuilder(InventoryRows rows, MessageProvider messageProvider) {
-        super(rows);
+    public GlobalTranslatedInventoryBuilder(@NotNull InventoryType type, MessageProvider messageProvider) {
+        super(type);
         this.messageProvider = messageProvider;
-
-        inventoryTranslatedObjectCache = createCache();
-    }
-
-    public GlobalTranslatedInventoryBuilder(int slots, MessageProvider messageProvider) {
-        super(slots);
-        this.messageProvider = messageProvider;
-        inventoryTranslatedObjectCache = createCache();
+        this.inventoryTranslatedObjectCache = createCache();
     }
 
     private TranslatedObjectCache<Inventory> createCache() {
         return new TranslatedObjectCache<>(locale -> {
-            var title = messageProvider.getTextProvider().format(titleData, locale);
-            var inventory = new Inventory(getRows().getType(), title);
+            var title = Component.text(messageProvider.getTextProvider().format(titleData, locale));
+            var inventory = new Inventory(getType(), title);
             updateInventory(inventory, title, locale, messageProvider, true);
             return inventory;
         });
     }
 
     @Override
-    public Inventory getInventory(Locale locale) {
+    public Inventory getInventory(@NotNull Locale locale) {
         if (!dataLayoutValid || !inventoryLayoutValid) {
             updateInventory();
         }
@@ -53,7 +46,8 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
     }
 
     @Override
-    protected boolean isInventoryOpened() {
+    protected boolean isInventoryOpen() {
+        if (inventoryTranslatedObjectCache.asMap().isEmpty()) return false;
         for (var inventory : inventoryTranslatedObjectCache.asMap().values())
             if (!inventory.getViewers().isEmpty())
                 return true;
@@ -64,7 +58,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
     protected void updateInventory() {
         for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
             var locale = entry.getKey();
-            updateInventory(entry.getValue(), messageProvider.getTextProvider().format(titleData, locale), locale, messageProvider, true);
+            updateInventory(entry.getValue(), Component.text(messageProvider.getTextProvider().format(titleData, locale)), locale, messageProvider, true);
             Inventory value = entry.getValue();
 
             if (value.getViewers().isEmpty()) continue;
@@ -90,33 +84,10 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
         }
     }
 
-    private Consumer<InventoryPreClickEvent> preClickListener() {
-        return clickEvent -> {
-            for (Inventory value : inventoryTranslatedObjectCache.asMap().values()) {
-                if (value.getViewers().contains(clickEvent.getPlayer())) {
-                    handleClick(clickEvent);
-                }
-            }
-        };
-    }
-
-    private Consumer<InventoryCloseEvent> closeListener() {
-        return closeEvent -> {
-            for (Inventory value : inventoryTranslatedObjectCache.asMap().values()) {
-                if (value.getViewers().contains(closeEvent.getPlayer())) {
-                    handleClose(closeEvent);
-                }
-            }
-        };
-    }
-
-
-
     /**
      * Returns the {@link TextData} from the builder.
      * @return The underlying value
      */
-
     public TextData getTitleData() {
         return titleData;
     }
@@ -125,7 +96,6 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
      * Overwrites the current {@link TextData} with a new one.
      * @param titleData The {@link TextData} to set.
      */
-
     public void setTitleData(TextData titleData) {
         this.titleData = titleData;
     }

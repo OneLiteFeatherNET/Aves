@@ -20,7 +20,6 @@ public class StringUtil {
      * @param notCompletedColor The color for the not completed part
      * @return The progressbar as string
      */
-
     public static String getProgressBar(int current, int max, int totalBars, char symbol, NamedTextColor completedColor,
                                         NamedTextColor notCompletedColor) {
         float percent = (float) current / max;
@@ -34,7 +33,6 @@ public class StringUtil {
      * @param paramHealth The health of a player
      * @return The converted health as string
      */
-
     public static Component getHealthString(double paramHealth) {
         int health = (int) Math.round(paramHealth);
         health /= 2;
@@ -55,7 +53,6 @@ public class StringUtil {
      * @param lineLength The length of a line
      * @return The centered text
      */
-
     public static String centerText(String text, int lineLength) {
         StringBuilder builder = new StringBuilder(text);
         char space = ' ';
@@ -72,7 +69,6 @@ public class StringUtil {
      * @param time The time who should be converted
      * @return The converted time
      */
-
     public static String getTimeString(int time) {
         if (time <= 0) {
             return "00:00";
