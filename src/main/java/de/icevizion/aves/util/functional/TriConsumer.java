@@ -47,5 +47,5 @@ public interface TriConsumer<T, U, K> {
             accept(t, u, k);
             after.accept(t, u, k);
         };
-    };
+    }
 }
