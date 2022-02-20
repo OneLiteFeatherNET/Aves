@@ -1,12 +1,10 @@
 package de.icevizion.aves.util;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-public class StringUtil {
+public class Strings {
 
     public static final String UTF_8_HEART = "♥";
 
@@ -24,8 +22,9 @@ public class StringUtil {
                                         NamedTextColor notCompletedColor) {
         float percent = (float) current / max;
         int progressBars = (int) (totalBars * percent);
-        return Strings.repeat("" + completedColor + symbol, progressBars)
-                + Strings.repeat("" + notCompletedColor + symbol, totalBars - progressBars);
+       /* return Strings.repeat("" + completedColor + symbol, progressBars)
+                + Strings.repeat("" + notCompletedColor + symbol, totalBars - progressBars);*/
+        return "";
     }
 
     /**
@@ -75,6 +74,9 @@ public class StringUtil {
         }
         int minutes = time / 60;
         int seconds = time % 60;
-        return Joiner.on(":").join((minutes < 10) ? "0" + minutes : minutes, (seconds < 10) ? "0" + seconds : seconds);
+        return new StringBuilder()
+                .append((minutes < 10) ? "0" + minutes : minutes)
+                .append(":").append((seconds < 10) ? "0" + seconds : seconds)
+                .toString();
     }
 }
