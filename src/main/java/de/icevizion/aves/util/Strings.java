@@ -91,9 +91,7 @@ public class Strings {
         }
         int minutes = time / 60;
         int seconds = time % 60;
-        return new StringBuilder()
-                .append((minutes < 10) ? "0" + minutes : minutes)
-                .append(":").append((seconds < 10) ? "0" + seconds : seconds)
-                .toString();
+        return ((minutes < 10) ? "0" + minutes : minutes) +
+                ":" + ((seconds < 10) ? "0" + seconds : seconds);
     }
 }
