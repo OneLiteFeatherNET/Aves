@@ -3,9 +3,11 @@ package de.icevizion.aves.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.jetbrains.annotations.NotNull;
 
 public class Strings {
 
+    private static final char SPACE = ' ';
     public static final String UTF_8_HEART = "♥";
 
     /**
@@ -30,20 +32,33 @@ public class Strings {
     /**
      * Converts the life of a player into a string. Full hearts are displayed in red and empty hearts in grey.
      * @param paramHealth The health of a player
+     * @param remainingHearth The color for the remaining hearths
+     * @param goneHearth The color for the hearth which are gone
      * @return The converted health as string
      */
-    public static Component getHealthString(double paramHealth) {
+    public static Component getHealthString(double paramHealth,
+                                            @NotNull NamedTextColor remainingHearth,
+                                            @NotNull NamedTextColor goneHearth) {
         int health = (int) Math.round(paramHealth);
         health /= 2;
         int healthAway = 10 - health;
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < health; i++) {
-            builder.append(NamedTextColor.RED).append(UTF_8_HEART);
+            builder.append(remainingHearth).append(UTF_8_HEART);
         }
         for (int i = 0; i < healthAway; i++) {
-            builder.append(NamedTextColor.GRAY).append(UTF_8_HEART);
+            builder.append(goneHearth).append(UTF_8_HEART);
         }
         return LegacyComponentSerializer.legacySection().deserialize(builder.toString());
+    }
+
+    /**
+     * Converts the life of a player into a string. Full hearts are displayed in red and empty hearts in grey.
+     * @param paramHealth The health of a player
+     * @return The converted health as string
+     */
+    public static Component getHealthString(double paramHealth) {
+        return getHealthString(paramHealth, NamedTextColor.RED, NamedTextColor.GRAY);
     }
 
     /**
@@ -52,13 +67,15 @@ public class Strings {
      * @param lineLength The length of a line
      * @return The centered text
      */
-    public static String centerText(String text, int lineLength) {
+    public static String centerText(@NotNull String text, int lineLength) {
+        if (text.trim().isEmpty()) {
+            throw new IllegalArgumentException("The text can not be empty");
+        }
         StringBuilder builder = new StringBuilder(text);
-        char space = ' ';
         int distance = (lineLength - text.length()) / 2;
         for (int i = 0; i < distance; i++) {
-            builder.insert(0, space);
-            builder.append(space);
+            builder.insert(0, SPACE);
+            builder.append(SPACE);
         }
         return builder.toString();
     }
