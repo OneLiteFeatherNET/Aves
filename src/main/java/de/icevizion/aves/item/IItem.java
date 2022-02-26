@@ -12,7 +12,7 @@ import java.util.Locale;
  * @version 1.0.0
  * @since 1.0.13
  **/
-public interface IItem {
+public sealed interface IItem permits Item, TranslatedItem {
 
     /**
      * Returns the underlying {@link ItemStack}.
