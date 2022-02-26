@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public class TranslatedItem implements IItem {
+public non-sealed class TranslatedItem implements IItem {
 
     private ItemStack itemStack;
     private MessageProvider messageProvider;

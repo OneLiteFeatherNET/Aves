@@ -8,14 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 import java.util.Objects;
 
-/**
- * The {@link Item} represents an {@link ItemStack} which doesn't use the translation over i18n.
- * The class is a simple wrapper. It is used to allow structures where there are translated items and those that are not translated.
- *
- * @author theEvilReaper
- * @version 1.0.0
- * @since 1.0.13
- **/
 public record Item(ItemStack itemStack) implements IItem {
 
     /**
