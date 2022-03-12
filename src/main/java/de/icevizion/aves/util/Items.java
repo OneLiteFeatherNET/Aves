@@ -23,12 +23,10 @@ public class Items {
     public static int getAmountFromItem(@NotNull Player player, @NotNull ItemStack item) {
         int amount = 0;
         if (player.getInventory().getItemStacks().length != 0) {
-            int i = 0;
-            while (i < player.getInventory().getItemStacks().length) {
+            for (int i = 0; i < player.getInventory().getItemStacks().length; i++) {
                 if (player.getInventory().getItemStacks()[i].isSimilar(item)) {
                     amount += player.getInventory().getItemStacks()[i].getAmount();
                 }
-                i++;
             }
         }
         return amount;
@@ -44,11 +42,12 @@ public class Items {
         int spaceCount = 0;
 
         for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack currentStack = player.getInventory().getItemStacks()[i];
+            var currentStack = player.getInventory().getItemStacks()[i];
             if (currentStack == null) {
                 spaceCount += MAX_STACK_SIZE;
                 continue;
             }
+
             if (currentStack.isSimilar(item)) {
                 spaceCount += currentStack.getAmount() - item.getAmount();
             }
