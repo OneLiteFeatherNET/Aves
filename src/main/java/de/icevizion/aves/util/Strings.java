@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public class Strings {
 
     private static final char SPACE = ' ';
+
     public static final String UTF_8_HEART = "♥";
 
     /**
