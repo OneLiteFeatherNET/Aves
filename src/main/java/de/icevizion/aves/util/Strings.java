@@ -9,6 +9,9 @@ public class Strings {
 
     private static final char SPACE = ' ';
 
+    public static NamedTextColor FILLED_HEARTH = NamedTextColor.RED;
+    public static NamedTextColor LOOSED_HEARTHS = NamedTextColor.GRAY;
+
     public static final String UTF_8_HEART = "♥";
 
     /**
@@ -59,7 +62,7 @@ public class Strings {
      * @return The converted health as string
      */
     public static Component getHealthString(double paramHealth) {
-        return getHealthString(paramHealth, NamedTextColor.RED, NamedTextColor.GRAY);
+        return getHealthString(paramHealth, FILLED_HEARTH, LOOSED_HEARTHS);
     }
 
     /**
