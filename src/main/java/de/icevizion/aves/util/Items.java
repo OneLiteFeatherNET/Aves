@@ -2,6 +2,7 @@ package de.icevizion.aves.util;
 
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The class contains some methods to work with {@link ItemStack}.
@@ -19,7 +20,7 @@ public class Items {
      * @param item The item to check
      * @return The amount of the given item but returns with zero when the item does not occur in the inventory
      */
-    public static int getAmountFromItem(Player player, ItemStack item) {
+    public static int getAmountFromItem(@NotNull Player player, @NotNull ItemStack item) {
         int amount = 0;
         if (player.getInventory().getItemStacks().length != 0) {
             int i = 0;
@@ -39,7 +40,7 @@ public class Items {
      * @param item The item to check
      * @return The amount of free space
      */
-    public static int getFreeSpace(Player player, ItemStack item) {
+    public static int getFreeSpace(@NotNull Player player, @NotNull ItemStack item) {
         int spaceCount = 0;
 
         for (int i = 0; i < player.getInventory().getSize(); i++) {
