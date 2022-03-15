@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  * The class can be used to manage the allocation of the resource pack to the players
  * @author theEvilReaper
  * @version 1.0.0
- * @since 1.0.0
+ * @since 1.0.1
  **/
 public class ResourcePackHandler {
 
@@ -25,8 +25,10 @@ public class ResourcePackHandler {
 
     private final ResourcePack resourcePack;
     private final HashSet<Integer> resourcePackCache;
+
     private ResourcePackCondition condition;
     private Consumer<PlayerResourcePackStatusEvent> eventConsumer;
+    private ResourcePackCommand command;
 
     /**
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
@@ -43,7 +45,7 @@ public class ResourcePackHandler {
      * @param resourcePack An instance from a {@link ResourcePack}
      * @param condition The given {@link ResourcePackCondition}
      */
-    public ResourcePackHandler(@NotNull ResourcePack resourcePack, ResourcePackCondition condition) {
+    public ResourcePackHandler(@NotNull ResourcePack resourcePack, @NotNull ResourcePackCondition condition) {
         this.resourcePack = resourcePack;
         this.resourcePackCache = new HashSet<>();
         this.condition = condition;
@@ -107,7 +109,10 @@ public class ResourcePackHandler {
      * Register a command which allow that players can load or reload the resource pack
      */
     public ResourcePackHandler withCommand() {
-        MinecraftServer.getCommandManager().register(new ResourcePackCommand(this));
+        if (command == null) {
+            command = new ResourcePackCommand(this);
+            MinecraftServer.getCommandManager().register(new ResourcePackCommand(this));
+        }
         return this;
     }
 
@@ -121,6 +126,14 @@ public class ResourcePackHandler {
         player.setResourcePack(resourcePack);
         resourcePackCache.add(player.getEntityId());
         return true;
+    }
+
+    /**
+     * Unregisters the command.
+     */
+    public void unregisterCommand() {
+        if (command == null) return;
+        MinecraftServer.getCommandManager().unregister(command);
     }
 
     /**
