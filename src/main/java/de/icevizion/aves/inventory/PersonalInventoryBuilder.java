@@ -20,7 +20,7 @@ public class PersonalInventoryBuilder extends GlobalInventoryBuilder {
      * @param type The type for the inventory
      * @param player The player who owns the inventory
      */
-    public PersonalInventoryBuilder(String title, @NotNull InventoryType type, Player player) {
+    public PersonalInventoryBuilder(@NotNull String title, @NotNull InventoryType type, Player player) {
         super(title, type);
         this.player = player;
     }
