@@ -116,7 +116,7 @@ public class BaseMap {
      * Set the spawn location of a map
      * @param spawn The spawn location to set
      */
-    public void setSpawn(Pos spawn) {
+    public void setSpawn(@NotNull Pos spawn) {
         this.spawn = spawn;
     }
 
