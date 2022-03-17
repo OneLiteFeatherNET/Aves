@@ -49,7 +49,7 @@ public class JsoniterFileHandler implements FileHandler {
             return Optional.empty();
 
         try (BufferedReader fr = Files.newBufferedReader(path, UTF_8)) {
-            return Optional.of(JsonIterator.deserialize(fr.lines().collect(Collectors.joining()), clazz));
+            return Optional.ofNullable(JsonIterator.deserialize(fr.lines().collect(Collectors.joining()), clazz));
         } catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();
