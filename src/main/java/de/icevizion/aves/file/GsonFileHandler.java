@@ -1,6 +1,7 @@
 package de.icevizion.aves.file;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ public record GsonFileHandler(@NotNull Gson gson) implements FileHandler {
             if (!Files.exists(path)) {
                 System.out.println("Created new file: " + Files.createFile(path).getFileName().toString());
             }
-            outputStream.write(gson.toJson(object));
+            gson.toJson(object, TypeToken.get(object.getClass()).getType(), outputStream);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -37,7 +38,7 @@ public record GsonFileHandler(@NotNull Gson gson) implements FileHandler {
     /**
      * Load a given file and parse to the give class.
      * @param path is the where the file is located
-     * @param clazz is the to parsed class
+     * @param clazz is the generic class object
      * @param <T> is generic type for the object value
      * @return a {@link Optional} with the object instance
      */
@@ -48,7 +49,7 @@ public record GsonFileHandler(@NotNull Gson gson) implements FileHandler {
         }
 
         try (var reader = Files.newBufferedReader(path, UTF_8)) {
-            return Optional.of(gson.fromJson(reader, clazz));
+            return Optional.ofNullable(gson.fromJson(reader, clazz));
         } catch (IOException exception) {
             exception.printStackTrace();
         }
