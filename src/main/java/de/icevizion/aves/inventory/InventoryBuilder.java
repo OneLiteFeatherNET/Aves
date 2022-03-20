@@ -124,7 +124,7 @@ public abstract class InventoryBuilder implements SizeChecker {
         }
     }
 
-    protected void handleOpen(InventoryOpenEvent event) {
+    protected void handleOpen(@NotNull InventoryOpenEvent event) {
         if (openFunction != null) {
             openFunction.onOpen(event);
         }
