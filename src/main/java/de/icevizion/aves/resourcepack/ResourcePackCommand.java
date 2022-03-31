@@ -19,9 +19,7 @@ public class ResourcePackCommand extends Command {
 
         argumentType.setCallback((commandSender, e) -> commandSender.sendMessage("Wrong Input: " + e.getInput()));
 
-        setDefaultExecutor((commandSender, commandContext) -> {
-            commandSender.sendMessage("§cPlease type: /rsp <reload, load>");
-        });
+        setDefaultExecutor((commandSender, commandContext) -> commandSender.sendMessage("§cPlease type: /rsp <reload, load>"));
 
         addSyntax((commandSender, commandContext) -> {
             var input = (String) commandContext.get("args");
