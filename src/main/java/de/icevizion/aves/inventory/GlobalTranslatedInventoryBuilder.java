@@ -8,6 +8,7 @@ import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -30,14 +31,14 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
     private TranslatedObjectCache<Inventory> createCache() {
         return new TranslatedObjectCache<>(locale -> {
             var title = Component.text(messageProvider.getTextProvider().format(titleData, locale));
-            var inventory = new Inventory(getType(), title);
+            var inventory = new Inventory(type, title);
             updateInventory(inventory, title, locale, messageProvider, true);
             return inventory;
         });
     }
 
     @Override
-    public Inventory getInventory(@NotNull Locale locale) {
+    public Inventory getInventory(@Nullable Locale locale) {
         if (!dataLayoutValid || !inventoryLayoutValid) {
             updateInventory();
         }
