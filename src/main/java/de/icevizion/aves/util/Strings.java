@@ -24,7 +24,11 @@ public class Strings {
      * @param notCompletedColor The color for the not completed part
      * @return The progressbar as string
      */
-    public static String getProgressBar(int current, int max, int totalBars, char symbol, NamedTextColor completedColor,
+    public static String getProgressBar(int current,
+                                        int max,
+                                        int totalBars,
+                                        char symbol,
+                                        NamedTextColor completedColor,
                                         NamedTextColor notCompletedColor) {
         float percent = (float) current / max;
         int progressBars = (int) (totalBars * percent);
