@@ -82,6 +82,10 @@ public final class Players {
             return Optional.empty();
         }
 
+        if (players.size() == 1) {
+            return players.stream().findAny();
+        }
+
         return players.stream().collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
             Collections.shuffle(collected);
             return collected.stream();
@@ -96,8 +100,10 @@ public final class Players {
      * @param hotBarItems The hot bar items as array
      * @param shiftedSlots An array with contains shifted layout only for the hotbar
      */
-    public static void updateEquipment(@NotNull Player player,  @NotNull IItem[] armorItems,
-                                       @NotNull IItem[] hotBarItems, int... shiftedSlots) {
+    public static void updateEquipment(@NotNull Player player,
+                                       @NotNull IItem[] armorItems,
+                                       @NotNull IItem[] hotBarItems,
+                                       int... shiftedSlots) {
         updateEquipment(player, armorItems, hotBarItems, null, shiftedSlots);
     }
 
@@ -110,8 +116,11 @@ public final class Players {
      * @param locale The {@link Locale} for {@link TranslatedItem}
      * @param shiftedSlots An array with contains shifted layout only for the hotbar
      */
-    public static void updateEquipment(@NotNull Player player, @NotNull IItem[] armorItems,
-                                       @NotNull IItem[] hotBarItems, @Nullable Locale locale, int... shiftedSlots) {
+    public static void updateEquipment(@NotNull Player player,
+                                       @NotNull IItem[] armorItems,
+                                       @NotNull IItem[] hotBarItems,
+                                       @Nullable Locale locale,
+                                       int... shiftedSlots) {
         if (shiftedSlots != null && shiftedSlots.length != hotBarItems.length) {
             throw new IllegalArgumentException("The length from shiftedSlots has not the same length with the underlying array");
         }
