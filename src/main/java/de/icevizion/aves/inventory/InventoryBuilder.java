@@ -36,7 +36,7 @@ public abstract class InventoryBuilder implements SizeChecker {
 
     protected final EventNode<InventoryEvent> inventoryNode = EventNode.type("inventories", EventFilter.INVENTORY);
 
-    private InventoryType type;
+    protected final InventoryType type;
 
     private InventoryLayout inventoryLayout;
     private InventoryLayout dataLayout;
