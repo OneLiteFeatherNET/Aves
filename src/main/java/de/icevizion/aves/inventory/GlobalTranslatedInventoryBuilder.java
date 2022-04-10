@@ -86,18 +86,18 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
     }
 
     /**
+     * Overwrites the current {@link TextData} with a new one.
+     * @param titleData The {@link TextData} to set.
+     */
+    public void setTitleData(@NotNull TextData titleData) {
+        this.titleData = titleData;
+    }
+
+    /**
      * Returns the {@link TextData} from the builder.
      * @return The underlying value
      */
     public TextData getTitleData() {
         return titleData;
-    }
-
-    /**
-     * Overwrites the current {@link TextData} with a new one.
-     * @param titleData The {@link TextData} to set.
-     */
-    public void setTitleData(TextData titleData) {
-        this.titleData = titleData;
     }
 }
