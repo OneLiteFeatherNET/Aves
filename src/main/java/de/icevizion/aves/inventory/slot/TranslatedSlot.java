@@ -4,6 +4,7 @@ import de.icevizion.aves.item.TranslatedItem;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -29,7 +30,12 @@ public class TranslatedSlot extends Slot {
         throw new UnsupportedOperationException("This TranslatedSlot needs a locale to retrieve the item");
     }
 
-    public ItemStack getItem(Locale locale) {
+    /**
+     * Returns the {@link ItemStack} which is bounds on the slot
+     * @param locale The locale to get the right {@link ItemStack}
+     * @return the determined item which is based on the locale
+     */
+    public ItemStack getItem(@NotNull Locale locale) {
         return translatedItem.get(locale);
     }
 

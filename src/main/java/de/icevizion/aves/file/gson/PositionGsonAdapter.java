@@ -26,8 +26,8 @@ public class PositionGsonAdapter implements JsonSerializer<Point>, JsonDeseriali
         double x = object.get("x").getAsDouble();
         double y = object.get("y").getAsDouble();
         double z = object.get("z").getAsDouble();
-        float yaw = 0;
-        float pitch = 0;
+        float yaw;
+        float pitch;
         if (object.has("yaw") && object.has("pitch")) {
             yaw = object.get("yaw").getAsFloat();
             pitch = object.get("pitch").getAsFloat();

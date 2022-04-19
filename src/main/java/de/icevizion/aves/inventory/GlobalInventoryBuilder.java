@@ -43,7 +43,7 @@ public class GlobalInventoryBuilder extends InventoryBuilder {
     protected void updateInventory() {
         boolean applyLayout = !inventoryLayoutValid;
         if (inventory == null) {
-            this.inventory = new Inventory(getType(), titleComponent);
+            this.inventory = new Inventory(type, titleComponent);
             applyLayout = true;
         }
 

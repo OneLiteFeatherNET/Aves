@@ -5,6 +5,7 @@ import de.icevizion.aves.inventory.function.CloseFunction;
 import de.icevizion.aves.inventory.function.OpenFunction;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.EventNode;
@@ -34,13 +35,12 @@ public abstract class InventoryBuilder implements SizeChecker {
     protected static final SchedulerManager SCHEDULER_MANAGER = MinecraftServer.getSchedulerManager();
     protected static final Logger LOGGER = LoggerFactory.getLogger(MinecraftServer.class);
 
-    protected final EventNode<InventoryEvent> inventoryNode = EventNode.type("inventories", EventFilter.INVENTORY);
-
-    private InventoryType type;
+    protected final InventoryType type;
 
     private InventoryLayout inventoryLayout;
     private InventoryLayout dataLayout;
 
+    protected EventNode<InventoryEvent> inventoryNode;
     protected boolean inventoryLayoutValid = true;
     protected boolean dataLayoutValid = false;
 
@@ -56,7 +56,11 @@ public abstract class InventoryBuilder implements SizeChecker {
         this.type = type;
     }
 
-    public void registerInNode() {
+    public void registerListener() {
+        if (inventoryNode != null) {
+           throw new IllegalArgumentException("Can't register inventory node twice");
+        }
+        this.inventoryNode = EventNode.type("inventories" , EventFilter.INVENTORY);
         this.clickEventListener = EventListener.of(InventoryPreClickEvent.class, this::handleClick);
 
         if (openFunction != null) {
@@ -72,18 +76,31 @@ public abstract class InventoryBuilder implements SizeChecker {
     }
 
     public void unregister() {
-        MinecraftServer.getGlobalEventHandler().removeChild(this.inventoryNode);
-    }
+        if (inventoryNode == null) return;
 
-    public void registerGlobally() {
-        MinecraftServer.getGlobalEventHandler().addListener(InventoryPreClickEvent.class, this::handleClick);
+        MinecraftServer.getGlobalEventHandler().removeChild(this.inventoryNode);
+
+        if (getInventory().getViewers().isEmpty()) return;
+
+        for (Player viewer : getInventory().getViewers()) {
+            viewer.closeInventory();
+        }
+
+        getInventory().getViewers().clear();
     }
 
     //Abstract methods
     public abstract Inventory getInventory(@Nullable Locale locale);
 
+    /**
+     * Returns if the inventory is currently opened by a player.
+     * @return True if a player does the inventory currently opened otherwise false
+     */
     protected abstract boolean isInventoryOpen();
 
+    /**
+     * Updates the underlying inventory.
+     */
     protected abstract void updateInventory();
 
     protected abstract void applyDataLayout();
@@ -106,7 +123,11 @@ public abstract class InventoryBuilder implements SizeChecker {
         }
     }
 
-    protected void handleClick(InventoryPreClickEvent event) {
+    /**
+     * Handles the click logic when a player clicked on a slot in the inventory.
+     * @param event The {@link InventoryPreClickEvent} to process the click
+     */
+    protected void handleClick(@NotNull InventoryPreClickEvent event) {
         if (event.getSlot() < 0 || event.getSlot() > type.getSize() - 1)
             return; //Not within this inventory
 
