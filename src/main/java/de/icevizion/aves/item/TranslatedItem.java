@@ -10,7 +10,6 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.ItemStackBuilder;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +43,7 @@ public non-sealed class TranslatedItem implements IItem {
         return TranslatedItem.of(itemStack, null);
     }
 
-    public static TranslatedItem of(@NotNull ItemStackBuilder itemBuilder, MessageProvider messageProvider) {
+    public static TranslatedItem of(@NotNull ItemStack.Builder itemBuilder, MessageProvider messageProvider) {
         return TranslatedItem.of(itemBuilder.build(), messageProvider);
     }
 
@@ -52,7 +51,7 @@ public non-sealed class TranslatedItem implements IItem {
         return of(ItemStack.of(material), null);
     }
 
-    public static TranslatedItem of(@NotNull ItemStackBuilder itemBuilder) {
+    public static TranslatedItem of(@NotNull ItemStack.Builder itemBuilder) {
         return TranslatedItem.of(itemBuilder.build(), null);
     }
 
@@ -171,7 +170,7 @@ public non-sealed class TranslatedItem implements IItem {
 
         if (objectCache == null) {
             objectCache = new TranslatedObjectCache<>(locale1 -> {
-                ItemStackBuilder builder = ItemStack.builder(itemStack.getMaterial());
+                ItemStack.Builder builder = ItemStack.builder(itemStack.getMaterial());
 
                 if (nameTextData != null) {
                     builder.displayName(LegacyComponentSerializer.legacySection().deserialize

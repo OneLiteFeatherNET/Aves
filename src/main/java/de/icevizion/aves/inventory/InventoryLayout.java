@@ -6,7 +6,6 @@ import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.ItemStackBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -66,7 +65,7 @@ public class InventoryLayout implements Cloneable {
         }
     }
 
-    public InventoryLayout setItem(int slot, ItemStackBuilder itemBuilder, Consumer<InventoryPreClickEvent> clickEvent) {
+    public InventoryLayout setItem(int slot, ItemStack.Builder itemBuilder, Consumer<InventoryPreClickEvent> clickEvent) {
         this.contents[slot] = new InventorySlot(itemBuilder, clickEvent);
         return this;
     }
@@ -86,7 +85,7 @@ public class InventoryLayout implements Cloneable {
         return setItem(slot, itemStack, null);
     }
 
-    public InventoryLayout setItem(int slot, ItemStackBuilder itemBuilder) {
+    public InventoryLayout setItem(int slot, ItemStack.Builder itemBuilder) {
         return setItem(slot, itemBuilder, null);
     }
 
@@ -95,7 +94,7 @@ public class InventoryLayout implements Cloneable {
         return this;
     }
 
-    public InventoryLayout setItems(int[] array, ItemStackBuilder itemBuilder, Consumer<InventoryPreClickEvent> clickEvent) {
+    public InventoryLayout setItems(int[] array, ItemStack.Builder itemBuilder, Consumer<InventoryPreClickEvent> clickEvent) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], itemBuilder, clickEvent);
         }
@@ -109,7 +108,7 @@ public class InventoryLayout implements Cloneable {
         return this;
     }
 
-    public InventoryLayout setItems(int[] array, ItemStackBuilder itemBuilder) {
+    public InventoryLayout setItems(int[] array, ItemStack.Builder itemBuilder) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], itemBuilder);
         }
@@ -148,7 +147,7 @@ public class InventoryLayout implements Cloneable {
         return this;
     }
 
-    public InventoryLayout setNonClickItems(int[] array, ItemStackBuilder itemBuilder) {
+    public InventoryLayout setNonClickItems(int[] array, ItemStack.Builder itemBuilder) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], itemBuilder, CANCEL_CONSUMER);
         }
