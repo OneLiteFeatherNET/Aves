@@ -1,12 +1,10 @@
 package de.icevizion.aves.item;
 
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.ItemStackBuilder;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
-import java.util.Objects;
 
 public record Item(ItemStack itemStack) implements IItem {
 
@@ -22,10 +20,10 @@ public record Item(ItemStack itemStack) implements IItem {
     /**
      * Returns a new object from {@link Item}.
      *
-     * @param itemBuilder A valid instance from a {@link ItemStackBuilder}
+     * @param itemBuilder A valid instance from a {@link ItemStack.Builder}
      * @return The created instance from {@link Item}
      */
-    public static Item of(@NotNull ItemStackBuilder itemBuilder) {
+    public static Item of(@NotNull ItemStack.Builder itemBuilder) {
         return new Item(itemBuilder.build());
     }
 
@@ -49,18 +47,5 @@ public record Item(ItemStack itemStack) implements IItem {
     @Override
     public ItemStack get(@NotNull Locale locale) {
         return itemStack;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Item item = (Item) o;
-        return Objects.equals(itemStack, item.itemStack);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(itemStack);
     }
 }

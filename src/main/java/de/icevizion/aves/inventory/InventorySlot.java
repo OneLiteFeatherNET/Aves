@@ -3,7 +3,6 @@ package de.icevizion.aves.inventory;
 import de.icevizion.aves.inventory.slot.Slot;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.ItemStackBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -38,18 +37,18 @@ public class InventorySlot extends Slot {
 
     /**
      * Creates a new instance from the {@link InventorySlot}.
-     * @param itemBuilder The {@link ItemStackBuilder} were the item will be built from
+     * @param itemBuilder The {@link ItemStack.Builder} were the item will be built from
      */
-    public InventorySlot(@NotNull ItemStackBuilder itemBuilder) {
+    public InventorySlot(@NotNull ItemStack.Builder itemBuilder) {
         this.itemStack = itemBuilder.build();
     }
 
     /**
      * Creates a new instance from the {@link InventorySlot}.
-     * @param itemBuilder The {@link ItemStackBuilder} were the item will be built from
+     * @param itemBuilder The {@link ItemStack.Builder} were the item will be built from
      * @param clickListener The {@link InventoryPreClickEvent} to set.
      */
-    public InventorySlot(@NotNull ItemStackBuilder itemBuilder, Consumer<InventoryPreClickEvent> clickListener) {
+    public InventorySlot(@NotNull ItemStack.Builder itemBuilder, Consumer<InventoryPreClickEvent> clickListener) {
         this.itemStack = itemBuilder.build();
         this.clickListener = clickListener;
     }
