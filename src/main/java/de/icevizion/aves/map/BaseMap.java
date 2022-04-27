@@ -1,6 +1,7 @@
 package de.icevizion.aves.map;
 
 import net.minestom.server.coordinate.Pos;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -47,6 +48,7 @@ public class BaseMap {
      *
      * @param name     The name from the map
      */
+    @Contract(value = "_ -> new", pure = true)
     public static BaseMap of(@NotNull String name) {
         return new BaseMap(name, null);
     }
@@ -58,6 +60,8 @@ public class BaseMap {
      * @param name     The name from the map
      * @param spawn    The spawn location from the map
      */
+
+    @Contract(value = "_, _ -> new", pure = true)
     public static BaseMap of(@NotNull String name, Pos spawn) {
         return new BaseMap(name, spawn, "Team");
     }
@@ -70,6 +74,7 @@ public class BaseMap {
      * @param builders The builders from the map
      * @param spawn    The spawn location from the map
      */
+    @Contract(value = "_, _, _ -> new", pure = true)
     public static BaseMap of(@NotNull String name, Pos spawn, String... builders) {
         return new BaseMap(name, spawn, builders);
     }
