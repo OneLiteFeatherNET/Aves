@@ -4,7 +4,6 @@ import de.icevizion.aves.item.TranslatedItem;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.function.Consumer;
