@@ -2,11 +2,20 @@ package de.icevizion.aves.item;
 
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
-public record Item(ItemStack itemStack) implements IItem {
+/**
+ * The class represents a wrapper for the {@link ItemStack} from minestom.
+ * @param itemStack the stack to hold
+ *
+ * @author theEvilReaper
+ * @since 1.0.12
+ * @version 1.0.3
+ */
+public record Item(@NotNull ItemStack itemStack) implements IItem {
 
     /**
      * Returns a new object from {@link Item}.
@@ -23,6 +32,7 @@ public record Item(ItemStack itemStack) implements IItem {
      * @param itemBuilder A valid instance from a {@link ItemStack.Builder}
      * @return The created instance from {@link Item}
      */
+    @Contract(value = "_ -> new", pure = true)
     public static Item of(@NotNull ItemStack.Builder itemBuilder) {
         return new Item(itemBuilder.build());
     }
@@ -33,6 +43,7 @@ public record Item(ItemStack itemStack) implements IItem {
      * @param material The material for the {@link ItemStack}
      * @return The created instance from {@link Item}
      */
+    @Contract(value = "_ -> new", pure = true)
     public static Item of(@NotNull Material material) {
         return new Item(ItemStack.of(material));
     }
