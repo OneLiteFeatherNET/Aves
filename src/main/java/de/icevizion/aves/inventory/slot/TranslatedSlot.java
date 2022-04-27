@@ -10,21 +10,36 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
+ * Represents a {@link Slot} implementation for a translated context.
  * @author Patrick Zdarsky / Rxcki
+ * @since 1.0.12
+ * @version 1.0.0
  */
 public class TranslatedSlot extends Slot {
 
     protected TranslatedItem translatedItem;
 
+    /**
+     * Creates a new instance from the slot.
+     * @param translatedItem The item for the slot
+     */
     public TranslatedSlot(@NotNull TranslatedItem translatedItem) {
         this.translatedItem = translatedItem;
     }
 
+    /**
+     * Creates a new instance from the slot.
+     * @param translatedItem The item for the slot
+     * @param clickListener The click listener for the slot
+     */
     public TranslatedSlot(@NotNull TranslatedItem translatedItem, Consumer<InventoryPreClickEvent> clickListener) {
         super(clickListener);
         this.translatedItem = translatedItem;
     }
 
+    /**
+     * Throws an exception because the method is not allowed to be used in a translated context.
+     */
     @Override
     public ItemStack getItem() {
         throw new UnsupportedOperationException("This TranslatedSlot needs a locale to retrieve the item");
@@ -39,15 +54,28 @@ public class TranslatedSlot extends Slot {
         return translatedItem.get(locale);
     }
 
+    /**
+     * Updates the given item reference to a new reference.
+     * @param translatedItem the item to set
+     */
     public TranslatedSlot setTranslatedItem(@NotNull TranslatedItem translatedItem) {
         this.translatedItem = translatedItem;
         return this;
     }
 
+    /**
+     * Returns the {@link TranslatedItem} reference from the slot.
+     * @return the given reference to the {@link TranslatedItem}
+     */
+    @NotNull
     public TranslatedItem getTranslatedItem() {
         return translatedItem;
     }
 
+    /**
+     * Returns a representation of the class as string.
+     * @return the object as string
+     */
     @Override
     public String toString() {
         return "TranslatedSlot{" +
