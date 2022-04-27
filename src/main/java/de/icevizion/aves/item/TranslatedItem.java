@@ -11,6 +11,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -33,28 +34,34 @@ public non-sealed class TranslatedItem implements IItem {
         this.itemStack = itemStack;
     }
 
+    @Contract(value = "_, _ -> new", pure = true)
     public static TranslatedItem of(@NotNull ItemStack itemStack, MessageProvider messageProvider) {
         TranslatedItem translatedItem = new TranslatedItem(itemStack);
         translatedItem.setMessageProvider(messageProvider);
         return translatedItem;
     }
 
+    @Contract(value = "_ -> new", pure = true)
     public static TranslatedItem of(@NotNull ItemStack itemStack) {
         return TranslatedItem.of(itemStack, null);
     }
 
+    @Contract(value = "_, _ -> new", pure = true)
     public static TranslatedItem of(@NotNull ItemStack.Builder itemBuilder, MessageProvider messageProvider) {
         return TranslatedItem.of(itemBuilder.build(), messageProvider);
     }
 
+    @Contract(value = "_ -> new", pure = true)
     public static TranslatedItem of(@NotNull Material material) {
         return of(ItemStack.of(material), null);
     }
 
+    @Contract(value = "_ -> new", pure = true)
     public static TranslatedItem of(@NotNull ItemStack.Builder itemBuilder) {
         return TranslatedItem.of(itemBuilder.build(), null);
     }
 
+    @Contract(value = "-> new", pure = true)
     public static TranslatedItem empty() {
         return new TranslatedItem(null);
     }
