@@ -1,5 +1,8 @@
 package de.icevizion.aves.util;
 
+import net.minestom.server.coordinate.Pos;
+import org.jetbrains.annotations.Contract;
+
 /**
  * @author theEvilReaper
  * @version 1.0.0
@@ -15,5 +18,15 @@ public class Positions {
      */
     public static float getYaw(double dX, double dZ) {
         return (float) Math.atan2(dX, dZ);
+    }
+
+    /**
+     * Center a given pos in the 3D dimension.
+     * @param pos The pos to center
+     * @return the centered pos
+     */
+    @Contract(pure = true)
+    public static Pos centerPos(Pos pos) {
+        return pos.add(0.5, 0.5, 0.5);
     }
 }
