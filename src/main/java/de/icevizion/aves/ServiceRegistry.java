@@ -8,6 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
+@Deprecated(forRemoval = true)
 public class ServiceRegistry {
 
     private static final Map<String, Object> serviceMap = new HashMap<>();
