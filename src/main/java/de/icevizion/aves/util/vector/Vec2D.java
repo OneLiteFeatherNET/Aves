@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * @version 1.0.0
  * @since 1.0.0
  **/
-public record Vec2D(int x, int y) {
+public record Vec2D(double x, double y) {
 
     public static final Vec2D ZERO = new Vec2D(0, 0);
     public static final Vec2D UNIT_X = new Vec2D(1, 0);
@@ -40,7 +40,7 @@ public record Vec2D(int x, int y) {
      * @return result vector
      */
     @Contract("_, _ -> new")
-    public @NotNull Vec2D add(int x, int y) {
+    public @NotNull Vec2D add(double x, double y) {
         return new Vec2D(this.x + x, this.y + y);
     }
 
@@ -61,7 +61,7 @@ public record Vec2D(int x, int y) {
      * @return result vector
      */
     @Contract("_, _ -> new")
-    public @NotNull Vec2D sub(int x, int y) {
+    public @NotNull Vec2D sub(double x, double y) {
         return new Vec2D(this.x - x, this.y - y);
     }
 
