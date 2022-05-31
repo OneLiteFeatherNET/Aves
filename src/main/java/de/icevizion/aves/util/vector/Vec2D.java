@@ -2,117 +2,111 @@ package de.icevizion.aves.util.vector;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.utils.MathUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 /**
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
  **/
+public record Vec2D(int x, int y) {
 
-public class Vec2D implements Cloneable, Comparable<Vec2D> {
+    public static final Vec2D ZERO = new Vec2D(0, 0);
+    public static final Vec2D UNIT_X = new Vec2D(1, 0);
+    public static final Vec2D UNIT_Y = new Vec2D(0, 1);
 
-    public static Vec2D ZERO = new Vec2D(0,0);
-
-    private int x;
-    private int z;
-
-    public Vec2D(int x, int z) {
-        this.x = x;
-        this.z = z;
+    /**
+     * Creates a 2d vector from a {@link Pos}.
+     * @param pos The input pos
+     */
+    public Vec2D(@NotNull Pos pos) {
+        this(pos.blockX(), pos.blockZ());
     }
 
-    public static Vec2D of(int x, int z) {
-        return new Vec2D(x, z);
+    /**
+     * Creates a 2d vector from a {@link Vec}.
+     * @param vec The input vec
+     */
+    public Vec2D(@NotNull Vec vec) {
+        this(vec.blockX(), vec.blockZ());
     }
 
-    public static Vec2D of(@NotNull Pos pos) {
-        return new Vec2D(pos.blockX(), pos.blockZ());
+    /**
+     * Adds the given values to the vector and returns the result in a new vector.
+     * @param x x value to add
+     * @param y y value to add
+     * @return result vector
+     */
+    @Contract("_, _ -> new")
+    public @NotNull Vec2D add(int x, int y) {
+        return new Vec2D(this.x + x, this.y + y);
     }
 
-    public static Vec2D of(@NotNull Vec vec) {
-        return new Vec2D(vec.blockX(), vec.blockZ());
+    /**
+     * Adds the vector to a given vector and returns the result in a new vector.
+     * @param vector vector to add
+     * @return result vector
+     */
+    @Contract("_ -> new")
+    public @NotNull Vec2D add(@NotNull Vec2D vector) {
+        return new Vec2D(this.x + vector.x,  this.y + vector.y);
     }
 
-    public Vec2D add(int x, int z) {
-        this.x += x;
-        this.z += z;
-        return this;
+    /**
+     * Subtracts the given values from the vector and returns the result in a new vector.
+     * @param x x value to add
+     * @param y y value to add
+     * @return result vector
+     */
+    @Contract("_, _ -> new")
+    public @NotNull Vec2D sub(int x, int y) {
+        return new Vec2D(this.x - x, this.y - y);
     }
 
-    public Vec2D add(@NotNull Vec2D vec2) {
-        x += vec2.x;
-        z += vec2.z;
-        return this;
+    /**
+     * Subtracts the given vector from the vector and returns the result in a new vector.
+     * @param vector vector to subtract
+     * @return result vector
+     */
+    @Contract("_ -> new")
+    public @NotNull Vec2D sub(@NotNull Vec2D vector) {
+        return new Vec2D(this.x - vector.x, this.y - vector.y);
     }
 
-    public Vec2D sub(int x, int z) {
-        this.x -= x;
-        this.z -= z;
-        return this;
+    /**
+     * Creates the negation of a vector and returns the result in a new vector.
+     * @return result vector
+     */
+    @Contract(" -> new")
+    public @NotNull Vec2D neg() {
+        return new Vec2D(-x, -y);
     }
 
-    public Vec2D multi(int x, int z) {
-        this.x *= x;
-        this.z *= z;
-        return this;
+    /**
+     * Multiplicates the given value to the vector and returns the result in a new vector.
+     * @param multiplier value to multiply
+     * @return result vector
+     */
+    @Contract("_ -> new")
+    public @NotNull Vec2D scalarMul(int multiplier) {
+        return new Vec2D(this.x * multiplier, this.y * multiplier);
     }
 
-    public Vec2D div(int x, int z) {
-        this.x /= x;
-        this.z /= z;
-        return this;
+    /**
+     * Returns the length of the vector with a squared calculation.
+     * @return the calculated length
+     */
+    public double lengthSquared() {
+        return MathUtils.square(x) + MathUtils.square(y);
     }
 
-    public Vec2D zero() {
-        this.x = 0;
-        this.z = 0;
-        return this;
-    }
-
-    public int length() {
-        return (int) Math.sqrt(x * x + z * z);
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getZ() {
-        return z;
-    }
-
-    @Override
-    public int compareTo(@NotNull Vec2D vec2D) {
-        int deltaX = Double.compare(getX(), vec2D.getX());
-        return deltaX != 0 ? deltaX : Double.compare(getZ(), vec2D.getZ());
-    }
-
-    @Override
-    public String toString() {
-        return "Vec2D{" +
-                "x=" + x +
-                ", z=" + z +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Vec2D vec2D = (Vec2D) o;
-        return x == vec2D.x && z == vec2D.z;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, z);
-    }
-
-    @Override
-    protected Vec2D clone() throws CloneNotSupportedException {
-        return (Vec2D) super.clone();
+    /**
+     * Calculates the length of the vector.
+     * @return length of the vector
+     */
+    public double length() {
+        return Math.sqrt(lengthSquared());
     }
 }
