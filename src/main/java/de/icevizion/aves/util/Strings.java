@@ -3,6 +3,7 @@ package de.icevizion.aves.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public class Strings {
@@ -44,6 +45,7 @@ public class Strings {
      * @param goneHearth The color for the hearth which are gone
      * @return The converted health as string
      */
+    @NotNull
     public static Component getHealthString(double paramHealth,
                                             @NotNull NamedTextColor remainingHearth,
                                             @NotNull NamedTextColor goneHearth) {
@@ -65,6 +67,7 @@ public class Strings {
      * @param paramHealth The health of a player
      * @return The converted health as string
      */
+    @NotNull
     public static Component getHealthString(double paramHealth) {
         return getHealthString(paramHealth, FILLED_HEARTH, LOOSED_HEARTHS);
     }
@@ -75,6 +78,7 @@ public class Strings {
      * @param lineLength The length of a line
      * @return The centered text
      */
+    @NotNull
     public static String centerText(@NotNull String text, int lineLength) {
         if (text.trim().isEmpty()) {
             throw new IllegalArgumentException("The text can not be empty");
@@ -93,7 +97,8 @@ public class Strings {
      * @param time The time who should be converted
      * @return The converted time
      */
-    public static String getTimeString(int time) {
+    @Contract(pure = true)
+    public static @NotNull String getTimeString(int time) {
         if (time <= 0) {
             return "00:00";
         }
