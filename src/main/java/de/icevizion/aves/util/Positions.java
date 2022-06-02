@@ -2,6 +2,7 @@ package de.icevizion.aves.util;
 
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author theEvilReaper
@@ -26,7 +27,7 @@ public class Positions {
      * @return the centered pos
      */
     @Contract(pure = true)
-    public static Pos centerPos(Pos pos) {
+    public static @NotNull Pos centerPos3D(@NotNull Pos pos) {
         return pos.add(0.5, 0.5, 0.5);
     }
 }
