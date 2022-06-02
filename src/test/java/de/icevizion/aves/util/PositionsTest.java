@@ -1,0 +1,24 @@
+package de.icevizion.aves.util;
+
+import net.minestom.server.coordinate.Pos;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class PositionsTest {
+    
+    private Pos originPoint;
+    
+    @BeforeAll
+    void init() {
+        this.originPoint = new Pos(0,0,0);
+    }
+
+    @Test
+    void centerPos3D() {
+        var resultPos = new Pos(0.5, 0.5, 0.5);
+        Assertions.assertEquals(resultPos, Positions.centerPos3D(this.originPoint));
+    }
+}
