@@ -25,6 +25,7 @@ public class Strings {
      * @param notCompletedColor The color for the not completed part
      * @return The progressbar as string
      */
+    @Contract(pure = true)
     public static String getProgressBar(int current,
                                         int max,
                                         int totalBars,
@@ -80,9 +81,15 @@ public class Strings {
      */
     @NotNull
     public static String centerText(@NotNull String text, int lineLength) {
-        if (text.trim().isEmpty()) {
+        text = text.trim();
+        if (text.isEmpty()) {
             throw new IllegalArgumentException("The text can not be empty");
         }
+
+        if (lineLength < text.length()) {
+            throw new IllegalArgumentException("The length of the line must be greater than the text length");
+        }
+
         StringBuilder builder = new StringBuilder(text);
         int distance = (lineLength - text.length()) / 2;
         for (int i = 0; i < distance; i++) {
