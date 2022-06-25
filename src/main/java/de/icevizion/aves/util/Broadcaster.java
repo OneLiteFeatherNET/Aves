@@ -43,6 +43,7 @@ public final class Broadcaster {
      * @param instance The instance to get the players from it
      * @param message The message to send
      */
+    @ApiStatus.Experimental
     public static void broadcast(@NotNull Instance instance, @NotNull String message) {
         broadcast(instance.getPlayers(), message);
     }
@@ -52,6 +53,7 @@ public final class Broadcaster {
      * @param instance The instance to get the players from it
      * @param message The message to send
      */
+    @ApiStatus.Experimental
     public static void broadcast(@NotNull Instance instance, @NotNull Component message) {
         broadcast(instance.getPlayers(), message);
     }
@@ -61,6 +63,7 @@ public final class Broadcaster {
      * @param players The player who receives the message
      * @param message The message to send
      */
+    @ApiStatus.Experimental
     public static void broadcast(@NotNull Collection<Player> players, @NotNull Component message) {
         if (players.isEmpty()) return;
 
@@ -74,6 +77,7 @@ public final class Broadcaster {
      * @param players The player who receives the message
      * @param message The message to send
      */
+    @ApiStatus.Experimental
     public static void broadcast(@NotNull Collection<Player> players, @NotNull String message) {
         if (message.trim().isEmpty() || players.isEmpty()) return;
 
