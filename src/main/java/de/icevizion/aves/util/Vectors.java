@@ -2,7 +2,6 @@ package de.icevizion.aves.util;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -10,19 +9,6 @@ import java.util.Random;
 public class Vectors {
 
     private final static Random random = new Random();
-
-    /**
-     * Inverse the direction from a player.
-     * @param player The player from which the direction should be inverted
-     * @return The inverted direction
-     */
-
-    public static Vec inversePlayerDirection(@NotNull Player player) {
-        if (player.getInstance() == null) {
-            throw new IllegalCallerException("The given player has no active instance");
-        }
-        return player.getPosition().asVec().mul(-1D);
-    }
 
     public static Vec getRandomVector() {
         double x = random.nextDouble() * 2.0D - 1.0D;
@@ -44,7 +30,7 @@ public class Vectors {
         return new Vec(x, 0.0D, z);
     }
 
-    public static double angleToXAxis(Vec vector) {
+    public static double angleToXAxis(@NotNull Vec vector) {
         return Math.atan2(vector.x(), vector.y());
     }
 }
