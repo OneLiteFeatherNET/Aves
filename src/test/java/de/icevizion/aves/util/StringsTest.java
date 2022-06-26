@@ -8,13 +8,11 @@ class StringsTest {
 
     @Test
     void testZeroTime() {
-        var expectedFormat = "00:00";
-        assertEquals(expectedFormat, Strings.getTimeString(0));
+        assertEquals("00:00", Strings.getTimeString(0));
     }
     @Test
     void testToHighFormat() {
-        var excepted = "70:00";
-        assertEquals(excepted, Strings.getTimeString(4200));
+        assertEquals("70:00", Strings.getTimeString(4200));
     }
 
     @Test
@@ -33,5 +31,11 @@ class StringsTest {
     void testCenterText() {
         var centeredText = Strings.centerText("Hallo", 8);
         assertEquals(" Hallo ", centeredText);
+    }
+
+    @Test
+    void testFalseCenterText() {
+        var centeredText = Strings.centerText("Hallo", 9);
+        assertNotEquals(" Hallo ", centeredText);
     }
 }
