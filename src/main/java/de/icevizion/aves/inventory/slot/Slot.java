@@ -1,31 +1,30 @@
 package de.icevizion.aves.inventory.slot;
 
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
-
-import java.util.function.Consumer;
+import de.icevizion.aves.inventory.function.InventoryClick;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Patrick Zdarsky / Rxcki
  */
 public abstract class Slot implements ISlot {
 
-    protected Consumer<InventoryPreClickEvent> clickListener;
+    protected InventoryClick slot;
 
     public Slot() { }
 
-    public Slot(Consumer<InventoryPreClickEvent> clickListener) {
-        this.clickListener = clickListener;
+    public Slot(InventoryClick slot) {
+        this.slot = slot;
     }
 
     @Override
-    public Consumer<InventoryPreClickEvent> getClickListener() {
-        return clickListener;
-    }
-
-    @Override
-    public ISlot setClickListener(Consumer<InventoryPreClickEvent> clickListener) {
-        this.clickListener = clickListener;
+    public ISlot setClick(@NotNull InventoryClick slot) {
+        this.slot = slot;
         return this;
+    }
+
+    @Override
+    public InventoryClick getClick() {
+        return this.slot;
     }
 
     @Override
@@ -37,8 +36,12 @@ public abstract class Slot implements ISlot {
         }
     }
 
+    /**
+     * Returns a text representation of the slot.
+     * @return the slot as string
+     */
     @Override
     public String toString() {
-        return "Slot{" + "clickListener=" + clickListener + '}';
+        return "Slot{" + "clickListener=" + slot + '}';
     }
 }

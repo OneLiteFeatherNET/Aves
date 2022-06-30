@@ -3,7 +3,13 @@ package de.icevizion.aves.inventory;
 import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.text.TextData;
+import de.icevizion.aves.inventory.holder.InventoryHolder;
+import de.icevizion.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.entity.Player;
+import net.minestom.server.event.EventListener;
+import net.minestom.server.event.inventory.InventoryCloseEvent;
+import net.minestom.server.event.inventory.InventoryOpenEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.Material;
@@ -15,12 +21,17 @@ import java.util.Locale;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
+public class GlobalTranslatedInventoryBuilder extends InventoryBuilder implements InventoryListenerHandler {
 
     private final MessageProvider messageProvider;
-    private final TranslatedObjectCache<Inventory> inventoryTranslatedObjectCache;
+    private final TranslatedObjectCache<CustomInventory> inventoryTranslatedObjectCache;
 
     private TextData titleData;
+
+    private InventoryHolder holder;
+
+    private EventListener<InventoryCloseEvent> closeListener;
+    private EventListener<InventoryOpenEvent> openListener;
 
     public GlobalTranslatedInventoryBuilder(@NotNull InventoryType type, MessageProvider messageProvider) {
         super(type);
@@ -28,13 +39,56 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
         this.inventoryTranslatedObjectCache = createCache();
     }
 
-    private TranslatedObjectCache<Inventory> createCache() {
+    private TranslatedObjectCache<CustomInventory> createCache() {
         return new TranslatedObjectCache<>(locale -> {
             var title = Component.text(messageProvider.getTextProvider().format(titleData, locale));
-            var inventory = new Inventory(type, title);
+            var inventory = new CustomInventory(new InventoryHolderImpl(this), type, title);
+            inventory.addInventoryCondition(this.inventoryCondition);
             updateInventory(inventory, title, locale, messageProvider, true);
             return inventory;
         });
+    }
+
+    @Override
+    public void register() {
+        if (this.openFunction != null) {
+            this.openListener = registerOpen(this, holder);
+        }
+
+        if (this.closeFunction != null) {
+            this.closeListener = registerClose(this, holder);
+        }
+
+        if (openListener != null) {
+            EVENT_NODE.addListener(this.openListener);
+        }
+
+        if (closeListener != null) {
+            EVENT_NODE.addListener(this.closeListener);
+        }
+    }
+
+    @Override
+    public void unregister() {
+        if (openListener != null) {
+            EVENT_NODE.removeListener(this.openListener);
+        }
+
+        if (closeListener != null) {
+            EVENT_NODE.removeListener(this.closeListener);
+        }
+
+        this.holder = null;
+
+        if (!this.inventoryTranslatedObjectCache.asMap().isEmpty()) return;
+
+        for (var entry : this.inventoryTranslatedObjectCache.asMap().entrySet()) {
+            if (entry.getValue().getViewers().isEmpty()) continue;
+
+            for (Player viewer : entry.getValue().getViewers()) {
+                viewer.closeInventory();
+            }
+        }
     }
 
     @Override
@@ -47,7 +101,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
     }
 
     @Override
-    protected boolean isInventoryOpen() {
+    protected boolean isOpen() {
         if (inventoryTranslatedObjectCache.asMap().isEmpty()) return false;
         for (var inventory : inventoryTranslatedObjectCache.asMap().values())
             if (!inventory.getViewers().isEmpty())
@@ -60,10 +114,7 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
         for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
             var locale = entry.getKey();
             updateInventory(entry.getValue(), Component.text(messageProvider.getTextProvider().format(titleData, locale)), locale, messageProvider, true);
-            Inventory value = entry.getValue();
-
-            if (value.getViewers().isEmpty()) continue;
-            value.update();
+            updateViewer(entry.getValue());
         }
     }
 
@@ -71,12 +122,12 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder {
     protected void applyDataLayout() {
         synchronized (this) {
             if (getDataLayout() != null) {
-                //System.out.println("Applying data layouts " + getDataLayout());
+                LOGGER.info("Applying data layouts " + getDataLayout());
                 for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
                     var contents = entry.getValue().getItemStacks();
                     getDataLayout().applyLayout(contents, entry.getKey(), messageProvider);
                     for (int i = 0; i < contents.length; i++) {
-                        if (contents[i].getMaterial() == Material.AIR) continue;
+                        if (contents[i].material() == Material.AIR) continue;
                         entry.getValue().setItemStack(i, contents[i]);
                         entry.getValue().update();
                     }

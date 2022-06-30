@@ -1,7 +1,7 @@
 package de.icevizion.aves.inventory;
 
+import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.Slot;
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
+ * Represents a slot in a inventory which holds an {@link ItemStack}
+ * and a {@link Consumer} with an {@link InventoryClick} to handle the click process on a slot.
  * @author Patrick Zdarsky / Rxcki
  * @version 1.0.0
  * @since 1.0.0
@@ -28,11 +30,11 @@ public class InventorySlot extends Slot {
     /**
      * Creates a new instance from the {@link InventorySlot}.
      * @param itemStack The {@link ItemStack} to set
-     * @param clickListener The {@link InventoryPreClickEvent} to set.
+     * @param inventoryClick The {@link InventoryClick} to set
      */
-    public InventorySlot(@NotNull ItemStack itemStack, Consumer<InventoryPreClickEvent> clickListener) {
+    public InventorySlot(@NotNull ItemStack itemStack, InventoryClick inventoryClick) {
         this.itemStack = itemStack;
-        this.clickListener = clickListener;
+        this.slot = inventoryClick;
     }
 
     /**
@@ -46,11 +48,11 @@ public class InventorySlot extends Slot {
     /**
      * Creates a new instance from the {@link InventorySlot}.
      * @param itemBuilder The {@link ItemStack.Builder} were the item will be built from
-     * @param clickListener The {@link InventoryPreClickEvent} to set.
+     * @param click The {@link InventoryClick} to set.
      */
-    public InventorySlot(@NotNull ItemStack.Builder itemBuilder, Consumer<InventoryPreClickEvent> clickListener) {
+    public InventorySlot(@NotNull ItemStack.Builder itemBuilder, InventoryClick click) {
         this.itemStack = itemBuilder.build();
-        this.clickListener = clickListener;
+        this.slot = click;
     }
 
     /**

@@ -1,12 +1,11 @@
 package de.icevizion.aves.inventory.slot;
 
+import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.item.TranslatedItem;
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
-import java.util.function.Consumer;
 
 /**
  * Represents a {@link Slot} implementation for a translated context.
@@ -26,12 +25,7 @@ public class TranslatedSlot extends Slot {
         this.translatedItem = translatedItem;
     }
 
-    /**
-     * Creates a new instance from the slot.
-     * @param translatedItem The item for the slot
-     * @param clickListener The click listener for the slot
-     */
-    public TranslatedSlot(@NotNull TranslatedItem translatedItem, Consumer<InventoryPreClickEvent> clickListener) {
+    public TranslatedSlot(@NotNull TranslatedItem translatedItem, InventoryClick clickListener) {
         super(clickListener);
         this.translatedItem = translatedItem;
     }

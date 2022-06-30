@@ -17,8 +17,6 @@ public interface OpenFunction {
      * Handles what happen when the inventory will be open
      *
      * @param event The {@link InventoryOpenEvent} which is fired
-     * @return True or false
      */
-    boolean onOpen(@NotNull InventoryOpenEvent event);
-
+    void onOpen(@NotNull InventoryOpenEvent event);
 }

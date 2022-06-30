@@ -8,12 +8,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 /**
- * The class represents a wrapper for the {@link ItemStack} from minestom.
- * @param itemStack the stack to hold
+ * The class represents a wrapper for an item which can hold one {@link ItemStack} per instance from the record class.
+ * The record class represents a non-translatable item for the i18n functionality in the api.
  *
+ * @param itemStack the {@link ItemStack} to hold in the class
  * @author theEvilReaper
  * @since 1.0.12
- * @version 1.0.3
+ * @version 1.0.2
  */
 public record Item(@NotNull ItemStack itemStack) implements IItem {
 

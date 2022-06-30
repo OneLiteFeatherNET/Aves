@@ -3,21 +3,23 @@ package de.icevizion.aves.inventory;
 import at.rxcki.strigiformes.MessageProvider;
 import de.icevizion.aves.inventory.function.CloseFunction;
 import de.icevizion.aves.inventory.function.OpenFunction;
+import de.icevizion.aves.util.functional.ThrowingFunction;
+import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventFilter;
-import net.minestom.server.event.EventListener;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryOpenEvent;
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.trait.InventoryEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
+import net.minestom.server.inventory.click.ClickType;
+import net.minestom.server.inventory.condition.InventoryCondition;
+import net.minestom.server.inventory.condition.InventoryConditionResult;
 import net.minestom.server.item.Material;
-import net.minestom.server.timer.SchedulerManager;
-import net.minestom.server.utils.time.TimeUnit;
+import net.minestom.server.timer.ExecutionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -27,67 +29,90 @@ import java.util.Locale;
 
 /**
  * @author Patrick Zdarsky / Rxcki
- * @version 1.1.0
+ * @version 1.2.0
  * @since 1.0.12
  */
 public abstract class InventoryBuilder implements SizeChecker {
 
-    protected static final SchedulerManager SCHEDULER_MANAGER = MinecraftServer.getSchedulerManager();
+    private static final int INVALID_SLOT_ID = -999;
+
+    protected static final EventNode<InventoryEvent> EVENT_NODE = EventNode.type("inventories", EventFilter.INVENTORY);
+
     protected static final Logger LOGGER = LoggerFactory.getLogger(MinecraftServer.class);
+
+    static {
+        MinecraftServer.getGlobalEventHandler().addChild(EVENT_NODE);
+    }
 
     protected final InventoryType type;
 
     private InventoryLayout inventoryLayout;
     private InventoryLayout dataLayout;
 
-    protected EventNode<InventoryEvent> inventoryNode;
     protected boolean inventoryLayoutValid = true;
     protected boolean dataLayoutValid = false;
 
     protected OpenFunction openFunction;
     protected CloseFunction closeFunction;
 
-    protected EventListener<InventoryOpenEvent> openEventListener;
-    protected EventListener<InventoryPreClickEvent> clickEventListener;
-    protected EventListener<InventoryCloseEvent> closeEventListener;
+    protected ThrowingFunction<InventoryLayout, InventoryLayout> dataLayoutFunction;
 
+    protected InventoryCondition inventoryCondition;
+
+    /**
+     * Creates a new instance from the inventory builder with the given size.
+     * @param type The type from the inventory to get the size from it
+     */
     public InventoryBuilder(@NotNull InventoryType type) {
         checkInventorySize(type.getSize());
         this.type = type;
+
+        this.inventoryCondition = (player, slot, clickType, inventoryConditionResult) -> {
+            if (slot == INVALID_SLOT_ID) return;
+
+            if (this.dataLayout != null) {
+                var clickedSlot = this.dataLayout.getSlot(slot);
+                acceptClick(clickedSlot, player, clickType, slot, inventoryConditionResult);
+            }
+
+            if (this.inventoryLayout != null) {
+                var clickedSlot = this.inventoryLayout.getSlot(slot);
+                acceptClick(clickedSlot, player, clickType, slot, inventoryConditionResult);
+            }
+        };
+
     }
 
-    public void registerListener() {
-        if (inventoryNode != null) {
-           throw new IllegalArgumentException("Can't register inventory node twice");
+    /**
+     * Handles the click request on a given slot.
+     * @param slot the {@link ISlot} which is clicked
+     * @param player the {@link Player} who is involved
+     * @param clickType the given {@link ClickType}
+     * @param result the given {@link InventoryConditionResult}
+     */
+    private void acceptClick(@Nullable ISlot slot, @NotNull Player player, @NotNull ClickType clickType, int slotID, @NotNull InventoryConditionResult result) {
+        if (slot != null && slot.getClick() != null) {
+            slot.getClick().onClick(player, clickType, slotID, result);
         }
-        this.inventoryNode = EventNode.type("inventories" , EventFilter.INVENTORY);
-        this.clickEventListener = EventListener.of(InventoryPreClickEvent.class, this::handleClick);
-
-        if (openFunction != null) {
-            this.inventoryNode.addListener(openEventListener);
-        }
-
-        if (closeFunction != null) {
-            this.inventoryNode.addListener(closeEventListener);
-        }
-
-        this.inventoryNode.addListener(clickEventListener);
-        MinecraftServer.getGlobalEventHandler().addChild(this.inventoryNode);
     }
 
-    public void unregister() {
-        if (inventoryNode == null) return;
-
-        MinecraftServer.getGlobalEventHandler().removeChild(this.inventoryNode);
-
-        if (getInventory().getViewers().isEmpty()) return;
-
-        for (Player viewer : getInventory().getViewers()) {
-            viewer.closeInventory();
-        }
-
-        getInventory().getViewers().clear();
+    /**
+     * Set a new reference to the data layout
+     * @param dataLayout The {@link InventoryLayout} to set
+     */
+    public void setDataLayoutFunction(ThrowingFunction<InventoryLayout, InventoryLayout> dataLayout) {
+        this.dataLayoutFunction = dataLayout;
     }
+
+    /**
+     * Registers the underlying listeners into the event graph.
+     */
+    public abstract void register();
+
+    /**
+     * Removes the underlying listeners from the event graph.
+     */
+    public abstract void unregister();
 
     //Abstract methods
     public abstract Inventory getInventory(@Nullable Locale locale);
@@ -96,25 +121,33 @@ public abstract class InventoryBuilder implements SizeChecker {
      * Returns if the inventory is currently opened by a player.
      * @return True if a player does the inventory currently opened otherwise false
      */
-    protected abstract boolean isInventoryOpen();
+    protected abstract boolean isOpen();
 
     /**
      * Updates the underlying inventory.
      */
     protected abstract void updateInventory();
 
+    /**
+     * Apply the data layout to the inventory
+     */
     protected abstract void applyDataLayout();
 
+    /**
+     * Marks the inventory layout as not valid an updates the inventory.
+     */
     public void invalidateInventoryLayout() {
         inventoryLayoutValid = false;
-
-        if (isInventoryOpen()) {
+        if (isOpen()) {
             updateInventory();
         }
     }
 
+    /**
+     * Invalidates the boolean for the data layout.
+     */
     public void invalidateDataLayout() {
-        if (isInventoryOpen()) {
+        if (isOpen()) {
             retrieveDataLayout();
             LOGGER.info("DataLayout invalidated on open inv, requested data...");
         } else {
@@ -124,39 +157,22 @@ public abstract class InventoryBuilder implements SizeChecker {
     }
 
     /**
-     * Handles the click logic when a player clicked on a slot in the inventory.
-     * @param event The {@link InventoryPreClickEvent} to process the click
+     * Handles the open function when a inventory will be opened.
+     * @param event The instance from the inventory event
      */
-    protected void handleClick(@NotNull InventoryPreClickEvent event) {
-        if (event.getSlot() < 0 || event.getSlot() > type.getSize() - 1)
-            return; //Not within this inventory
-
-        if (getDataLayout() != null) {
-            var dataSlot = getDataLayout().getContents()[event.getSlot()];
-            if (dataSlot != null && dataSlot.getClickListener() != null) {
-                dataSlot.getClickListener().accept(event);
-                return;
-            }
-        }
-
-        var layoutSlot = getInventoryLayout().getContents()[event.getSlot()];
-        if (layoutSlot != null && layoutSlot.getClickListener() != null) {
-            layoutSlot.getClickListener().accept(event);
-        }
-    }
-
     protected void handleOpen(@NotNull InventoryOpenEvent event) {
         if (openFunction != null) {
             openFunction.onOpen(event);
         }
     }
 
-    protected void handleClose(InventoryCloseEvent event) {
+    /**
+     * Handles the close function if a close event is called from the server
+     * @param event The instance from the close event
+     */
+    protected void handleClose(@NotNull InventoryCloseEvent event) {
         if (closeFunction != null) {
-            if (!closeFunction.onClose(event)) {
-                SCHEDULER_MANAGER.buildTask(()
-                        -> event.setNewInventory(getInventory())).delay(150, TimeUnit.MILLISECOND).schedule();
-            }
+            closeFunction.onClose(event);
         }
     }
 
@@ -168,25 +184,33 @@ public abstract class InventoryBuilder implements SizeChecker {
             inventory.setTitle(title);
         }
 
-        if (applyLayout) {
-            var contents = inventory.getItemStacks();
-            getInventoryLayout().applyLayout(contents, locale, messageProvider);
-            for (int i = 0; i < contents.length; i++) {
-                if (contents[i].getMaterial() == Material.AIR) continue;
-                inventory.setItemStack(i, contents[i]);
-            }
-           LOGGER.info("UpdateInventory applied the InventoryLayout!");
+        if (getLayout() == null) {
+            LOGGER.info("Can't update content because the main layout is null");
+            return;
         }
 
+        if (applyLayout) {
+            var contents = inventory.getItemStacks();
+            inventory.clear();
+            getLayout().applyLayout(contents, locale, messageProvider);
+            for (int i = 0; i < contents.length; i++) {
+                var contentSlot = contents[i];
+                if (contentSlot == null || contentSlot.material() == Material.AIR) continue;
+                inventory.setItemStack(i, contentSlot);
+            }
+            LOGGER.info("UpdateInventory applied the InventoryLayout!");
+        }
+
+
         synchronized (this) {
-            if (!dataLayoutValid /*&& dataLayoutChain == null*/) {
+            if (!dataLayoutValid) {
                 retrieveDataLayout();
             } else {
                 if (getDataLayout() != null) {
                     var contents = inventory.getItemStacks();
                     getDataLayout().applyLayout(contents, locale, messageProvider);
                     for (int i = 0; i < contents.length; i++) {
-                        if (contents[i].getMaterial() == Material.AIR) continue;
+                        if (contents[i] == null || contents[i].material() == Material.AIR) continue;
                         inventory.setItemStack(i, contents[i]);
                     }
                 }
@@ -195,33 +219,28 @@ public abstract class InventoryBuilder implements SizeChecker {
     }
 
     protected void retrieveDataLayout() {
-       /*synchronized (this) {
-            if (dataLayoutChainFunction == null)
-                return;
+        synchronized (this) {
+            if (this.dataLayoutFunction == null) return;
 
-            if (dataLayoutChain != null) {
-                dataLayoutChain.abortChain();
-            }
+            MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
+                try {
+                    this.dataLayout = this.dataLayoutFunction.acceptThrows(this.dataLayout);
+                    applyDataLayout();
+                } catch (Exception e) {
+                    MinecraftServer.getExceptionManager().handleException(e);
+                }
 
-            TaskChainFactory factory = ServiceRegistry.getService("TaskChainFactory");
-            dataLayoutChain = factory.newChain()
-                    .current(() -> TaskChain.getCurrentChain().setTaskData("dataLayout", getDataLayout()))
-                    .returnData("dataLayout");
+            }, ExecutionType.ASYNC);
+        }
+    }
 
-            dataLayoutChain = dataLayoutChainFunction.apply(dataLayoutChain);
-
-            dataLayoutChain.current(input -> {
-                dataLayout = input;
-                dataLayoutValid = true;
-
-                //System.out.println("Received DataLayout "+input);
-                applyDataLayout();
-                dataLayoutChain = null;
-                return null;
-            });
-
-            dataLayoutChain.execute();
-        }*/
+    /**
+     * Updates the inventory for all current viewers.
+     * @param inventory The inventory to update
+     */
+    protected void updateViewer(@NotNull Inventory inventory) {
+        if (inventory.getViewers().isEmpty()) return;
+        inventory.update();
     }
 
     /**
@@ -248,11 +267,10 @@ public abstract class InventoryBuilder implements SizeChecker {
     public InventoryBuilder setOpenFunction(OpenFunction openFunction) {
         this.openFunction = openFunction;
 
-        if (openEventListener != null) {
+        if (this.openFunction != null) {
             LOGGER.info("Overwriting open event listener");
         }
 
-        this.openEventListener = EventListener.of(InventoryOpenEvent.class, this::handleOpen);
         return this;
     }
 
@@ -263,11 +281,10 @@ public abstract class InventoryBuilder implements SizeChecker {
     public InventoryBuilder setCloseFunction(CloseFunction closeFunction) {
         this.closeFunction = closeFunction;
 
-        if (closeEventListener != null) {
+        if (this.closeFunction != null) {
             LOGGER.info("Overwriting close event listener");
         }
 
-        this.closeEventListener = EventListener.of(InventoryCloseEvent.class, this::handleClose);
         return this;
     }
 
@@ -275,7 +292,7 @@ public abstract class InventoryBuilder implements SizeChecker {
      * Set a new instance of the {@link InventoryLayout} to the builder
      * @param inventoryLayout The layout to set
      */
-    public InventoryBuilder setInventoryLayout(@NotNull InventoryLayout inventoryLayout) {
+    public InventoryBuilder setLayout(@NotNull InventoryLayout inventoryLayout) {
         this.inventoryLayout = inventoryLayout;
         return this;
     }
@@ -284,8 +301,8 @@ public abstract class InventoryBuilder implements SizeChecker {
      * Returns the underlying {@link InventoryLayout}.
      * @return the given layout
      */
-    @NotNull
-    public InventoryLayout getInventoryLayout() {
+    @Nullable
+    public InventoryLayout getLayout() {
         return inventoryLayout;
     }
 

@@ -16,7 +16,6 @@ public interface CloseFunction {
     /**
      * Handles what happen when the inventory will be closed
      * @param event The {@link InventoryCloseEvent} which is fired
-     * @return True or false
      */
-    boolean onClose(@NotNull InventoryCloseEvent event);
+    void onClose(@NotNull InventoryCloseEvent event);
 }

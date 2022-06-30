@@ -64,11 +64,6 @@ public non-sealed class MinestomNPC extends Entity implements NPC {
     public void tick(long time) {}
 
     @Override
-    public void spawn() {
-        super.spawn();
-    }
-
-    @Override
     public boolean isOnFire() {
         return false;
     }
@@ -92,7 +87,7 @@ public non-sealed class MinestomNPC extends Entity implements NPC {
 
     @NotNull
     public UUID getUUID() {
-        return this.getUUID();
+        return this.getUuid();
     }
 
     @NotNull

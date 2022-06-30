@@ -1,9 +1,9 @@
 package de.icevizion.aves.inventory.slot;
 
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import de.icevizion.aves.inventory.function.InventoryClick;
 import net.minestom.server.item.ItemStack;
-
-import java.util.function.Consumer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a slot in an {@link net.minestom.server.inventory.Inventory}.
@@ -14,16 +14,17 @@ import java.util.function.Consumer;
 public interface ISlot extends Cloneable {
 
     /**
-     * Add a new Listener to the slot.
-     * @param clickListener The 'listener' to set
+     * Set's a new {@link InventoryClick} reference to the slot
+     * @param slot The slot to set
      */
-    ISlot setClickListener(Consumer<InventoryPreClickEvent> clickListener);
+    ISlot setClick(@NotNull InventoryClick slot);
 
     /**
-     * Returns the {@link Consumer} which includes the {@link InventoryPreClickEvent}.
-     * @return the given consumer
+     * Returns the given inventory click from the slot
+     * @return the given click
      */
-    Consumer<InventoryPreClickEvent> getClickListener();
+    @Nullable
+    InventoryClick getClick();
 
     /**
      * Returns the given {@link ItemStack} from the slot.

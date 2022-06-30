@@ -25,7 +25,7 @@ public class Items {
         if (player.getInventory().getItemStacks().length != 0) {
             for (int i = 0; i < player.getInventory().getItemStacks().length; i++) {
                 if (player.getInventory().getItemStacks()[i].isSimilar(item)) {
-                    amount += player.getInventory().getItemStacks()[i].getAmount();
+                    amount += player.getInventory().getItemStacks()[i].amount();
                 }
             }
         }
@@ -49,7 +49,7 @@ public class Items {
             }
 
             if (currentStack.isSimilar(item)) {
-                spaceCount += currentStack.getAmount() - item.getAmount();
+                spaceCount += currentStack.amount() - item.amount();
             }
         }
         return spaceCount;
