@@ -5,18 +5,18 @@ import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.message.CompoundMessageCache;
 import at.rxcki.strigiformes.text.TextData;
 import de.icevizion.aves.inventory.InventoryLayout;
+import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -133,10 +133,10 @@ public non-sealed class TranslatedItem implements IItem {
 
     /**
      * Returns a {@link TranslatedSlot} which includes the underlying {@link ItemStack} without a given clickListener.
-     * @param clickListener The {@link InventoryPreClickEvent} to set
+     * @param clickListener The {@link InventoryClick} to set
      * @return the created {@link TranslatedSlot}
      */
-    public TranslatedSlot toSlot(Consumer<InventoryPreClickEvent> clickListener) {
+    public TranslatedSlot toSlot(@Nullable InventoryClick clickListener) {
         return new TranslatedSlot(this, clickListener);
     }
 
@@ -153,7 +153,7 @@ public non-sealed class TranslatedItem implements IItem {
      * @return the created {@link TranslatedSlot}
      */
     public TranslatedSlot toNonClickSlot() {
-        return new TranslatedSlot(this, InventoryLayout.CANCEL_CONSUMER);
+        return new TranslatedSlot(this, InventoryLayout.CANCEL_CLICK);
     }
 
     /**

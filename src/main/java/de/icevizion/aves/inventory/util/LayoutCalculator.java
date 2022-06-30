@@ -4,12 +4,21 @@ import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Contains some usefully methods to calculate some layouts for an inventory.
  * @author Patrick Zdarsky / Rxcki
+ * @since 1.0.0
+ * @version 1.0.1
  */
 public class LayoutCalculator {
 
     private static final int INVENTORY_WIDTH = 9;
 
+    /**
+     * Calculates the slot numbers between two slot numbers.
+     * @param fromSlot The id from the start slot
+     * @param toSlot The id from the end slot
+     * @return a array which contains the slot numbers
+     */
     public static int[] repeat(int fromSlot, int toSlot) {
         if (fromSlot > toSlot) {
             throw new IllegalArgumentException("fromSlot cannot be higher that toSlot!");
@@ -24,6 +33,35 @@ public class LayoutCalculator {
     }
 
     public static int[] quad(int firstCornerSlot, int lastCornerSlot) {
+        return quad(firstCornerSlot, lastCornerSlot, INVENTORY_WIDTH);
+    }
+
+    public static int[] quad(int firstCornerSlot, int lastCornerSlot, int lineWidth) {
+        var x1 = firstCornerSlot % lineWidth;
+        var y1 = Math.floor(firstCornerSlot / (double)lineWidth);
+
+        var x2 = lastCornerSlot % lineWidth;
+        var y2 = Math.floor(lastCornerSlot / (double)lineWidth);
+
+        var width = (x2-x1) + 1;
+        var height = (y2-y1) + 1;
+
+        var arr = new int[(int) Math.floor(width * height)];
+
+        for (int i = 0; i < arr.length; i++) {
+            var xSquare = i % width;
+            var ySquare = Math.floor(i / (double)width);
+
+            var x = x1 + xSquare;
+            var y = y1 + ySquare;
+
+            arr[i] = (int) Math.floor(y * lineWidth) + x;
+        }
+
+        return arr;
+    }
+
+    public static int[] quadOriginal(int firstCornerSlot, int lastCornerSlot) {
         var x1 = firstCornerSlot % INVENTORY_WIDTH;
         var y1 = Math.floor(firstCornerSlot / (double)INVENTORY_WIDTH);
 
@@ -76,10 +114,21 @@ public class LayoutCalculator {
         return arr;
     }
 
+    /**
+     * Calculates the slot numbers to fill a complete row in a inventory.
+     * @param type The {@link InventoryType} to get the maximum slot value of a row
+     * @return an array which contains the slot numbers
+     */
     public static int[] fillRow(@NotNull InventoryType type) {
         return repeat(type.getSize()-9, type.getSize());
     }
 
+    /**
+     * Calculates the index numbers to fill a row.
+     * @param type The type from a inventory
+     * @param column The column to start
+     * @return an array which contains the slot numbers
+     */
     public static int[] fillColumn(@NotNull InventoryType type, int column) {
         if (column < 0 || column > INVENTORY_WIDTH - 1) {
             throw new IllegalArgumentException("Column cant be less than 0 or more than 8");
@@ -92,8 +141,23 @@ public class LayoutCalculator {
         return arr;
     }
 
-    public static int getRowCount(@NotNull InventoryType inventoryType) {
-        if (inventoryType.getSize() % INVENTORY_WIDTH != 0) return 1;
-        return inventoryType.getSize() / INVENTORY_WIDTH;
+    /**
+     * Calculates the row count of a given {@link InventoryType}.
+     * @param type The type to define the row count
+     * @return Returns the determined row count
+     */
+    public static int getRowCount(@NotNull InventoryType type) {
+        if (!isChestInventory(type)) return 1;
+        if (type.getSize() % INVENTORY_WIDTH != 0) return 1;
+        return type.getSize() / INVENTORY_WIDTH;
+    }
+
+    /**
+     * Checks if a given {@link InventoryType} is a chest or not.
+     * @param type The typ to check
+     * @return True if the type is a chest otherwise false
+     */
+    public static boolean isChestInventory(@NotNull InventoryType type) {
+        return type.name().startsWith("CHEST");
     }
 }

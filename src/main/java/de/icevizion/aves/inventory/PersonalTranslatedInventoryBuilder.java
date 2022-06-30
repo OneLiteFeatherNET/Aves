@@ -33,7 +33,7 @@ public class PersonalTranslatedInventoryBuilder extends GlobalTranslatedInventor
      * The locale can not be null in this context because the class is a builder for translated inventories.
      * @param locale The locale to open the right inventory with the right language
      */
-    public void openInventory(@NotNull Locale locale) {
+    public void open(@NotNull Locale locale) {
         player.openInventory(getInventory(locale));
     }
 }
