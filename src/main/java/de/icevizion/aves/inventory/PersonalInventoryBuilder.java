@@ -1,5 +1,6 @@
 package de.icevizion.aves.inventory;
 
+import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.NotNull;
@@ -20,8 +21,19 @@ public class PersonalInventoryBuilder extends GlobalInventoryBuilder {
      * @param type The type for the inventory
      * @param player The player who owns the inventory
      */
-    public PersonalInventoryBuilder(@NotNull String title, @NotNull InventoryType type, Player player) {
+    public PersonalInventoryBuilder(@NotNull String title, @NotNull InventoryType type, @NotNull Player player) {
         super(title, type);
+        this.player = player;
+    }
+
+    /**
+     * Creates a new instance from the {@link PersonalTranslatedInventoryBuilder} with the given values.
+     * @param component The title for the inventory as {@link Component}
+     * @param type The type for the inventory
+     * @param player The player who owns the inventory
+     */
+    public PersonalInventoryBuilder(@NotNull Component component, @NotNull InventoryType type, @NotNull Player player) {
+        super(component, type);
         this.player = player;
     }
 
@@ -29,7 +41,7 @@ public class PersonalInventoryBuilder extends GlobalInventoryBuilder {
      * Opens the inventory for the given {@link Player}.
      * The locale can not be null in this context because the class is a builder for translated inventories.
      */
-    public void openInventory() {
+    public void open() {
         player.openInventory(getInventory());
     }
 }

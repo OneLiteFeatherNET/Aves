@@ -1,26 +1,30 @@
 package de.icevizion.aves.inventory;
 
 import at.rxcki.strigiformes.MessageProvider;
+import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.TranslatedSlot;
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.function.Consumer;
 
 /**
+ * Represents a layout which contains all items for an inventory.
  * @author Patrick Zdarsky / Rxcki
  * @since 1.0.12
- * @version 1.0.0
+ * @version 1.0.2
  */
 public class InventoryLayout implements Cloneable {
 
-    public static final Consumer<InventoryPreClickEvent> CANCEL_CONSUMER = clickEvent -> clickEvent.setCancelled(true);
+    public static final InventoryClick CANCEL_CLICK = (player, clickType, slotID, condition) -> condition.setCancel(true);
 
+    /**
+     * An empty slot which is used as a marker / dummy slot to blank slots.
+     */
     private static final InventorySlot EMPTY_SLOT = new InventorySlot(ItemStack.AIR);
 
     private ISlot[] contents;
@@ -42,9 +46,7 @@ public class InventoryLayout implements Cloneable {
         for (int i = 0; i < itemStacks.length; i++) {
             ISlot slot = contents[i];
 
-            if (slot == null) {
-                continue;
-            }
+            if (slot == null) continue;
 
             if (slot instanceof TranslatedSlot && locale == null) {
                 throw new IllegalArgumentException("Tried to apply the InventoryLayout with an Translated slot and provided no locale!");
@@ -65,18 +67,18 @@ public class InventoryLayout implements Cloneable {
         }
     }
 
-    public InventoryLayout setItem(int slot, ItemStack.Builder itemBuilder, Consumer<InventoryPreClickEvent> clickEvent) {
+    public InventoryLayout setItem(int slot, ItemStack.Builder itemBuilder, InventoryClick clickEvent) {
         this.contents[slot] = new InventorySlot(itemBuilder, clickEvent);
         return this;
     }
 
-    public InventoryLayout setItem(int slot, ItemStack itemStack, Consumer<InventoryPreClickEvent> clickEvent) {
+    public InventoryLayout setItem(int slot, ItemStack itemStack, InventoryClick clickEvent) {
         this.contents[slot] = new InventorySlot(itemStack, clickEvent);
         return this;
     }
 
-    public InventoryLayout setItem(int slot, ISlot iSlot, Consumer<InventoryPreClickEvent> clickEvent) {
-        iSlot.setClickListener(clickEvent);
+    public InventoryLayout setItem(int slot, ISlot iSlot, InventoryClick clickEvent) {
+        iSlot.setClick(clickEvent);
         contents[slot] = iSlot;
         return this;
     }
@@ -94,14 +96,14 @@ public class InventoryLayout implements Cloneable {
         return this;
     }
 
-    public InventoryLayout setItems(int[] array, ItemStack.Builder itemBuilder, Consumer<InventoryPreClickEvent> clickEvent) {
+    public InventoryLayout setItems(int[] array, ItemStack.Builder itemBuilder, InventoryClick clickEvent) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], itemBuilder, clickEvent);
         }
         return this;
     }
 
-    public InventoryLayout setItems(int[] array, ItemStack stack, Consumer<InventoryPreClickEvent> clickEvent) {
+    public InventoryLayout setItems(int[] array, ItemStack stack, InventoryClick clickEvent) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], stack, clickEvent);
         }
@@ -130,12 +132,12 @@ public class InventoryLayout implements Cloneable {
     }
 
     public InventoryLayout setNonClickItem(int slot, ItemStack itemStack) {
-        this.contents[slot] = new InventorySlot(itemStack, CANCEL_CONSUMER);
+        this.contents[slot] = new InventorySlot(itemStack, CANCEL_CLICK);
         return this;
     }
 
     public InventoryLayout setNonClickItem(int slot, ISlot slotItem) {
-        slotItem.setClickListener(CANCEL_CONSUMER);
+        slotItem.setClick(CANCEL_CLICK);
         contents[slot] = slotItem;
         return this;
     }
@@ -149,23 +151,31 @@ public class InventoryLayout implements Cloneable {
 
     public InventoryLayout setNonClickItems(int[] array, ItemStack.Builder itemBuilder) {
         for (int i = 0; i < array.length; i++) {
-            setItem(array[i], itemBuilder, CANCEL_CONSUMER);
+            setItem(array[i], itemBuilder, CANCEL_CLICK);
         }
         return this;
     }
 
     public InventoryLayout setNonClickItems(int[] array, ItemStack stack) {
         for (int i = 0; i < array.length; i++) {
-            setItem(array[i], stack, CANCEL_CONSUMER);
+            setItem(array[i], stack, CANCEL_CLICK);
         }
         return this;
     }
 
+    /**
+     * Blanks a single slot in the layout.
+     * @param slot The slot to blank
+     */
     public InventoryLayout blank(int slot) {
         this.contents[slot] = EMPTY_SLOT;
         return this;
     }
 
+    /**
+     * Marks a all given slot with a dummy slot object.
+     * @param slots The slots to mark
+     */
     public InventoryLayout blank(int... slots) {
         for (int i = 0; i < slots.length; i++) {
             contents[slots[i]] = EMPTY_SLOT;
@@ -173,9 +183,51 @@ public class InventoryLayout implements Cloneable {
         return this;
     }
 
+    /**
+     * Removes the slot object at a given index.
+     * @param slot The index to remove the slot
+     */
     public InventoryLayout clear(int slot) {
-        contents[slot] = null;
+        contents[slot] = EMPTY_SLOT;
         return this;
+    }
+
+    /**
+     * Removes all slot object which stands in the given array.
+     * @param slots The array which contains all slot to remove
+     *
+     */
+    public InventoryLayout clear(int... slots) {
+        for (int i = 0; i < slots.length; i++) {
+            contents[i] = EMPTY_SLOT;
+        }
+        return this;
+    }
+
+    /**
+     * Updates the given listener from a slot.
+     * If the listener is null the @{link {@link #CANCEL_CLICK} will set to the slot
+     * @param index The index to get the slot to update
+     * @param listener The listener to set
+     */
+    public InventoryLayout update(int index, @Nullable InventoryClick listener) {
+        contents[index].setClick(listener == null ? CANCEL_CLICK : listener);
+        return this;
+    }
+
+    /**
+     * Returns a slot from the content array by a specific index.
+     * @param index The index to get the slot
+     * @return The fetched slot otherwise null
+     */
+    @Nullable
+    public ISlot getSlot(int index) {
+        if (index < 0 || index > this.contents.length) {
+            throw new IllegalArgumentException("The given index " + index + "is not in the range of the array(0, "
+                    + this.contents.length + ")");
+        }
+
+        return this.contents[index];
     }
 
     /**

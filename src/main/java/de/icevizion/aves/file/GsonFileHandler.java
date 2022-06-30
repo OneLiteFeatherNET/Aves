@@ -15,7 +15,24 @@ import java.util.Optional;
  * @version 1.0.0
  * @since 1.1.0
  **/
-public record GsonFileHandler(@NotNull Gson gson) implements FileHandler {
+public final class GsonFileHandler implements FileHandler {
+
+    private final Gson gson;
+
+    /**
+     * Creates a new instance from the file handler.
+     */
+    public GsonFileHandler() {
+        this.gson = new Gson();
+    }
+
+    /**
+     * Creates a new instance from the file handler.
+     * @param gson the gson instance to deserialize or serialize data
+     */
+    public GsonFileHandler(@NotNull Gson gson) {
+        this.gson = gson;
+    }
 
     /**
      * Saves a given object into a file.

@@ -14,11 +14,14 @@ public class LayoutCalculatorsTest {
 
     @Test
     public void repeat() {
+        var arr = LayoutCalculator.repeat(0, 3);
+        var expected = new int[]{0,1,2};
+        assertArrayEquals(expected, arr);
     }
 
     @Test
     public void quadSimple() {
-        var arr = LayoutCalculator.quad(10, 20);
+        var arr = LayoutCalculator.quadOriginal(10, 20);
         var expected = new int[]{10, 11, 19, 20};
 
         assertArrayEquals(expected, arr);
@@ -26,7 +29,7 @@ public class LayoutCalculatorsTest {
 
     @Test
     public void quadSimple2() {
-        var arr = LayoutCalculator.quad(10, 21);
+        var arr = LayoutCalculator.quadOriginal(10, 21);
         var expected = new int[]{10, 11, 12, 19, 20, 21};
 
         assertArrayEquals(expected, arr);
