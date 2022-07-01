@@ -1,0 +1,58 @@
+plugins {
+    java
+    `maven-publish`
+}
+
+group = "de.icevizion.lib"
+version = "1.2.0-SNAPSHOT"
+description = "Aves"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+
+repositories {
+    mavenCentral()
+    maven("https://jitpack.io")
+}
+
+val minestomVersion = "master-SNAPSHOT"
+val strigiVersion = "e89dd8352c"
+
+dependencies {
+    implementation("com.github.PatrickZdarsky:Strigiformes:$strigiVersion")
+    implementation("com.jsoniter:jsoniter:0.9.23")
+
+    compileOnly("com.github.Minestom:Minestom:$minestomVersion")
+
+    testImplementation("com.github.Minestom:Minestom:$minestomVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+}
+
+tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+        options.release.set(17)
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.properties["group"] as String?
+            artifactId = project.name
+            version = project.properties["version"] as String?
+            from(components["java"])
+        }
+    }
+}
