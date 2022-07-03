@@ -33,35 +33,6 @@ public class LayoutCalculator {
     }
 
     public static int[] quad(int firstCornerSlot, int lastCornerSlot) {
-        return quad(firstCornerSlot, lastCornerSlot, INVENTORY_WIDTH);
-    }
-
-    public static int[] quad(int firstCornerSlot, int lastCornerSlot, int lineWidth) {
-        var x1 = firstCornerSlot % lineWidth;
-        var y1 = Math.floor(firstCornerSlot / (double)lineWidth);
-
-        var x2 = lastCornerSlot % lineWidth;
-        var y2 = Math.floor(lastCornerSlot / (double)lineWidth);
-
-        var width = (x2-x1) + 1;
-        var height = (y2-y1) + 1;
-
-        var arr = new int[(int) Math.floor(width * height)];
-
-        for (int i = 0; i < arr.length; i++) {
-            var xSquare = i % width;
-            var ySquare = Math.floor(i / (double)width);
-
-            var x = x1 + xSquare;
-            var y = y1 + ySquare;
-
-            arr[i] = (int) Math.floor(y * lineWidth) + x;
-        }
-
-        return arr;
-    }
-
-    public static int[] quadOriginal(int firstCornerSlot, int lastCornerSlot) {
         var x1 = firstCornerSlot % INVENTORY_WIDTH;
         var y1 = Math.floor(firstCornerSlot / (double)INVENTORY_WIDTH);
 
@@ -86,7 +57,7 @@ public class LayoutCalculator {
         return arr;
     }
 
-    public static int[] frame(int firstCornerSlot, int lastCornerSlot) {
+    public static int @NotNull [] frame(int firstCornerSlot, int lastCornerSlot) {
         if (firstCornerSlot == lastCornerSlot) {
             throw new IllegalArgumentException("The values are the same");
         }
@@ -119,7 +90,7 @@ public class LayoutCalculator {
      * @param type The {@link InventoryType} to get the maximum slot value of a row
      * @return an array which contains the slot numbers
      */
-    public static int[] fillRow(@NotNull InventoryType type) {
+    public static int @NotNull [] fillRow(@NotNull InventoryType type) {
         return repeat(type.getSize()-9, type.getSize());
     }
 
@@ -129,7 +100,7 @@ public class LayoutCalculator {
      * @param column The column to start
      * @return an array which contains the slot numbers
      */
-    public static int[] fillColumn(@NotNull InventoryType type, int column) {
+    public static int @NotNull [] fillColumn(@NotNull InventoryType type, int column) {
         if (column < 0 || column > INVENTORY_WIDTH - 1) {
             throw new IllegalArgumentException("Column cant be less than 0 or more than 8");
         }
