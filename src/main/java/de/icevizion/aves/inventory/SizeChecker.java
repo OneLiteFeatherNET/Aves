@@ -25,7 +25,7 @@ interface SizeChecker {
      */
     default void checkSize(int value, int max) {
         if (value > max) {
-            throw new IllegalArgumentException(String.format("The given minimum %s is higher than the maximum %s", value, max));
+            throw new IllegalArgumentException(String.format("The given value %s is higher than the maximum %s", value, max));
         }
     }
 }
