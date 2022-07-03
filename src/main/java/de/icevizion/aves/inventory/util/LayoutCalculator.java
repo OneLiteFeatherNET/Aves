@@ -17,7 +17,7 @@ public class LayoutCalculator {
      * Calculates the slot numbers between two slot numbers.
      * @param fromSlot The id from the start slot
      * @param toSlot The id from the end slot
-     * @return a array which contains the slot numbers
+     * @return an array which contains the slot numbers
      */
     public static int[] repeat(int fromSlot, int toSlot) {
         if (fromSlot > toSlot) {
