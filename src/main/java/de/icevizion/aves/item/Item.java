@@ -11,12 +11,13 @@ import java.util.Locale;
  * The class represents a wrapper for an item which can hold one {@link ItemStack} per instance from the record class.
  * The record class represents a non-translatable item for the i18n functionality in the api.
  *
- * @param itemStack the {@link ItemStack} to hold in the class
  * @author theEvilReaper
  * @since 1.0.12
  * @version 1.0.2
  */
-public record Item(@NotNull ItemStack itemStack) implements IItem {
+public non-sealed class Item implements IItem {
+
+    private final ItemStack itemStack;
 
     /**
      * Returns a new object from {@link Item}.
@@ -34,6 +35,7 @@ public record Item(@NotNull ItemStack itemStack) implements IItem {
      * @return The created instance from {@link Item}
      */
     @Contract(value = "_ -> new", pure = true)
+    @NotNull
     public static Item of(@NotNull ItemStack.Builder itemBuilder) {
         return new Item(itemBuilder.build());
     }
@@ -45,6 +47,7 @@ public record Item(@NotNull ItemStack itemStack) implements IItem {
      * @return The created instance from {@link Item}
      */
     @Contract(value = "_ -> new", pure = true)
+    @NotNull
     public static Item of(@NotNull Material material) {
         return new Item(ItemStack.of(material));
     }
@@ -53,11 +56,11 @@ public record Item(@NotNull ItemStack itemStack) implements IItem {
      * Returns the the {@link ItemStack}.
      * In this implementation the language will be ignored
      *
-     * @param locale The locale from the player
+     * @param ignore The locale from the player
      * @return The fetched stack
      */
     @Override
-    public ItemStack get(@NotNull Locale locale) {
+    public ItemStack get(@NotNull Locale ignore) {
         return itemStack;
     }
 }
