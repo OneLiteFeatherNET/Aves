@@ -99,6 +99,22 @@ public class Strings {
         return builder.toString();
     }
 
+
+    @Contract(pure = true)
+    public static @NotNull String getTimeWithHours(int time) {
+        if (time <= 0) {
+            return "00:00:00";
+        }
+
+        int minutes = time / 60;
+        int hours = minutes / 60;
+
+        minutes = minutes % 60;
+
+        int seconds = time % 60;
+        return String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+    }
+
     /**
      * Convert a time value into the hh:mm format.
      * @param time The time who should be converted
@@ -111,7 +127,6 @@ public class Strings {
         }
         int minutes = time / 60;
         int seconds = time % 60;
-        return ((minutes < 10) ? "0" + minutes : minutes) +
-                ":" + ((seconds < 10) ? "0" + seconds : seconds);
+        return String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
     }
 }
