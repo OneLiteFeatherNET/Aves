@@ -10,9 +10,20 @@ class StringsTest {
     void testZeroTime() {
         assertEquals("00:00", Strings.getTimeString(0));
     }
+
+    @Test
+    void testTime() {
+        assertEquals("01:00", Strings.getTimeString(60));
+    }
+
     @Test
     void testToHighFormat() {
         assertEquals("70:00", Strings.getTimeString(4200));
+    }
+
+    @Test
+    void testToHighFormat2() {
+        assertEquals("70:55", Strings.getTimeString(4255));
     }
 
     @Test
@@ -37,5 +48,20 @@ class StringsTest {
     void testFalseCenterText() {
         var centeredText = Strings.centerText("Hallo", 9);
         assertNotEquals(" Hallo ", centeredText);
+    }
+
+    @Test
+    void testHourString() {
+        assertEquals("01:00:00", Strings.getTimeWithHours(3600));
+    }
+
+    @Test
+    void testHourString2() {
+        assertEquals("00:59:59", Strings.getTimeWithHours(3599));
+    }
+
+    @Test
+    void testHourString3() {
+        assertEquals("01:01:39", Strings.getTimeWithHours(3699));
     }
 }
