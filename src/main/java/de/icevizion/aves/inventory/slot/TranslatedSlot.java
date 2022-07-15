@@ -38,6 +38,11 @@ public class TranslatedSlot extends Slot {
         throw new UnsupportedOperationException("This TranslatedSlot needs a locale to retrieve the item");
     }
 
+    @Override
+    public ISlot setItemStack(ItemStack itemStack) {
+        throw new UnsupportedOperationException("This TranslatedSlot needs a translated item");
+    }
+
     /**
      * Returns the {@link ItemStack} which is bounds on the slot
      * @param locale The locale to get the right {@link ItemStack}
