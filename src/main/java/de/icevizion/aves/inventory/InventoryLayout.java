@@ -215,6 +215,13 @@ public class InventoryLayout implements Cloneable {
         return this;
     }
 
+    public InventoryLayout update(int index, @NotNull ItemStack stack, @Nullable InventoryClick click) {
+        var slot = contents[index];
+        slot.setItemStack(stack);
+        slot.setClick(click == null ? CANCEL_CLICK : click);
+        return this;
+    }
+
     /**
      * Returns a slot from the content array by a specific index.
      * @param index The index to get the slot

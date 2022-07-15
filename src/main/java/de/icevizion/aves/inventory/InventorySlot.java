@@ -1,6 +1,7 @@
 package de.icevizion.aves.inventory;
 
 import de.icevizion.aves.inventory.function.InventoryClick;
+import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.Slot;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -16,8 +17,6 @@ import java.util.function.Consumer;
  * @since 1.0.0
  */
 public class InventorySlot extends Slot {
-
-    private ItemStack itemStack;
 
     /**
      * Creates a new instance from the {@link InventorySlot}.
@@ -59,7 +58,8 @@ public class InventorySlot extends Slot {
      * Set the {@link ItemStack} for the {@link InventorySlot}.
      * @param itemStack The stack to set
      */
-    public InventorySlot setItemStack(@NotNull ItemStack itemStack) {
+    @Override
+    public ISlot setItemStack(@NotNull ItemStack itemStack) {
         this.itemStack = itemStack;
         return this;
     }
