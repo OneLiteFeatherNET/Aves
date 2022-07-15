@@ -19,6 +19,9 @@ public interface ISlot extends Cloneable {
      */
     ISlot setClick(@NotNull InventoryClick slot);
 
+
+    ISlot setItemStack(@Nullable ItemStack itemStack);
+
     /**
      * Returns the given inventory click from the slot
      * @return the given click
