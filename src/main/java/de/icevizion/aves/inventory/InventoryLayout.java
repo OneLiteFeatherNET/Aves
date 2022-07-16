@@ -241,6 +241,7 @@ public class InventoryLayout implements Cloneable {
      * Returns the array which contains all valid {@link ISlot}.
      * @return the underlying array
      */
+    @NotNull
     public ISlot[] getContents() {
         return contents;
     }
