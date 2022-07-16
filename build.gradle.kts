@@ -1,6 +1,7 @@
 plugins {
     java
     `maven-publish`
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "de.icevizion.lib"
@@ -37,6 +38,11 @@ tasks {
         options.encoding = "UTF-8"
         options.release.set(17)
     }
+
+    jar {
+        dependsOn("shadowJar")
+    }
+
 
     test {
         useJUnitPlatform()
