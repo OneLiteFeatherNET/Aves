@@ -1,5 +1,6 @@
 plugins {
     java
+    `java-library`
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
@@ -24,7 +25,7 @@ val strigiVersion = "e89dd8352c"
 
 dependencies {
     implementation("com.github.PatrickZdarsky:Strigiformes:$strigiVersion")
-    implementation("com.jsoniter:jsoniter:0.9.23")
+    api("com.jsoniter:jsoniter:0.9.23")
 
     compileOnly("com.github.Minestom:Minestom:$minestomVersion")
 
