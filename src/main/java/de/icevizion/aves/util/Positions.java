@@ -1,5 +1,6 @@
 package de.icevizion.aves.util;
 
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -30,5 +31,22 @@ public class Positions {
     @Contract(pure = true)
     public static @NotNull Pos centerPos3D(@NotNull Pos pos) {
         return pos.add(0.5, 0.5, 0.5);
+    }
+
+    public static @NotNull Point normalizePoint(@NotNull Point pos) {
+        var x = lengthSquaredPos(pos);
+
+        var xHalf =  .5D * x;
+
+        var i = Double.doubleToRawLongBits(x);
+        i = 0x5fe6ec85e7de30daL - (i << 1);
+        x = Double.longBitsToDouble(i);
+        x *= (1.5 - xHalf * x * x);
+
+        return pos.mul(x);
+    }
+
+    private static double lengthSquaredPos(@NotNull Point pos) {
+        return Math.pow(pos.x(), 2) + Math.pow(pos.y(), 2) + Math.pow(pos.z(), 2);
     }
 }
