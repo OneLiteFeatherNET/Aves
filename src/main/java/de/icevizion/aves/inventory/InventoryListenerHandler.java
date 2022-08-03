@@ -1,10 +1,14 @@
 package de.icevizion.aves.inventory;
 
 import de.icevizion.aves.inventory.holder.InventoryHolder;
+import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventListener;
+import net.minestom.server.event.EventNode;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryOpenEvent;
+import net.minestom.server.event.trait.InventoryEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Handles the {@link EventListener} creation for some {@link net.minestom.server.event.trait.InventoryEvent}'s.
@@ -13,7 +17,60 @@ import org.jetbrains.annotations.NotNull;
  * @version 1.0.0
  * @since 1.0.0
  **/
-public interface InventoryListenerHandler {
+sealed interface InventoryListenerHandler permits GlobalInventoryBuilder, GlobalTranslatedInventoryBuilder {
+
+     EventNode<InventoryEvent> NODE = EventNode.type("inventories", EventFilter.INVENTORY);
+
+    /**
+     * Register the a {@link InventoryOpenEvent} and {@link InventoryCloseEvent} listener instance to the event node.
+     * @param eventNode the {@link EventNode} for the events
+     * @param openListener the instance of the {@link EventListener} for the {@link InventoryOpenEvent}
+     * @param closeListener the instance of the {@link EventListener} for the {@link InventoryCloseEvent}
+     */
+    default void register(
+            @NotNull EventNode<InventoryEvent> eventNode,
+            @Nullable EventListener<InventoryOpenEvent> openListener,
+            @Nullable EventListener<InventoryCloseEvent> closeListener) {
+        if (openListener != null) {
+            eventNode.addListener(openListener);
+        }
+
+        if (closeListener != null) {
+            eventNode.addListener(closeListener);
+        }
+    }
+
+    /**
+     * Unregister the instance of an {@link InventoryOpenEvent} and {@link InventoryCloseEvent}.
+     * @param eventNode the {@link EventNode} for the events
+     * @param openListener the instance of the {@link EventListener} for the {@link InventoryOpenEvent}
+     * @param closeListener the instance of the {@link EventListener} for the {@link InventoryCloseEvent}
+     */
+    default void unregister(@NotNull EventNode<InventoryEvent> eventNode,
+                            @Nullable EventListener<InventoryOpenEvent> openListener,
+                            @Nullable EventListener<InventoryCloseEvent> closeListener) {
+        if (openListener != null) {
+            eventNode.removeListener(openListener);
+        }
+
+        if (closeListener != null) {
+            eventNode.removeListener(closeListener);
+        }
+    }
+
+    /**
+     * Checks if the given listener can be registered or not.
+     * Please note that the listener only checks if the given reference to the listeners are null and
+     * not if the reference is registered in the node
+     * @param openListener the instance to the {@link EventListener} for the {@link InventoryOpenEvent}
+     * @param closeListener the instance to the {@link EventListener} for the {@link InventoryCloseEvent}
+     */
+    default void checkListenerState(EventListener<InventoryOpenEvent> openListener,
+                                    EventListener<InventoryCloseEvent> closeListener) {
+        if (openListener != null && closeListener != null) {
+            throw new IllegalStateException("Can't register listener twice");
+        }
+    }
 
     /**
      * Create a new {@link EventListener} for the {@link InventoryOpenEvent}.

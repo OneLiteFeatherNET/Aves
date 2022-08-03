@@ -2,3 +2,6 @@ include:
   - project: onelitefeather/ci-template
     ref: main
     file: base.yaml
+  - project: onelitefeather/ci-template
+    ref: main
+    file: sonarqube.yaml

@@ -10,6 +10,7 @@ import java.util.WeakHashMap;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
+@Deprecated(forRemoval = true, since = "So for what?")
 public class ItemRegistry {
 
     private static final Map<ItemStack, UUID> registry = new WeakHashMap<>();

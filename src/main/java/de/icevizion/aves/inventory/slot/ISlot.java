@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a slot in an {@link net.minestom.server.inventory.Inventory}.
  * @author Patrick Zdarsky / Rxcki
- * @version 1.0.0
+ * @version 1.0.1
  * @since 1.0.12
  */
 public interface ISlot extends Cloneable {
@@ -19,7 +19,10 @@ public interface ISlot extends Cloneable {
      */
     ISlot setClick(@NotNull InventoryClick slot);
 
-
+    /**
+     * Set a new {@link ItemStack} to the slot.
+     * @param itemStack the stack to set
+     */
     ISlot setItemStack(@Nullable ItemStack itemStack);
 
     /**
