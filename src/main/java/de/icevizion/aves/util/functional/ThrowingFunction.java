@@ -2,6 +2,14 @@ package de.icevizion.aves.util.functional;
 
 import java.util.function.Function;
 
+/**
+ * The class is an extension for the {@link Function} which allows to throw an exception
+ * @author TheMeinerLP
+ * @version 1.0.0
+ * @since 1.2.0
+ * @param <T> the input type
+ * @param <R> the output type
+ */
 @FunctionalInterface
 public interface ThrowingFunction<T,R> extends Function<T,R> {
 
@@ -9,8 +17,8 @@ public interface ThrowingFunction<T,R> extends Function<T,R> {
     default R apply(T t) {
         try {
             return acceptThrows(t);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
         }
     }
 
