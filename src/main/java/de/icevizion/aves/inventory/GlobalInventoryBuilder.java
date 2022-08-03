@@ -3,6 +3,7 @@ package de.icevizion.aves.inventory;
 import de.icevizion.aves.inventory.holder.InventoryHolder;
 import de.icevizion.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
@@ -19,7 +20,11 @@ import java.util.Locale;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class GlobalInventoryBuilder extends InventoryBuilder implements InventoryListenerHandler {
+public non-sealed class GlobalInventoryBuilder extends InventoryBuilder implements InventoryListenerHandler {
+
+    static {
+        MinecraftServer.getGlobalEventHandler().addChild(NODE);
+    }
 
     private final Component titleComponent;
     private CustomInventory inventory;
@@ -43,6 +48,7 @@ public class GlobalInventoryBuilder extends InventoryBuilder implements Inventor
 
     @Override
     public void register() {
+        this.checkListenerState(this.openListener, this.closeListener);
         if (this.openFunction != null) {
             this.openListener = registerOpen(this, holder);
         }
@@ -51,29 +57,17 @@ public class GlobalInventoryBuilder extends InventoryBuilder implements Inventor
             this.closeListener = registerClose(this, holder);
         }
 
-        if (openListener != null) {
-            EVENT_NODE.addListener(this.openListener);
-        }
-
-        if (closeListener != null) {
-            EVENT_NODE.addListener(this.closeListener);
-        }
+        this.register(NODE, openListener, closeListener);
     }
 
     @Override
     public void unregister() {
-        if (openListener != null) {
-            EVENT_NODE.removeListener(this.openListener);
-        }
-
-        if (closeListener != null) {
-            EVENT_NODE.removeListener(this.closeListener);
-        }
         if (!getInventory().getViewers().isEmpty()) {
             for (Player viewer : getInventory().getViewers()) {
                 viewer.closeInventory();
             }
         }
+        this.unregister(NODE, openListener, closeListener);
         this.holder = null;
     }
 

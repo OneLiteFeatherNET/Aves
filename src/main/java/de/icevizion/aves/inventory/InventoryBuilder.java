@@ -8,11 +8,8 @@ import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.EventFilter;
-import net.minestom.server.event.EventNode;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryOpenEvent;
-import net.minestom.server.event.trait.InventoryEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.inventory.click.ClickType;
@@ -36,13 +33,7 @@ public abstract class InventoryBuilder implements SizeChecker {
 
     private static final int INVALID_SLOT_ID = -999;
 
-    protected static final EventNode<InventoryEvent> EVENT_NODE = EventNode.type("inventories", EventFilter.INVENTORY);
-
     protected static final Logger LOGGER = LoggerFactory.getLogger(MinecraftServer.class);
-
-    static {
-        MinecraftServer.getGlobalEventHandler().addChild(EVENT_NODE);
-    }
 
     protected final InventoryType type;
 
@@ -80,7 +71,6 @@ public abstract class InventoryBuilder implements SizeChecker {
                 acceptClick(clickedSlot, player, clickType, slot, inventoryConditionResult);
             }
         };
-
     }
 
     /**
@@ -136,7 +126,7 @@ public abstract class InventoryBuilder implements SizeChecker {
     /**
      * Marks the inventory layout as not valid an updates the inventory.
      */
-    public void invalidateInventoryLayout() {
+    public void invalidateLayout() {
         inventoryLayoutValid = false;
         if (isOpen()) {
             updateInventory();
@@ -176,7 +166,19 @@ public abstract class InventoryBuilder implements SizeChecker {
         }
     }
 
-    protected void updateInventory(Inventory inventory, Component title, Locale locale, MessageProvider messageProvider, boolean applyLayout) {
+    /**
+     * Updates the given inventory with the content.
+     * @param inventory the inventory which should receive the update
+     * @param title the title for the inventory
+     * @param locale the locale for the inventory
+     * @param messageProvider the instance to a {@link MessageProvider}
+     * @param applyLayout if the layout should be applied
+     */
+    protected void updateInventory(@NotNull Inventory inventory,
+                                   Component title,
+                                   Locale locale,
+                                   MessageProvider messageProvider,
+                                   boolean applyLayout) {
         applyLayout |= !inventoryLayoutValid;
 
         if (!Component.EQUALS.test(inventory.getTitle(), title)) {
@@ -199,6 +201,7 @@ public abstract class InventoryBuilder implements SizeChecker {
                 inventory.setItemStack(i, contentSlot);
             }
             LOGGER.info("UpdateInventory applied the InventoryLayout!");
+            this.inventoryLayoutValid = true;
         }
 
 
@@ -266,11 +269,6 @@ public abstract class InventoryBuilder implements SizeChecker {
      */
     public InventoryBuilder setOpenFunction(OpenFunction openFunction) {
         this.openFunction = openFunction;
-
-        if (this.openFunction != null) {
-            LOGGER.info("Overwriting open event listener");
-        }
-
         return this;
     }
 
@@ -280,11 +278,6 @@ public abstract class InventoryBuilder implements SizeChecker {
      */
     public InventoryBuilder setCloseFunction(CloseFunction closeFunction) {
         this.closeFunction = closeFunction;
-
-        if (this.closeFunction != null) {
-            LOGGER.info("Overwriting close event listener");
-        }
-
         return this;
     }
 

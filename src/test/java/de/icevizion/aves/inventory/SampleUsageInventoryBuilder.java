@@ -12,7 +12,7 @@ public class SampleUsageInventoryBuilder {
         BungeeCordProxy.enable();
         server.start("localhost", 25577);
         var test = new GlobalInventoryBuilder("Just a test", InventoryType.CHEST_1_ROW);
-        test.setLayout(new InventoryLayout(9));
+        test.setLayout(new InventoryLayout(InventoryType.CHEST_1_ROW));
         test.setDataLayoutFunction(SampleUsageInventoryBuilder::set);
         test.invalidateDataLayout();
         var inv = test.getInventory();

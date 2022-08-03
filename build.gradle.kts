@@ -3,6 +3,7 @@ plugins {
     `java-library`
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("org.sonarqube") version "3.4.0.2513"
 }
 
 group = "de.icevizion.lib"
@@ -61,5 +62,11 @@ publishing {
             version = project.properties["version"] as String?
             from(components["java"])
         }
+    }
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectKey", "dungeon_aves_AYINRMy8pSUXqILAYb0z")
     }
 }

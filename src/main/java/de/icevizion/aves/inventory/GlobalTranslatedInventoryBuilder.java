@@ -13,6 +13,7 @@ import net.minestom.server.event.inventory.InventoryOpenEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.Material;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +22,7 @@ import java.util.Locale;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public class GlobalTranslatedInventoryBuilder extends InventoryBuilder implements InventoryListenerHandler {
+public non-sealed class GlobalTranslatedInventoryBuilder extends InventoryBuilder implements InventoryListenerHandler {
 
     private final MessageProvider messageProvider;
     private final TranslatedObjectCache<CustomInventory> inventoryTranslatedObjectCache;
@@ -39,7 +40,8 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder implement
         this.inventoryTranslatedObjectCache = createCache();
     }
 
-    private TranslatedObjectCache<CustomInventory> createCache() {
+    @Contract(value = " -> new", pure = true)
+    private @NotNull TranslatedObjectCache<CustomInventory> createCache() {
         return new TranslatedObjectCache<>(locale -> {
             var title = Component.text(messageProvider.getTextProvider().format(titleData, locale));
             var inventory = new CustomInventory(new InventoryHolderImpl(this), type, title);
@@ -51,6 +53,8 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder implement
 
     @Override
     public void register() {
+        this.checkListenerState(this.openListener, this.closeListener);
+
         if (this.openFunction != null) {
             this.openListener = registerOpen(this, holder);
         }
@@ -59,25 +63,12 @@ public class GlobalTranslatedInventoryBuilder extends InventoryBuilder implement
             this.closeListener = registerClose(this, holder);
         }
 
-        if (openListener != null) {
-            EVENT_NODE.addListener(this.openListener);
-        }
-
-        if (closeListener != null) {
-            EVENT_NODE.addListener(this.closeListener);
-        }
+        this.register(NODE, openListener, closeListener);
     }
 
     @Override
     public void unregister() {
-        if (openListener != null) {
-            EVENT_NODE.removeListener(this.openListener);
-        }
-
-        if (closeListener != null) {
-            EVENT_NODE.removeListener(this.closeListener);
-        }
-
+        this.unregister(NODE, openListener, closeListener);
         this.holder = null;
 
         if (!this.inventoryTranslatedObjectCache.asMap().isEmpty()) return;

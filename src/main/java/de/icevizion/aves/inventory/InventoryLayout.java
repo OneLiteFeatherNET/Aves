@@ -33,6 +33,7 @@ public class InventoryLayout implements Cloneable {
         this.contents = new ISlot[type.getSize()];
     }
 
+    @Deprecated(forRemoval = true, since = "Please use the constructor with the InventoryType instead")
     public InventoryLayout(int size) {
         contents = new ISlot[size];
     }
@@ -233,7 +234,6 @@ public class InventoryLayout implements Cloneable {
             throw new IllegalArgumentException("The given index " + index + "is not in the range of the array(0, "
                     + this.contents.length + ")");
         }
-
         return this.contents[index];
     }
 
@@ -251,7 +251,6 @@ public class InventoryLayout implements Cloneable {
         try {
             InventoryLayout clone = (InventoryLayout) super.clone();
             clone.contents = contents.clone();
-
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("This should never happen", e);
