@@ -3,14 +3,15 @@ package de.icevizion.aves.resourcepack;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerResourcePackStatusEvent;
 import net.minestom.server.resourcepack.ResourcePack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -21,10 +22,8 @@ import java.util.function.Consumer;
  **/
 public class ResourcePackHandler {
 
-    private static final GlobalEventHandler GLOBAL_EVENT_HANDLER = MinecraftServer.getGlobalEventHandler();
-
     private final ResourcePack resourcePack;
-    private final HashSet<Integer> resourcePackCache;
+    private final HashSet<UUID> resourcePackCache;
 
     private ResourcePackCondition condition;
     private Consumer<PlayerResourcePackStatusEvent> eventConsumer;
@@ -100,8 +99,9 @@ public class ResourcePackHandler {
      * Add some listener to handle the resource pack handling.
      */
     public ResourcePackHandler withListener() {
-        GLOBAL_EVENT_HANDLER.addListener(PlayerResourcePackStatusEvent.class, eventConsumer);
-        GLOBAL_EVENT_HANDLER.addListener(PlayerDisconnectEvent.class, event -> invalidateId(event.getPlayer().getEntityId()));
+        var eventHandler = MinecraftServer.getGlobalEventHandler();
+        eventHandler.addListener(PlayerResourcePackStatusEvent.class, eventConsumer);
+        eventHandler.addListener(PlayerDisconnectEvent.class, event -> invalidateId(event.getPlayer().getUuid()));
         return this;
     }
 
@@ -122,9 +122,9 @@ public class ResourcePackHandler {
      * @return true when the player can receive the pack otherwise false
      */
     public boolean setPack(@NotNull Player player) {
-        if (resourcePack == null || resourcePackCache.contains(player.getEntityId())) return false;
+        if (resourcePack == null || resourcePackCache.contains(player.getUuid())) return false;
         player.setResourcePack(resourcePack);
-        resourcePackCache.add(player.getEntityId());
+        resourcePackCache.add(player.getUuid());
         return true;
     }
 
@@ -137,18 +137,19 @@ public class ResourcePackHandler {
     }
 
     /**
-     * Invalidates an id (player entity id) in the underlying cache
-     * @param id the id from the user
+     * Invalidates an uuid (player uuid) in the underlying cache.
+     * @param uuid the uuid from the user
      */
-    public void invalidateId(int id) {
-        this.resourcePackCache.remove(id);
+    public void invalidateId(UUID uuid) {
+        this.resourcePackCache.remove(uuid);
     }
 
     /**
      * Creates the consumer for the {@link PlayerResourcePackStatusEvent}.
      * @return the created consumer
      */
-    private Consumer<PlayerResourcePackStatusEvent> handleResourcePackChange() {
+    @Contract(pure = true)
+    private @NotNull Consumer<PlayerResourcePackStatusEvent> handleResourcePackChange() {
         if (condition == null) {
             throw new IllegalStateException("Can't register the handler because the 'ResourcePackCondition' is null");
         }
