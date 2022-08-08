@@ -45,7 +45,6 @@ tasks {
         dependsOn("shadowJar")
     }
 
-
     test {
         useJUnitPlatform()
         testLogging {
