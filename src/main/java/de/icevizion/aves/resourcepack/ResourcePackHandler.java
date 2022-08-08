@@ -27,7 +27,6 @@ public class ResourcePackHandler {
 
     private ResourcePackCondition condition;
     private Consumer<PlayerResourcePackStatusEvent> eventConsumer;
-    private ResourcePackCommand command;
 
     /**
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
@@ -106,17 +105,6 @@ public class ResourcePackHandler {
     }
 
     /**
-     * Register a command which allow that players can load or reload the resource pack
-     */
-    public ResourcePackHandler withCommand() {
-        if (command == null) {
-            command = new ResourcePackCommand(this);
-            MinecraftServer.getCommandManager().register(new ResourcePackCommand(this));
-        }
-        return this;
-    }
-
-    /**
      * Set the resource pack to a given player.
      * @param player The player who receives the pack
      * @return true when the player can receive the pack otherwise false
@@ -126,14 +114,6 @@ public class ResourcePackHandler {
         player.setResourcePack(resourcePack);
         resourcePackCache.add(player.getUuid());
         return true;
-    }
-
-    /**
-     * Unregisters the command.
-     */
-    public void unregisterCommand() {
-        if (command == null) return;
-        MinecraftServer.getCommandManager().unregister(command);
     }
 
     /**
