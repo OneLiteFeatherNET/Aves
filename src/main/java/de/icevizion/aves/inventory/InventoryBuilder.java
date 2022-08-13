@@ -179,7 +179,7 @@ public abstract class InventoryBuilder implements SizeChecker {
                                    Locale locale,
                                    MessageProvider messageProvider,
                                    boolean applyLayout) {
-        applyLayout |= !inventoryLayoutValid;
+        // applyLayout |= !inventoryLayoutValid;
 
         if (!Component.EQUALS.test(inventory.getTitle(), title)) {
             LOGGER.info("UpdateInventory is updating the title");
@@ -191,6 +191,7 @@ public abstract class InventoryBuilder implements SizeChecker {
             return;
         }
 
+        // Design
         if (applyLayout) {
             var contents = inventory.getItemStacks();
             inventory.clear();
@@ -205,6 +206,7 @@ public abstract class InventoryBuilder implements SizeChecker {
         }
 
 
+        // Values
         synchronized (this) {
             if (!dataLayoutValid) {
                 retrieveDataLayout();
