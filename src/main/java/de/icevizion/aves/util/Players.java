@@ -11,6 +11,8 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -29,10 +31,28 @@ import java.util.stream.Collectors;
  */
 public final class Players {
 
-    public static Duration ITEM_DURATION = Duration.ofMillis(3);
-    public static ItemPlacer ITEM_PLACER;
+    private static final Logger PLAYER_LOGGER = LoggerFactory.getLogger(Players.class);
+
+    private static Duration itemDuration = Duration.ofMillis(3);
+    private static ItemPlacer placer;
 
     private Players() {}
+
+    /**
+     * Set a new {@link Duration} for the item drop functionality.
+     * @param duration the duration to set
+     */
+    public static void setItemDuration(@NotNull Duration duration) {
+        itemDuration = duration;
+    }
+
+    /**
+     * Set a new instance from a {@link ItemPlacer}.
+     * @param itemPlacer the new instance to set
+     */
+    public static void setItemPlacer(@NotNull ItemPlacer itemPlacer) {
+        placer = itemPlacer;
+    }
 
     /**
      * Checks if a player has an instance or not
@@ -65,7 +85,7 @@ public final class Players {
             for (int i = 0; i < content.length; i++) {
                 ItemEntity entity = new ItemEntity(content[i]);
                 entity.setMergeable(true);
-                entity.setPickupDelay(ITEM_DURATION);
+                entity.setPickupDelay(itemDuration);
                 entity.setInstance(instance, pos.withY(y -> y + 1.5));
                 entity.setVelocity(pos.direction().mul(6));
                 entity.spawn();
@@ -118,6 +138,7 @@ public final class Players {
      * @param locale The {@link Locale} for {@link TranslatedItem}
      * @param shiftedSlots An array with contains shifted layout only for the hotbar
      */
+    @SuppressWarnings("java:S3776")
     public static void updateEquipment(@NotNull Player player,
                                        @NotNull IItem[] armorItems,
                                        @NotNull IItem[] hotBarItems,
@@ -127,9 +148,9 @@ public final class Players {
             throw new IllegalArgumentException("The length from shiftedSlots has not the same length with the underlying array");
         }
 
-        if (ITEM_PLACER == null) {
-            ITEM_PLACER = ItemPlacer.FALLBACK;
-            System.out.println("Set `ItemPlacer Interface` to fallback implementation");
+        if (placer == null) {
+            placer = ItemPlacer.FALLBACK;
+            PLAYER_LOGGER.info("Set `ItemPlacer Interface` to fallback implementation");
         }
 
         player.getInventory().clear();
@@ -138,10 +159,10 @@ public final class Players {
             for (int i = 0; i < armorItems.length; i++) {
                 if (armorItems[i] == null) continue;
                 if (armorItems[i] instanceof TranslatedItem item && locale != null) {
-                    ITEM_PLACER.setItem(player, i, item.get(locale), true);
+                    placer.setItem(player, i, item.get(locale), true);
                     return;
                 } else {
-                    ITEM_PLACER.setItem(player, i, armorItems[i].get(), true);
+                    placer.setItem(player, i, armorItems[i].get(), true);
                 }
             }
         }
@@ -153,9 +174,9 @@ public final class Players {
                 int slot = shiftedSlots == null ? i : shiftedSlots[i];
 
                 if (hotBarItems[i] instanceof TranslatedItem item && locale != null) {
-                    ITEM_PLACER.setItem(player, slot, item.get(locale));
+                    placer.setItem(player, slot, item.get(locale));
                 } else {
-                    ITEM_PLACER.setItem(player, i, hotBarItems[i].get());
+                    placer.setItem(player, i, hotBarItems[i].get());
                 }
             }
         }
