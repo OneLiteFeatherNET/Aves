@@ -44,7 +44,8 @@ public final class GsonFileHandler implements FileHandler {
     public <T> void save(@NotNull Path path, @NotNull T object) {
         try (var outputStream = Files.newBufferedWriter(path, UTF_8)) {
             if (!Files.exists(path)) {
-                LOGGER.info("Created new file: " + Files.createFile(path).getFileName().toString());
+                var file = Files.createFile(path).getFileName();
+                LOGGER.info("Created new file: {}", file);
             }
             gson.toJson(object, TypeToken.get(object.getClass()).getType(), outputStream);
         } catch (IOException exception) {
