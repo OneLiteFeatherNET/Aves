@@ -32,6 +32,8 @@ public final class Players {
     public static Duration ITEM_DURATION = Duration.ofMillis(3);
     public static ItemPlacer ITEM_PLACER;
 
+    private Players() {}
+
     /**
      * Checks if a player has an instance or not
      * When the instance is null then the method will throw an exception

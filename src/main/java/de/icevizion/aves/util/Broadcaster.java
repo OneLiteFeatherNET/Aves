@@ -20,6 +20,8 @@ public final class Broadcaster {
 
     private static final ConnectionManager CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
 
+    private Broadcaster() {}
+
     /**
      * Broadcasts a message to all players on the server
      * @param message The message to send

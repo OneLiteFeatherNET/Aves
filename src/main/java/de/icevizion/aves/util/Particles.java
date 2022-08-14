@@ -18,9 +18,11 @@ import java.util.List;
 public class Particles {
 
     private static final int DEFAULT_PARTICLE_AMOUNT = 2;
-    private static final int MIN_SIZE_Y = 2;
 
+    private static final int MIN_SIZE_Y = 2;
     private static List<Vec> pointCache = new ArrayList<>();
+
+    private Particles() {}
 
     /**
      * Displays a particle line from a start point to an end point
@@ -66,7 +68,6 @@ public class Particles {
         }
 
         if (!pointCache.isEmpty()) {
-            System.out.println("Work created Loop");
             loopList(particle, player);
             return;
         }
@@ -76,15 +77,14 @@ public class Particles {
         double minX = Math.min(min.blockX(), max.blockX());
         double minY = Math.min(min.blockY(), max.blockY());
         double minZ = Math.min(min.blockZ(), max.blockZ());
-        double maxX = Math.max(min.blockX(), max.blockX()) + 1;
-        double maxY = Math.max(min.blockY(), max.blockY()) + 1;
-        double maxZ = Math.max(min.blockZ(), max.blockZ()) + 1;
+        double maxX = Math.max(min.blockX(), max.blockX()) + 1D;
+        double maxY = Math.max(min.blockY(), max.blockY()) + 1D;
+        double maxZ = Math.max(min.blockZ(), max.blockZ()) + 1D;
 
-        for (double x = minX; x <= maxX; x = ((x + particleDistance))) {
-            for (double y = minY; y <= maxY; y = ((y + particleDistance))) {
-                for (double z = minZ; z <= maxZ; z = ((z + particleDistance))) {
+        for (double x = minX; x <= maxX; x = (x + particleDistance)) {
+            for (double y = minY; y <= maxY; y = (y + particleDistance)) {
+                for (double z = minZ; z <= maxZ; z = (z + particleDistance)) {
                     int components = 0;
-                    System.out.println(components);
                     if (x == minX || x == maxX) components++;
                     if (y == minY || y == maxY) components++;
                     if (components == 0) continue;
@@ -132,8 +132,6 @@ public class Particles {
     @ApiStatus.Internal
     private static void loopList(@NotNull Particle particle, @NotNull Player player) {
         if (pointCache == null || pointCache.isEmpty()) return;
-
-            System.out.println("Looping");
 
         for (int i = 0; i < pointCache.size(); i++) {
             playPoint(particle, player, pointCache.get(i));
