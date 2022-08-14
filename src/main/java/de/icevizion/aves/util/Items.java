@@ -10,9 +10,11 @@ import org.jetbrains.annotations.NotNull;
  * @since 1.0.6
  * @version 1.0.0
  */
-public class Items {
+public final class Items {
 
-    public static int MAX_STACK_SIZE = 64;
+    public static final int MAX_STACK_SIZE = 64;
+
+    private Items() {}
 
     /**
      * Returns the number of a specific item that is in a player's inventory
