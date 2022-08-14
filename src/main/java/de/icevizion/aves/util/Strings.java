@@ -6,14 +6,17 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public class Strings {
+@SuppressWarnings({"java:S1104", "java:S1444", "java:S3008", "java:S1854", "java:S125"})
+public final class Strings {
 
     private static final char SPACE = ' ';
 
-    public static NamedTextColor FILLED_HEARTH = NamedTextColor.RED;
-    public static NamedTextColor LOOSED_HEARTHS = NamedTextColor.GRAY;
+    public static NamedTextColor FILLED_HEART = NamedTextColor.RED;
+    public static NamedTextColor EMPTY_HEARTS = NamedTextColor.GRAY;
 
     public static final String UTF_8_HEART = "♥";
+
+    private Strings() {}
 
     /**
      * Creates a progress bar for the given values.
@@ -25,6 +28,7 @@ public class Strings {
      * @param notCompletedColor The color for the not completed part
      * @return The progressbar as string
      */
+    @SuppressWarnings("java:S1481")
     @Contract(pure = true)
     public static String getProgressBar(int current,
                                         int max,
@@ -70,7 +74,7 @@ public class Strings {
      */
     @NotNull
     public static Component getHealthString(double paramHealth) {
-        return getHealthString(paramHealth, FILLED_HEARTH, LOOSED_HEARTHS);
+        return getHealthString(paramHealth, FILLED_HEART, EMPTY_HEARTS);
     }
 
     /**
