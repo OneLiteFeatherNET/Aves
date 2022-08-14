@@ -13,6 +13,8 @@ public class LayoutCalculator {
 
     private static final int INVENTORY_WIDTH = 9;
 
+    private LayoutCalculator() {}
+
     /**
      * Calculates the slot numbers between two slot numbers.
      * @param fromSlot The id from the start slot
