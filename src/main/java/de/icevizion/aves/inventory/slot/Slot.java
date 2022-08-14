@@ -40,15 +40,6 @@ public abstract class Slot implements ISlot {
         return this.inventoryClick;
     }
 
-    @Override
-    public ISlot clone() {
-        try {
-            return (ISlot) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("This should never happen", e);
-        }
-    }
-
     /**
      * Returns a text representation of the slot.
      * @return the slot as string
