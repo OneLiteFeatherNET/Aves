@@ -8,7 +8,7 @@ import org.junit.jupiter.api.TestInstance;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class Vec2DTest {
+class Vec2DTest {
 
     private Vec2D vector1;
 
