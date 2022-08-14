@@ -105,7 +105,7 @@ public non-sealed class GlobalInventoryBuilder extends InventoryBuilder implemen
     protected void applyDataLayout() {
         synchronized (this) {
             if (getDataLayout() != null) {
-                LOGGER.info("Applying data layouts " + getDataLayout());
+                LOGGER.info("Applying data layouts");
                 var contents = inventory.getItemStacks();
                 getDataLayout().applyLayout(contents, null, null);
                 for (int i = 0; i < contents.length; i++) {

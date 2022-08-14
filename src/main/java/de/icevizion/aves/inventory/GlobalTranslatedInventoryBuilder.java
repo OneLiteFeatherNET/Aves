@@ -113,7 +113,7 @@ public non-sealed class GlobalTranslatedInventoryBuilder extends InventoryBuilde
     protected void applyDataLayout() {
         synchronized (this) {
             if (getDataLayout() != null) {
-                LOGGER.info("Applying data layouts " + getDataLayout());
+                LOGGER.info("Applying data layout");
                 for (var entry : inventoryTranslatedObjectCache.asMap().entrySet()) {
                     var contents = entry.getValue().getItemStacks();
                     getDataLayout().applyLayout(contents, entry.getKey(), messageProvider);
