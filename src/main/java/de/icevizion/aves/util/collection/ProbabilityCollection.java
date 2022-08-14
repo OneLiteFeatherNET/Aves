@@ -9,7 +9,6 @@ import java.util.TreeSet;
 
 /**
  * Taken from <a href="https://github.com/lewysDavies/Java-Probability-Collection/blob/master/src/main/java/com/lewdev/probabilitylib/ProbabilityCollection.java">https://github.com/lewysDavies/Java-Probability-Collection/blob/master/src/main/java/com/lewdev/probabilitylib/ProbabilityCollection.java</a>
- *
  * ProbabilityCollection for retrieving random elements based on probability.
  * <br>
  * <br>
@@ -61,7 +60,7 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
-     * @param object
+     * @param object the object to check
      * @return True if collection contains the object, else False
      * @throws IllegalArgumentException if object is null
      */
@@ -106,9 +105,9 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
-     * Remove a object from this collection
+     * Remove an object from this collection
      *
-     * @param object
+     * @param object the object to remove
      * @return True if object was removed, else False.
      *
      * @throws IllegalArgumentException if object is null
@@ -186,7 +185,7 @@ public final class ProbabilityCollection<E> {
      *
      * @param <T> Type of element
      */
-    final static class ProbabilitySetElement<T> {
+    static final class ProbabilitySetElement<T> {
         private final T object;
         private final int probability;
         private int index;
@@ -197,7 +196,7 @@ public final class ProbabilityCollection<E> {
          * @param probability share within the collection
          */
 
-        protected ProbabilitySetElement(T object, int probability) {
+        private ProbabilitySetElement(T object, int probability) {
             this.object = object;
             this.probability = probability;
         }
