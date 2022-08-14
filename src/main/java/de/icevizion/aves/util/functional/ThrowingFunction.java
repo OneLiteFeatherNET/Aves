@@ -1,5 +1,7 @@
 package de.icevizion.aves.util.functional;
 
+import de.icevizion.aves.util.exception.ThrowingException;
+
 import java.util.function.Function;
 
 /**
@@ -18,9 +20,9 @@ public interface ThrowingFunction<T,R> extends Function<T,R> {
         try {
             return acceptThrows(t);
         } catch (Exception exception) {
-            throw new RuntimeException(exception);
+            throw new ThrowingException(exception);
         }
     }
 
-    R acceptThrows(T t) throws Exception;
+    R acceptThrows(T t) throws ThrowingException;
 }
