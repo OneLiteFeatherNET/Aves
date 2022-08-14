@@ -1,6 +1,8 @@
 package de.icevizion.aves.file;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +16,8 @@ import java.util.Optional;
  * @since 1.0.0
  **/
 public interface FileHandler {
+
+    Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
 
     Charset UTF_8 = StandardCharsets.UTF_8;
 
