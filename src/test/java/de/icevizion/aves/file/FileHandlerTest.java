@@ -22,7 +22,7 @@ class FileHandlerTest {
     private final String testMap = "test.json";
 
     @TempDir
-    File tempDir;
+    static File tempDir;
 
     @Order(1)
     @Test
@@ -48,7 +48,7 @@ class FileHandlerTest {
         var path = tempDir.toPath().resolve(testMap);
         var optional = gsonFileHandler.load(path, BaseMap.class);
 
-      //  assertTrue(optional.isPresent());
+      assertTrue(optional.isPresent());
 
         var map = optional.get();
 
