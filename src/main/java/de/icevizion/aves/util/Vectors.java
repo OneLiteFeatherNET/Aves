@@ -5,7 +5,7 @@ import net.minestom.server.coordinate.Vec;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * The class contains some usefully method to work with vectors.
@@ -15,7 +15,9 @@ import java.util.Random;
  */
 public class Vectors {
 
-    private final static Random random = new Random();
+    private static final SecureRandom random = new SecureRandom();
+
+    private Vectors() {}
 
     @NotNull
     public static Vec getRandomVector() {
