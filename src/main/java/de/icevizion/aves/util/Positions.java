@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
  * @version 1.0.0
  * @since 1.0.0
  **/
-public class Positions {
+public final class Positions {
+
+    private Positions() {}
 
     /**
      * Calculates the yaw value from two given double values.
@@ -33,6 +35,11 @@ public class Positions {
         return pos.add(0.5, 0.5, 0.5);
     }
 
+    /**
+     * Normalize a given point
+     * @param pos the {@link Point} to normalize
+     * @return the normalized {@link Point}
+     */
     public static @NotNull Point normalizePoint(@NotNull Point pos) {
         var x = lengthSquaredPos(pos);
 
