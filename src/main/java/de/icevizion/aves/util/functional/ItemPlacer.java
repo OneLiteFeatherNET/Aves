@@ -26,6 +26,7 @@ public interface ItemPlacer {
                 case 1 -> player.getInventory().setChestplate(itemStack);
                 case 2 -> player.getInventory().setLeggings(itemStack);
                 case 3 -> player.getInventory().setBoots(itemStack);
+                default -> throw new IllegalArgumentException("The slotID is greater than four");
             }
         } else {
             player.getInventory().setItemStack(slotID, itemStack);
