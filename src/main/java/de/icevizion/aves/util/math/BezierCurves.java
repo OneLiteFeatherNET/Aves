@@ -11,7 +11,9 @@ import net.minestom.server.particle.Particle;
  * @version 1.0.0
  * @since 1.2.0
  **/
-public class BezierCurves {
+public final class BezierCurves {
+
+    private BezierCurves() {}
 
     public static Vec2D quadraticBezier(Vec start, Vec control, Vec end, float delta) {
         var xFinal = Math.pow(1 - delta, 2) * start.x() + (1- delta) * 2 * delta * control.x() +
