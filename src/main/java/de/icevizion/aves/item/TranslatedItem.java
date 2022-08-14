@@ -30,39 +30,37 @@ public non-sealed class TranslatedItem implements IItem {
     private TextData loreTextData;
     private CompoundMessageCache loreCache;
 
-    protected TranslatedItem(ItemStack itemStack) {
+    protected TranslatedItem(@Nullable ItemStack itemStack) {
         this.itemStack = itemStack;
     }
 
     @Contract(value = "_, _ -> new", pure = true)
-    public static TranslatedItem of(@NotNull ItemStack itemStack, MessageProvider messageProvider) {
-        TranslatedItem translatedItem = new TranslatedItem(itemStack);
-        translatedItem.setMessageProvider(messageProvider);
-        return translatedItem;
+    public static @NotNull TranslatedItem of(@NotNull ItemStack itemStack, MessageProvider messageProvider) {
+        return new TranslatedItem(itemStack).setMessageProvider(messageProvider);
     }
 
     @Contract(value = "_ -> new", pure = true)
-    public static TranslatedItem of(@NotNull ItemStack itemStack) {
+    public static @NotNull TranslatedItem of(@NotNull ItemStack itemStack) {
         return TranslatedItem.of(itemStack, null);
     }
 
     @Contract(value = "_, _ -> new", pure = true)
-    public static TranslatedItem of(@NotNull ItemStack.Builder itemBuilder, MessageProvider messageProvider) {
+    public static @NotNull TranslatedItem of(@NotNull ItemStack.Builder itemBuilder, MessageProvider messageProvider) {
         return TranslatedItem.of(itemBuilder.build(), messageProvider);
     }
 
     @Contract(value = "_ -> new", pure = true)
-    public static TranslatedItem of(@NotNull Material material) {
+    public static @NotNull TranslatedItem of(@NotNull Material material) {
         return of(ItemStack.of(material), null);
     }
 
     @Contract(value = "_ -> new", pure = true)
-    public static TranslatedItem of(@NotNull ItemStack.Builder itemBuilder) {
+    public static @NotNull TranslatedItem of(@NotNull ItemStack.Builder itemBuilder) {
         return TranslatedItem.of(itemBuilder.build(), null);
     }
 
     @Contract(value = "-> new", pure = true)
-    public static TranslatedItem empty() {
+    public static @NotNull TranslatedItem empty() {
         return new TranslatedItem(null);
     }
 
@@ -70,7 +68,7 @@ public non-sealed class TranslatedItem implements IItem {
      * Set the displayName for the {@link ItemStack}.
      * @param key The key for the name which is located in a language file
      * @param arguments Arguments that may be needed for the name
-     * @return
+     * @return TranslatedItem
      */
     public TranslatedItem setDisplayName(@NotNull String key, Object... arguments) {
         this.nameTextData = new TextData(key, arguments);
@@ -80,7 +78,7 @@ public non-sealed class TranslatedItem implements IItem {
     /**
      * Set the displayname for the {@link ItemStack}.
      * @param textData The displayname as {@link TextData}
-     * @return
+     * @return TranslatedItem
      */
     public TranslatedItem setDisplayName(@NotNull TextData textData) {
         this.nameTextData = textData;
@@ -91,7 +89,7 @@ public non-sealed class TranslatedItem implements IItem {
      * Sets the lore for the {@link ItemStack}.
      * @param key The key for the name which is located in a {@link Locale} file
      * @param arguments Arguments for the lore. The array is optional
-     * @return
+     * @return TranslatedItem
      */
     public TranslatedItem setLore(@NotNull String key, Object... arguments) {
         return setLore(new TextData(key, arguments));
@@ -100,7 +98,7 @@ public non-sealed class TranslatedItem implements IItem {
     /**
      * Set the lore for the {@link ItemStack}.
      * @param textData the lore as {@link TextData}
-     * @return
+     * @return TranslatedItem
      */
     public TranslatedItem setLore(TextData textData) {
         if (loreCache != null)
@@ -112,7 +110,7 @@ public non-sealed class TranslatedItem implements IItem {
     /**
      * Set the lore for the {@link ItemStack}.
      * @param messageCache The lore as {@link CompoundMessageCache}
-     * @return
+     * @return TranslatedItem
      */
     public TranslatedItem setLore(CompoundMessageCache messageCache) {
         if (loreTextData != null)
@@ -124,7 +122,7 @@ public non-sealed class TranslatedItem implements IItem {
     /**
      * Overrides / Sets the {@link MessageProvider} for the item.
      * @param messageProvider The provider to set
-     * @return
+     * @return TranslatedItem
      */
     public TranslatedItem setMessageProvider(@NotNull MessageProvider messageProvider) {
         this.messageProvider = messageProvider;
@@ -165,6 +163,15 @@ public non-sealed class TranslatedItem implements IItem {
     }
 
     /**
+     * Throws a {@link IllegalCallerException} because the method call is not allowed in the context.
+     * @return a {@link IllegalCallerException}
+     */
+    @Override
+    public ItemStack get() {
+        throw new IllegalCallerException("Can not get item without a locale in a translated context");
+    }
+
+    /**
      * Builds the {@link ItemStack} for the given {@link Locale}.
      * If the {@link ItemStack} already exists it will be returned immediately
      * @param locale The locale to get the right stack
@@ -177,7 +184,7 @@ public non-sealed class TranslatedItem implements IItem {
 
         if (objectCache == null) {
             objectCache = new TranslatedObjectCache<>(locale1 -> {
-                ItemStack.Builder builder = ItemStack.builder(itemStack.getMaterial());
+                ItemStack.Builder builder = ItemStack.builder(itemStack.material());
 
                 if (nameTextData != null) {
                     builder.displayName(LegacyComponentSerializer.legacySection().deserialize
