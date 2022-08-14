@@ -33,11 +33,6 @@ public class InventoryLayout implements Cloneable {
         this.contents = new ISlot[type.getSize()];
     }
 
-    @Deprecated(forRemoval = true, since = "Please use the constructor with the InventoryType instead")
-    public InventoryLayout(int size) {
-        contents = new ISlot[size];
-    }
-
     public void applyLayout(ItemStack[] itemStacks) {
         applyLayout(itemStacks, null, null);
     }
