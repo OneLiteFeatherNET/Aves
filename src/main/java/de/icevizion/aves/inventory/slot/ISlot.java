@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * @version 1.0.1
  * @since 1.0.12
  */
-public interface ISlot extends Cloneable {
+public interface ISlot {
 
     /**
      * Set's a new {@link InventoryClick} reference to the slot
@@ -37,10 +37,4 @@ public interface ISlot extends Cloneable {
      * @return the stack from the slot
      */
     ItemStack getItem();
-
-    /**
-     * Returns a cloned {@link ISlot} object.
-     * @return the cloned object
-     */
-    ISlot clone();
 }
