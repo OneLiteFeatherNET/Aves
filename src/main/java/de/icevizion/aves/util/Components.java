@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
  * @version 1.0.0
  * @since 1.0.0
  **/
-public class Components {
+public final class Components {
+
+    private Components() {}
 
     /**
      * Strips the {@link TextDecoration#ITALIC} from a given component.
