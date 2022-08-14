@@ -30,6 +30,15 @@ public class TranslatedSlot extends Slot {
         this.translatedItem = translatedItem;
     }
 
+    private TranslatedSlot(@NotNull TranslatedSlot translatedSlot) {
+        super(translatedSlot.getClick());
+        this.translatedItem = translatedSlot.getTranslatedItem();
+    }
+
+    public static TranslatedSlot of(@NotNull TranslatedSlot translatedSlot) {
+        return new TranslatedSlot(translatedSlot);
+    }
+
     /**
      * Throws an exception because the method is not allowed to be used in a translated context.
      */
