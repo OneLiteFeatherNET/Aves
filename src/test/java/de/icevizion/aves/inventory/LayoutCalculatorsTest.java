@@ -10,17 +10,17 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public class LayoutCalculatorsTest {
+class LayoutCalculatorsTest {
 
     @Test
-    public void repeat() {
+    void repeat() {
         var arr = LayoutCalculator.repeat(0, 3);
         var expected = new int[]{0,1,2};
         assertArrayEquals(expected, arr);
     }
 
     @Test
-    public void quadSimple() {
+    void quadSimple() {
         var arr = LayoutCalculator.quad(10, 20);
         var expected = new int[]{10, 11, 19, 20};
 
@@ -28,7 +28,7 @@ public class LayoutCalculatorsTest {
     }
 
     @Test
-    public void quadSimple2() {
+    void quadSimple2() {
         var arr = LayoutCalculator.quad(10, 21);
         var expected = new int[]{10, 11, 12, 19, 20, 21};
 
@@ -36,7 +36,7 @@ public class LayoutCalculatorsTest {
     }
 
     @Test
-    public void fillColumn() {
+    void fillColumn() {
         var arr = LayoutCalculator.fillColumn(InventoryType.CHEST_4_ROW, 2);
         var expected = new int[]{2, 11, 20, 29};
 
@@ -44,7 +44,7 @@ public class LayoutCalculatorsTest {
     }
 
     @Test
-    public void frame() {
+    void frame() {
         var arr = LayoutCalculator.frame(10, 31);
         var expected = new int[] {10, 28, 11, 29, 12, 30, 13, 31, 19, 22};
 
