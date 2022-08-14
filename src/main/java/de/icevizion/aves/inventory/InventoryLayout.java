@@ -6,8 +6,10 @@ import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -18,7 +20,7 @@ import java.util.Locale;
  * @since 1.0.12
  * @version 1.0.2
  */
-public class InventoryLayout implements Cloneable {
+public class InventoryLayout {
 
     public static final InventoryClick CANCEL_CLICK = (player, clickType, slotID, condition) -> condition.setCancel(true);
 
@@ -27,16 +29,35 @@ public class InventoryLayout implements Cloneable {
      */
     private static final InventorySlot EMPTY_SLOT = new InventorySlot(ItemStack.AIR);
 
-    private ISlot[] contents;
+    private final ISlot[] contents;
 
     public InventoryLayout(@NotNull InventoryType type) {
         this.contents = new ISlot[type.getSize()];
     }
 
+    private InventoryLayout(@NotNull InventoryLayout layout) {
+        this.contents = new ISlot[layout.getContents().length];
+        for (int i = 0; i < layout.getContents().length; i++) {
+            var slotEntry = layout.getContents()[i];
+            if (slotEntry instanceof InventorySlot inventorySlot) {
+                this.contents[i] = InventorySlot.of(inventorySlot);
+            } else if (slotEntry instanceof TranslatedSlot translatedSlot) {
+                this.contents[i] = TranslatedSlot.of(translatedSlot);
+            } else {
+                LoggerFactory.getLogger("Aves").info("Found a slot which can not be converted");
+            }
+        }
+    }
+
+    @Contract(value = "_ -> new", pure = true)
+    public static @NotNull InventoryLayout of(@NotNull InventoryLayout inventoryLayout) {
+        return new InventoryLayout(inventoryLayout);
+    }
     public void applyLayout(ItemStack[] itemStacks) {
         applyLayout(itemStacks, null, null);
     }
 
+    @SuppressWarnings("java:S3776")
     public void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider) {
         if (itemStacks == null || itemStacks.length == 0) return;
         for (int i = 0; i < itemStacks.length; i++) {
@@ -239,17 +260,6 @@ public class InventoryLayout implements Cloneable {
     @NotNull
     public ISlot[] getContents() {
         return contents;
-    }
-
-    @Override
-    public InventoryLayout clone() {
-        try {
-            InventoryLayout clone = (InventoryLayout) super.clone();
-            clone.contents = contents.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("This should never happen", e);
-        }
     }
 
     @Override
