@@ -15,6 +15,7 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.inventory.click.ClickType;
 import net.minestom.server.inventory.condition.InventoryCondition;
 import net.minestom.server.inventory.condition.InventoryConditionResult;
+import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.timer.ExecutionType;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,7 @@ public abstract class InventoryBuilder implements SizeChecker {
 
     private static final int INVALID_SLOT_ID = -999;
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(MinecraftServer.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(InventoryBuilder.class);
 
     protected final InventoryType type;
 
@@ -54,7 +55,7 @@ public abstract class InventoryBuilder implements SizeChecker {
      * Creates a new instance from the inventory builder with the given size.
      * @param type The type from the inventory to get the size from it
      */
-    public InventoryBuilder(@NotNull InventoryType type) {
+    protected InventoryBuilder(@NotNull InventoryType type) {
         checkInventorySize(type.getSize());
         this.type = type;
 
@@ -179,8 +180,6 @@ public abstract class InventoryBuilder implements SizeChecker {
                                    Locale locale,
                                    MessageProvider messageProvider,
                                    boolean applyLayout) {
-        // applyLayout |= !inventoryLayoutValid;
-
         if (!Component.EQUALS.test(inventory.getTitle(), title)) {
             LOGGER.info("UpdateInventory is updating the title");
             inventory.setTitle(title);
@@ -196,15 +195,10 @@ public abstract class InventoryBuilder implements SizeChecker {
             var contents = inventory.getItemStacks();
             inventory.clear();
             getLayout().applyLayout(contents, locale, messageProvider);
-            for (int i = 0; i < contents.length; i++) {
-                var contentSlot = contents[i];
-                if (contentSlot == null || contentSlot.material() == Material.AIR) continue;
-                inventory.setItemStack(i, contentSlot);
-            }
+            this.setItemsInternal(inventory, contents);
             LOGGER.info("UpdateInventory applied the InventoryLayout!");
             this.inventoryLayoutValid = true;
         }
-
 
         // Values
         synchronized (this) {
@@ -214,12 +208,17 @@ public abstract class InventoryBuilder implements SizeChecker {
                 if (getDataLayout() != null) {
                     var contents = inventory.getItemStacks();
                     getDataLayout().applyLayout(contents, locale, messageProvider);
-                    for (int i = 0; i < contents.length; i++) {
-                        if (contents[i] == null || contents[i].material() == Material.AIR) continue;
-                        inventory.setItemStack(i, contents[i]);
-                    }
+                    this.setItemsInternal(inventory, contents);
                 }
             }
+        }
+    }
+
+    private void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
+        for (int i = 0; i < contents.length; i++) {
+            var contentSlot = contents[i];
+            if (contentSlot == null || contentSlot.material() == Material.AIR) continue;
+            inventory.setItemStack(i, contents[i]);
         }
     }
 
