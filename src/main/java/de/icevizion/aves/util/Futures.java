@@ -14,7 +14,9 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0.0
  * @since 1.0.0
  **/
-public class Futures {
+public final class Futures {
+
+    private Futures() {}
 
     /**
      * Used to add timeout for CompletableFutures
@@ -48,7 +50,8 @@ public class Futures {
                 countDownLatch.await();
                 future.complete(null);
             } catch (InterruptedException e) {
-                future.completeExceptionally(e);
+                future.completeExceptionally(new InterruptedException(e.getMessage()));
+                Thread.currentThread().interrupt();
             }
         });
         return future;
