@@ -37,15 +37,32 @@ public final class DefaultResourcePackCondition implements ResourcePackCondition
      */
     @Override
     public void handleStatus(@NotNull Player player, @NotNull ResourcePackStatus resourcePackStatus) {
-        switch (resourcePackStatus) {
-            case DECLINED -> {
-                player.kick(KICK_MESSAGE);
-                cache.remove(player.getUuid());
-            }
-            case FAILED_DOWNLOAD -> {
-                player.sendMessage(ERROR_DOWNLOAD_MESSAGE);
-                cache.remove(player.getUuid());
-            }
+        if (resourcePackStatus == ResourcePackStatus.DECLINED) {
+            this.handleDeclined(player);
+            return;
         }
+
+        if (resourcePackStatus == ResourcePackStatus.FAILED_DOWNLOAD) {
+            this.handleDownloadFail(player);
+        }
+
+    }
+
+    /**
+     * Handles what happen if a player declined the {@link ResourcePack}.
+     * @param player the player who is involved
+     */
+    private void handleDeclined(@NotNull Player player) {
+        player.kick(KICK_MESSAGE);
+        cache.remove(player.getUuid());
+    }
+
+    /**
+     * Handles what happen the download of the {@link ResourcePack} failed.
+     * @param player the player who is involved
+     */
+    private void handleDownloadFail(@NotNull Player player) {
+        player.sendMessage(ERROR_DOWNLOAD_MESSAGE);
+        cache.remove(player.getUuid());
     }
 }
