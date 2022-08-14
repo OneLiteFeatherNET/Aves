@@ -49,7 +49,7 @@ public final class GsonFileHandler implements FileHandler {
             }
             gson.toJson(object, TypeToken.get(object.getClass()).getType(), outputStream);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            LOGGER.warn("Unable to save file", exception);
         }
     }
 
@@ -69,7 +69,7 @@ public final class GsonFileHandler implements FileHandler {
         try (var reader = Files.newBufferedReader(path, UTF_8)) {
             return Optional.ofNullable(gson.fromJson(reader, clazz));
         } catch (IOException exception) {
-            exception.printStackTrace();
+            LOGGER.warn("Unable to load file", exception);
         }
         return Optional.empty();
     }
