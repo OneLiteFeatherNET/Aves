@@ -53,7 +53,7 @@ public non-sealed class Item implements IItem {
     }
 
     /**
-     * Returns the the {@link ItemStack}.
+     * Returns the {@link ItemStack}.
      * In this implementation the language will be ignored
      *
      * @param ignore The locale from the player
