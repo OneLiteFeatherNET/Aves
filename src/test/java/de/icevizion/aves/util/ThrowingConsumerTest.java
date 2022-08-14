@@ -8,9 +8,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author theEvilReaper
  * @version 1.0.0
- * @since
+ * @since 1.2.0
  **/
-public class ThrowingConsumerTest {
+class ThrowingConsumerTest {
 
     @Test()
     void testThrowConsumer() {
