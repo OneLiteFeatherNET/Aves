@@ -4,6 +4,7 @@ import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.Slot;
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -33,7 +34,7 @@ public class InventorySlot extends Slot {
      */
     public InventorySlot(@NotNull ItemStack itemStack, InventoryClick inventoryClick) {
         this.itemStack = itemStack;
-        this.slot = inventoryClick;
+        this.inventoryClick = inventoryClick;
     }
 
     /**
@@ -51,7 +52,26 @@ public class InventorySlot extends Slot {
      */
     public InventorySlot(@NotNull ItemStack.Builder itemBuilder, InventoryClick click) {
         this.itemStack = itemBuilder.build();
-        this.slot = click;
+        this.inventoryClick = click;
+    }
+
+    /**
+     * Creates a new instance from the {@link InventorySlot}.
+     * @param inventorySlot the slot to copy
+     */
+    private InventorySlot(@NotNull InventorySlot inventorySlot) {
+        this.itemStack = inventorySlot.getItem();
+        this.inventoryClick = inventorySlot.getClick();
+    }
+
+    /**
+     * Creates a copy of the given {@link InventorySlot}.
+     * @param inventorySlot the slot to copy
+     * @return the copied instance
+     */
+    @Contract("_ -> new")
+    public static @NotNull InventorySlot of(@NotNull InventorySlot inventorySlot) {
+        return new InventorySlot(inventorySlot);
     }
 
     /**
