@@ -30,15 +30,14 @@ public class Particles {
      * @param player The player who sees the line
      * @param start The start point as {@link Vec}
      * @param end The end point as {@link Vec}
-     * @param distance
+     * @param steps the empty space between the points
      */
-    //TODO: Rename "distance" variable
-    public static void playLine(@NotNull Particle particle, @NotNull Player player, @NotNull Vec start, @NotNull Vec end, float distance) {
+    public static void playLine(@NotNull Particle particle, @NotNull Player player, @NotNull Vec start, @NotNull Vec end, float steps) {
         //Calculates the difference between the given vectors
         var deltaVec = end.sub(start);
 
         //Calculates the amount of points to display
-        var points = (int) Math.round(deltaVec.length() / distance);
+        var points = (int) Math.round(deltaVec.length() / steps);
 
         deltaVec = deltaVec.mul(1f / points);
 
@@ -62,6 +61,7 @@ public class Particles {
         }
     }
 
+    @SuppressWarnings("java:S3776")
     public static void playCuboid(@NotNull Particle particle, @NotNull Player player, @NotNull Vec min, @NotNull Vec max, double particleDistance) {
         if (max.blockY() - min.blockY() < MIN_SIZE_Y) {
             throw new IllegalArgumentException("The difference from the points of the y-axis is to small. The minimum is " + MIN_SIZE_Y);
