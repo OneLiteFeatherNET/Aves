@@ -17,6 +17,7 @@ import net.minestom.server.item.ItemHideFlag;
 import net.minestom.server.item.ItemMeta;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -31,16 +32,20 @@ import java.util.Map;
  */
 public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
 
+    private static final String DISPLAY_NAME = "displayName";
+
+    private static final String ENCHANTMENTS = "enchantments";
+
     @Override
-    public JsonElement serialize(ItemStack itemStack, Type type, JsonSerializationContext jsonSerializationContext) {
+    public JsonElement serialize(@NotNull ItemStack itemStack, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject object = new JsonObject();
-        object.addProperty("material", itemStack.getMaterial().namespace().namespace());
-        object.addProperty("amount", itemStack.getAmount());
+        object.addProperty("material", itemStack.material().namespace().namespace());
+        object.addProperty("amount", itemStack.amount());
 
         JsonObject metaObject = new JsonObject();
-        ItemMeta meta = itemStack.getMeta();
+        ItemMeta meta = itemStack.meta();
         if (meta.getDisplayName() != null)
-            metaObject.addProperty("displayName", PlainTextComponentSerializer.plainText().serialize(meta.getDisplayName()));
+            metaObject.addProperty(DISPLAY_NAME, PlainTextComponentSerializer.plainText().serialize(meta.getDisplayName()));
         if (!meta.getEnchantmentMap().isEmpty()) {
             JsonArray enchantsArray = new JsonArray();
             for (var enchantEntry : meta.getEnchantmentMap().entrySet()) {
@@ -49,7 +54,7 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
                 enchantmentObject.addProperty("level", enchantEntry.getValue());
                 enchantsArray.add(enchantmentObject);
             }
-            metaObject.add("enchantments", enchantsArray);
+            metaObject.add(ENCHANTMENTS, enchantsArray);
         }
         object.add("meta", metaObject);
 
@@ -57,7 +62,7 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
     }
 
     @Override
-    public ItemStack deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+    public ItemStack deserialize(@NotNull JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject object = jsonElement.getAsJsonObject();
 
         Material material = Material.fromNamespaceId(object.get("material").getAsString());
@@ -73,10 +78,10 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
 
         JsonObject metaObject = object.getAsJsonObject("meta");
 
-        if (metaObject.has("displayName"))
-            itemBuilder.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize(metaObject.get("displayName").getAsString()));
-        if (metaObject.has("enchantments")) {
-            JsonArray enchantsArray = metaObject.getAsJsonArray("enchantments");
+        if (metaObject.has(DISPLAY_NAME))
+            itemBuilder.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize(metaObject.get(DISPLAY_NAME).getAsString()));
+        if (metaObject.has(ENCHANTMENTS)) {
+            JsonArray enchantsArray = metaObject.getAsJsonArray(ENCHANTMENTS);
 
             Map<Enchantment, Short> enchantments = new HashMap<>();
 
