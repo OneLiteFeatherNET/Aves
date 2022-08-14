@@ -1,7 +1,6 @@
 package de.icevizion.aves.inventory.slot;
 
 import de.icevizion.aves.inventory.function.InventoryClick;
-import de.icevizion.aves.item.Item;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,23 +9,23 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class Slot implements ISlot {
 
-    protected InventoryClick slot;
+    protected InventoryClick inventoryClick;
     protected ItemStack itemStack;
 
-    public Slot() { }
+    protected Slot() { }
 
-    public Slot(InventoryClick slot) {
-        this.slot = slot;
+    protected Slot(InventoryClick inventoryClick) {
+        this.inventoryClick = inventoryClick;
     }
 
-    public Slot(InventoryClick slot, ItemStack itemStack) {
-        this.slot = slot;
+    protected Slot(InventoryClick inventoryClick, ItemStack itemStack) {
+        this.inventoryClick = inventoryClick;
         this.itemStack = itemStack;
     }
 
     @Override
     public ISlot setClick(@NotNull InventoryClick slot) {
-        this.slot = slot;
+        this.inventoryClick = slot;
         return this;
     }
 
@@ -38,7 +37,7 @@ public abstract class Slot implements ISlot {
 
     @Override
     public InventoryClick getClick() {
-        return this.slot;
+        return this.inventoryClick;
     }
 
     @Override
@@ -56,6 +55,6 @@ public abstract class Slot implements ISlot {
      */
     @Override
     public String toString() {
-        return "Slot{" + "clickListener=" + slot + '}';
+        return "Slot{" + "clickListener=" + inventoryClick + '}';
     }
 }
