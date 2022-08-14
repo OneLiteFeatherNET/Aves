@@ -26,7 +26,6 @@ val strigiVersion = "e89dd8352c"
 
 dependencies {
     implementation("com.github.PatrickZdarsky:Strigiformes:$strigiVersion")
-    api("com.jsoniter:jsoniter:0.9.23")
 
     compileOnly("com.github.Minestom:Minestom:$minestomVersion")
 
