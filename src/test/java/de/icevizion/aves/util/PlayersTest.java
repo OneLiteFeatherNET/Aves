@@ -1,5 +1,6 @@
 package de.icevizion.aves.util;
 
+import de.icevizion.aves.item.IItem;
 import net.minestom.server.entity.Player;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,22 @@ class PlayersTest {
     @Test
     void hasInstance() {
         assertThrows(IllegalArgumentException.class, () -> Players.hasInstance(player), "The instance from a player can not be null");
+    }
+
+    @Test
+    void testUpdateEquipment() {
+        IItem[] armorItems = new IItem[7];
+        IItem[] hotbarItems = new IItem[12];
+        assertThrowsExactly(IllegalArgumentException.class, () ->
+                Players.updateEquipment(player, armorItems, hotbarItems, null, 12), "");
+
+        assertThrowsExactly(IllegalArgumentException.class, () ->
+                Players.updateEquipment(player, new IItem[4], hotbarItems, null, 12),
+                "The hotBar can only hold 9 items");
+
+        assertThrowsExactly(IllegalArgumentException.class, () ->
+            Players.updateEquipment(player, new IItem[4], new IItem[5], null, 1),
+                    "The length from shiftedSlots has not the same length with the underlying array");
     }
 
     @Test
