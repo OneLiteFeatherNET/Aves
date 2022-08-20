@@ -20,6 +20,7 @@ import java.util.Locale;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("java:S3252")
 public non-sealed class GlobalInventoryBuilder extends InventoryBuilder implements InventoryListenerHandler {
 
     static {

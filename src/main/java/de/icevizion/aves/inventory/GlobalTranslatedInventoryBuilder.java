@@ -22,6 +22,7 @@ import java.util.Locale;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
+@SuppressWarnings("java:S3252")
 public non-sealed class GlobalTranslatedInventoryBuilder extends InventoryBuilder implements InventoryListenerHandler {
 
     private final MessageProvider messageProvider;
