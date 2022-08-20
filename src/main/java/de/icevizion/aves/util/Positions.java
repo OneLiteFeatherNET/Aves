@@ -36,6 +36,16 @@ public final class Positions {
     }
 
     /**
+     * Center a given pos in the 2D dimension.
+     * @param pos the pos to center
+     * @return the centered pos
+     */
+    @Contract(pure = true)
+    public static @NotNull Pos centerPos2D(@NotNull Pos pos) {
+        return pos.add(0.5, 0, 0.5);
+    }
+
+    /**
      * Normalize a given point
      * @param pos the {@link Point} to normalize
      * @return the normalized {@link Point}
@@ -53,7 +63,7 @@ public final class Positions {
         return pos.mul(x);
     }
 
-    private static double lengthSquaredPos(@NotNull Point pos) {
+    public static double lengthSquaredPos(@NotNull Point pos) {
         return Math.pow(pos.x(), 2) + Math.pow(pos.y(), 2) + Math.pow(pos.z(), 2);
     }
 }
