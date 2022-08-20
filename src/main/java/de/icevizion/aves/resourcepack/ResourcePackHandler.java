@@ -86,7 +86,7 @@ public class ResourcePackHandler {
     }
 
     /**
-     * Add a pre defined {@link ResourcePackCondition} to the handler.
+     * Add a pre-defined {@link ResourcePackCondition} to the handler.
      */
     public ResourcePackHandler setDefaultCondition() {
         this.condition = new DefaultResourcePackCondition(resourcePackCache);
@@ -120,7 +120,7 @@ public class ResourcePackHandler {
      * Invalidates an uuid (player uuid) in the underlying cache.
      * @param uuid the uuid from the user
      */
-    public void invalidateId(UUID uuid) {
+    public void invalidateId(@NotNull UUID uuid) {
         this.resourcePackCache.remove(uuid);
     }
 
