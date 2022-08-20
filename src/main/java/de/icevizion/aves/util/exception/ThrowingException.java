@@ -18,8 +18,4 @@ public class ThrowingException extends RuntimeException {
     public ThrowingException(Throwable cause) {
         super(cause);
     }
-
-    public ThrowingException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }
