@@ -30,6 +30,7 @@ import java.util.Locale;
  * @version 1.2.0
  * @since 1.0.12
  */
+@SuppressWarnings("java:S3252")
 public abstract class InventoryBuilder implements SizeChecker {
 
     private static final int INVALID_SLOT_ID = -999;
