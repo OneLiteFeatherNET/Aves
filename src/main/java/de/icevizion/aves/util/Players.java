@@ -140,10 +140,18 @@ public final class Players {
      */
     @SuppressWarnings("java:S3776")
     public static void updateEquipment(@NotNull Player player,
-                                       @NotNull IItem[] armorItems,
-                                       @NotNull IItem[] hotBarItems,
+                                       @Nullable IItem[] armorItems,
+                                       @Nullable IItem[] hotBarItems,
                                        @Nullable Locale locale,
                                        int... shiftedSlots) {
+        if (armorItems != null && armorItems.length > 4) {
+            throw new IllegalArgumentException("");
+        }
+
+        if (hotBarItems != null && hotBarItems.length > 9) {
+            throw new IllegalArgumentException("The hotBar can only hold 9 items");
+        }
+
         if (shiftedSlots != null && shiftedSlots.length != hotBarItems.length) {
             throw new IllegalArgumentException("The length from shiftedSlots has not the same length with the underlying array");
         }
