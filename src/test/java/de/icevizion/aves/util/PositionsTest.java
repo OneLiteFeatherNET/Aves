@@ -24,8 +24,19 @@ class PositionsTest {
     }
 
     @Test
+    void testCenter2D() {
+        var result = new Pos(0.5, 0, 0.5);
+        assertEquals(result, Positions.centerPos2D(this.originPoint));
+    }
+
+    @Test
     void testYaw() {
         var yaw = Positions.getYaw(12, 10);
         assertEquals(0.876058042049408, yaw);
+    }
+
+    @Test
+    void testLengthSquaredPos() {
+        assertNotSame(12.4, Positions.lengthSquaredPos(this.originPoint));
     }
 }
