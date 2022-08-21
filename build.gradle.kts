@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-version = "1.2.0-SNAPSHOT"
+val baseVersion = "1.2.0-SNAPSHOT"
 description = "Aves"
 
 java {
@@ -68,16 +68,38 @@ tasks {
         dependsOn(rootProject.tasks.test)
     }
 }
+version = if (System.getenv().containsKey("CI")) {
+    "${baseVersion}+${System.getenv("CI_COMMIT_SHORT_SHA")}"
+} else {
+    baseVersion
+}
 
 publishing {
     publications {
+
         create<MavenPublication>("maven") {
-            groupId = project.properties["group"] as String?
-            artifactId = project.name
-            version = project.properties["version"] as String?
             from(components["java"])
         }
+
     }
+    if (System.getenv().containsKey("CI")) {
+        repositories {
+            maven {
+                name = "GitLab"
+                val ciApiv4Url = System.getenv("CI_API_V4_URL")
+                val projectId = System.getenv("CI_PROJECT_ID")
+                url = uri("$ciApiv4Url/projects/$projectId/packages/maven")
+                credentials(HttpHeaderCredentials::class.java) {
+                    name = "Job-Token"
+                    value = System.getenv("CI_JOB_TOKEN")
+                }
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
+            }
+        }
+    }
+
 }
 
 sonarqube {
