@@ -64,4 +64,9 @@ class StringsTest {
     void testHourString3() {
         assertEquals("01:01:39", Strings.getTimeWithHours(3699));
     }
+
+    @Test
+    void testNegativTime() {
+        assertEquals("00:00:00", Strings.getTimeWithHours(-23));
+    }
 }
