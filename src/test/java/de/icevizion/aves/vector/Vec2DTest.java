@@ -1,6 +1,8 @@
 package de.icevizion.aves.vector;
 
 import de.icevizion.aves.util.vector.Vec2D;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -18,6 +20,22 @@ class Vec2DTest {
     void init() {
         this.vector1 = new Vec2D(2, 5);
         this.vector2 = new Vec2D(-6, -6);
+    }
+
+    @Test
+    void testOtherConstructorWithPoint() {
+        Vec2D vec = new Vec2D(new Pos(2, 5, 3, 2f, 1f));
+        assertNotNull(vec);
+        assertEquals(2, vec.x());
+        assertNotEquals(5.0, vec.y());
+    }
+
+    @Test
+    void testOtherConstructorWithVec() {
+        Vec2D vec = new Vec2D(new Vec(2.0, 10, 3));
+        assertNotNull(vec);
+        assertEquals(2.0, vec.x());
+        assertNotEquals(5.0, vec.y());
     }
 
     @Test
@@ -51,6 +69,11 @@ class Vec2DTest {
     }
 
     @Test
+    void testRemoveVec() {
+        assertEquals(Vec2D.UNIT_Y, new Vec2D(1,1).sub(Vec2D.UNIT_X));
+    }
+
+    @Test
     void testNegation() {
         assertEquals(new Vec2D(-2, -5), this.vector1.neg());
     }
@@ -63,5 +86,11 @@ class Vec2DTest {
     @Test
     void testLengthSquared() {
         assertEquals(72, this.vector2.lengthSquared());
+    }
+
+    @Test
+    void testScalarMul() {
+        var vector = this.vector2.scalarMul(1);
+        assertEquals(new Vec2D(-6, -6), vector);
     }
 }
