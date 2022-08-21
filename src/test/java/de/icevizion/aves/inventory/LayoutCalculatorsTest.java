@@ -55,6 +55,13 @@ class LayoutCalculatorsTest {
     }
 
     @Test
+    void testFillRow() {
+        var array = LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW);
+        var expected = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
+        assertArrayEquals(expected, array);
+    }
+
+    @Test
     void fillColumn() {
         var arr = LayoutCalculator.fillColumn(InventoryType.CHEST_4_ROW, 2);
         var expected = new int[]{2, 11, 20, 29};
