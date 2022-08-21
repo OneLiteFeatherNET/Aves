@@ -25,8 +25,15 @@ class BaseMapTest {
     }
 
     @Test
+    void testOtherConstructor() {
+        var baseMap = BaseMap.of("Test", Pos.ZERO);
+        assertSame("Test", baseMap.getName());
+        assertSame(Pos.ZERO, baseMap.getSpawn());
+    }
+
+    @Test
     void testMapIsSame() {
-        assertEquals(this.firstMap, this.secondMap);
+        assertNotSame(this.firstMap, this.secondMap);
     }
 
     @Test
@@ -43,6 +50,17 @@ class BaseMapTest {
     void testEmptyName() {
         var exception = assertThrows(IllegalArgumentException.class, () -> this.firstMap.setName(""));
         assertEquals("The name can not be empty", exception.getMessage());
+    }
+
+    @Test
+    void testEmptyNameWithStringWhichContainsSpace() {
+        assertThrowsExactly(IllegalArgumentException.class, () -> this.firstMap.setName(" "), "The name can not be empty");
+    }
+
+    @Test
+    void testNameSetForMaps() {
+        this.firstMap.setName("Granskoda");
+        assertSame("Granskoda", this.firstMap.getName());
     }
 
     @Test
@@ -66,5 +84,21 @@ class BaseMapTest {
     @Test
     void testNoSpawn() {
         assertNull(this.firstMap.getSpawn());
+    }
+
+    @Test
+    void testSetSpawn() {
+        this.secondMap.setSpawn(new Pos(1,2,3));
+        assertNotNull(this.secondMap.getSpawn());
+    }
+
+    @Test
+    void testEquals() {
+        assertNotSame(1203, this.firstMap.hashCode());
+    }
+
+    @Test
+    void testEqualsWithSameObject() {
+        assertEquals(this.firstMap, this.firstMap);
     }
 }
