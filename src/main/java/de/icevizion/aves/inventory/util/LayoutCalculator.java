@@ -121,7 +121,6 @@ public class LayoutCalculator {
      */
     public static int getRowCount(@NotNull InventoryType type) {
         if (!isChestInventory(type)) return 1;
-        if (type.getSize() % INVENTORY_WIDTH != 0) return 1;
         return type.getSize() / INVENTORY_WIDTH;
     }
 
