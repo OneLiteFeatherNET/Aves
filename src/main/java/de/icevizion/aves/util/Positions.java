@@ -45,24 +45,6 @@ public final class Positions {
         return pos.add(0.5, 0, 0.5);
     }
 
-    /**
-     * Normalize a given point
-     * @param pos the {@link Point} to normalize
-     * @return the normalized {@link Point}
-     */
-    public static @NotNull Point normalizePoint(@NotNull Point pos) {
-        var x = lengthSquaredPos(pos);
-
-        var xHalf =  .5D * x;
-
-        var i = Double.doubleToRawLongBits(x);
-        i = 0x5fe6ec85e7de30daL - (i << 1);
-        x = Double.longBitsToDouble(i);
-        x *= (1.5 - xHalf * x * x);
-
-        return pos.mul(x);
-    }
-
     public static double lengthSquaredPos(@NotNull Point pos) {
         return Math.pow(pos.x(), 2) + Math.pow(pos.y(), 2) + Math.pow(pos.z(), 2);
     }
