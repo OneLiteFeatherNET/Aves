@@ -1,7 +1,9 @@
 package de.icevizion.aves.util;
 
 import de.icevizion.aves.item.IItem;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
+import net.minestom.server.instance.Instance;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -20,9 +22,13 @@ class PlayersTest {
 
     Player player;
 
+    Instance instance;
+
     @BeforeAll
     void init() {
         this.player = Mockito.mock(Player.class);
+        this.instance = Mockito.mock(Instance.class);
+        Mockito.when(player.getPosition()).thenReturn(Pos.ZERO);
     }
 
     @Test
@@ -68,5 +74,20 @@ class PlayersTest {
     void testGetEmptyRandomPlayer() {
         var playerOptional = Players.getRandomPlayer(List.of());
         assertTrue(playerOptional::isEmpty);
+    }
+
+    @Test
+    void testDropItemStacksWithNullContent() {
+        assertThrowsExactly(IllegalArgumentException.class,
+                () -> Players.dropItemStacks(instance, player.getPosition()),
+                "he array can not be null or empty");
+    }
+
+    @Test
+    void testDropPlayerInventory() {
+        var otherPlayer = Mockito.mock(Player.class);
+        assertThrowsExactly(NullPointerException.class,
+                () -> Players.dropPlayerInventory(otherPlayer),
+                "The instance from the player can't be null");
     }
 }
