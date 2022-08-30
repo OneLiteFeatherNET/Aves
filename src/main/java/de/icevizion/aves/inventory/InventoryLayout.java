@@ -216,7 +216,7 @@ public class InventoryLayout {
      */
     public InventoryLayout clear(int... slots) {
         for (int i = 0; i < slots.length; i++) {
-            contents[i] = EMPTY_SLOT;
+            contents[i] = null;
         }
         return this;
     }
