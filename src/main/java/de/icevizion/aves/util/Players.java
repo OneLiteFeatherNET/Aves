@@ -70,7 +70,7 @@ public final class Players {
      * @param player The player from which the inventory should be dropped
      */
     public static void dropPlayerInventory(@NotNull Player player) {
-        Objects.requireNonNull(player.getInstance(), "The instance from the player can not be null");
+        Objects.requireNonNull(player.getInstance(), "The instance from the player can't be null");
         dropItemStacks(player.getInstance(), player.getPosition(), player.getInventory().getItemStacks());
     }
 
@@ -78,11 +78,12 @@ public final class Players {
      * Drops a certain amount of items to a given location.
      * @param content The items stored in an array
      */
-    public static void dropItemStacks(@NotNull Instance instance, @NotNull Pos pos, ItemStack... content) {
-        if (content == null || content.length == 0) {
+    public static void dropItemStacks(@NotNull Instance instance, @NotNull Pos pos, @NotNull ItemStack @NotNull ... content) {
+        if (content.length == 0) {
             throw new IllegalArgumentException("The array can not be null or empty");
         } else {
             for (int i = 0; i < content.length; i++) {
+                if (content[i] == null) continue;
                 ItemEntity entity = new ItemEntity(content[i]);
                 entity.setMergeable(true);
                 entity.setPickupDelay(itemDuration);
