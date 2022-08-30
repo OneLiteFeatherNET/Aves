@@ -205,7 +205,7 @@ public class InventoryLayout {
      * @param slot The index to remove the slot
      */
     public InventoryLayout clear(int slot) {
-        contents[slot] = EMPTY_SLOT;
+        contents[slot] = null;
         return this;
     }
 
