@@ -26,6 +26,21 @@ class InventoryLayoutTest {
     }
 
     @Test
+    void testClearSlot() {
+        layout.clear(0);
+        assertNull(this.layout.getSlot(0));
+    }
+
+    @Test
+    void testClearSlots() {
+        var slots = new int[]{1,2,3};
+        this.layout.clear(slots);
+        for (int i = 0; i < slots.length; i++) {
+            assertNull(this.layout.getSlot(i));
+        }
+    }
+
+    @Test
     void testGetSlot() {
         var slot = layout.getSlot(0);
         assertNotNull(slot);
