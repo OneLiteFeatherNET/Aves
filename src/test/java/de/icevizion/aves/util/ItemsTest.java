@@ -38,7 +38,7 @@ class ItemsTest {
     void init() {
         this.items = new ItemStack[InventoryType.CHEST_3_ROW.getSize()];
         Arrays.fill(items, ItemStack.AIR);
-        this.stack = ItemStack.builder(Material.ACACIA_LEAVES).build();
+        this.stack = ItemStack.builder(Material.ACACIA_LEAVES).amount(12).build();
 
         this.player = Mockito.mock(Player.class);
         this.playerInventory = Mockito.mock(PlayerInventory.class);
@@ -55,17 +55,18 @@ class ItemsTest {
         assertSame(0, amount);
     }
 
-   /* @Order(2)
+    @Order(2)
     @Test
     void testGetItemAmountWhichIsNotZero() {
         this.items[0] = stack;
         assertSame(12, Items.getAmountFromItem(this.player, stack));
     }
 
-    @Order(3)
+   /* @Order(3)
     @Test
     void testFreeSpace() {
-        assertSame((26 * STACK_SIZE) - 12, Items.getFreeSpace(this.player, stack));
+        System.out.println(this.items[0] == null);
+        assertSame((26 * STACK_SIZE), Items.getFreeSpace(this.player));
     }*/
 
 }
