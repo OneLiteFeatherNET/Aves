@@ -32,12 +32,21 @@ class InventoryLayoutTest {
 
     @Order(2)
     @Test
+    void testConstructorWithLayout() {
+        var otherLayout = InventoryLayout.of(this.layout);
+        assertNotNull(otherLayout);
+        assertSame(this.layout.getContents().length, otherLayout.getContents().length);
+        assertNotNull(otherLayout.getSlot(0));
+    }
+
+    @Order(3)
+    @Test
     void testBlankSlot() {
         this.layout.blank(23);
         assertNotNull(this.layout.getSlot(23));
     }
 
-    @Order(3)
+    @Order(4)
     @Test
     void testBlankSlots() {
         var blankSlots = new int[]{24,25,26,30};
@@ -48,14 +57,14 @@ class InventoryLayoutTest {
         }
     }
 
-    @Order(4)
+    @Order(5)
     @Test
     void testClearSlot() {
         layout.clear(34);
         assertNull(this.layout.getSlot(34));
     }
 
-    @Order(5)
+    @Order(6)
     @Test
     void testClearSlots() {
         var slots = new int[]{1,2,3};
@@ -65,7 +74,7 @@ class InventoryLayoutTest {
         }
     }
 
-    @Order(6)
+    @Order(7)
     @Test
     void testUpdateWithIndex() {
         var newSlot = new InventorySlot(ItemStack.AIR, (player, clickType, slot1, condition) -> condition.setCancel(true));
