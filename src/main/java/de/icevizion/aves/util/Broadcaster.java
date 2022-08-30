@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.network.ConnectionManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,8 +17,6 @@ import java.util.Collection;
  */
 public final class Broadcaster {
 
-    private static final ConnectionManager CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
-
     private Broadcaster() {}
 
     /**
@@ -28,7 +25,7 @@ public final class Broadcaster {
      */
     @ApiStatus.Experimental
     public static void broadcast(@NotNull String message) {
-        broadcast(CONNECTION_MANAGER.getOnlinePlayers(), message);
+        broadcast(MinecraftServer.getConnectionManager().getOnlinePlayers(), message);
     }
 
     /**
@@ -37,7 +34,7 @@ public final class Broadcaster {
      */
     @ApiStatus.Experimental
     public static void broadcast(@NotNull Component component) {
-        broadcast(CONNECTION_MANAGER.getOnlinePlayers(), component);
+        broadcast(MinecraftServer.getConnectionManager().getOnlinePlayers(), component);
     }
 
     /**
