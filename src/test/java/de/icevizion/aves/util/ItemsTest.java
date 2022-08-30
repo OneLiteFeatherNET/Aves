@@ -55,7 +55,7 @@ class ItemsTest {
         assertSame(0, amount);
     }
 
-    @Order(2)
+   /* @Order(2)
     @Test
     void testGetItemAmountWhichIsNotZero() {
         this.items[0] = stack;
@@ -66,6 +66,6 @@ class ItemsTest {
     @Test
     void testFreeSpace() {
         assertSame((26 * STACK_SIZE) - 12, Items.getFreeSpace(this.player, stack));
-    }
+    }*/
 
 }
