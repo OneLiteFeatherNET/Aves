@@ -1,5 +1,6 @@
 package de.icevizion.aves.inventory;
 
+import de.icevizion.aves.inventory.util.LayoutCalculator;
 import de.icevizion.aves.item.TranslatedItem;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
@@ -84,6 +85,18 @@ class InventoryLayoutTest {
         var slot = this.layout.getSlot(3);
         assertNotNull(slot);
         assertNull(slot.getClick());
+    }
+
+    @Test
+    void testSetNonClickItems() {
+        var stack = ItemStack.builder(Material.ACACIA_BOAT).build();
+
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), stack);
+
+        for (int i = 0; i < layout.getContents().length; i++) {
+            assertSame(InventoryLayout.CANCEL_CLICK, layout.getSlot(i).getClick());
+        }
     }
 
     @Order(7)
