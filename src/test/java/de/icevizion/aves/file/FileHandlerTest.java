@@ -1,6 +1,5 @@
 package de.icevizion.aves.file;
 
-import com.google.gson.Gson;
 import de.icevizion.aves.map.BaseMap;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -21,6 +20,8 @@ class FileHandlerTest {
 
     private final String testMap = "test.json";
 
+    private final FileHandler fileHandler = new GsonFileHandler();
+
     @TempDir
     static File tempDir;
 
@@ -33,7 +34,6 @@ class FileHandlerTest {
     @Order(2)
     @Test
     void testGsonFileHandlerWrite() {
-        var fileHandler = new GsonFileHandler();
         var path = tempDir.toPath().resolve(testMap);
         var baseMap = BaseMap.of("TestMap");
         baseMap.setBuilders("Builder1", "Builder2");
@@ -44,15 +44,21 @@ class FileHandlerTest {
     @Order(3)
     @Test
     void testGsonFileHandler() {
-        var gsonFileHandler = new GsonFileHandler(new Gson());
         var path = tempDir.toPath().resolve(testMap);
-        var optional = gsonFileHandler.load(path, BaseMap.class);
+        var optional = fileHandler.load(path, BaseMap.class);
 
-      assertTrue(optional.isPresent());
+        assertTrue(optional.isPresent());
 
         var map = optional.get();
 
         assertEquals("TestMap", map.getName());
         assertArrayEquals(new String[]{"Builder1", "Builder2"}, map.getBuilders());
+    }
+
+    @Order(4)
+    @Test
+    void testFileNotExistsRead() {
+        var file = fileHandler.load(tempDir.toPath().resolve("test3.json"), BaseMap.class);
+        assertTrue(file::isEmpty);
     }
 }
