@@ -1,5 +1,6 @@
 package de.icevizion.aves.inventory;
 
+import de.icevizion.aves.item.TranslatedItem;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -48,6 +49,16 @@ class InventoryLayoutTest {
         assertNotNull(testLayout.getContents());
         testLayout.applyLayout(null);
         assertNull(testLayout.getSlot(0));
+    }
+
+    @Order(4)
+    @Test
+    void testApplyLayoutWithTranslatedSlotWithoutLocale() {
+        var testLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        testLayout.setItem(0, TranslatedItem.of(Material.AIR).toSlot());
+        assertThrowsExactly(IllegalArgumentException.class,
+                () ->testLayout.applyLayout(new ItemStack[]{ItemStack.AIR}, null, null)
+                , "Tried to apply the InventoryLayout with an Translated slot and provided no locale!");
     }
 
     @Order(4)
