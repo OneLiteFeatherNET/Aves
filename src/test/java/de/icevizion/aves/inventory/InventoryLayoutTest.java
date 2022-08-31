@@ -2,6 +2,7 @@ package de.icevizion.aves.inventory;
 
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -51,12 +52,37 @@ class InventoryLayoutTest {
 
     @Order(4)
     @Test
+    void testSetItemWithBuilder() {
+        this.layout.setItem(1, ItemStack.builder(Material.ACACIA_BOAT), InventoryLayout.CANCEL_CLICK);
+        assertNotNull(this.layout.getSlot(1));
+    }
+
+    @Order(5)
+    @Test
+    void testSetItemWithSlot() {
+        this.layout.setItem(2, new InventorySlot(ItemStack.AIR), InventoryLayout.CANCEL_CLICK);
+        var slot = this.layout.getSlot(2);
+        assertNotNull(slot);
+        assertTrue(slot instanceof InventorySlot);
+    }
+
+    @Order(6)
+    @Test
+    void testSetItemWithoutAClick() {
+        this.layout.setItem(3, ItemStack.AIR);
+        var slot = this.layout.getSlot(3);
+        assertNotNull(slot);
+        assertNull(slot.getClick());
+    }
+
+    @Order(7)
+    @Test
     void testBlankSlot() {
         this.layout.blank(23);
         assertNotNull(this.layout.getSlot(23));
     }
 
-    @Order(5)
+    @Order(8)
     @Test
     void testBlankSlots() {
         var blankSlots = new int[]{24,25,26,30};
@@ -67,14 +93,14 @@ class InventoryLayoutTest {
         }
     }
 
-    @Order(6)
+    @Order(9)
     @Test
     void testClearSlot() {
         layout.clear(34);
         assertNull(this.layout.getSlot(34));
     }
 
-    @Order(7)
+    @Order(10)
     @Test
     void testClearSlots() {
         var slots = new int[]{1,2,3};
@@ -84,7 +110,7 @@ class InventoryLayoutTest {
         }
     }
 
-    @Order(8)
+    @Order(11)
     @Test
     void testUpdateWithIndex() {
         var newSlot = new InventorySlot(ItemStack.AIR, (player, clickType, slot1, condition) -> condition.setCancel(true));
@@ -105,14 +131,14 @@ class InventoryLayoutTest {
         assertNotNull(slot);
     }*/
 
-    @Order(9)
+    @Order(12)
     @Test
     void testGetSlotWithException() {
         assertThrows(IllegalArgumentException.class, () -> layout.getSlot(-1));
         assertThrows(IllegalArgumentException.class, () -> layout.getSlot(9999));
     }
 
-    @Order(10)
+    @Order(13)
     @Test
     void testToString() {
         var invLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
@@ -121,23 +147,22 @@ class InventoryLayoutTest {
                 invLayout.toString());
     }
 
-    @Order(11)
+    @Order(14)
     @Test
     void testEqualsWithSameObjects() {
         assertEquals(this.layout, this.layout);
     }
 
-    @Order(12)
+    @Order(15)
     @Test
     void testEqualsWithDifferentReferences() {
         var otherLayout = new InventoryLayout(InventoryType.CHEST_4_ROW);
         assertNotEquals(this.layout, otherLayout);
     }
 
-    @Order(13)
+    @Order(16)
     @Test
     void testHashCode() {
         assertNotSame(1254, this.layout.hashCode());
     }
-
 }
