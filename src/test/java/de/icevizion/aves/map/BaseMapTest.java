@@ -104,6 +104,6 @@ class BaseMapTest {
 
     @Test
     void testEqualsWithNull() {
-        assertNotEquals(this.firstMap, null);
+        assertNotEquals(null, this.firstMap);
     }
 }
