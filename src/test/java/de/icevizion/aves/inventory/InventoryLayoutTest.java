@@ -41,12 +41,22 @@ class InventoryLayoutTest {
 
     @Order(3)
     @Test
+    void testApplyLayoutWithEmptyAndZeroArray() {
+        var testLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        testLayout.applyLayout(new ItemStack[]{});
+        assertNotNull(testLayout.getContents());
+        testLayout.applyLayout(null);
+        assertNull(testLayout.getSlot(0));
+    }
+
+    @Order(4)
+    @Test
     void testBlankSlot() {
         this.layout.blank(23);
         assertNotNull(this.layout.getSlot(23));
     }
 
-    @Order(4)
+    @Order(5)
     @Test
     void testBlankSlots() {
         var blankSlots = new int[]{24,25,26,30};
@@ -57,14 +67,14 @@ class InventoryLayoutTest {
         }
     }
 
-    @Order(5)
+    @Order(6)
     @Test
     void testClearSlot() {
         layout.clear(34);
         assertNull(this.layout.getSlot(34));
     }
 
-    @Order(6)
+    @Order(7)
     @Test
     void testClearSlots() {
         var slots = new int[]{1,2,3};
@@ -74,7 +84,7 @@ class InventoryLayoutTest {
         }
     }
 
-    @Order(7)
+    @Order(8)
     @Test
     void testUpdateWithIndex() {
         var newSlot = new InventorySlot(ItemStack.AIR, (player, clickType, slot1, condition) -> condition.setCancel(true));
@@ -95,14 +105,14 @@ class InventoryLayoutTest {
         assertNotNull(slot);
     }*/
 
-    @Order(8)
+    @Order(9)
     @Test
     void testGetSlotWithException() {
         assertThrows(IllegalArgumentException.class, () -> layout.getSlot(-1));
         assertThrows(IllegalArgumentException.class, () -> layout.getSlot(9999));
     }
 
-    @Order(9)
+    @Order(10)
     @Test
     void testToString() {
         var invLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
@@ -111,20 +121,20 @@ class InventoryLayoutTest {
                 invLayout.toString());
     }
 
-    @Order(10)
+    @Order(11)
     @Test
     void testEqualsWithSameObjects() {
         assertEquals(this.layout, this.layout);
     }
 
-    @Order(11)
+    @Order(12)
     @Test
     void testEqualsWithDifferentReferences() {
         var otherLayout = new InventoryLayout(InventoryType.CHEST_4_ROW);
         assertNotEquals(this.layout, otherLayout);
     }
 
-    @Order(12)
+    @Order(13)
     @Test
     void testHashCode() {
         assertNotSame(1254, this.layout.hashCode());
