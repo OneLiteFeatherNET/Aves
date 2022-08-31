@@ -101,4 +101,9 @@ class BaseMapTest {
     void testEqualsWithSameObject() {
         assertEquals(this.firstMap, this.firstMap);
     }
+
+    @Test
+    void testEqualsWithNull() {
+        assertNotEquals(this.firstMap, null);
+    }
 }
