@@ -49,8 +49,8 @@ public final class Futures {
             try {
                 countDownLatch.await();
                 future.complete(null);
-            } catch (InterruptedException e) {
-                future.completeExceptionally(new InterruptedException(e.getMessage()));
+            } catch (InterruptedException exception) {
+                future.completeExceptionally(new InterruptedException(exception.getMessage()));
                 Thread.currentThread().interrupt();
             }
         });
