@@ -8,22 +8,22 @@ class StringsTest {
 
     @Test
     void testZeroTime() {
-        assertEquals("00:00", Strings.getTimeString(0));
+        assertEquals("00:00", Strings.getTimeString(TimeFormat.MM_SS, 0));
     }
 
     @Test
     void testTime() {
-        assertEquals("01:00", Strings.getTimeString(60));
+        assertEquals("01:00", Strings.getTimeString(TimeFormat.MM_SS, 60));
     }
 
     @Test
     void testToHighFormat() {
-        assertEquals("70:00", Strings.getTimeString(4200));
+        assertEquals("70:00", Strings.getTimeString(TimeFormat.MM_SS, 4200));
     }
 
     @Test
     void testToHighFormat2() {
-        assertEquals("70:55", Strings.getTimeString(4255));
+        assertEquals("70:55", Strings.getTimeString(TimeFormat.MM_SS, 4255));
     }
 
     @Test
@@ -52,21 +52,21 @@ class StringsTest {
 
     @Test
     void testHourString() {
-        assertEquals("01:00:00", Strings.getTimeWithHours(3600));
+        assertEquals("01:00:00", Strings.getTimeString(TimeFormat.HH_MM_SS, 3600));
     }
 
     @Test
     void testHourString2() {
-        assertEquals("00:59:59", Strings.getTimeWithHours(3599));
+        assertEquals("00:59:59", Strings.getTimeString(TimeFormat.HH_MM_SS,3599));
     }
 
     @Test
     void testHourString3() {
-        assertEquals("01:01:39", Strings.getTimeWithHours(3699));
+        assertEquals("01:01:39", Strings.getTimeString(TimeFormat.HH_MM_SS, 3699));
     }
 
     @Test
     void testNegativTime() {
-        assertEquals("00:00:00", Strings.getTimeWithHours(-23));
+        assertEquals("00:00:00", Strings.getTimeString(TimeFormat.HH_MM_SS, -23));
     }
 }
