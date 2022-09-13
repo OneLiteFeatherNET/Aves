@@ -13,7 +13,6 @@ public final class Strings {
 
     public static NamedTextColor FILLED_HEART = NamedTextColor.RED;
     public static NamedTextColor EMPTY_HEARTS = NamedTextColor.GRAY;
-
     public static final String UTF_8_HEART = "♥";
 
     private Strings() {}
@@ -103,34 +102,28 @@ public final class Strings {
         return builder.toString();
     }
 
-
-    @Contract(pure = true)
-    public static @NotNull String getTimeWithHours(int time) {
-        if (time <= 0) {
-            return "00:00:00";
-        }
-
-        int minutes = time / 60;
-        int hours = minutes / 60;
-
-        minutes = minutes % 60;
-
-        int seconds = time % 60;
-        return String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
-    }
-
     /**
      * Convert a time value into the hh:mm format.
      * @param time The time who should be converted
      * @return The converted time
      */
     @Contract(pure = true)
-    public static @NotNull String getTimeString(int time) {
+    public static @NotNull String getTimeString(@NotNull TimeFormat timeFormat, int time) {
         if (time <= 0) {
-            return "00:00";
+            return timeFormat.getDefaultFormat();
         }
+
         int minutes = time / 60;
         int seconds = time % 60;
+
+        if (timeFormat == TimeFormat.HH_MM_SS) {
+            int hours = minutes / 60;
+            minutes = minutes % 60;
+
+            return String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" +
+                    String.format("%02d", seconds);
+        }
+
         return String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
     }
 }
