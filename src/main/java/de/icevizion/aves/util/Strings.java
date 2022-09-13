@@ -6,6 +6,8 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.StringJoiner;
+
 @SuppressWarnings({"java:S1104", "java:S1444", "java:S3008", "java:S1854", "java:S125"})
 public final class Strings {
 
@@ -103,7 +105,7 @@ public final class Strings {
     }
 
     /**
-     * Convert a time value into the hh:mm format.
+     * Convert a time value into the given format from the {@link TimeFormat} entry.
      * @param time The time who should be converted
      * @return The converted time
      */
@@ -116,14 +118,16 @@ public final class Strings {
         int minutes = time / 60;
         int seconds = time % 60;
 
+        StringJoiner stringJoiner = new StringJoiner(":");
+
         if (timeFormat == TimeFormat.HH_MM_SS) {
             int hours = minutes / 60;
             minutes = minutes % 60;
-
-            return String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" +
-                    String.format("%02d", seconds);
+            stringJoiner.add(String.format("%02d", hours));
         }
+        stringJoiner.add(String.format("%02d", minutes));
+        stringJoiner.add(String.format("%02d", seconds));
 
-        return String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+        return stringJoiner.toString();
     }
 }
