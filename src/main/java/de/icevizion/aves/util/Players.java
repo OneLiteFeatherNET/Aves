@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 public final class Players {
 
     private static final Logger PLAYER_LOGGER = LoggerFactory.getLogger(Players.class);
-
     private static Duration itemDuration = Duration.ofMillis(3);
     private static ItemPlacer placer;
 

@@ -18,7 +18,6 @@ import java.util.List;
 public class Particles {
 
     private static final int DEFAULT_PARTICLE_AMOUNT = 2;
-
     private static final int MIN_SIZE_Y = 2;
     private static List<Vec> pointCache = new ArrayList<>();
 
