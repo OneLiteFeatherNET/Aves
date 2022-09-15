@@ -24,7 +24,6 @@ public class ResourcePackHandler {
 
     private final ResourcePack resourcePack;
     private final HashSet<UUID> resourcePackCache;
-
     private ResourcePackCondition condition;
     private Consumer<PlayerResourcePackStatusEvent> eventConsumer;
 
