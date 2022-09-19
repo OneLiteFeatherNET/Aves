@@ -1,6 +1,6 @@
 package de.icevizion.aves.item;
 
-import de.icevizion.aves.inventory.InventoryLayout;
+import de.icevizion.aves.inventory.util.InventoryConstants;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.junit.jupiter.api.Test;
@@ -46,12 +46,12 @@ class TranslatedItemTest {
     @Test
     void testToNonClickSLot() {
         var slot = TranslatedItem.of(Material.ITEM_FRAME).toNonClickSlot();
-        assertSame(InventoryLayout.CANCEL_CLICK, slot.getClick());
+        assertSame(InventoryConstants.CANCEL_CLICK, slot.getClick());
     }
 
     @Test
     void testToSlotWithClickListener() {
         var slot = TranslatedItem.of(Material.ACACIA_BOAT).toSlot((player, clickType, slot1, condition) -> {});
-        assertNotSame(InventoryLayout.CANCEL_CLICK, slot.getClick());
+        assertNotSame(InventoryConstants.CANCEL_CLICK, slot.getClick());
     }
 }

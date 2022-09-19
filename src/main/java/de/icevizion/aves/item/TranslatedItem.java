@@ -4,9 +4,9 @@ import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.message.CompoundMessageCache;
 import at.rxcki.strigiformes.text.TextData;
-import de.icevizion.aves.inventory.InventoryLayout;
 import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.TranslatedSlot;
+import de.icevizion.aves.inventory.util.InventoryConstants;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.item.ItemStack;
@@ -139,7 +139,7 @@ public non-sealed class TranslatedItem implements IItem {
     }
 
     /**
-     * Returns a {@link TranslatedSlot} which includes the underlying {@link ItemStack} without a event handler.
+     * Returns a {@link TranslatedSlot} which includes the underlying {@link ItemStack} without an event handler.
      * @return the created {@link TranslatedSlot}
      */
     public TranslatedSlot toSlot() {
@@ -151,7 +151,7 @@ public non-sealed class TranslatedItem implements IItem {
      * @return the created {@link TranslatedSlot}
      */
     public TranslatedSlot toNonClickSlot() {
-        return new TranslatedSlot(this, InventoryLayout.CANCEL_CLICK);
+        return new TranslatedSlot(this, InventoryConstants.CANCEL_CLICK);
     }
 
     /**

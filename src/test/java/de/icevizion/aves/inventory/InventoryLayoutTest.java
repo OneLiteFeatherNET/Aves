@@ -1,5 +1,6 @@
 package de.icevizion.aves.inventory;
 
+import de.icevizion.aves.inventory.util.InventoryConstants;
 import de.icevizion.aves.inventory.util.LayoutCalculator;
 import de.icevizion.aves.item.TranslatedItem;
 import net.minestom.server.inventory.InventoryType;
@@ -65,14 +66,14 @@ class InventoryLayoutTest {
     @Order(4)
     @Test
     void testSetItemWithBuilder() {
-        this.layout.setItem(1, ItemStack.builder(Material.ACACIA_BOAT), InventoryLayout.CANCEL_CLICK);
+        this.layout.setItem(1, ItemStack.builder(Material.ACACIA_BOAT), InventoryConstants.CANCEL_CLICK);
         assertNotNull(this.layout.getSlot(1));
     }
 
     @Order(5)
     @Test
     void testSetItemWithSlot() {
-        this.layout.setItem(2, new InventorySlot(ItemStack.AIR), InventoryLayout.CANCEL_CLICK);
+        this.layout.setItem(2, new InventorySlot(ItemStack.AIR), InventoryConstants.CANCEL_CLICK);
         var slot = this.layout.getSlot(2);
         assertNotNull(slot);
         assertTrue(slot instanceof InventorySlot);
@@ -95,7 +96,7 @@ class InventoryLayoutTest {
         layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), stack);
 
         for (int i = 0; i < layout.getContents().length; i++) {
-            assertSame(InventoryLayout.CANCEL_CLICK, layout.getSlot(i).getClick());
+            assertSame(InventoryConstants.CANCEL_CLICK, layout.getSlot(i).getClick());
         }
     }
 
@@ -139,13 +140,13 @@ class InventoryLayoutTest {
     void testUpdateWithIndex() {
         var newSlot = new InventorySlot(ItemStack.AIR, (player, clickType, slot1, condition) -> condition.setCancel(true));
         this.layout.setItem(10, newSlot);
-        this.layout.update(10, InventoryLayout.CANCEL_CLICK);
+        this.layout.update(10, InventoryConstants.CANCEL_CLICK);
 
         var slot = this.layout.getSlot(10);
 
         assertNotNull(slot);
         assertNotNull(slot.getClick());
-        assertSame(InventoryLayout.CANCEL_CLICK, this.layout.getSlot(10).getClick());
+        assertSame(InventoryConstants.CANCEL_CLICK, this.layout.getSlot(10).getClick());
     }
 
     /*@Order(7)
