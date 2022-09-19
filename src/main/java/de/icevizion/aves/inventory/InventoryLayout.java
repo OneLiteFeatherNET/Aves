@@ -14,20 +14,17 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.Locale;
 
+import static de.icevizion.aves.inventory.util.InventoryConstants.CANCEL_CLICK;
+import static de.icevizion.aves.inventory.util.InventoryConstants.EMPTY_SLOT;
+
 /**
  * Represents a layout which contains all items for an inventory.
  * @author Patrick Zdarsky / Rxcki
  * @since 1.0.12
  * @version 1.0.2
  */
+@SuppressWarnings("java:S3776")
 public class InventoryLayout {
-
-    public static final InventoryClick CANCEL_CLICK = (player, clickType, slotID, condition) -> condition.setCancel(true);
-
-    /**
-     * An empty slot which is used as a marker / dummy slot to blank slots.
-     */
-    private static final InventorySlot EMPTY_SLOT = new InventorySlot(ItemStack.AIR);
 
     private final ISlot[] contents;
 
@@ -57,7 +54,6 @@ public class InventoryLayout {
         applyLayout(itemStacks, null, null);
     }
 
-    @SuppressWarnings("java:S3776")
     public void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider) {
         if (itemStacks == null || itemStacks.length == 0) return;
         for (int i = 0; i < itemStacks.length; i++) {
@@ -190,7 +186,7 @@ public class InventoryLayout {
     }
 
     /**
-     * Marks a all given slot with a dummy slot object.
+     * Marks an all given slot with a dummy slot object.
      * @param slots The slots to mark
      */
     public InventoryLayout blank(int... slots) {
@@ -223,7 +219,7 @@ public class InventoryLayout {
 
     /**
      * Updates the given listener from a slot.
-     * If the listener is null the @{link {@link #CANCEL_CLICK} will set to the slot
+     * If the listener is null the {@link de.icevizion.aves.inventory.util.InventoryConstants#CANCEL_CLICK} will set to the slot
      * @param index The index to get the slot to update
      * @param listener The listener to set
      */
