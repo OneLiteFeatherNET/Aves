@@ -13,15 +13,11 @@ import java.util.function.Consumer;
  * @version 1.0.0
  * @since 1.0.0
  **/
-
-public class InventoryConstants {
+public final class InventoryConstants {
 
     public static final InventoryClick CANCEL_CLICK = (player, clickType, slotID, condition) -> condition.setCancel(true);
-
     public static final Consumer<CancellableEvent> CANCELLABLE_EVENT = event -> event.setCancelled(true);
-
     public static final InventorySlot EMPTY_SLOT = new InventorySlot(ItemStack.AIR);
 
     private InventoryConstants() {}
-
 }
