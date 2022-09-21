@@ -258,6 +258,14 @@ public class InventoryLayout {
         return contents;
     }
 
+    /**
+     * Returns the size from the layout.
+     * @return the given size
+     */
+    public int getSize() {
+        return this.contents.length;
+    }
+
     @Override
     public String toString() {
         return "InventoryLayout{" + "contents=" + Arrays.toString(contents) + '}';

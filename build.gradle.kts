@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-val baseVersion = "1.2.0-SNAPSHOT"
+val baseVersion = "1.2.0"
 description = "Aves"
 
 java {
@@ -34,8 +34,8 @@ dependencies {
 
     testImplementation("com.github.Minestom:Minestom:$minestomVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
-    testImplementation("org.mockito:mockito-core:4.7.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:4.7.0")
+    testImplementation("org.mockito:mockito-core:4.8.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:4.8.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
 }
 
