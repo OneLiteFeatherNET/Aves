@@ -1,5 +1,7 @@
 package de.icevizion.aves.resourcepack;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.Player;
 import net.minestom.server.resourcepack.ResourcePack;
 import net.minestom.server.resourcepack.ResourcePackStatus;
@@ -16,10 +18,9 @@ import java.util.UUID;
  **/
 public final class DefaultResourcePackCondition implements ResourcePackCondition {
 
-    private static final String ERROR_DOWNLOAD_MESSAGE =
-            "§cFailed to download resource pack. Please report the issue and try /rsp load in a few minutes";
-    private static final String KICK_MESSAGE =
-            "§cYou must accept the resource pack to play on the server";
+    private static final Component ERROR_DOWNLOAD_MESSAGE =
+            Component.text("§cFailed to download resource pack. Please report the issue and try /rsp load in a few minutes", NamedTextColor.RED);
+    private static final Component KICK_MESSAGE = Component.text("You must accept the resource pack to play on the serve", NamedTextColor.RED);
     private final Set<UUID> cache;
 
     /**
