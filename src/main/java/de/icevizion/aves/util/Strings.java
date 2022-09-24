@@ -15,7 +15,7 @@ public final class Strings {
 
     public static NamedTextColor FILLED_HEART = NamedTextColor.RED;
     public static NamedTextColor EMPTY_HEARTS = NamedTextColor.GRAY;
-    public static final String UTF_8_HEART = "♥";
+    public static final String UTF_8_HEART = "\u2665";
 
     private Strings() {}
 
