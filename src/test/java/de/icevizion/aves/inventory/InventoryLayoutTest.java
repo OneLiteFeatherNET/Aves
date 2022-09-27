@@ -90,14 +90,25 @@ class InventoryLayoutTest {
 
     @Test
     void testSetNonClickItems() {
-        var stack = ItemStack.builder(Material.ACACIA_BOAT).build();
+        var layout = new InventoryLayout(InventoryType.CHEST_2_ROW);
 
-        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
-        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), stack);
+        layout.setNonClickItem(0, ItemStack.builder(Material.AMETHYST_BLOCK).build());
+        layout.setNonClickItem(1, new InventorySlot(ItemStack.builder(Material.AXOLOTL_BUCKET).build()));
 
-        for (int i = 0; i < layout.getContents().length; i++) {
-            assertSame(InventoryConstants.CANCEL_CLICK, layout.getSlot(i).getClick());
-        }
+        assertNotNull(layout.getSlot(0));
+        assertNotNull(layout.getSlot(1));
+
+        layout.setNonClickItems(new int[]{0,1,2}, ItemStack.builder(Material.ACACIA_BUTTON).build());
+        layout.setNonClickItems(new int[]{3,4,5}, ItemStack.builder(Material.ALLAY_SPAWN_EGG));
+        layout.setNonClickItems(new int[]{6,7,8}, new InventorySlot(ItemStack.builder(Material.ANDESITE_WALL).build()));
+
+        assertNotNull(layout.getSlot(1));
+        assertNotNull(layout.getSlot(5));
+        var stack = layout.getSlot(6).getItem();
+        assertNotNull(stack);
+
+        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), stack);
+
     }
 
     @Order(7)
@@ -165,6 +176,17 @@ class InventoryLayoutTest {
 
     @Order(13)
     @Test
+    void testGetContents() {
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        assertNotNull(layout.getContents());
+    }
+
+    @Test
+    void testGetSize() {
+        assertNotSame(InventoryType.CHEST_1_ROW.getSize(), layout.getSize());
+    }
+
+    @Test
     void testToString() {
         var invLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
         assertEquals(
@@ -172,20 +194,17 @@ class InventoryLayoutTest {
                 invLayout.toString());
     }
 
-    @Order(14)
     @Test
     void testEqualsWithSameObjects() {
         assertEquals(this.layout, this.layout);
     }
 
-    @Order(15)
     @Test
     void testEqualsWithDifferentReferences() {
         var otherLayout = new InventoryLayout(InventoryType.CHEST_4_ROW);
         assertNotEquals(this.layout, otherLayout);
     }
 
-    @Order(16)
     @Test
     void testHashCode() {
         assertNotSame(1254, this.layout.hashCode());
