@@ -1,10 +1,13 @@
 package de.icevizion.aves.util.functional;
 
 import de.icevizion.aves.item.IItem;
+import de.icevizion.aves.item.TranslatedItem;
 import de.icevizion.aves.util.Players;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 /**
  * With the interface a developer can manipulate how an item would set into the inventory of a player.
@@ -19,7 +22,8 @@ public interface ItemPlacer {
     /**
      * Default implementation for the interface.
      */
-    ItemPlacer FALLBACK = (player, slotID, itemStack, armor) -> {
+    ItemPlacer FALLBACK = (player, slotID, iitem, locale, armor) -> {
+        var itemStack = iitem instanceof TranslatedItem && locale != null ? iitem.get(locale) : iitem.get();
         if (armor) {
             switch (slotID) {
                 case 0 -> player.getInventory().setHelmet(itemStack);
@@ -37,18 +41,18 @@ public interface ItemPlacer {
      * Set's a given {@link ItemStack} to the inventory from a player
      * @param player The player who receives the itemStack
      * @param slotID The slotId for the itemStack
-     * @param itemStack The itemStack itself
+     * @param item The itemStack itself
      */
-    default void setItem(@NotNull Player player, int slotID, @NotNull ItemStack itemStack) {
-        this.setItem(player, slotID, itemStack, false);
+    default void setItem(@NotNull Player player, int slotID, @NotNull IItem item, Locale locale) {
+        this.setItem(player, slotID, item, locale, false);
     }
 
     /**
      * Set's a given {@link ItemStack} to the inventory from a player
      * @param player The player who receives the itemStack
      * @param slotID The slotId for the itemStack
-     * @param itemStack The itemStack itself
+     * @param item The itemStack itself
      * @param armor If the item is an armor item or not
      */
-    void setItem(@NotNull Player player, int slotID, @NotNull ItemStack itemStack, boolean armor);
+    void setItem(@NotNull Player player, int slotID, @NotNull IItem item, Locale locale, boolean armor);
 }
