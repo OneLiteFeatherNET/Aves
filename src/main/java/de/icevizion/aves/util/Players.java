@@ -164,29 +164,20 @@ public final class Players {
         player.getInventory().clear();
 
         if (armorItems != null) {
-            for (int i = 0; i < armorItems.length; i++) {
-                if (armorItems[i] == null) continue;
-                if (armorItems[i] instanceof TranslatedItem item && locale != null) {
-                    placer.setItem(player, i, item.get(locale), true);
-                    return;
-                } else {
-                    placer.setItem(player, i, armorItems[i].get(), true);
-                }
-            }
+            setItems(player, armorItems, locale);
         }
 
         if (hotBarItems != null) {
-            for (int i = 0; i < hotBarItems.length; i++) {
-                if (hotBarItems[i] == null) continue;
-                //Shift slots according to shiftedSlots array
-                int slot = shiftedSlots == null ? i : shiftedSlots[i];
+            setItems(player, hotBarItems, locale, shiftedSlots);
+        }
+    }
 
-                if (hotBarItems[i] instanceof TranslatedItem item && locale != null) {
-                    placer.setItem(player, slot, item.get(locale));
-                } else {
-                    placer.setItem(player, i, hotBarItems[i].get());
-                }
-            }
+    private static void setItems(@NotNull Player player, IItem[] items, Locale locale, int... shiftedSlots) {
+        for (int i = 0; i < items.length; i++) {
+            var wrappedItem = items[i];
+            if (wrappedItem == null) continue;
+            var slotID = shiftedSlots != null ? shiftedSlots[i] : i;
+            placer.setItem(player, slotID, wrappedItem, locale, true);
         }
     }
 
