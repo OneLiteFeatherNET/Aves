@@ -3,13 +3,9 @@ package de.icevizion.aves.inventory;
 import at.rxcki.strigiformes.MessageProvider;
 import at.rxcki.strigiformes.TranslatedObjectCache;
 import at.rxcki.strigiformes.text.TextData;
-import de.icevizion.aves.inventory.holder.InventoryHolder;
 import de.icevizion.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.EventListener;
-import net.minestom.server.event.inventory.InventoryCloseEvent;
-import net.minestom.server.event.inventory.InventoryOpenEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.Material;
@@ -22,18 +18,11 @@ import java.util.Locale;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-@SuppressWarnings("java:S3252")
-public non-sealed class GlobalTranslatedInventoryBuilder extends InventoryBuilder implements InventoryListenerHandler {
+public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     private final MessageProvider messageProvider;
     private final TranslatedObjectCache<CustomInventory> inventoryTranslatedObjectCache;
-
     private TextData titleData;
-
-    private InventoryHolder holder;
-
-    private EventListener<InventoryCloseEvent> closeListener;
-    private EventListener<InventoryOpenEvent> openListener;
 
     public GlobalTranslatedInventoryBuilder(@NotNull InventoryType type, MessageProvider messageProvider) {
         super(type);
@@ -50,21 +39,6 @@ public non-sealed class GlobalTranslatedInventoryBuilder extends InventoryBuilde
             updateInventory(inventory, title, locale, messageProvider, true);
             return inventory;
         });
-    }
-
-    @Override
-    public void register() {
-        this.checkListenerState(this.openListener, this.closeListener);
-
-        if (this.openFunction != null) {
-            this.openListener = registerOpen(this, holder);
-        }
-
-        if (this.closeFunction != null) {
-            this.closeListener = registerClose(this, holder);
-        }
-
-        this.register(NODE, openListener, closeListener);
     }
 
     @Override
