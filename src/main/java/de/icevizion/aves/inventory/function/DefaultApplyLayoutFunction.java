@@ -38,16 +38,20 @@ public class DefaultApplyLayoutFunction implements ApplyLayoutFunction {
             if (slot == EMPTY_SLOT) {
                 itemStacks[i] = null;
             } else {
-                if (slot instanceof TranslatedSlot translatedSlot) {
-                    if (translatedSlot.getTranslatedItem().getMessageProvider() == null) {
-                        translatedSlot.getTranslatedItem().setMessageProvider(messageProvider);
-                    }
-
-                    itemStacks[i] = translatedSlot.getItem(locale);
-                } else {
-                    itemStacks[i] = slot.getItem();
-                }
+                setItemStack(slot, itemStacks, messageProvider, locale, i);
             }
+        }
+    }
+
+    private void setItemStack(@NotNull ISlot slot, @NotNull ItemStack[] itemStacks, MessageProvider messageProvider, Locale locale, int index) {
+        if (slot instanceof TranslatedSlot translatedSlot) {
+            if (translatedSlot.getTranslatedItem().getMessageProvider() == null) {
+                translatedSlot.getTranslatedItem().setMessageProvider(messageProvider);
+            }
+
+            itemStacks[index] = translatedSlot.getItem(locale);
+        } else {
+            itemStacks[index] = slot.getItem();
         }
     }
 }
