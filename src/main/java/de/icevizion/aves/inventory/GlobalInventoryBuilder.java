@@ -21,55 +21,22 @@ import java.util.Locale;
  * @since 1.0.0
  */
 @SuppressWarnings("java:S3252")
-public non-sealed class GlobalInventoryBuilder extends InventoryBuilder implements InventoryListenerHandler {
+public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
 
-    static {
-        MinecraftServer.getGlobalEventHandler().addChild(NODE);
-    }
 
     private final Component titleComponent;
     private CustomInventory inventory;
 
-    private InventoryHolder holder;
-
-    private EventListener<InventoryCloseEvent> closeListener;
-    private EventListener<InventoryOpenEvent> openListener;
 
     public GlobalInventoryBuilder(@NotNull String title, @NotNull InventoryType type) {
         super(type);
         this.titleComponent = Component.text(title);
-        this.holder = new InventoryHolderImpl(this);
     }
 
     public GlobalInventoryBuilder(@NotNull Component title, @NotNull InventoryType type) {
         super(type);
         this.titleComponent = title;
         this.holder = new InventoryHolderImpl(this);
-    }
-
-    @Override
-    public void register() {
-        this.checkListenerState(this.openListener, this.closeListener);
-        if (this.openFunction != null) {
-            this.openListener = registerOpen(this, holder);
-        }
-
-        if (this.closeFunction != null) {
-            this.closeListener = registerClose(this, holder);
-        }
-
-        this.register(NODE, openListener, closeListener);
-    }
-
-    @Override
-    public void unregister() {
-        if (!getInventory().getViewers().isEmpty()) {
-            for (Player viewer : getInventory().getViewers()) {
-                viewer.closeInventory();
-            }
-        }
-        this.unregister(NODE, openListener, closeListener);
-        this.holder = null;
     }
 
     @Override
