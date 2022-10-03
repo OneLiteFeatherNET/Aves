@@ -1,0 +1,57 @@
+package de.icevizion.aves.inventory;
+
+import de.icevizion.aves.inventory.holder.InventoryHolder;
+import de.icevizion.aves.inventory.holder.InventoryHolderImpl;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.Player;
+import net.minestom.server.event.EventListener;
+import net.minestom.server.event.inventory.InventoryCloseEvent;
+import net.minestom.server.event.inventory.InventoryOpenEvent;
+import net.minestom.server.inventory.InventoryType;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * @author theEvilReaper
+ * @version 1.0.0
+ * @since 1.0.0
+ **/
+public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuilder implements InventoryListenerHandler {
+
+    static {
+        MinecraftServer.getGlobalEventHandler().addChild(NODE);
+    }
+
+    protected InventoryHolder holder;
+    protected EventListener<InventoryCloseEvent> closeListener;
+    protected EventListener<InventoryOpenEvent> openListener;
+
+    protected BaseInventoryBuilderImpl(@NotNull InventoryType type) {
+        super(type);
+        this.holder = new InventoryHolderImpl(this);
+    }
+
+    @Override
+    public void register() {
+        this.checkListenerState(this.openListener, this.closeListener);
+        if (this.openFunction != null) {
+            this.openListener = registerOpen(this, holder);
+        }
+
+        if (this.closeFunction != null) {
+            this.closeListener = registerClose(this, holder);
+        }
+
+        this.register(NODE, openListener, closeListener);
+    }
+
+    @Override
+    public void unregister() {
+        if (!getInventory().getViewers().isEmpty()) {
+            for (Player viewer : getInventory().getViewers()) {
+                viewer.closeInventory();
+            }
+        }
+        this.unregister(NODE, openListener, closeListener);
+        this.holder = null;
+    }
+}
