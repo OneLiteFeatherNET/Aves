@@ -1,6 +1,7 @@
 package de.icevizion.aves.item;
 
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Locale;
 
@@ -19,6 +20,7 @@ public sealed interface IItem permits Item, TranslatedItem {
      * This method should only be used if there is no translation
      * @return the underlying stack
      */
+    @UnknownNullability(value = "In a translation context this method can return a null value")
     default ItemStack get() {
         return get(null);
     }
