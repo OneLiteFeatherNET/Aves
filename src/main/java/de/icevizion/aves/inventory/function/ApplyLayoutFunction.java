@@ -25,7 +25,7 @@ public interface ApplyLayoutFunction {
      * Apply the layout to an inventory.
      * @param itemStacks the array with contains the items
      */
-    default void applyLayout(ItemStack[]itemStacks) {
+    default void applyLayout(ItemStack[] itemStacks) {
         this.applyLayout(itemStacks, null, null);
     }
 }
