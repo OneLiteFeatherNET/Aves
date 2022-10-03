@@ -1,6 +1,8 @@
 package de.icevizion.aves.inventory;
 
 import at.rxcki.strigiformes.MessageProvider;
+import de.icevizion.aves.inventory.function.ApplyLayoutFunction;
+import de.icevizion.aves.inventory.function.DefaultApplyLayoutFunction;
 import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.TranslatedSlot;
@@ -26,10 +28,13 @@ import static de.icevizion.aves.inventory.util.InventoryConstants.EMPTY_SLOT;
 @SuppressWarnings("java:S3776")
 public class InventoryLayout {
 
+    private ApplyLayoutFunction applyLayoutFunction;
+
     private final ISlot[] contents;
 
     public InventoryLayout(@NotNull InventoryType type) {
         this.contents = new ISlot[type.getSize()];
+        this.applyLayoutFunction = new DefaultApplyLayoutFunction(this.contents);
     }
 
     private InventoryLayout(@NotNull InventoryLayout layout) {
@@ -44,40 +49,24 @@ public class InventoryLayout {
                 LoggerFactory.getLogger("Aves").info("Found a slot which can not be converted");
             }
         }
+        this.applyLayoutFunction = layout.getApplyLayoutFunction();
     }
 
     @Contract(value = "_ -> new", pure = true)
     public static @NotNull InventoryLayout of(@NotNull InventoryLayout inventoryLayout) {
         return new InventoryLayout(inventoryLayout);
     }
+
+    public void setApplyLayoutFunction(@NotNull ApplyLayoutFunction applyLayoutFunction) {
+        this.applyLayoutFunction = applyLayoutFunction;
+    }
+
     public void applyLayout(ItemStack[] itemStacks) {
-        applyLayout(itemStacks, null, null);
+        this.applyLayoutFunction.applyLayout(itemStacks, null, null);
     }
 
     public void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider) {
-        if (itemStacks == null || itemStacks.length == 0) return;
-        for (int i = 0; i < itemStacks.length; i++) {
-            ISlot slot = contents[i];
-
-            if (slot == null) continue;
-
-            if (slot instanceof TranslatedSlot && locale == null) {
-                throw new IllegalArgumentException("Tried to apply the InventoryLayout with an Translated slot and provided no locale!");
-            }
-            if (slot == EMPTY_SLOT) {
-                itemStacks[i] = null;
-            } else {
-                if (slot instanceof TranslatedSlot translatedSlot) {
-                    if (translatedSlot.getTranslatedItem().getMessageProvider() == null) {
-                        translatedSlot.getTranslatedItem().setMessageProvider(messageProvider);
-                    }
-
-                    itemStacks[i] = translatedSlot.getItem(locale);
-                } else {
-                    itemStacks[i] = slot.getItem();
-                }
-            }
-        }
+        this.applyLayoutFunction.applyLayout(itemStacks, locale, messageProvider);
     }
 
     public InventoryLayout setItem(int slot, ItemStack.Builder itemBuilder, InventoryClick clickEvent) {
@@ -264,6 +253,11 @@ public class InventoryLayout {
      */
     public int getSize() {
         return this.contents.length;
+    }
+
+    @NotNull
+    public ApplyLayoutFunction getApplyLayoutFunction() {
+        return applyLayoutFunction;
     }
 
     @Override
