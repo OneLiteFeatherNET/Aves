@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  * @version 1.0.0
  * @since 1.0.0
  **/
-sealed interface InventoryListenerHandler permits GlobalInventoryBuilder, GlobalTranslatedInventoryBuilder {
+sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
 
      EventNode<InventoryEvent> NODE = EventNode.type("inventories", EventFilter.INVENTORY);
 
