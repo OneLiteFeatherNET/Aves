@@ -1,5 +1,6 @@
 package de.icevizion.aves.util;
 
+import de.icevizion.aves.inventory.util.InventoryConstants;
 import de.icevizion.aves.item.IItem;
 import de.icevizion.aves.item.TranslatedItem;
 import de.icevizion.aves.util.functional.ItemPlacer;
@@ -115,64 +116,50 @@ public final class Players {
     }
 
     /**
-     * Updates the equipment from a {@link Player}.
+     * Updates the hotbar items from a given {@link Player}.
      * The locale and shiftedSlot parameter can be null
      * @param player The {@link Player} who receives the new equipment
-     * @param armorItems The armor items as array
-     * @param hotBarItems The hot bar items as array
-     * @param shiftedSlots An array with contains shifted layout only for the hotbar
-     */
-    public static void updateEquipment(@NotNull Player player,
-                                       @NotNull IItem[] armorItems,
-                                       @NotNull IItem[] hotBarItems,
-                                       int... shiftedSlots) {
-        updateEquipment(player, armorItems, hotBarItems, null, shiftedSlots);
-    }
-
-    /**
-     * Updates the equipment from a {@link Player}.
-     * The locale and shiftedSlot parameter can be null
-     * @param player The {@link Player} who receives the new equipment
-     * @param armorItems The armor items as array
-     * @param hotBarItems The hot bar items as array
+     * @param hotbarItems The hot bar items as array
      * @param locale The {@link Locale} for {@link TranslatedItem}
      * @param shiftedSlots An array with contains shifted layout only for the hotbar
      */
-    @SuppressWarnings("java:S3776")
-    public static void updateEquipment(@NotNull Player player,
-                                       @Nullable IItem[] armorItems,
-                                       @Nullable IItem[] hotBarItems,
-                                       @Nullable Locale locale,
-                                       int... shiftedSlots) {
-        if (armorItems != null && armorItems.length > 4) {
-            throw new IllegalArgumentException("");
+    public static void updateHotBar(@NotNull Player player, @NotNull IItem[] hotbarItems, @Nullable Locale locale, int... shiftedSlots) {
+        if (hotbarItems.length > InventoryConstants.INVENTORY_WIDTH) {
+            throw new IllegalArgumentException("The array length for the items is greater than " + InventoryConstants.INVENTORY_WIDTH);
         }
-
-        if (hotBarItems != null && hotBarItems.length > 9) {
-            throw new IllegalArgumentException("The hotBar can only hold 9 items");
-        }
-
-        if (shiftedSlots != null && shiftedSlots.length != hotBarItems.length) {
+        if (shiftedSlots.length > hotbarItems.length) {
             throw new IllegalArgumentException("The length from shiftedSlots has not the same length with the underlying array");
         }
-
         if (placer == null) {
             placer = ItemPlacer.FALLBACK;
             PLAYER_LOGGER.info("Set `ItemPlacer Interface` to fallback implementation");
         }
-
-        player.getInventory().clear();
-
-        if (armorItems != null) {
-            setItems(player, armorItems, locale);
-        }
-
-        if (hotBarItems != null) {
-            setItems(player, hotBarItems, locale, shiftedSlots);
-        }
+        setItems(player, hotbarItems, locale, shiftedSlots);
     }
 
-    private static void setItems(@NotNull Player player, IItem[] items, Locale locale, int... shiftedSlots) {
+    /**
+     * Updates the armor items from a given {@link Player}.
+     * The locale and shiftedSlot parameter can be null
+     * @param player The {@link Player} who receives the new equipment
+     * @param armorItems The array with the items for the armor area
+     * @param locale The {@link Locale} for {@link TranslatedItem}
+     */
+    public static void updateArmorItems(@NotNull Player player, @NotNull IItem[] armorItems, @Nullable Locale locale) {
+        if (placer == null) {
+            placer = ItemPlacer.FALLBACK;
+            PLAYER_LOGGER.info("Set `ItemPlacer Interface` to fallback implementation");
+        }
+        setItems(player, armorItems, locale);
+    }
+
+    /**
+     * Applies a given array of {@link ItemStack}'s to a {@link Player}.
+     * @param player the player who should get the items
+     * @param items the array with the items
+     * @param locale the locale if the case need some
+     * @param shiftedSlots an array which contains shifted slots
+     */
+    private static void setItems(@NotNull Player player, @NotNull IItem[] items, Locale locale, int... shiftedSlots) {
         for (int i = 0; i < items.length; i++) {
             var wrappedItem = items[i];
             if (wrappedItem == null) continue;
