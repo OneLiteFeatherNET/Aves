@@ -3,6 +3,8 @@ package de.icevizion.aves.inventory.util;
 import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.NotNull;
 
+import static de.icevizion.aves.inventory.util.InventoryConstants.*;
+
 /**
  * Contains some usefully methods to calculate some layouts for an inventory.
  * @author Patrick Zdarsky / Rxcki
@@ -10,8 +12,6 @@ import org.jetbrains.annotations.NotNull;
  * @version 1.0.1
  */
 public class LayoutCalculator {
-
-    private static final int INVENTORY_WIDTH = 9;
 
     private LayoutCalculator() {}
 
@@ -88,7 +88,7 @@ public class LayoutCalculator {
     }
 
     /**
-     * Calculates the slot numbers to fill a complete row in a inventory.
+     * Calculates the slot numbers to fill a complete row in an inventory.
      * @param type The {@link InventoryType} to get the maximum slot value of a row
      * @return an array which contains the slot numbers
      */
@@ -98,7 +98,7 @@ public class LayoutCalculator {
 
     /**
      * Calculates the index numbers to fill a row.
-     * @param type The type from a inventory
+     * @param type The type from an inventory
      * @param column The column to start
      * @return an array which contains the slot numbers
      */
