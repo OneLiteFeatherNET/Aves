@@ -14,7 +14,7 @@ class TranslatedItemTest {
     @Test
     void testTranslatedItemWithNullReference() {
         var item = TranslatedItem.empty();
-        assertNull(item.get(Locale.ENGLISH));
+        assertNotNull(item.get(Locale.ENGLISH));
     }
 
     @Test
@@ -28,7 +28,7 @@ class TranslatedItemTest {
     @Test
     void tesTranslatedItemGetWithoutLocale() {
         var item = TranslatedItem.of(Material.AIR);
-        var exception = assertThrows(IllegalCallerException.class, item::get);
+        var exception = assertThrows(UnsupportedOperationException.class, item::get);
         assertEquals("Can not get item without a locale in a translated context", exception.getMessage());
     }
 
