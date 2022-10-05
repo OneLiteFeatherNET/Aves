@@ -18,6 +18,7 @@ public final class InventoryConstants {
     public static final InventoryClick CANCEL_CLICK = (player, clickType, slotID, condition) -> condition.setCancel(true);
     public static final Consumer<CancellableEvent> CANCELLABLE_EVENT = event -> event.setCancelled(true);
     public static final InventorySlot EMPTY_SLOT = new InventorySlot(ItemStack.AIR);
+    public static final int INVENTORY_WIDTH = 9;
 
     private InventoryConstants() {}
 }
