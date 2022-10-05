@@ -38,17 +38,14 @@ class PlayersTest {
 
     @Test
     void testUpdateEquipment() {
-        IItem[] armorItems = new IItem[7];
         IItem[] hotbarItems = new IItem[12];
-        assertThrowsExactly(IllegalArgumentException.class, () ->
-                Players.updateEquipment(player, armorItems, hotbarItems, null, 12), "");
 
         assertThrowsExactly(IllegalArgumentException.class, () ->
-                Players.updateEquipment(player, new IItem[4], hotbarItems, null, 12),
+                Players.updateHotBar(player, hotbarItems, null, 12),
                 "The hotBar can only hold 9 items");
 
         assertThrowsExactly(IllegalArgumentException.class, () ->
-            Players.updateEquipment(player, new IItem[4], new IItem[5], null, 1),
+            Players.updateHotBar(player, new IItem[4], null, 55, 1, 1, 1, 1),
                     "The length from shiftedSlots has not the same length with the underlying array");
     }
 
