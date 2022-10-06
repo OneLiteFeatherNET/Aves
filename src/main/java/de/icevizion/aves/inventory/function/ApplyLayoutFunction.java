@@ -6,6 +6,7 @@ import net.minestom.server.item.ItemStack;
 import java.util.Locale;
 
 /**
+ * This interface defines all method to write an own implementation for the applyLayout function.
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.2.0

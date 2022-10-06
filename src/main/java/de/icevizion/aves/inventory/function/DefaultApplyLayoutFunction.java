@@ -20,10 +20,20 @@ public class DefaultApplyLayoutFunction implements ApplyLayoutFunction {
 
     private final ISlot[] contents;
 
+    /**
+     * Creates a new instance from the default function.
+     * @param content the array which contains all slots
+     */
     public DefaultApplyLayoutFunction(@NotNull ISlot[] content) {
         this.contents = content;
     }
 
+    /**
+     * Applies the given content which is located in the {@link ISlot} array to the given array from the method.
+     * @param itemStacks the array which contains {@link ItemStack}'s
+     * @param messageProvider an instance to a {@link MessageProvider}(can be null)
+     * @param locale the locale to get the right item if the context is translated
+     */
     @Override
     public void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider) {
         if (itemStacks == null || itemStacks.length == 0) return;
@@ -43,6 +53,16 @@ public class DefaultApplyLayoutFunction implements ApplyLayoutFunction {
         }
     }
 
+    /**
+     * Set the {@link ItemStack} from a {@link ISlot} into stack array.
+     * The methods also check if the {@link ISlot} is a {@link TranslatedSlot}.
+     * When the slot is {@link TranslatedSlot} the method use the locale variable to get the right {@link ItemStack}
+     * @param slot the slot to get the item from it
+     * @param itemStacks the array which contains {@link ItemStack}'s
+     * @param messageProvider an instance to a {@link MessageProvider}(can be null)
+     * @param locale the locale to get the right item if the context is translated
+     * @param index the index position to set the item
+     */
     private void setItemStack(@NotNull ISlot slot, @NotNull ItemStack[] itemStacks, MessageProvider messageProvider, Locale locale, int index) {
         if (slot instanceof TranslatedSlot translatedSlot) {
             if (translatedSlot.getTranslatedItem().getMessageProvider() == null) {
