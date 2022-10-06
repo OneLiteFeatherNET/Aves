@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ItemsTest {
 
-    private static final int STACK_SIZE = 64;
-
     Player player;
 
     PlayerInventory playerInventory;
@@ -37,7 +35,7 @@ class ItemsTest {
     @BeforeAll
     void init() {
         this.items = new ItemStack[InventoryType.CHEST_3_ROW.getSize()];
-        Arrays.fill(items, ItemStack.AIR.withAmount(STACK_SIZE));
+        Arrays.fill(items, ItemStack.AIR.withAmount(Items.MAX_STACK_SIZE));
         this.stack = ItemStack.builder(Material.ACACIA_LEAVES).amount(12).build();
 
         this.player = Mockito.mock(Player.class);
@@ -68,7 +66,7 @@ class ItemsTest {
     void testFreeSpace() {
         System.out.println(this.items[0] == null);
         assertEquals(
-                (this.playerInventory.getSize() * STACK_SIZE), Items.getFreeSpace(this.player));
+                (this.playerInventory.getSize() * Items.MAX_STACK_SIZE), Items.getFreeSpace(this.player));
     }
 
 }
