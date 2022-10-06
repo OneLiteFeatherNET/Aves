@@ -168,7 +168,7 @@ public non-sealed class TranslatedItem implements IItem {
      */
     @Override
     public ItemStack get() {
-        throw new IllegalCallerException("Can not get item without a locale in a translated context");
+        throw new UnsupportedOperationException("Can not get item without a locale in a translated context");
     }
 
     /**
