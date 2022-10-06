@@ -14,8 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PositionGsonAdapterTest {
 
     private static final String POS_JSON = """
-                    {"x":0.0,"y":0.0,"z":0.0,"yaw":0.0,"pitch":0.0}
-            """;
+             {"x":0.0,"y":0.0,"z":0.0,"yaw":0.0,"pitch":0.0}""";
     private static final String POS_JSON_2 = """
             {"x":0.0,"y":0.0,"z":0.0,"yaw":1.0}
             """;
