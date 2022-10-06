@@ -61,7 +61,7 @@ public non-sealed class TranslatedItem implements IItem {
 
     @Contract(value = "-> new", pure = true)
     public static @NotNull TranslatedItem empty() {
-        return new TranslatedItem(null);
+        return new TranslatedItem(ItemStack.AIR);
     }
 
     /**
