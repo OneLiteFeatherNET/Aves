@@ -37,22 +37,18 @@ public final class Items {
     /**
      * Returns the remaining free space in the inventory of a given player.
      * @param player The player from which the remaining place should be determined
-     * @param item The item to check
      * @return The amount of free space
      */
-    public static int getFreeSpace(@NotNull Player player, @NotNull ItemStack item) {
+    public static int getFreeSpace(@NotNull Player player) {
         int spaceCount = 0;
-
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             var currentStack = player.getInventory().getItemStacks()[i];
-            if (currentStack == null) {
+            if (currentStack == null || currentStack.material() == ItemStack.AIR.material()) {
                 spaceCount += MAX_STACK_SIZE;
                 continue;
             }
 
-            if (currentStack.isSimilar(item)) {
-                spaceCount += currentStack.amount() - item.amount();
-            }
+            spaceCount += MAX_STACK_SIZE - currentStack.amount();
         }
         return spaceCount;
     }
