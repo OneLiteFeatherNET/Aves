@@ -13,14 +13,17 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PositionGsonAdapterTest {
 
-    private static final String POS_JSON = "{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"yaw\":0.0,\"pitch\":0.0}";
-
-    private static final String VEC_JSON = "{\"x\":2.0,\"y\":1.0,\"z\":1.0}";
-
+    private static final String POS_JSON = """
+                    {"x":0.0,"y":0.0,"z":0.0,"yaw":0.0,"pitch":0.0}
+            """;
+    private static final String POS_JSON_2 = """
+            {"x":0.0,"y":0.0,"z":0.0,"yaw":1.0}
+            """;
+    private static final String VEC_JSON = """
+            {"x":2.0,"y":1.0,"z":1.0}
+            """;
     Pos writePos;
-
     Vec writeVec;
-
     Gson gson;
 
     @BeforeAll
@@ -46,6 +49,11 @@ class PositionGsonAdapterTest {
         var pos = this.gson.fromJson(POS_JSON, Pos.class);
         assertNotNull(pos);
         assertEquals(Pos.ZERO, pos);
+    }
+
+    @Test
+    void testPointReadWithoutYawAndPitch() {
+        assertThrows(ClassCastException.class, () -> this.gson.fromJson(POS_JSON_2, Pos.class));
     }
 
     @Test
