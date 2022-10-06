@@ -46,6 +46,11 @@ class ItemsTest {
         Mockito.when(playerInventory.getItemStacks()).thenReturn(items);
     }
 
+    @Test
+    void testStackSizeConstant() {
+        assertEquals(64, Items.MAX_STACK_SIZE);
+    }
+
     @Order(1)
     @Test
     void testFreeSpace() {
