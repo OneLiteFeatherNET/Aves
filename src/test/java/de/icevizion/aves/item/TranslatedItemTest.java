@@ -12,12 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class TranslatedItemTest {
 
     @Test
-    void testTranslatedItemWithNullReference() {
-        var item = TranslatedItem.empty();
-        assertNotNull(item.get(Locale.ENGLISH));
-    }
-
-    @Test
     void testTranslatedItemWithStackReference() {
         var item = TranslatedItem.of(ItemStack.AIR);
 
