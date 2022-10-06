@@ -48,10 +48,9 @@ class ItemsTest {
 
     @Order(1)
     @Test
-    void testGetItemAmountFrom() {
-        var stack = ItemStack.builder(Material.ACACIA_LEAVES).build();
-        var amount = Items.getAmountFromItem(this.player, stack);
-        assertSame(0, amount);
+    void testFreeSpace() {
+        assertEquals(
+                (this.playerInventory.getSize() * Items.MAX_STACK_SIZE), Items.getFreeSpace(this.player));
     }
 
     @Order(2)
@@ -63,10 +62,8 @@ class ItemsTest {
 
     @Order(3)
     @Test
-    void testFreeSpace() {
-        System.out.println(this.items[0] == null);
-        assertEquals(
-                (this.playerInventory.getSize() * Items.MAX_STACK_SIZE), Items.getFreeSpace(this.player));
+    void testGetItemAmountFrom() {
+        var amount = Items.getAmountFromItem(this.player, ItemStack.builder(Material.DIAMOND).build());
+        assertSame(0, amount);
     }
-
 }
