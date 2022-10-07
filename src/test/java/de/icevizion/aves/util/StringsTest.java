@@ -1,27 +1,10 @@
 package de.icevizion.aves.util;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class StringsTest {
-
-    private final Component HEART_STRING = Strings.getHealthString(10);
-
-    @Test
-    void testGetHealthString() {
-        var component = Strings.getHealthString(20D);
-        assertNotEquals(LegacyComponentSerializer.legacyAmpersand().serialize(HEART_STRING), LegacyComponentSerializer.legacyAmpersand().serialize(component));
-    }
-
-    @Test
-    void testGetHealthStringWithVariables() {
-        var component = Strings.getHealthString(10, NamedTextColor.AQUA, NamedTextColor.BLUE);
-        assertNotEquals(LegacyComponentSerializer.legacyAmpersand().serialize(HEART_STRING), LegacyComponentSerializer.legacyAmpersand().serialize(component));
-    }
 
     @Test
     void testZeroTime() {
