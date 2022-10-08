@@ -25,9 +25,7 @@ class ComponentsTest {
         assertNotEquals(convertToString(HEART_STRING), convertToString(component));
     }
 
-    private String convertToString(@NotNull Component component) {
-        return LegacyComponentSerializer.legacyAmpersand().serialize(HEART_STRING);
+    private @NotNull String convertToString(@NotNull Component component) {
+        return LegacyComponentSerializer.legacyAmpersand().serialize(component);
     }
-
-
 }
