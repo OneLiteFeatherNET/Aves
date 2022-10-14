@@ -34,22 +34,15 @@ import java.util.Locale;
 public abstract class InventoryBuilder implements SizeChecker {
 
     private static final int INVALID_SLOT_ID = -999;
-
     protected static final Logger LOGGER = LoggerFactory.getLogger(InventoryBuilder.class);
-
     protected final InventoryType type;
-
     private InventoryLayout inventoryLayout;
     private InventoryLayout dataLayout;
-
     protected boolean inventoryLayoutValid = true;
     protected boolean dataLayoutValid = false;
-
     protected OpenFunction openFunction;
     protected CloseFunction closeFunction;
-
     protected ThrowingFunction<InventoryLayout, InventoryLayout> dataLayoutFunction;
-
     protected InventoryCondition inventoryCondition;
 
     /**
@@ -181,14 +174,14 @@ public abstract class InventoryBuilder implements SizeChecker {
                                    Locale locale,
                                    MessageProvider messageProvider,
                                    boolean applyLayout) {
-        if (!Component.EQUALS.test(inventory.getTitle(), title)) {
-            LOGGER.info("UpdateInventory is updating the title");
-            inventory.setTitle(title);
-        }
-
         if (getLayout() == null) {
             LOGGER.info("Can't update content because the main layout is null");
             return;
+        }
+
+        if (!Component.EQUALS.test(inventory.getTitle(), title)) {
+            LOGGER.info("UpdateInventory is updating the title");
+            inventory.setTitle(title);
         }
 
         // Design
