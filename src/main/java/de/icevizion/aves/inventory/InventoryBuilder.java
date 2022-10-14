@@ -142,7 +142,7 @@ public abstract class InventoryBuilder implements SizeChecker {
     }
 
     /**
-     * Handles the open function when a inventory will be opened.
+     * Handles the open function when an inventory will be opened.
      * @param event The instance from the inventory event
      */
     protected void handleOpen(@NotNull InventoryOpenEvent event) {
