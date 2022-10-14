@@ -219,15 +219,13 @@ public abstract class InventoryBuilder implements SizeChecker {
     protected void retrieveDataLayout() {
         synchronized (this) {
             if (this.dataLayoutFunction == null) return;
-
             MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
                 try {
                     this.dataLayout = this.dataLayoutFunction.acceptThrows(this.dataLayout);
                     applyDataLayout();
-                } catch (Exception e) {
-                    MinecraftServer.getExceptionManager().handleException(e);
+                } catch (Exception exception) {
+                    MinecraftServer.getExceptionManager().handleException(exception);
                 }
-
             }, ExecutionType.ASYNC);
         }
     }
