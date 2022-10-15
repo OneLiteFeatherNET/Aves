@@ -21,30 +21,11 @@ public final class Broadcaster {
 
     /**
      * Broadcasts a message to all players on the server
-     * @param message The message to send
-     */
-    @ApiStatus.Experimental
-    public static void broadcast(@NotNull String message) {
-        broadcast(MinecraftServer.getConnectionManager().getOnlinePlayers(), message);
-    }
-
-    /**
-     * Broadcasts a message to all players on the server
      * @param component The message to send
      */
     @ApiStatus.Experimental
     public static void broadcast(@NotNull Component component) {
         broadcast(MinecraftServer.getConnectionManager().getOnlinePlayers(), component);
-    }
-
-    /**
-     * Broadcasts a message as to an {@link Instance}.
-     * @param instance The instance to get the players from it
-     * @param message The message to send
-     */
-    @ApiStatus.Experimental
-    public static void broadcast(@NotNull Instance instance, @NotNull String message) {
-        broadcast(instance.getPlayers(), message);
     }
 
     /**
@@ -65,20 +46,6 @@ public final class Broadcaster {
     @ApiStatus.Experimental
     public static void broadcast(@NotNull Collection<Player> players, @NotNull Component message) {
         if (players.isEmpty()) return;
-
-        for (Player player : players) {
-            player.sendMessage(message);
-        }
-    }
-
-    /**
-     * Broadcasts a message as to a group of players
-     * @param players The player who receives the message
-     * @param message The message to send
-     */
-    @ApiStatus.Experimental
-    public static void broadcast(@NotNull Collection<Player> players, @NotNull String message) {
-        if (message.trim().isEmpty() || players.isEmpty()) return;
 
         for (Player player : players) {
             player.sendMessage(message);
