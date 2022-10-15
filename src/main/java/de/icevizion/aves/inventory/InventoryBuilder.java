@@ -31,7 +31,7 @@ import java.util.Locale;
  * @since 1.0.12
  */
 @SuppressWarnings("java:S3252")
-public abstract class InventoryBuilder implements SizeChecker {
+public abstract class InventoryBuilder {
 
     private static final int INVALID_SLOT_ID = -999;
     protected static final Logger LOGGER = LoggerFactory.getLogger(InventoryBuilder.class);
@@ -50,7 +50,6 @@ public abstract class InventoryBuilder implements SizeChecker {
      * @param type The type from the inventory to get the size from it
      */
     protected InventoryBuilder(@NotNull InventoryType type) {
-        checkInventorySize(type.getSize());
         this.type = type;
 
         this.inventoryCondition = (player, slot, clickType, inventoryConditionResult) -> {
