@@ -18,6 +18,7 @@ import java.util.Locale;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
+@SuppressWarnings("java:S3252")
 public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     private final MessageProvider messageProvider;
