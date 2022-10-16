@@ -8,6 +8,7 @@ import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,16 +71,19 @@ public class InventoryLayout {
     }
 
     public InventoryLayout setItem(int slot, ItemStack.Builder itemBuilder, InventoryClick clickEvent) {
+        Check.argCondition(slot < 0 || slot > contents.length, "The given slot index is out of range");
         this.contents[slot] = new InventorySlot(itemBuilder, clickEvent);
         return this;
     }
 
     public InventoryLayout setItem(int slot, ItemStack itemStack, InventoryClick clickEvent) {
+        Check.argCondition(slot < 0 || slot > contents.length, "The given slot index is out of range");
         this.contents[slot] = new InventorySlot(itemStack, clickEvent);
         return this;
     }
 
     public InventoryLayout setItem(int slot, ISlot iSlot, InventoryClick clickEvent) {
+        Check.argCondition(slot < 0 || slot > contents.length, "The given slot index is out of range");
         iSlot.setClick(clickEvent);
         contents[slot] = iSlot;
         return this;
@@ -94,6 +98,7 @@ public class InventoryLayout {
     }
 
     public InventoryLayout setItem(int slot, ISlot slotItem) {
+        Check.argCondition(slot < 0 || slot > contents.length, "The given slot index is out of range");
         contents[slot] = slotItem;
         return this;
     }
@@ -134,11 +139,13 @@ public class InventoryLayout {
     }
 
     public InventoryLayout setNonClickItem(int slot, ItemStack itemStack) {
+        Check.argCondition(slot < 0 || slot > contents.length, "The given slot index is out of range");
         this.contents[slot] = new InventorySlot(itemStack, CANCEL_CLICK);
         return this;
     }
 
     public InventoryLayout setNonClickItem(int slot, ISlot slotItem) {
+        Check.argCondition(slot < 0 || slot > contents.length, "The given slot index is out of range");
         slotItem.setClick(CANCEL_CLICK);
         contents[slot] = slotItem;
         return this;
@@ -170,6 +177,7 @@ public class InventoryLayout {
      * @param slot The slot to blank
      */
     public InventoryLayout blank(int slot) {
+        Check.argCondition(slot < 0 || slot > contents.length, "The given slot index is out of range");
         this.contents[slot] = EMPTY_SLOT;
         return this;
     }
@@ -180,7 +188,7 @@ public class InventoryLayout {
      */
     public InventoryLayout blank(int... slots) {
         for (int i = 0; i < slots.length; i++) {
-            contents[slots[i]] = EMPTY_SLOT;
+            this.blank(slots[i]);
         }
         return this;
     }
@@ -190,6 +198,7 @@ public class InventoryLayout {
      * @param slot The index to remove the slot
      */
     public InventoryLayout clear(int slot) {
+        Check.argCondition(slot < 0 || slot > contents.length, "The given slot index is out of range");
         contents[slot] = null;
         return this;
     }
@@ -201,7 +210,7 @@ public class InventoryLayout {
      */
     public InventoryLayout clear(int... slots) {
         for (int i = 0; i < slots.length; i++) {
-            contents[i] = null;
+            this.clear(slots[i]);
         }
         return this;
     }
