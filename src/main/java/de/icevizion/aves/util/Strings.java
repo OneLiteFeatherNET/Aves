@@ -7,6 +7,8 @@ import java.util.StringJoiner;
 
 public final class Strings {
 
+    private static final int TIME_DIVIDER = 60;
+
     private static final char SPACE = ' ';
     public static final String UTF_8_HEART = "\u2665";
 
@@ -49,14 +51,14 @@ public final class Strings {
             return timeFormat.getDefaultFormat();
         }
 
-        int minutes = time / 60;
-        int seconds = time % 60;
+        int minutes = time / TIME_DIVIDER;
+        int seconds = time % TIME_DIVIDER;
 
         StringJoiner stringJoiner = new StringJoiner(":");
 
         if (timeFormat == TimeFormat.HH_MM_SS) {
-            int hours = minutes / 60;
-            minutes = minutes % 60;
+            int hours = minutes / TIME_DIVIDER;
+            minutes = minutes % TIME_DIVIDER;
             stringJoiner.add(String.format("%02d", hours));
         }
         stringJoiner.add(String.format("%02d", minutes));
