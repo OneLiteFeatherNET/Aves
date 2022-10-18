@@ -3,6 +3,7 @@ package de.icevizion.aves.inventory.slot;
 import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.item.TranslatedItem;
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -25,17 +26,32 @@ public class TranslatedSlot extends Slot {
         this.translatedItem = translatedItem;
     }
 
+    /**
+     * Creates a new instance from the {@link TranslatedSlot} with the given values.
+     * @param translatedItem the {@link TranslatedItem} to for the slot
+     * @param clickListener the {@link InventoryClick} for the slot
+     */
     public TranslatedSlot(@NotNull TranslatedItem translatedItem, InventoryClick clickListener) {
         super(clickListener);
         this.translatedItem = translatedItem;
     }
 
+    /**
+     * Constructor which creates a copy of a {@link TranslatedSlot}.
+     * @param translatedSlot the item to copy
+     */
     private TranslatedSlot(@NotNull TranslatedSlot translatedSlot) {
         super(translatedSlot.getClick());
         this.translatedItem = translatedSlot.getTranslatedItem();
     }
 
-    public static TranslatedSlot of(@NotNull TranslatedSlot translatedSlot) {
+    /**
+     * Creates a copy of a given {@link TranslatedSlot}.
+     * @param translatedSlot the slot to create the copy from
+     * @return a created copy from the slots
+     */
+    @Contract("_ -> new")
+    public static @NotNull TranslatedSlot of(@NotNull TranslatedSlot translatedSlot) {
         return new TranslatedSlot(translatedSlot);
     }
 
