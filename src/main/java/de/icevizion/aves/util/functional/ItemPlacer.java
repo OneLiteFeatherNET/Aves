@@ -2,7 +2,6 @@ package de.icevizion.aves.util.functional;
 
 import de.icevizion.aves.item.IItem;
 import de.icevizion.aves.item.TranslatedItem;
-import de.icevizion.aves.util.Players;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
