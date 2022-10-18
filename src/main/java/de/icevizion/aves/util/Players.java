@@ -10,6 +10,7 @@ import net.minestom.server.entity.ItemEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -19,7 +20,6 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -55,22 +55,11 @@ public final class Players {
     }
 
     /**
-     * Checks if a player has an instance or not
-     * When the instance is null then the method will throw an exception
-     * @param player The player to check
-     */
-    public static void hasInstance(@NotNull Player player) {
-        if (player.getInstance() == null) {
-            throw new IllegalArgumentException("The instance from a player can not be null");
-        }
-    }
-
-    /**
      * Drops the complete inventory content from a player to a specific location.
      * @param player The player from which the inventory should be dropped
      */
     public static void dropPlayerInventory(@NotNull Player player) {
-        Objects.requireNonNull(player.getInstance(), "The instance from the player can't be null");
+        Check.argCondition(player.getInstance() == null, "The instance from the player can't be null");
         dropItemStacks(player.getInstance(), player.getPosition(), player.getInventory().getItemStacks());
     }
 
