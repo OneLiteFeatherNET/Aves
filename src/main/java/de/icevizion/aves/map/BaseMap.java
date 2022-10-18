@@ -1,6 +1,7 @@
 package de.icevizion.aves.map;
 
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,9 +36,7 @@ public class BaseMap {
      * @param spawn    The spawn location from the map
      */
     public BaseMap(@NotNull String name, Pos spawn, String... builders) {
-        if (name.trim().isEmpty()) {
-            throw new IllegalArgumentException("The name can not be null or empty");
-        }
+        Check.argCondition(name.trim().isEmpty(), "The name can not be null or empty");
         this.name = name;
         this.builders = builders;
         this.spawn = spawn;
@@ -109,9 +108,7 @@ public class BaseMap {
      * @param name The name to set
      */
     public void setName(@NotNull String name) {
-        if (name.trim().isEmpty()) {
-            throw new IllegalArgumentException("The name can not be empty");
-        }
+        Check.argCondition(name.trim().isEmpty(), "The name can not be null or empty");
         this.name = name;
     }
 
