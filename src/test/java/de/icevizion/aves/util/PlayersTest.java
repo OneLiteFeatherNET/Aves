@@ -32,11 +32,6 @@ class PlayersTest {
     }
 
     @Test
-    void hasInstance() {
-        assertThrows(IllegalArgumentException.class, () -> Players.hasInstance(player), "The instance from a player can not be null");
-    }
-
-    @Test
     void testUpdateEquipment() {
         IItem[] hotbarItems = new IItem[12];
 
