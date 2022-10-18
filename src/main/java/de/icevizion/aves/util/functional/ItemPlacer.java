@@ -11,7 +11,6 @@ import java.util.Locale;
 
 /**
  * With the interface a developer can manipulate how an item would set into the inventory of a player.
- * One example for this ist in {@link Players#updateEquipment(Player, IItem[], IItem[], int...)}
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
