@@ -1,5 +1,6 @@
 package de.icevizion.aves.file;
 
+import com.google.gson.Gson;
 import de.icevizion.aves.map.BaseMap;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -60,5 +61,11 @@ class FileHandlerTest {
     void testFileNotExistsRead() {
         var file = fileHandler.load(tempDir.toPath().resolve("test3.json"), BaseMap.class);
         assertTrue(file::isEmpty);
+    }
+
+    @Test
+    void testOtherConstructor() {
+        var fileLoader = new GsonFileHandler(new Gson());
+        assertNotNull(fileLoader);
     }
 }
