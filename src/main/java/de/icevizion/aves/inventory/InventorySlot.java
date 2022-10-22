@@ -24,7 +24,7 @@ public class InventorySlot extends Slot {
      * @param itemStack The {@link ItemStack} to set
      */
     public InventorySlot(@NotNull ItemStack itemStack) {
-        this.itemStack = itemStack;
+        super(null, itemStack);
     }
 
     /**
@@ -32,9 +32,8 @@ public class InventorySlot extends Slot {
      * @param itemStack The {@link ItemStack} to set
      * @param inventoryClick The {@link InventoryClick} to set
      */
-    public InventorySlot(@NotNull ItemStack itemStack, InventoryClick inventoryClick) {
-        this.itemStack = itemStack;
-        this.inventoryClick = inventoryClick;
+    public InventorySlot(@NotNull ItemStack itemStack, @NotNull InventoryClick inventoryClick) {
+       super(inventoryClick, itemStack);
     }
 
     /**
@@ -42,7 +41,7 @@ public class InventorySlot extends Slot {
      * @param itemBuilder The {@link ItemStack.Builder} were the item will be built from
      */
     public InventorySlot(@NotNull ItemStack.Builder itemBuilder) {
-        this.itemStack = itemBuilder.build();
+        super(null, itemBuilder.build());
     }
 
     /**
@@ -51,8 +50,7 @@ public class InventorySlot extends Slot {
      * @param click The {@link InventoryClick} to set.
      */
     public InventorySlot(@NotNull ItemStack.Builder itemBuilder, InventoryClick click) {
-        this.itemStack = itemBuilder.build();
-        this.inventoryClick = click;
+        super(click, itemBuilder.build());
     }
 
     /**
