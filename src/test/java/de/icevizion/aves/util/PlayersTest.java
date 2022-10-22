@@ -82,7 +82,7 @@ class PlayersTest {
     @Test
     void testDropPlayerInventory() {
         var otherPlayer = Mockito.mock(Player.class);
-        assertThrowsExactly(NullPointerException.class,
+        assertThrowsExactly(IllegalArgumentException.class,
                 () -> Players.dropPlayerInventory(otherPlayer),
                 "The instance from the player can't be null");
     }
