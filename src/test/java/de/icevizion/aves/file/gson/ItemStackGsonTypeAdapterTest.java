@@ -19,19 +19,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class ItemStackGsonTypeAdapterTest {
 
     final String STACK_WITH_AMOUNT = """
-           {"material":"minecraft","amount":1,"meta":{}}
+           {"material":"minecraft:allium","amount":1,"meta":{}}
             """.trim();
 
     final String STACK_WITH_DISPLAYNAME = """
-            {"material":"minecraft","amount":1,"meta":{"displayName":"Test"}}
+            {"material":"minecraft:allium","amount":1,"meta":{"displayName":"Test"}}
             """.trim();
 
     final String STACK_WITH_ENCHANTMENTS = """
-            {"material":"minecraft","amount":1,"meta":{"enchantments":[{"enchantment":"minecraft:channeling","level":1}]}}
+            {"material":"minecraft:diamond","amount":1,"meta":{"enchantments":[{"enchantment":"minecraft:channeling","level":1}]}}
             """.trim();
 
     final String STACK_WITH_LORE = """
-            {"material":"minecraft","amount":1,"meta":{"lore":["Test1","Test2"]}}
+            {"material":"minecraft:light","amount":1,"meta":{"lore":["Test1","Test2"]}}
             """.trim();
 
     Gson gson;
@@ -49,7 +49,7 @@ class ItemStackGsonTypeAdapterTest {
     }
 
     @Test
-    void testItemWriteWithDisplayName() {
+    void testItemWriteWithDisplayNameWrite() {
         var stack = ItemStack.builder(Material.ALLIUM).amount(1)
                 .displayName(Component.text("Test")).build();
         var json = gson.toJson(stack, ItemStack.class);
@@ -57,7 +57,7 @@ class ItemStackGsonTypeAdapterTest {
     }
 
     @Test
-    void testItemWriteWithEnchantments() {
+    void testItemWriteWithEnchantmentsWrite() {
         var stack = ItemStack.builder(Material.DIAMOND)
                 .meta(builder -> builder.enchantment(Enchantment.CHANNELING, (short)1)).build();
         var json = gson.toJson(stack, ItemStack.class);
@@ -65,11 +65,42 @@ class ItemStackGsonTypeAdapterTest {
     }
 
     @Test
-    void testItemWithLore() {
+    void testItemWithLoreWrite() {
         var stack = ItemStack.builder(Material.LIGHT)
                 .lore(List.of(Component.text("Test1"), Component.text("Test2"))).build();
         var json = gson.toJson(stack, ItemStack.class);
         assertEquals(STACK_WITH_LORE, json);
 
+    }
+
+    @Test
+    void testItemReadWithoutMeta() {
+        var originalStack = ItemStack.builder(Material.ALLIUM).amount(1).build();
+        var stack = gson.fromJson(STACK_WITH_AMOUNT, ItemStack.class);
+        assertEquals(originalStack, stack);
+    }
+
+    @Test
+    void testItemReadWithDisplayName() {
+        var originalStack = ItemStack.builder(Material.ALLIUM).amount(1)
+                .displayName(Component.text("Test")).build();
+        var stack = gson.fromJson(STACK_WITH_DISPLAYNAME, ItemStack.class);
+        assertEquals(originalStack, stack);
+    }
+
+    @Test
+    void testItemReadWitEnchantments() {
+        var originalStack = ItemStack.builder(Material.DIAMOND)
+                .meta(builder -> builder.enchantment(Enchantment.CHANNELING, (short)1)).build();
+        var stack = gson.fromJson(STACK_WITH_ENCHANTMENTS, ItemStack.class);
+        assertEquals(originalStack, stack);
+    }
+
+    @Test
+    void testItemReadWithLore() {
+        var originalStack = ItemStack.builder(Material.LIGHT)
+                .lore(List.of(Component.text("Test1"), Component.text("Test2"))).build();
+        var stack = gson.fromJson(STACK_WITH_LORE, ItemStack.class);
+        assertEquals(originalStack, stack);
     }
 }
