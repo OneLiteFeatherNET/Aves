@@ -27,6 +27,26 @@ class TranslatedItemTest {
     }
 
     @Test
+    void testCreateOfMethodWithBuilder() {
+        var item = TranslatedItem.of(ItemStack.builder(Material.ACACIA_BOAT));
+        assertNotNull(item);
+        assertSame(Material.ACACIA_BOAT, item.get(Locale.ENGLISH).material());
+    }
+
+    @Test
+    void testEmptySlotCreation() {
+        var item = TranslatedItem.empty();
+        assertNotNull(item);
+    }
+
+    @Test
+    void testSetItemStackMethod() {
+        var item = TranslatedItem.empty();
+        item.setItemStack(ItemStack.builder(Material.ANDESITE_SLAB).build());
+        assertNotSame(Material.AIR, item.get(Locale.ENGLISH).material());
+    }
+
+    @Test
     void testHashCode() {
         assertNotSame(12, TranslatedItem.of(Material.AIR).hashCode());
     }
@@ -47,5 +67,12 @@ class TranslatedItemTest {
     void testToSlotWithClickListener() {
         var slot = TranslatedItem.of(Material.ACACIA_BOAT).toSlot((player, clickType, slot1, condition) -> {});
         assertNotSame(InventoryConstants.CANCEL_CLICK, slot.getClick());
+    }
+
+    @Test
+    void testEquals() {
+        var firstSlot = TranslatedItem.of(ItemStack.AIR);
+        var secondSlot = TranslatedItem.of(ItemStack.AIR);
+        assertEquals(firstSlot, secondSlot);
     }
 }
