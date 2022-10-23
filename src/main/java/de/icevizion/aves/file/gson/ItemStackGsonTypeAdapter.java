@@ -34,7 +34,6 @@ import java.util.Map;
 public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
 
     private static final String DISPLAY_NAME = "displayName";
-
     private static final String ENCHANTMENTS = "enchantments";
 
     @Override
@@ -57,6 +56,15 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
             }
             metaObject.add(ENCHANTMENTS, enchantsArray);
         }
+
+        if (!meta.getLore().isEmpty()) {
+            JsonArray lore = new JsonArray();
+            for (Component component : meta.getLore()) {
+                lore.add(PlainTextComponentSerializer.plainText().serialize(component));
+            }
+            metaObject.add("lore", lore);
+        }
+
         object.add("meta", metaObject);
 
         return object;
