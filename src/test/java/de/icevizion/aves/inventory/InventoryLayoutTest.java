@@ -1,219 +1,190 @@
 package de.icevizion.aves.inventory;
 
-import de.icevizion.aves.inventory.util.InventoryConstants;
+import de.icevizion.aves.inventory.function.DefaultApplyLayoutFunction;
+import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import de.icevizion.aves.inventory.util.LayoutCalculator;
 import de.icevizion.aves.item.TranslatedItem;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
 
+import java.util.Arrays;
+import java.util.Locale;
+
+import static de.icevizion.aves.inventory.util.InventoryConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class InventoryLayoutTest {
 
-    final InventoryLayout layout = new InventoryLayout(InventoryType.CHEST_4_ROW);
+    @Test
+    void testCopyConstructor() {
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        layout.setItem(0, new TranslatedSlot(TranslatedItem.empty()));
+        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ALLIUM).build());
+        var copiedLayout = InventoryLayout.of(layout);
 
-    @BeforeAll
-    void init() {
-        layout.setItem(0, ItemStack.AIR);
+        assertEquals(layout, copiedLayout);
     }
 
-    @Order(1)
     @Test
-    void testLayoutConstructor() {
-        var layout = new InventoryLayout(InventoryType.CHEST_5_ROW);
-        assertNotNull(layout);
-        assertSame(InventoryType.CHEST_5_ROW.getSize(), layout.getContents().length);
+    void testSetApplyFunction() {
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        var newFunction = new DefaultApplyLayoutFunction(layout.getContents());
+
+        layout.setApplyLayoutFunction(newFunction);
+        assertNotNull(layout.getApplyLayoutFunction());
+        assertSame(newFunction, layout.getApplyLayoutFunction());
     }
 
-    @Order(2)
     @Test
-    void testConstructorWithLayout() {
-        var otherLayout = InventoryLayout.of(this.layout);
-        assertNotNull(otherLayout);
-        assertSame(this.layout.getContents().length, otherLayout.getContents().length);
-        assertNotNull(otherLayout.getSlot(0));
+    void testApplyMethods() {
+        var layout = new InventoryLayout(InventoryType.CHEST_2_ROW);
+        layout.setItem(0, ItemStack.builder(Material.BLACK_STAINED_GLASS).build());
+        var itemStacks = new ItemStack[InventoryType.CHEST_1_ROW.getSize()];
+
+        Arrays.fill(itemStacks, ItemStack.AIR);
+
+        layout.applyLayout(itemStacks);
+        assertSame(Material.BLACK_STAINED_GLASS, layout.getSlot(0).getItem().material());
+
+        layout.setItem(1, ItemStack.builder(Material.ALLIUM).build());
+
+        layout.applyLayout(itemStacks, Locale.CANADA, null);
+
+        assertSame(Material.ALLIUM, layout.getSlot(1).getItem().material());
     }
 
-    @Order(3)
     @Test
-    void testApplyLayoutWithEmptyAndZeroArray() {
-        var testLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
-        testLayout.applyLayout(new ItemStack[]{});
-        assertNotNull(testLayout.getContents());
-        testLayout.applyLayout(null);
-        assertNull(testLayout.getSlot(0));
-    }
-
-    @Order(4)
-    @Test
-    void testApplyLayoutWithTranslatedSlotWithoutLocale() {
-        var testLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
-        testLayout.setItem(0, TranslatedItem.of(Material.AIR).toSlot());
-        assertThrowsExactly(IllegalArgumentException.class,
-                () ->testLayout.applyLayout(new ItemStack[]{ItemStack.AIR}, null, null)
-                , "Tried to apply the InventoryLayout with an Translated slot and provided no locale!");
-    }
-
-    @Order(4)
-    @Test
-    void testSetItemWithBuilder() {
-        this.layout.setItem(1, ItemStack.builder(Material.ACACIA_BOAT), InventoryConstants.CANCEL_CLICK);
-        assertNotNull(this.layout.getSlot(1));
-    }
-
-    @Order(5)
-    @Test
-    void testSetItemWithSlot() {
-        this.layout.setItem(2, new InventorySlot(ItemStack.AIR), InventoryConstants.CANCEL_CLICK);
-        var slot = this.layout.getSlot(2);
-        assertNotNull(slot);
-        assertTrue(slot instanceof InventorySlot);
-    }
-
-    @Order(6)
-    @Test
-    void testSetItemWithoutAClick() {
-        this.layout.setItem(3, ItemStack.AIR);
-        var slot = this.layout.getSlot(3);
-        assertNotNull(slot);
-        assertNull(slot.getClick());
-    }
-
-    @Order(7)
-    @Test
-    void testSetNonClickItems() {
+    void testSetItemMethods() {
         var layout = new InventoryLayout(InventoryType.CHEST_2_ROW);
 
-        layout.setNonClickItem(0, ItemStack.builder(Material.AMETHYST_BLOCK).build());
-        layout.setNonClickItem(1, new InventorySlot(ItemStack.builder(Material.AXOLOTL_BUCKET).build()));
+        layout.setItem(0, new InventorySlot(ItemStack.builder(Material.BLACK_STAINED_GLASS)));
+        layout.setItem(1, ItemStack.AIR);
+        layout.setItem(2, ItemStack.builder(Material.ALLIUM));
+        layout.setItem(3, ItemStack.builder(Material.ENDER_CHEST).build(), CANCEL_CLICK);
+        layout.setItem(4, new InventorySlot(ItemStack.AIR), CANCEL_CLICK);
 
         assertNotNull(layout.getSlot(0));
-        assertNotNull(layout.getSlot(1));
-
-        layout.setNonClickItems(new int[]{0,1,2}, ItemStack.builder(Material.ACACIA_BUTTON).build());
-        layout.setNonClickItems(new int[]{3,4,5}, ItemStack.builder(Material.ALLAY_SPAWN_EGG));
-        layout.setNonClickItems(new int[]{6,7,8}, new InventorySlot(ItemStack.builder(Material.ANDESITE_WALL).build()));
-
-        assertNotNull(layout.getSlot(1));
-        assertNotNull(layout.getSlot(5));
-        var stack = layout.getSlot(6).getItem();
-        assertNotNull(stack);
-
-        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), stack);
-
+        assertSame(Material.AIR, layout.getSlot(1).getItem().material());
+        assertNotNull(layout.getSlot(3).getClick());
     }
 
-    @Order(7)
     @Test
-    void testBlankSlot() {
-        this.layout.blank(23);
-        assertNotNull(this.layout.getSlot(23));
-    }
+    void testSetItemsMethods() {
+        var layout = new InventoryLayout(InventoryType.CHEST_5_ROW);
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ENDER_CHEST), CANCEL_CLICK);
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), ItemStack.AIR, CANCEL_CLICK);
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_3_ROW), ItemStack.builder(Material.ALLIUM));
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_4_ROW), ItemStack.builder(Material.LIGHT).build());
+        var slot = new InventorySlot(ItemStack.AIR);
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_5_ROW), slot);
 
-    @Order(8)
-    @Test
-    void testBlankSlots() {
-        var blankSlots = new int[]{24,25,26,30};
-        this.layout.blank(blankSlots);
+        for (int i = InventoryType.CHEST_5_ROW.getSize() - 9; i < InventoryType.CHEST_5_ROW.getSize(); i++) {
+            assertSame(slot, layout.getSlot(i));
+        }
 
-        for (int i = 0; i < blankSlots.length; i++) {
-            assertNotNull(this.layout.getSlot(blankSlots[i]));
+        for (int i = InventoryType.CHEST_3_ROW.getSize() - 9; i < InventoryType.CHEST_3_ROW.getSize(); i++) {
+            assertNotSame(Material.LIGHT, layout.getSlot(i).getItem().material());
         }
     }
 
-    @Order(9)
     @Test
-    void testClearSlot() {
-        layout.clear(34);
-        assertNull(this.layout.getSlot(34));
+    void testNonClickItemMethods() {
+        var layout = new InventoryLayout(InventoryType.CHEST_2_ROW);
+
+        layout.setNonClickItem(0, new InventorySlot(ItemStack.builder(Material.BLACK_STAINED_GLASS)));
+        layout.setNonClickItem(1, ItemStack.builder(Material.DIAMOND).build());
+
+        assertNotNull(layout.getSlot(0));
+        assertNotSame(Material.AIR, layout.getSlot(1).getItem().material());
     }
 
-    @Order(10)
     @Test
-    void testClearSlots() {
-        var slots = new int[]{0,1,2};
-        this.layout.clear(slots);
-        for (int i = 0; i < slots.length; i++) {
-            var slot = layout.getSlot(slots[i]);
-            assertNull(slot);
+    void testSetNonItemsMethods() {
+        var layout = new InventoryLayout(InventoryType.CHEST_4_ROW);
+        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ENDER_CHEST));
+        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), ItemStack.AIR);
+        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_3_ROW), ItemStack.builder(Material.ALLIUM));
+        var slot = new InventorySlot(ItemStack.AIR);
+        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_4_ROW), slot);
+
+        for (int i = InventoryType.CHEST_4_ROW.getSize() - 9; i < InventoryType.CHEST_4_ROW.getSize(); i++) {
+            assertSame(slot, layout.getSlot(i));
         }
     }
 
-    @Order(11)
     @Test
-    void testUpdateWithIndex() {
-        var newSlot = new InventorySlot(ItemStack.AIR, (player, clickType, slot1, condition) -> condition.setCancel(true));
-        this.layout.setItem(10, newSlot);
-        this.layout.update(10, InventoryConstants.CANCEL_CLICK);
+    void testBlankSlotMethods() {
+        var layout = new InventoryLayout(InventoryType.CHEST_2_ROW);
 
-        var slot = this.layout.getSlot(10);
+        layout.blank(0);
+        layout.blank(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW));
 
-        assertNotNull(slot);
-        assertNotNull(slot.getClick());
-        assertSame(InventoryConstants.CANCEL_CLICK, this.layout.getSlot(10).getClick());
+        assertSame(EMPTY_SLOT, layout.getSlot(0));
+        assertNotNull(layout.getSlot(10));
     }
 
-    /*@Order(7)
     @Test
-    void testGetSlot() {
-        var slot = layout.getSlot(0);
-        assertNotNull(slot);
-    }*/
+    void testClearSlotMethods() {
+        var layout = new InventoryLayout(InventoryType.CHEST_2_ROW);
 
-    @Order(12)
-    @Test
-    void testGetSlotWithException() {
-        assertThrows(IllegalArgumentException.class, () -> layout.getSlot(-1));
-        assertThrows(IllegalArgumentException.class, () -> layout.getSlot(9999));
+        layout.setItems(LayoutCalculator.repeat(0, InventoryType.CHEST_2_ROW.getSize() - 1), ItemStack.AIR);
+        layout.clear(0);
+        layout.clear(LayoutCalculator.repeat(5, 10));
+
+        assertNull(layout.getSlot(0));
+        assertNotNull(layout.getSlot(11));
     }
 
-    @Order(13)
+    @Test
+    void testUpdateSlotMethods() {
+        var layout = new InventoryLayout(InventoryType.CHEST_2_ROW);
+        layout.setItem(1, ItemStack.AIR);
+
+        layout.update(1, CANCEL_CLICK);
+        layout.update(1, ItemStack.builder(Material.ALLIUM).build(), CANCEL_CLICK);
+
+        assertNotNull(layout.getSlot(1));
+        assertNotSame(Material.AIR, layout.getSlot(1).getItem().material());
+    }
+
     @Test
     void testGetContents() {
         var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
         assertNotNull(layout.getContents());
     }
 
-    @Order(14)
     @Test
     void testGetSize() {
-        assertNotSame(InventoryType.CHEST_1_ROW.getSize(), layout.getSize());
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        assertNotSame(InventoryType.CHEST_6_ROW.getSize(), layout.getSize());
     }
 
-    @Order(15)
+    @Test
+    void testGetApplyFunction() {
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        assertNotNull(layout.getApplyLayoutFunction());
+    }
+
     @Test
     void testToString() {
-        var invLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
-        assertEquals(
-                "InventoryLayout{contents=[null, null, null, null, null, null, null, null, null]}",
-                invLayout.toString());
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        assertTrue(layout.toString().contains("null"));
     }
 
-    @Order(16)
     @Test
-    void testEqualsWithSameObjects() {
-        assertEquals(this.layout, this.layout);
+    void testEqualsMethod() {
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        var anotherLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+
+        assertEquals(layout, anotherLayout);
+        assertNotEquals(layout, new InventoryLayout(InventoryType.CARTOGRAPHY));
     }
 
-    @Order(17)
-    @Test
-    void testEqualsWithDifferentReferences() {
-        var otherLayout = new InventoryLayout(InventoryType.CHEST_4_ROW);
-        assertNotEquals(this.layout, otherLayout);
-    }
-
-    @Order(18)
     @Test
     void testHashCode() {
-        assertNotSame(1254, this.layout.hashCode());
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        assertNotSame(1231, layout.hashCode());
     }
 }
