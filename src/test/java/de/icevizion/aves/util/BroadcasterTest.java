@@ -1,37 +1,35 @@
 package de.icevizion.aves.util;
 
+import net.kyori.adventure.text.Component;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
-import net.minestom.server.instance.Instance;
-import org.junit.jupiter.api.BeforeAll;
+import net.minestom.testing.Env;
+import net.minestom.testing.EnvTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ExtendWith(MockitoExtension.class)
+@EnvTest
 class BroadcasterTest {
 
-    Instance instance;
+    static Component text = Component.text("Test");
 
-    Player player;
-
-    @BeforeAll
-    void init() {
-        this.instance = Mockito.mock(Instance.class);
-        this.player = Mockito.mock(Player.class);
-        var players = new HashSet<Player>();
-        Mockito.when(instance.getPlayers()).thenReturn(players);
+    @Test
+    void testBroadcastWithEmptyList() {
+        List<Player> players = Collections.emptyList();
+        Broadcaster.broadcast(players, text);
+        assertNotNull(text);
     }
 
     @Test
-    void testBroadcastToPlayersInInstance() {
-        Broadcaster.broadcast(instance, "");
+    void testBroadcast(Env env) {
+        var instance = env.createFlatInstance();
+        env.createPlayer(instance, Pos.ZERO);
+
+        Broadcaster.broadcast(instance, text);
         assertNotNull(instance);
     }
 }
