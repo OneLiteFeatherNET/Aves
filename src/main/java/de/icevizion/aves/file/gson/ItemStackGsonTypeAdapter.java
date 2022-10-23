@@ -35,11 +35,12 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
 
     private static final String DISPLAY_NAME = "displayName";
     private static final String ENCHANTMENTS = "enchantments";
+    private static final String MATERIAL = "material";
 
     @Override
     public JsonElement serialize(@NotNull ItemStack itemStack, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject object = new JsonObject();
-        object.addProperty("material", itemStack.material().name());
+        object.addProperty(MATERIAL, itemStack.material().name());
         object.addProperty("amount", itemStack.amount());
 
         JsonObject metaObject = new JsonObject();
@@ -76,8 +77,8 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
 
         Material material = Material.STONE;
 
-        if (object.has("material")) {
-            var materialString = object.get("material").getAsString();
+        if (object.has(MATERIAL)) {
+            var materialString = object.get(MATERIAL).getAsString();
             material = Material.fromNamespaceId(materialString);
         }
 
