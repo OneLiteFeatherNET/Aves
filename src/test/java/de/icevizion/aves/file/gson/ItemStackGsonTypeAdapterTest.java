@@ -18,6 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ItemStackGsonTypeAdapterTest {
 
+    final String STACK_WITHOUT_MATERIAL_AND_META = """
+            {"amount":1}
+            """.trim();
+
     final String STACK_WITH_AMOUNT = """
            {"material":"minecraft:allium","amount":1,"meta":{}}
             """.trim();
@@ -70,7 +74,13 @@ class ItemStackGsonTypeAdapterTest {
                 .lore(List.of(Component.text("Test1"), Component.text("Test2"))).build();
         var json = gson.toJson(stack, ItemStack.class);
         assertEquals(STACK_WITH_LORE, json);
+    }
 
+    @Test
+    void testItemReadWithoutMaterialAndMeta() {
+        var originalStack = ItemStack.builder(Material.STONE).amount(1).build();
+        var stack = gson.fromJson(STACK_WITHOUT_MATERIAL_AND_META, ItemStack.class);
+        assertEquals(originalStack, stack);
     }
 
     @Test
