@@ -224,11 +224,13 @@ public class InventoryLayout {
      * @param listener The listener to set
      */
     public InventoryLayout update(int index, @Nullable InventoryClick listener) {
+        Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
         contents[index].setClick(listener == null ? CANCEL_CLICK : listener);
         return this;
     }
 
     public InventoryLayout update(int index, @NotNull ItemStack stack, @Nullable InventoryClick click) {
+        Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
         var slot = contents[index];
         slot.setItemStack(stack);
         slot.setClick(click == null ? CANCEL_CLICK : click);
