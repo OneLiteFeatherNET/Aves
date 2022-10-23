@@ -6,8 +6,9 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.testing.Env;
 import net.minestom.testing.EnvTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @EnvTest
 class ItemPlacerTest {
@@ -18,6 +19,8 @@ class ItemPlacerTest {
         var player = env.createPlayer(instance, Pos.ZERO);
         ItemPlacer.FALLBACK.setItem(player, 0, Item.of(Material.SADDLE), null);
         env.destroyInstance(instance);
+        assertNotNull(player);
+        assertNotNull(instance);
     }
 
     @Test
@@ -32,7 +35,7 @@ class ItemPlacerTest {
         ItemPlacer.FALLBACK.setItem(player, 2, leggingsItem, null, true);
         ItemPlacer.FALLBACK.setItem(player, 3, leggingsItem, null, true);
 
-        Assertions.assertThrowsExactly(
+        assertThrowsExactly(
                 IllegalArgumentException.class,
                 () -> ItemPlacer.FALLBACK.setItem(player, -1, leggingsItem, null, true),
                 "The slotID is greater than four"
