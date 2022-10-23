@@ -73,6 +73,6 @@ class TranslatedItemTest {
     void testEquals() {
         var firstSlot = TranslatedItem.of(ItemStack.AIR);
         var secondSlot = TranslatedItem.of(ItemStack.AIR);
-        assertEquals(firstSlot, secondSlot);
+        assertThrows(NullPointerException.class, () -> firstSlot.equals(secondSlot));
     }
 }
