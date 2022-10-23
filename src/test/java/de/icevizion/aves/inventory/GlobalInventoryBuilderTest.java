@@ -9,7 +9,6 @@ import net.minestom.server.item.Material;
 import net.minestom.testing.Env;
 import net.minestom.testing.EnvTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,6 +49,21 @@ class GlobalInventoryBuilderTest {
         builder.invalidateDataLayout();
         player.closeInventory();
 
+        env.destroyInstance(instance);
+    }
+
+    @Test
+    void testListenerRegisterTwice(Env env) {
+        var component = Component.text("Test");
+        var instance = env.createFlatInstance();
+        var builder = new GlobalInventoryBuilder(component, InventoryType.CHEST_2_ROW);
+        builder.setOpenFunction(event -> event.getPlayer().sendMessage(component));
+        builder.setCloseFunction(event ->  event.getPlayer().sendMessage(component));
+        builder.register();
+
+        assertThrowsExactly(IllegalStateException.class, builder::register, "Can't register listener twice");
+
+        builder.unregister();
         env.destroyInstance(instance);
     }
 }
