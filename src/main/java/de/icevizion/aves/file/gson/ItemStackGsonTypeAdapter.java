@@ -39,7 +39,7 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
     @Override
     public JsonElement serialize(@NotNull ItemStack itemStack, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject object = new JsonObject();
-        object.addProperty("material", itemStack.material().namespace().namespace());
+        object.addProperty("material", itemStack.material().name());
         object.addProperty("amount", itemStack.amount());
 
         JsonObject metaObject = new JsonObject();
