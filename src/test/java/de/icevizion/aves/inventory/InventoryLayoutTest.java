@@ -88,6 +88,7 @@ class InventoryLayoutTest {
         assertNull(slot.getClick());
     }
 
+    @Order(7)
     @Test
     void testSetNonClickItems() {
         var layout = new InventoryLayout(InventoryType.CHEST_2_ROW);
@@ -139,10 +140,11 @@ class InventoryLayoutTest {
     @Order(10)
     @Test
     void testClearSlots() {
-        var slots = new int[]{1,2,3};
+        var slots = new int[]{0,1,2};
         this.layout.clear(slots);
         for (int i = 0; i < slots.length; i++) {
-            assertNull(this.layout.getSlot(i));
+            var slot = layout.getSlot(slots[i]);
+            assertNull(slot);
         }
     }
 
@@ -181,11 +183,13 @@ class InventoryLayoutTest {
         assertNotNull(layout.getContents());
     }
 
+    @Order(14)
     @Test
     void testGetSize() {
         assertNotSame(InventoryType.CHEST_1_ROW.getSize(), layout.getSize());
     }
 
+    @Order(15)
     @Test
     void testToString() {
         var invLayout = new InventoryLayout(InventoryType.CHEST_1_ROW);
@@ -194,17 +198,20 @@ class InventoryLayoutTest {
                 invLayout.toString());
     }
 
+    @Order(16)
     @Test
     void testEqualsWithSameObjects() {
         assertEquals(this.layout, this.layout);
     }
 
+    @Order(17)
     @Test
     void testEqualsWithDifferentReferences() {
         var otherLayout = new InventoryLayout(InventoryType.CHEST_4_ROW);
         assertNotEquals(this.layout, otherLayout);
     }
 
+    @Order(18)
     @Test
     void testHashCode() {
         assertNotSame(1254, this.layout.hashCode());
