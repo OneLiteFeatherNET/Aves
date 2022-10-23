@@ -8,6 +8,7 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -150,6 +151,59 @@ class InventoryLayoutTest {
     }
 
     @Test
+    void failGetSlot() {
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+        assertThrowsExactly(IllegalArgumentException.class, () -> layout.getSlot(-1));
+        assertThrowsExactly(IllegalArgumentException.class, () -> layout.getSlot(12));
+    }
+
+    @Test
+    void failItemSet() {
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+
+        catchError(IllegalArgumentException.class, () -> layout.setItem(-1, ItemStack.builder(Material.ALLIUM)));
+        catchError(IllegalArgumentException.class, () -> layout.setItem(100, ItemStack.builder(Material.ALLIUM)));
+
+        catchError(IllegalArgumentException.class, () -> layout.setItem(-1, ItemStack.AIR, CANCEL_CLICK));
+        catchError(IllegalArgumentException.class, () -> layout.setItem(100, ItemStack.AIR, CANCEL_CLICK));
+
+        var slot = new InventorySlot(ItemStack.AIR);
+        catchError(IllegalArgumentException.class, () -> layout.setItem(-1, slot, CANCEL_CLICK));
+        catchError(IllegalArgumentException.class, () -> layout.setItem(100, slot, CANCEL_CLICK));
+
+        catchError(IllegalArgumentException.class, () -> layout.setItem(-1, slot));
+        catchError(IllegalArgumentException.class, () -> layout.setItem(100, slot));
+
+        catchError(IllegalArgumentException.class, () -> layout.setNonClickItem(-1, ItemStack.AIR));
+        catchError(IllegalArgumentException.class, () -> layout.setNonClickItem(100, ItemStack.AIR));
+
+        catchError(IllegalArgumentException.class, () -> layout.setNonClickItem(-1, slot));
+        catchError(IllegalArgumentException.class, () -> layout.setNonClickItem(100, slot));
+    }
+
+    @Test
+    void testFailBlankAndClearMethod() {
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+
+        catchError(IllegalArgumentException.class, () -> layout.blank(-1));
+        catchError(IllegalArgumentException.class, () -> layout.blank(100));
+
+        catchError(IllegalArgumentException.class, () -> layout.clear(-1));
+        catchError(IllegalArgumentException.class, () -> layout.clear(100));
+    }
+
+    @Test
+    void testUpdateMethods() {
+        var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
+
+        catchError(IllegalArgumentException.class, () -> layout.update(-1, CANCEL_CLICK));
+        catchError(IllegalArgumentException.class, () -> layout.update(100, CANCEL_CLICK));
+
+        catchError(IllegalArgumentException.class, () -> layout.update(-1, ItemStack.AIR, CANCEL_CLICK));
+        catchError(IllegalArgumentException.class, () -> layout.update(100, ItemStack.AIR, CANCEL_CLICK));
+    }
+
+    @Test
     void testGetContents() {
         var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
         assertNotNull(layout.getContents());
@@ -186,5 +240,9 @@ class InventoryLayoutTest {
     void testHashCode() {
         var layout = new InventoryLayout(InventoryType.CHEST_1_ROW);
         assertNotSame(1231, layout.hashCode());
+    }
+
+    private <T extends Throwable> T catchError(Class<T> clazz, Executable executable) {
+        return assertThrowsExactly(clazz, executable, "The given slot index is out of range");
     }
 }
