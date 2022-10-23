@@ -74,9 +74,12 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
     public ItemStack deserialize(@NotNull JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject object = jsonElement.getAsJsonObject();
 
-        Material material = Material.fromNamespaceId(object.get("material").getAsString());
-        if (material == null)
-            material = Material.STONE;
+        Material material = Material.STONE;
+
+        if (object.has("material")) {
+            var materialString = object.get("material").getAsString();
+            material = Material.fromNamespaceId(materialString);
+        }
 
         var itemBuilder = ItemStack.builder(material);
         itemBuilder.amount(object.get("amount").getAsInt());
