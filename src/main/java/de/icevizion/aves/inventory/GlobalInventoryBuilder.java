@@ -17,10 +17,8 @@ import java.util.Locale;
 @SuppressWarnings("java:S3252")
 public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
 
-
     private final Component titleComponent;
     private CustomInventory inventory;
-
 
     public GlobalInventoryBuilder(@NotNull String title, @NotNull InventoryType type) {
         super(type);
