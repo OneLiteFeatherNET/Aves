@@ -244,10 +244,8 @@ public class InventoryLayout {
      */
     @Nullable
     public ISlot getSlot(int index) {
-        if (index < 0 || index > this.contents.length) {
-            throw new IllegalArgumentException("The given index " + index + "is not in the range of the array(0, "
-                    + this.contents.length + ")");
-        }
+        Check.argCondition(index < 0 || index > this.contents.length,
+                "The given index does not fit into the array (0, " + this.contents.length + ")");
         return this.contents[index];
     }
 
