@@ -1,14 +1,21 @@
 package de.icevizion.aves.item;
 
+import at.rxcki.strigiformes.MessageProvider;
+import at.rxcki.strigiformes.message.CompoundMessageCache;
+import at.rxcki.strigiformes.text.TextData;
 import de.icevizion.aves.inventory.util.InventoryConstants;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class TranslatedItemTest {
 
     @Test
@@ -31,6 +38,21 @@ class TranslatedItemTest {
         var item = TranslatedItem.of(ItemStack.builder(Material.ACACIA_BOAT));
         assertNotNull(item);
         assertSame(Material.ACACIA_BOAT, item.get(Locale.ENGLISH).material());
+    }
+
+    @Test
+    void testCreateOfMethodWithBuilderAndMessageProvider() {
+        var item = TranslatedItem.of(ItemStack.builder(Material.ALLIUM), Mockito.mock(MessageProvider.class));
+        assertNotNull(item);
+    }
+
+    @Test
+    void testTranslatedMethods() {
+        var item = TranslatedItem.of(ItemStack.builder(Material.ALLIUM), Mockito.mock(MessageProvider.class));
+        var mockedCache = Mockito.mock(CompoundMessageCache.class);
+        item.setDisplayName(new TextData("displayName"));
+        item.setLore(new TextData("lore"));
+        assertThrows(IllegalStateException.class, () -> item.setLore(mockedCache));
     }
 
     @Test
