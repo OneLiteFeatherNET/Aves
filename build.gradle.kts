@@ -23,7 +23,7 @@ repositories {
     maven("https://jitpack.io")
 }
 
-val sonarKey = "dungeon_aves_AYINRMy8pSUXqILAYb0z"
+val sonarKey = "dungeon_aves_AYQjkAfDgiTSvWSTxrGx"
 val minestomVersion = "master-SNAPSHOT"
 val strigiVersion = "e89dd8352c"
 
