@@ -23,7 +23,7 @@ repositories {
     maven("https://jitpack.io")
 }
 
-val sonarKey = "dungeon_aves_AYINRMy8pSUXqILAYb0z"
+val sonarKey = "dungeon_aves_AYQjkAfDgiTSvWSTxrGx"
 val minestomVersion = "master-SNAPSHOT"
 val strigiVersion = "e89dd8352c"
 
@@ -76,11 +76,9 @@ version = if (System.getenv().containsKey("CI")) {
 
 publishing {
     publications {
-
         create<MavenPublication>("maven") {
             from(components["java"])
         }
-
     }
     if (System.getenv().containsKey("CI")) {
         repositories {
@@ -105,5 +103,6 @@ publishing {
 sonarqube {
     properties {
         property("sonar.projectKey", sonarKey)
+        property("sonar.qualitygate.wait", true)
     }
 }
