@@ -33,5 +33,6 @@ class PlayersEnvTest {
     void testDropInventory(@NotNull Env env) {
         var player = env.createPlayer(instance, Pos.ZERO);
         Players.dropPlayerInventory(player);
+        assertNotNull(player);
     }
 }
