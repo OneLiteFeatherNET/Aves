@@ -55,6 +55,11 @@ public class InventoryLayout {
         this.applyLayoutFunction = layout.getApplyLayoutFunction();
     }
 
+    /**
+     * Creates a deep copy of an given {@link InventoryLayout}.
+     * @param inventoryLayout the layout to copy
+     * @return the created copy
+     */
     @Contract(value = "_ -> new", pure = true)
     public static @NotNull InventoryLayout of(@NotNull InventoryLayout inventoryLayout) {
         return new InventoryLayout(inventoryLayout);
