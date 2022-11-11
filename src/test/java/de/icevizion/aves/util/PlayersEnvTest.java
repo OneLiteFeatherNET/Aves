@@ -31,11 +31,11 @@ class PlayersEnvTest {
         assertFalse(randomPlayer::isPresent);
     }
 
-    @Test
+    /*@Test
     void testDropInventory(@NotNull Env env) {
         var player = env.createPlayer(instance, Pos.ZERO);
         player.getInventory().addItemStack(ItemStack.builder(Material.STONE).build());
         Players.dropPlayerInventory(player);
         assertNotNull(player);
-    }
+    }*/
 }
