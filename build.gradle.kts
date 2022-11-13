@@ -1,5 +1,3 @@
-import org.sonarqube.gradle.SonarQubeTask
-
 plugins {
     java
     `java-library`
@@ -64,10 +62,11 @@ tasks {
         }
     }
 
-    getByName<SonarQubeTask>("sonarqube") {
+    getByName("sonarqube") {
         dependsOn(rootProject.tasks.test)
     }
 }
+
 version = if (System.getenv().containsKey("CI")) {
     "${baseVersion}+${System.getenv("CI_COMMIT_SHORT_SHA")}"
 } else {
