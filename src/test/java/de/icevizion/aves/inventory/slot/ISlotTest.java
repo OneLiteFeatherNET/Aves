@@ -24,6 +24,13 @@ class ISlotTest {
     }
 
     @Test
+    void testCreationWithBuilder() {
+        var slot = new InventorySlot(ItemStack.builder(Material.ACACIA_BOAT).amount(2));
+        assertSame(Material.ACACIA_BOAT, slot.getItem().material());
+        assertNotEquals(12, slot.getItem().amount());
+    }
+
+    @Test
     void testCopySlotCreation() {
         var slot = new InventorySlot(ItemStack.AIR, InventoryConstants.CANCEL_CLICK);
         var copySlot = InventorySlot.of(slot);

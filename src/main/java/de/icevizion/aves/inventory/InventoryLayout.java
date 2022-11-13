@@ -55,6 +55,11 @@ public class InventoryLayout {
         this.applyLayoutFunction = layout.getApplyLayoutFunction();
     }
 
+    /**
+     * Creates a deep copy of an given {@link InventoryLayout}.
+     * @param inventoryLayout the layout to copy
+     * @return the created copy
+     */
     @Contract(value = "_ -> new", pure = true)
     public static @NotNull InventoryLayout of(@NotNull InventoryLayout inventoryLayout) {
         return new InventoryLayout(inventoryLayout);
@@ -224,11 +229,13 @@ public class InventoryLayout {
      * @param listener The listener to set
      */
     public InventoryLayout update(int index, @Nullable InventoryClick listener) {
+        Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
         contents[index].setClick(listener == null ? CANCEL_CLICK : listener);
         return this;
     }
 
     public InventoryLayout update(int index, @NotNull ItemStack stack, @Nullable InventoryClick click) {
+        Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
         var slot = contents[index];
         slot.setItemStack(stack);
         slot.setClick(click == null ? CANCEL_CLICK : click);
@@ -242,10 +249,8 @@ public class InventoryLayout {
      */
     @Nullable
     public ISlot getSlot(int index) {
-        if (index < 0 || index > this.contents.length) {
-            throw new IllegalArgumentException("The given index " + index + "is not in the range of the array(0, "
-                    + this.contents.length + ")");
-        }
+        Check.argCondition(index < 0 || index > this.contents.length,
+                "The given index does not fit into the array (0, " + this.contents.length + ")");
         return this.contents[index];
     }
 

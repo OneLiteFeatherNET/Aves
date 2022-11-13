@@ -49,7 +49,7 @@ class BaseMapTest {
     @Test
     void testEmptyName() {
         var exception = assertThrows(IllegalArgumentException.class, () -> this.firstMap.setName(""));
-        assertEquals("The name can not be empty", exception.getMessage());
+        assertEquals("The name can not be null or empty", exception.getMessage());
     }
 
     @Test

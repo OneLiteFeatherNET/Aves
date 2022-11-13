@@ -11,7 +11,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ComponentsTest {
 
+    static final String TEST_BAR = "&b|&9|||||||||";
     private final Component HEART_STRING = getHealthString(10);
+
+    @Test
+    void testProgressBar() {
+        Component progressBar = Components.getProgressBar(1, 10, 10, "|", NamedTextColor.AQUA, NamedTextColor.BLUE);
+        assertEquals(TEST_BAR, LegacyComponentSerializer.legacyAmpersand().serialize(progressBar));
+    }
 
     @Test
     void testGetHealthString() {

@@ -34,13 +34,13 @@ import java.util.Map;
 public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
 
     private static final String DISPLAY_NAME = "displayName";
-
     private static final String ENCHANTMENTS = "enchantments";
+    private static final String MATERIAL = "material";
 
     @Override
     public JsonElement serialize(@NotNull ItemStack itemStack, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject object = new JsonObject();
-        object.addProperty("material", itemStack.material().namespace().namespace());
+        object.addProperty(MATERIAL, itemStack.material().name());
         object.addProperty("amount", itemStack.amount());
 
         JsonObject metaObject = new JsonObject();
@@ -57,6 +57,15 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
             }
             metaObject.add(ENCHANTMENTS, enchantsArray);
         }
+
+        if (!meta.getLore().isEmpty()) {
+            JsonArray lore = new JsonArray();
+            for (Component component : meta.getLore()) {
+                lore.add(PlainTextComponentSerializer.plainText().serialize(component));
+            }
+            metaObject.add("lore", lore);
+        }
+
         object.add("meta", metaObject);
 
         return object;
@@ -66,9 +75,12 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
     public ItemStack deserialize(@NotNull JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject object = jsonElement.getAsJsonObject();
 
-        Material material = Material.fromNamespaceId(object.get("material").getAsString());
-        if (material == null)
-            material = Material.STONE;
+        Material material = Material.STONE;
+
+        if (object.has(MATERIAL)) {
+            var materialString = object.get(MATERIAL).getAsString();
+            material = Material.fromNamespaceId(materialString);
+        }
 
         var itemBuilder = ItemStack.builder(material);
         itemBuilder.amount(object.get("amount").getAsInt());

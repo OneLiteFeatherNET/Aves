@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,8 @@ class PlayersTest {
         this.player = Mockito.mock(Player.class);
         this.instance = Mockito.mock(Instance.class);
         Mockito.when(player.getPosition()).thenReturn(Pos.ZERO);
+        Players.setItemDuration(Duration.ofMinutes(2));
+        Players.setItemPlacer(null);
     }
 
     @Test
@@ -42,6 +45,7 @@ class PlayersTest {
         assertThrowsExactly(IllegalArgumentException.class, () ->
             Players.updateHotBar(player, new IItem[4], null, 55, 1, 1, 1, 1),
                     "The length from shiftedSlots has not the same length with the underlying array");
+        Players.updateHotBar(player, new IItem[8], null);
     }
 
     @Test
@@ -78,7 +82,7 @@ class PlayersTest {
     @Test
     void testDropPlayerInventory() {
         var otherPlayer = Mockito.mock(Player.class);
-        assertThrowsExactly(NullPointerException.class,
+        assertThrowsExactly(IllegalArgumentException.class,
                 () -> Players.dropPlayerInventory(otherPlayer),
                 "The instance from the player can't be null");
     }

@@ -11,7 +11,8 @@ import java.util.Locale;
 import static de.icevizion.aves.inventory.util.InventoryConstants.EMPTY_SLOT;
 
 /**
- * The class contains a default implementation for the {@link ApplyLayoutFunction}.
+ * This class includes a default implementation from the {@link ApplyLayoutFunction}.
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
