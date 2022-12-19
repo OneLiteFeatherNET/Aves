@@ -8,10 +8,10 @@ import net.minestom.server.item.ItemStack;
 import java.util.function.Consumer;
 
 /**
- * Contains some constant which are used for inventories
+ * Contains some constant which are used for inventories.
  * @author theEvilReaper
  * @version 1.0.0
- * @since 1.0.0
+ * @since 1.2.0
  **/
 public final class InventoryConstants {
 
