@@ -32,8 +32,8 @@ dependencies {
 
     testImplementation("com.github.Minestom:Minestom:$minestomVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
-    testImplementation("org.mockito:mockito-core:4.8.1")
-    testImplementation("org.mockito:mockito-junit-jupiter:4.8.1")
+    testImplementation("org.mockito:mockito-core:4.10.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:4.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
 }
 
