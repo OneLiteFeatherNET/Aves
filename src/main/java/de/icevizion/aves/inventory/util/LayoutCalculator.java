@@ -93,7 +93,7 @@ public class LayoutCalculator {
      * @return an array which contains the slot numbers
      */
     public static int @NotNull [] fillRow(@NotNull InventoryType type) {
-        return repeat(type.getSize()-9, type.getSize());
+        return repeat(type.getSize() - INVENTORY_WIDTH, type.getSize());
     }
 
     /**
