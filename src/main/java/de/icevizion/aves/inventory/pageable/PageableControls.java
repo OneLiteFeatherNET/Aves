@@ -2,6 +2,7 @@ package de.icevizion.aves.inventory.pageable;
 
 import de.icevizion.aves.item.IItem;
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +14,7 @@ import java.util.Locale;
  * @version 1.0.0
  * @since 1.2.0
  **/
+@ApiStatus.Experimental
 public interface PageableControls {
 
     /**
