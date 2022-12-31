@@ -1,25 +1,63 @@
 package de.icevizion.aves.inventory.pageable;
 
 import de.icevizion.aves.inventory.InventoryLayout;
+import de.icevizion.aves.item.IItem;
+import net.kyori.adventure.text.Component;
+import net.minestom.server.entity.Player;
+import net.minestom.server.inventory.InventoryType;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * @author theEvilReaper
- * @version 1.0.0
- * @since
- **/
+import java.util.List;
 
-public class PageableInventory {
+public interface PageableInventory {
 
-    private final InventoryLayout baseLayout;
-    private final InventoryLayout dataLayout;
-    private final PageableControls pageableControls;
-    private int currentPage;
+    void add(@NotNull IItem item);
 
-    public PageableInventory(InventoryLayout baseLayout, InventoryLayout dataLayout, PageableControls pageableControls) {
-        this.baseLayout = baseLayout;
-        this.dataLayout = dataLayout;
-        this.pageableControls = pageableControls;
+    void add(@NotNull List<IItem> items);
 
-        this.currentPage = 0;
+    void remove(@NotNull IItem item);
+
+    void remove(@NotNull List<IItem> items);
+
+    void open(@NotNull Player player);
+
+    int getMaxPages();
+
+    /**
+     * The builder interface contains all method for the builder to build a new instance from an {@link PageableInventory}.
+     * @author theEvilReaper
+     * @version 1.0.0
+     * @since 1.2.0
+     */
+    sealed interface Builder permits PageableInventoryBuilder {
+
+        /**
+         * Set's the title for the {@link net.minestom.server.inventory.Inventory} as {@link Component}.
+         * @param component the component to set
+         * @return the builder instance
+         */
+        @NotNull Builder title(@NotNull Component component);
+
+        @NotNull Builder decoration(@NotNull InventoryLayout layout);
+
+        /**
+         * Set the {@link InventoryType} for the paginated inventory.
+         * The {@link InventoryType} must be a chest type otherwise an exception will be thrown
+         * @param type the {@link InventoryType} to set
+         * @return the builder instance
+         */
+        @NotNull Builder type(@NotNull InventoryType type);
+
+        @NotNull Builder controls(@NotNull PageableControls pageableControls);
+
+        @NotNull Builder slotRange(int @NotNull ... itemSlots);
+
+        @NotNull Builder values(@NotNull List<IItem> values);
+
+        /**
+         * Returns a new instance from an {@link PageableInventory}.
+         * @return the created instance from the {@link PageableInventory}
+         */
+        @NotNull PageableInventory build();
     }
 }
