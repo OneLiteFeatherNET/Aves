@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,6 +27,7 @@ class PageableInventoryTest {
 
     @BeforeAll
     void init() {
+        this.items = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             this.items.add(
                     new Item(
