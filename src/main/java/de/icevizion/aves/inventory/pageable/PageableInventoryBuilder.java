@@ -25,6 +25,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     private InventoryLayout layout;
     private int[] slotRange;
     private List<IItem> values;
+
     @Override
     public PageableInventory.@NotNull Builder title(@NotNull Component component) {
         this.title = component;
