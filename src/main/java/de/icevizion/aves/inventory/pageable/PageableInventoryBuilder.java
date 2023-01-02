@@ -5,6 +5,7 @@ import de.icevizion.aves.inventory.util.LayoutCalculator;
 import de.icevizion.aves.item.IItem;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.InventoryType;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -70,9 +71,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
 
     @Override
     public @NotNull PageableInventory build() {
-        if (this.layout == null) {
-            throw new IllegalArgumentException("The layout can't be null");
-        }
+        Check.argCondition(this.layout == null, "The layout can't be null");
         if (this.pageableControls == null) {
             int nextSlot = this.type.getSize() - 1;
             int previousSlot = this.type.getSize() - 2;
