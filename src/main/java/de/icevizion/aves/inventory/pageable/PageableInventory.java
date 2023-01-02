@@ -5,11 +5,21 @@ import de.icevizion.aves.item.IItem;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public interface PageableInventory {
+
+    /**
+     * Creates a new instance from the {@link PageableInventory.Builder}.
+     * @return the created instance
+     */
+    @Contract(pure = true)
+    static PageableInventory.Builder builder() {
+        return new PageableInventoryBuilder();
+    }
 
     void add(@NotNull IItem item);
 
