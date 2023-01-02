@@ -56,6 +56,7 @@ public final class PageableInventoryImpl implements PageableInventory {
             this.update(PageDirection.FORWARD);
         });
         this.globalInventoryBuilder.setLayout(this.layout);
+        this.globalInventoryBuilder.setDataLayoutFunction(inventoryLayout -> dataLayout);
     }
 
     public void update(@NotNull PageDirection pageDirection) {
