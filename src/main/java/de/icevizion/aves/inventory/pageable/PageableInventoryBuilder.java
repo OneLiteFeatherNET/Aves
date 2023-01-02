@@ -70,6 +70,9 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
 
     @Override
     public @NotNull PageableInventory build() {
+        if (this.layout == null) {
+            throw new IllegalArgumentException("The layout can't be null");
+        }
         if (this.pageableControls == null) {
             int nextSlot = this.type.getSize() - 1;
             int previousSlot = this.type.getSize() - 2;
