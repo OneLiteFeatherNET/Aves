@@ -52,6 +52,17 @@ class PageableInventoryTest {
                 .build();
     }
 
+    @Test
+    void testNoControls(Env env) {
+        var builder = PageableInventory
+                .builder()
+                .type(TYPE)
+                .decoration(new InventoryLayout(TYPE))
+                .slotRange(12)
+                .values(this.items)
+                .title(Component.text("A"));
+        assertNotNull(builder.build());
+    }
 
     @Test
     void testMissingLayout(Env env) {
