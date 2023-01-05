@@ -73,9 +73,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     public @NotNull PageableInventory build() {
         Check.argCondition(this.layout == null, "The layout can't be null");
         if (this.pageableControls == null) {
-            int nextSlot = this.type.getSize() - 1;
-            int previousSlot = this.type.getSize() - 2;
-            this.pageableControls = new DefaultPageableControls(nextSlot, previousSlot, this.type.getSize());
+            this.pageableControls = DefaultPageableControls.fromSize(this.type);
         }
         return new PageableInventoryImpl(title, type, pageableControls, layout, values, slotRange);
     }
