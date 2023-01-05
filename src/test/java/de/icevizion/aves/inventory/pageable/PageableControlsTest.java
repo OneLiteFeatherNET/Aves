@@ -15,7 +15,7 @@ class PageableControlsTest {
 
     @BeforeAll
     void init() {
-        this.pageableControls = new DefaultPageableControls(10, 12, InventoryType.CHEST_3_ROW.getSize());
+        this.pageableControls = new DefaultPageableControls(InventoryType.CHEST_3_ROW,10, 12);
     }
 
     @Test
@@ -36,12 +36,12 @@ class PageableControlsTest {
     void testBackSlotIndexFailure() {
         assertThrowsExactly(
                 IllegalArgumentException.class,
-                () -> new DefaultPageableControls(-1, 2, InventoryType.CHEST_2_ROW.getSize()),
+                () -> new DefaultPageableControls(InventoryType.CHEST_2_ROW, -1, 2),
                 "The backSlot index is not in the inventory range"
         );
         assertThrowsExactly(
                 IllegalArgumentException.class,
-                () -> new DefaultPageableControls(112, 2, InventoryType.CHEST_2_ROW.getSize()),
+                () -> new DefaultPageableControls(InventoryType.CHEST_2_ROW, 112, 2),
                 "The backSlot index is not in the inventory range"
         );
     }
@@ -50,13 +50,31 @@ class PageableControlsTest {
     void testForwardSlotIndexFailure() {
         assertThrowsExactly(
                 IllegalArgumentException.class,
-                () -> new DefaultPageableControls(2, -2, InventoryType.CHEST_2_ROW.getSize()),
+                () -> new DefaultPageableControls(InventoryType.CHEST_2_ROW, 2, -2),
                 "The backSlot index is not in the inventory range"
         );
         assertThrowsExactly(
                 IllegalArgumentException.class,
-                () -> new DefaultPageableControls(1, 200, InventoryType.CHEST_2_ROW.getSize()),
+                () -> new DefaultPageableControls(InventoryType.CHEST_2_ROW, 1, 200),
                 "The backSlot index is not in the inventory range"
+        );
+    }
+
+    @Test
+    void testOtherCreation() {
+        var type = InventoryType.CHEST_3_ROW;
+        var controls = DefaultPageableControls.fromSize(type);
+        assertNotNull(controls);
+        assertEquals(type.getSize() - 1, controls.getNextSlot());
+        assertEquals(type.getSize() - 2, controls.getBackSlot());
+    }
+
+    @Test
+    void testNoChestInventory() {
+        assertThrowsExactly(
+                IllegalArgumentException.class,
+                () -> DefaultPageableControls.fromSize(InventoryType.CRAFTING),
+                "The type must be a chest inventory!"
         );
     }
 
