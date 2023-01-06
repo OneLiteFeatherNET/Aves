@@ -2,11 +2,12 @@ package de.icevizion.aves.inventory.pageable;
 
 import de.icevizion.aves.inventory.GlobalInventoryBuilder;
 import de.icevizion.aves.inventory.InventoryLayout;
+import de.icevizion.aves.inventory.InventorySlot;
+import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
-import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,6 +36,12 @@ public final class PageableInventoryImpl implements PageableInventory {
     private int endIndex;
     private int maxPages;
 
+    private final InventoryClick forwardClick;
+    private final InventoryClick backwardsClick;
+
+    private final ISlot oldBackSlot;
+    private final ISlot forwardSlot;
+
     PageableInventoryImpl(
             @NotNull Component title,
             @NotNull InventoryType type,
@@ -52,6 +59,19 @@ public final class PageableInventoryImpl implements PageableInventory {
         this.dataLayout.blank(this.slotRange);
         this.startPageItemIndex = 0;
         this.globalInventoryBuilder.setLayout(this.layout);
+
+        this.oldBackSlot = InventorySlot.of((InventorySlot) this.layout.getSlot(this.pageableControls.getBackSlot()));
+        this.forwardSlot = InventorySlot.of((InventorySlot) this.layout.getSlot(this.pageableControls.getNextSlot()));
+        this.forwardClick = (player, clickType, slot, condition) -> {
+            this.update(PageDirection.FORWARD);
+            condition.setCancel(true);
+        };
+
+        this.backwardsClick = (player, clickType, slot, condition) -> {
+          this.update(PageDirection.BACKWARDS);
+          condition.setCancel(true);
+        };
+
         this.globalInventoryBuilder.setDataLayoutFunction(inventoryLayout -> dataLayout);
         this.currentPage = 1;
 
@@ -60,6 +80,19 @@ public final class PageableInventoryImpl implements PageableInventory {
         } else {
             this.maxPages = this.items.size() / this.slotRange.length;
         }
+        this.dataLayout.blank(slotRange);
+
+        for (int i = 0; i < slotRange.length; i++) {
+            this.dataLayout.setItem(slotRange[i], this.items.get(i));
+        }
+        this.globalInventoryBuilder.invalidateDataLayout();
+        this.globalInventoryBuilder.register();
+
+        if (this.items.size() > this.slotRange.length) {
+            this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), this.forwardClick);
+        }
+
+        this.endIndex = this.slotRange.length;
     }
 
     public void update(@NotNull PageDirection pageDirection) {
@@ -77,10 +110,7 @@ public final class PageableInventoryImpl implements PageableInventory {
         }
 
         if (this.dataLayout.getSlot(this.slotRange[endIndex]) != null) {
-            this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), (player, clickType, slot, condition) -> {
-               this.update(PageDirection.FORWARD);
-               player.sendMessage("Forward");
-            });
+            this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), this.forwardClick);
             this.globalInventoryBuilder.invalidateLayout();
         }
 
@@ -97,16 +127,22 @@ public final class PageableInventoryImpl implements PageableInventory {
             this.currentPage += 1;
             this.startPageItemIndex += this.slotRange.length;
 
-            if (currentPage == getMaxPages()) {
-                this.layout.setItem(this.pageableControls.getNextSlot(), ItemStack.AIR);
+            var backSlot = this.layout.getSlot(this.pageableControls.getBackSlot());
+            if (backSlot != null && backSlot.getItem().material() != this.pageableControls.getBackMaterial()) {
+                this.layout.setItem(this.pageableControls.getBackSlot(), this.pageableControls.getBackButton().get(), backwardsClick);
                 this.globalInventoryBuilder.invalidateLayout();
             }
 
-            for (int i = this.startPageItemIndex; i < this.endIndex; i++) {
-                var item = this.items.get(i);
-                this.dataLayout.setItem(this.slotRange[i], item);
+            if (this.layout.getSlot(this.pageableControls.getBackSlot()) == null) {
+                this.layout.setItem(this.pageableControls.getBackSlot(), this.pageableControls.getNextButton().get(), this.backwardsClick);
             }
 
+            if (currentPage == getMaxPages()) {
+                this.layout.setItem(this.pageableControls.getNextSlot(), forwardSlot);
+                this.globalInventoryBuilder.invalidateLayout();
+            }
+
+            this.updateItems();
             this.globalInventoryBuilder.invalidateDataLayout();
         }
     }
@@ -121,17 +157,34 @@ public final class PageableInventoryImpl implements PageableInventory {
             this.startPageItemIndex -= this.slotRange.length;
             this.currentPage -= 1;
 
-            if (this.currentPage == 0) {
-                this.layout.setItem(this.pageableControls.getBackSlot(), ItemStack.AIR);
+            if (this.items.size() > this.slotRange.length) {
+                var forwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
+
+                if (forwardSlot != null && forwardSlot.getItem().material() != this.pageableControls.getForwardMaterial()) {
+                    this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), forwardClick);
+                    this.globalInventoryBuilder.invalidateLayout();
+                }
+            }
+
+
+            if (this.currentPage == 1) {
+                this.layout.setItem(this.pageableControls.getBackSlot(), oldBackSlot);
                 this.globalInventoryBuilder.invalidateLayout();
             }
 
-            for (int i = startPageItemIndex; i < endIndex; i++) {
-                var item = this.items.get(i);
-                this.dataLayout.setItem(this.slotRange[i], item);
-            }
-
+            this.updateItems();
             this.globalInventoryBuilder.invalidateDataLayout();
+        }
+    }
+
+    /**
+     * Update which items should be displayed in the inventory.
+     */
+    private void updateItems() {
+        for (int i = 0; i < this.slotRange.length; i++) {
+            var newIndex = i + this.startPageItemIndex;
+            if (newIndex > this.endIndex) break;
+            this.dataLayout.setItem(this.slotRange[i], this.items.get(newIndex));
         }
     }
 
@@ -143,7 +196,7 @@ public final class PageableInventoryImpl implements PageableInventory {
 
     @Override
     public void open(@NotNull Player player) {
-
+        player.openInventory(this.globalInventoryBuilder.getInventory());
     }
 
     @Override
