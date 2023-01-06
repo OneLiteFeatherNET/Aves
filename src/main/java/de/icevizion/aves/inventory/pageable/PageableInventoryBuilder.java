@@ -1,8 +1,8 @@
 package de.icevizion.aves.inventory.pageable;
 
 import de.icevizion.aves.inventory.InventoryLayout;
+import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.util.LayoutCalculator;
-import de.icevizion.aves.item.IItem;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.utils.validate.Check;
@@ -25,7 +25,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     private PageableControls pageableControls;
     private InventoryLayout layout;
     private int[] slotRange;
-    private List<IItem> values;
+    private List<ISlot> slots;
 
     @Override
     public PageableInventory.@NotNull Builder title(@NotNull Component component) {
@@ -64,8 +64,8 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     }
 
     @Override
-    public PageableInventory.@NotNull Builder values(@NotNull List<IItem> values) {
-        this.values = values;
+    public PageableInventory.@NotNull Builder values(@NotNull List<ISlot> slots) {
+        this.slots = slots;
         return this;
     }
 
@@ -75,6 +75,6 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
         if (this.pageableControls == null) {
             this.pageableControls = DefaultPageableControls.fromSize(this.type);
         }
-        return new PageableInventoryImpl(title, type, pageableControls, layout, values, slotRange);
+        return new PageableInventoryImpl(title, type, pageableControls, layout, slots, slotRange);
     }
 }
