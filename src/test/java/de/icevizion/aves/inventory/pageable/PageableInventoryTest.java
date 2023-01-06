@@ -1,9 +1,9 @@
 package de.icevizion.aves.inventory.pageable;
 
 import de.icevizion.aves.inventory.InventoryLayout;
+import de.icevizion.aves.inventory.InventorySlot;
+import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.util.LayoutCalculator;
-import de.icevizion.aves.item.IItem;
-import de.icevizion.aves.item.Item;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
@@ -27,29 +27,37 @@ class PageableInventoryTest {
 
     PageableInventory pageableInventory;
 
-    List<IItem> items;
+    List<ISlot> slots;
 
     @BeforeAll
     void init(Env env) {
-        this.items = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            this.items.add(
-                    new Item(
+        this.slots = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            this.slots.add(
+                    new InventorySlot(
                             ItemStack.builder(Material.ACACIA_BUTTON)
                                     .displayName(Component.text("Hallo " + i))
                                     .build()
                     )
             );
         }
+        var slotRange = LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW);
+        System.out.println("Calculated range is " + slotRange.length);
         this.pageableInventory = PageableInventory
                 .builder()
                 .title(Component.text("Test title"))
                 .type(TYPE)
                 .decoration(new InventoryLayout(TYPE))
-                .slotRange(LayoutCalculator.repeat(InventoryType.CHEST_1_ROW.getSize() + 1, TYPE.getSize()))
-                .controls(new DefaultPageableControls(TYPE.getSize() - 2,TYPE.getSize() - 1,TYPE.getSize()))
-                .values(this.items)
+                .slotRange(slotRange)
+                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
+                .values(this.slots)
                 .build();
+    }
+
+    @Test
+    void testUpdate(Env env) {
+        this.pageableInventory.add(new InventorySlot(ItemStack.of(Material.ITEM_FRAME)));
+        assertEquals(1, this.pageableInventory.getMaxPages());
     }
 
     @Test
@@ -59,7 +67,7 @@ class PageableInventoryTest {
                 .type(TYPE)
                 .decoration(new InventoryLayout(TYPE))
                 .slotRange(12)
-                .values(this.items)
+                .values(this.slots)
                 .title(Component.text("A"));
         assertNotNull(builder.build());
     }
