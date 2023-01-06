@@ -2,6 +2,7 @@ package de.icevizion.aves.inventory.pageable;
 
 import de.icevizion.aves.item.IItem;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -57,5 +58,13 @@ public interface PageableControls {
      */
     @NotNull default IItem getNextButton() {
         return this.getNextButton(null);
+    }
+
+    default Material getForwardMaterial() {
+        return this.getNextButton().get().material();
+    }
+
+    default Material getBackMaterial() {
+        return this.getBackButton().get().material();
     }
 }
