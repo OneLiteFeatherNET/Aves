@@ -1,7 +1,7 @@
 package de.icevizion.aves.inventory.pageable;
 
 import de.icevizion.aves.inventory.InventoryLayout;
-import de.icevizion.aves.item.IItem;
+import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
@@ -21,13 +21,13 @@ public interface PageableInventory {
         return new PageableInventoryBuilder();
     }
 
-    void add(@NotNull IItem item);
+    void add(@NotNull ISlot slot);
 
-    void add(@NotNull List<IItem> items);
+    void add(@NotNull List<ISlot> slots);
 
-    void remove(@NotNull IItem item);
+    void remove(@NotNull ISlot slot);
 
-    void remove(@NotNull List<IItem> items);
+    void remove(@NotNull List<ISlot> slots);
 
     void open(@NotNull Player player);
 
@@ -60,9 +60,19 @@ public interface PageableInventory {
 
         @NotNull Builder controls(@NotNull PageableControls pageableControls);
 
+        /**
+         * Set the slot range where the items should be placed in the layout
+         * @param itemSlots the array which contains all valid slots
+         * @return the builder instance
+         */
         @NotNull Builder slotRange(int @NotNull ... itemSlots);
 
-        @NotNull Builder values(@NotNull List<IItem> values);
+        /**
+         * Set the list which contains the items to the builder.
+         * @param slots the list which contains all slots
+         * @return the builder instance
+         */
+        @NotNull Builder values(@NotNull List<ISlot> slots);
 
         /**
          * Returns a new instance from an {@link PageableInventory}.
