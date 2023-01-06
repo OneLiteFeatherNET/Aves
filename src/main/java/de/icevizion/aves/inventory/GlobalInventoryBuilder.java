@@ -69,7 +69,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
                 var contents = inventory.getItemStacks();
                 getDataLayout().applyLayout(contents, null, null);
                 for (int i = 0; i < contents.length; i++) {
-                    if (contents[i].material() == Material.AIR) continue;
+                    if (contents[i] == null || contents[i].material() == Material.AIR) continue;
                     this.inventory.setItemStack(i, contents[i]);
                 }
                 updateViewer(inventory);
