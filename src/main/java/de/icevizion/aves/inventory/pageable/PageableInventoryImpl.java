@@ -2,7 +2,6 @@ package de.icevizion.aves.inventory.pageable;
 
 import de.icevizion.aves.inventory.GlobalInventoryBuilder;
 import de.icevizion.aves.inventory.InventoryLayout;
-import de.icevizion.aves.inventory.InventorySlot;
 import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
@@ -82,12 +81,6 @@ public final class PageableInventoryImpl implements PageableInventory {
 
         this.globalInventoryBuilder.setDataLayoutFunction(inventoryLayout -> dataLayout);
         this.currentPage = 1;
-
-        if (this.items.size() < this.slotRange.length) {
-            this.maxPages = 1;
-        } else {
-            this.maxPages = this.items.size() / this.slotRange.length;
-        }
         this.dataLayout.blank(slotRange);
 
         for (int i = 0; i < slotRange.length; i++) {
@@ -101,6 +94,7 @@ public final class PageableInventoryImpl implements PageableInventory {
         }
 
         this.endIndex = this.slotRange.length;
+        this.updateMaxPages();
     }
 
     public void update(@NotNull PageDirection pageDirection) {
@@ -126,12 +120,8 @@ public final class PageableInventoryImpl implements PageableInventory {
     }
 
     private void nextPage() {
-        if (this.endIndex != this.items.size() - 1) {
-            if (this.endIndex + this.slotRange.length >= this.items.size()) {
-                this.endIndex += this.items.size() % this.slotRange.length;
-            } else {
-                this.endIndex += this.slotRange.length;
-            }
+        if (this.startPageItemIndex < this.items.size() - 1) {
+            this.endIndex += this.slotRange.length;
             this.currentPage += 1;
             this.startPageItemIndex += this.slotRange.length;
 
@@ -191,15 +181,20 @@ public final class PageableInventoryImpl implements PageableInventory {
     private void updateItems() {
         for (int i = 0; i < this.slotRange.length; i++) {
             var newIndex = i + this.startPageItemIndex;
-            if (newIndex > this.endIndex) break;
-            this.dataLayout.setItem(this.slotRange[i], this.items.get(newIndex));
+            if (newIndex >= this.items.size()) {
+                this.dataLayout.setItem(this.slotRange[i], EMPTY_SLOT);
+            } else {
+                this.dataLayout.setItem(this.slotRange[i], this.items.get(newIndex));
+            }
         }
     }
 
     private void updateMaxPages() {
+        var pageAmount = this.items.size() / this.slotRange.length;
         if (this.items.size() % this.slotRange.length != 0) {
-            this.maxPages = this.items.size() / this.slotRange.length;
+            pageAmount++;
         }
+        this.maxPages = pageAmount;
     }
 
     @Override
