@@ -32,7 +32,7 @@ class PageableInventoryTest {
     @BeforeAll
     void init(Env env) {
         this.slots = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             this.slots.add(
                     new InventorySlot(
                             ItemStack.builder(Material.ACACIA_BUTTON)
@@ -41,7 +41,7 @@ class PageableInventoryTest {
                     )
             );
         }
-        var slotRange = LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW);
+        var slotRange = LayoutCalculator.repeat(InventoryType.CHEST_1_ROW.getSize() + 1, InventoryType.CHEST_2_ROW.getSize() - 1);
         System.out.println("Calculated range is " + slotRange.length);
         this.pageableInventory = PageableInventory
                 .builder()
