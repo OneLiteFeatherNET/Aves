@@ -4,6 +4,7 @@ import de.icevizion.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
+import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,7 +70,11 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
                 var contents = inventory.getItemStacks();
                 getDataLayout().applyLayout(contents, null, null);
                 for (int i = 0; i < contents.length; i++) {
-                    if (contents[i] == null || contents[i].material() == Material.AIR) continue;
+                    if (contents[i] == null) {
+                        this.inventory.setItemStack(i, ItemStack.AIR);
+                        continue;
+                    }
+                    if (contents[i].material() == Material.AIR) continue;
                     this.inventory.setItemStack(i, contents[i]);
                 }
                 updateViewer(inventory);
