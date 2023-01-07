@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static de.icevizion.aves.inventory.util.InventoryConstants.EMPTY_SLOT;
+
 /**
  * The class is a concrete implementation for the {@link PageableInventory} interface.
  *
@@ -39,8 +41,8 @@ public final class PageableInventoryImpl implements PageableInventory {
     private final InventoryClick forwardClick;
     private final InventoryClick backwardsClick;
 
-    private final ISlot oldBackSlot;
-    private final ISlot forwardSlot;
+    private ISlot oldBackSlot;
+    private ISlot forwardSlot;
 
     PageableInventoryImpl(
             @NotNull Component title,
@@ -60,8 +62,14 @@ public final class PageableInventoryImpl implements PageableInventory {
         this.startPageItemIndex = 0;
         this.globalInventoryBuilder.setLayout(this.layout);
 
-        this.oldBackSlot = InventorySlot.of((InventorySlot) this.layout.getSlot(this.pageableControls.getBackSlot()));
-        this.forwardSlot = InventorySlot.of((InventorySlot) this.layout.getSlot(this.pageableControls.getNextSlot()));
+        var backSlot = this.layout.getSlot(this.pageableControls.getBackSlot());
+
+        this. oldBackSlot = backSlot == null ? EMPTY_SLOT : ISlot.of(backSlot);
+
+        var forwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
+
+        this.forwardSlot = forwardSlot == null ? EMPTY_SLOT : ISlot.of(forwardSlot);
+
         this.forwardClick = (player, clickType, slot, condition) -> {
             this.update(PageDirection.FORWARD);
             condition.setCancel(true);
@@ -109,7 +117,7 @@ public final class PageableInventoryImpl implements PageableInventory {
             this.dataLayout.setItem(this.slotRange[i], item);
         }
 
-        if (this.dataLayout.getSlot(this.slotRange[endIndex]) != null) {
+        if (this.dataLayout.getSlot(this.slotRange[endIndex - 1]) != null) {
             this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), this.forwardClick);
             this.globalInventoryBuilder.invalidateLayout();
         }
