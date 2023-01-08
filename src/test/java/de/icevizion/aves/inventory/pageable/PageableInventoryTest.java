@@ -47,7 +47,7 @@ class PageableInventoryTest {
                 .builder()
                 .title(Component.text("Test title"))
                 .type(TYPE)
-                .decoration(new InventoryLayout(TYPE))
+                .layout(new InventoryLayout(TYPE))
                 .slotRange(slotRange)
                 .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
                 .values(this.slots)
@@ -65,7 +65,7 @@ class PageableInventoryTest {
         var builder = PageableInventory
                 .builder()
                 .type(TYPE)
-                .decoration(new InventoryLayout(TYPE))
+                .layout(new InventoryLayout(TYPE))
                 .slotRange(12)
                 .values(this.slots)
                 .title(Component.text("A"));
@@ -80,7 +80,7 @@ class PageableInventoryTest {
 
     @Test
     void testNoChestInventory(Env env) {
-        var builder = PageableInventory.builder().decoration(new InventoryLayout(TYPE)).slotRange(12, 13);
+        var builder = PageableInventory.builder().layout(new InventoryLayout(TYPE)).slotRange(12, 13);
         assertThrowsExactly(
                 IllegalArgumentException.class,
                 () -> builder.type(InventoryType.CRAFTING).build(),
@@ -90,7 +90,7 @@ class PageableInventoryTest {
 
     @Test
     void testInvalidItemRange(Env env) {
-        var builder = PageableInventory.builder().decoration(new InventoryLayout(TYPE)).type(TYPE);
+        var builder = PageableInventory.builder().layout(new InventoryLayout(TYPE)).type(TYPE);
         assertThrowsExactly(IllegalArgumentException.class,
                 () -> builder.slotRange().build(),
                 "The slotRange can't be zero"
