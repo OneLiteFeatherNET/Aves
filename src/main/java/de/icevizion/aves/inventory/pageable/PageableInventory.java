@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- *^
+ *
  * @version 1.0.0
  * @since 1.2.0
  */
-public non-sealed interface PageableInventory extends Openable {
+public non-sealed interface PageableInventory extends OpenableInventory {
 
     /**
      * Creates a new instance from the {@link PageableInventory.Builder}.
