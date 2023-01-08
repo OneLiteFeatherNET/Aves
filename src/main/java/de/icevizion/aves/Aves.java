@@ -47,17 +47,22 @@ public final class Aves extends Extension {
         layout.setItems(LayoutCalculator.frame(0, InventoryType.CHEST_3_ROW.getSize() - 1), item, InventoryConstants.CANCEL_CLICK);
 
         var list = new ArrayList<ISlot>();
-        System.out.println("List size is " + list.size());
 
         var slotRange = LayoutCalculator.repeat(InventoryType.CHEST_1_ROW.getSize() + 1, InventoryType.CHEST_2_ROW.getSize() - 1);
 
         for (int i = 0; i < 16; i++) {
             if (i > slotRange.length - 1) {
-                list.add(new InventorySlot(stack.withMaterial(Material.STONE_BUTTON).withDisplayName(Component.text(i)), InventoryConstants.CANCEL_CLICK));
-            } else{
-                list.add(new InventorySlot(stack.withDisplayName(Component.text(i)), InventoryConstants.CANCEL_CLICK));
+                list.add(new InventorySlot(stack.withMaterial(Material.STONE_BUTTON).withDisplayName(Component.text(i + 1)), InventoryConstants.CANCEL_CLICK));
+            } else {
+                if (i >= 14) {
+                    list.add(new InventorySlot(stack.withMaterial(Material.DARK_OAK_BUTTON).withDisplayName(Component.text(i + 1)), InventoryConstants.CANCEL_CLICK));
+                } else {
+                    list.add(new InventorySlot(stack.withDisplayName(Component.text(i + 1)), InventoryConstants.CANCEL_CLICK));
+                }
             }
         }
+
+        System.out.println("List size is " + list.size());
 
         var inventory = PageableInventory.builder()
                 .title(Component.text("Test"))
