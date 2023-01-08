@@ -34,16 +34,14 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     }
 
     @Override
-    public PageableInventory.@NotNull Builder decoration(@NotNull InventoryLayout layout) {
+    public PageableInventory.@NotNull Builder layout(@NotNull InventoryLayout layout) {
         this.layout = layout;
         return this;
     }
 
     @Override
     public PageableInventory.@NotNull Builder type(@NotNull InventoryType type) {
-        if (!LayoutCalculator.isChestInventory(type)) {
-            throw new IllegalArgumentException("The type must be a chest inventory");
-        }
+        Check.argCondition(!LayoutCalculator.isChestInventory(type), "The type must be a chest inventory");
         this.type = type;
         return this;
     }
@@ -56,9 +54,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
 
     @Override
     public PageableInventory.@NotNull Builder slotRange(int @NotNull ... itemSlots) {
-        if (itemSlots.length == 0) {
-            throw new IllegalArgumentException("The slotRange can't be zero");
-        }
+        Check.argCondition(itemSlots.length == 0, "The slotRange can't be zero");
         this.slotRange = itemSlots;
         return this;
     }
