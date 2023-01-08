@@ -4,12 +4,16 @@ import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /**
- *
+ * The interface contains various implementations to open an inventory to a player.
+ * What a methods do depends on the given use case. In some cases the method won't do anything
  * @version 1.0.0
  * @since 1.2.0
  */
-public sealed interface Openable permits PageableInventory {
+public sealed interface OpenableInventory permits PageableInventory {
 
+    /**
+     * Opens the inventory for a specific player which is handled internally.
+     */
     void open();
 
     /**
