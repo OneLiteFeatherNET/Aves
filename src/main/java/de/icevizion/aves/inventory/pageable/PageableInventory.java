@@ -3,14 +3,18 @@ package de.icevizion.aves.inventory.pageable;
 import de.icevizion.aves.inventory.InventoryLayout;
 import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface PageableInventory {
+/**
+ *^
+ * @version 1.0.0
+ * @since 1.2.0
+ */
+public non-sealed interface PageableInventory extends Openable {
 
     /**
      * Creates a new instance from the {@link PageableInventory.Builder}.
@@ -21,15 +25,29 @@ public interface PageableInventory {
         return new PageableInventoryBuilder();
     }
 
+    /**
+     * Add a new entry which should be displayed in the inventory.
+     * @param slot the slot to add
+     */
     void add(@NotNull ISlot slot);
 
+    /**
+     * Add a list of entries which should be displayed in the inventory.
+     * @param slots the list that has all entries to add
+     */
     void add(@NotNull List<ISlot> slots);
 
+    /**
+     * Remove a single entry from the list.
+     * @param slot the slot to remove
+     */
     void remove(@NotNull ISlot slot);
 
+    /**
+     * Removes a list of {@link ISlot} from the underlying list.
+     * @param slots the list which contains the slots to remove
+     */
     void remove(@NotNull List<ISlot> slots);
-
-    void open(@NotNull Player player);
 
     /**
      * Unregister some listener and other stuff from the server process.
@@ -57,7 +75,14 @@ public interface PageableInventory {
          */
         @NotNull Builder title(@NotNull Component component);
 
-        @NotNull Builder decoration(@NotNull InventoryLayout layout);
+        /**
+         * Set the layout which contains the decoration layout.
+         * Don't add any entries to this layout which shoes data from a specific use case.
+         * For that use the {@link PageableInventory#add(ISlot)} etc. methods to add or remove data values
+         * @param layout the layout which contains the decoration
+         * @return the builder instance
+         */
+        @NotNull Builder layout(@NotNull InventoryLayout layout);
 
         /**
          * Set the {@link InventoryType} for the paginated inventory.
