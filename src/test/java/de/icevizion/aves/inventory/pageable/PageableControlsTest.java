@@ -78,4 +78,11 @@ class PageableControlsTest {
         );
     }
 
+    @Test
+    void testGetMaterial() {
+        var controls = DefaultPageableControls.fromSize(InventoryType.CHEST_3_ROW);
+        assertSame(Material.ARROW, controls.getBackMaterial());
+        assertNotSame(Material.AIR, controls.getForwardMaterial());
+    }
+
 }
