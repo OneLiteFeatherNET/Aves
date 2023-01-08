@@ -84,9 +84,12 @@ public final class PageableInventoryImpl implements PageableInventory {
         this.currentPage = 1;
         this.dataLayout.blank(slotRange);
 
-        for (int i = 0; i < slotRange.length; i++) {
-            this.dataLayout.setItem(slotRange[i], this.items.get(i));
+        if (!this.items.isEmpty()) {
+            for (int i = 0; i < slotRange.length; i++) {
+                this.dataLayout.setItem(slotRange[i], this.items.get(i));
+            }
         }
+
         this.globalInventoryBuilder.invalidateDataLayout();
         this.globalInventoryBuilder.register();
 
@@ -107,17 +110,14 @@ public final class PageableInventoryImpl implements PageableInventory {
     }
 
     private void updatePage() {
-        for (int i = startPageItemIndex; i < endIndex; i++) {
-            var item = this.items.get(i);
-            this.dataLayout.setItem(this.slotRange[i], item);
-        }
-
+        this.updateItems();
         if (this.dataLayout.getSlot(this.slotRange[endIndex - 1]) != null) {
             this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), this.forwardClick);
             this.globalInventoryBuilder.invalidateLayout();
         }
 
         this.globalInventoryBuilder.invalidateDataLayout();
+        this.updateMaxPages();
     }
 
     private void nextPage() {
@@ -191,6 +191,10 @@ public final class PageableInventoryImpl implements PageableInventory {
     }
 
     private void updateMaxPages() {
+        if (this.items.isEmpty() || this.items.size() <= this.slotRange.length) {
+            this.maxPages = 1;
+            return;
+        }
         var pageAmount = this.items.size() / this.slotRange.length;
         if (this.items.size() % this.slotRange.length != 0) {
             pageAmount++;
