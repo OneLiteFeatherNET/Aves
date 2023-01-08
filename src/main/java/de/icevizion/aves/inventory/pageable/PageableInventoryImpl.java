@@ -7,6 +7,7 @@ import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -205,6 +206,17 @@ public final class PageableInventoryImpl implements PageableInventory {
     @Override
     public void open(@NotNull Player player) {
         player.openInventory(this.globalInventoryBuilder.getInventory());
+    }
+
+    @Override
+    public void open(@NotNull Player player, int page) {
+        Check.argCondition(page > this.maxPages, "The page index is to high");
+
+    }
+
+    @Override
+    public void open() {
+
     }
 
     @Override
