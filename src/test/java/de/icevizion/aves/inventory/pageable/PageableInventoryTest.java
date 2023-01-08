@@ -57,7 +57,7 @@ class PageableInventoryTest {
     @Test
     void testUpdate(Env env) {
         this.pageableInventory.add(new InventorySlot(ItemStack.of(Material.ITEM_FRAME)));
-        assertEquals(1, this.pageableInventory.getMaxPages());
+        assertEquals(2, this.pageableInventory.getMaxPages());
     }
 
     @Test
