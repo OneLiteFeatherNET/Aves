@@ -29,6 +29,9 @@ class PageableInventoryTest {
 
     List<ISlot> slots;
 
+    int[] slotRange = LayoutCalculator.repeat(InventoryType.CHEST_1_ROW.getSize() + 1, InventoryType.CHEST_2_ROW.getSize() - 1);
+
+
     @BeforeAll
     void init(Env env) {
         this.slots = new ArrayList<>();
@@ -41,8 +44,6 @@ class PageableInventoryTest {
                     )
             );
         }
-        var slotRange = LayoutCalculator.repeat(InventoryType.CHEST_1_ROW.getSize() + 1, InventoryType.CHEST_2_ROW.getSize() - 1);
-        System.out.println("Calculated range is " + slotRange.length);
         this.pageableInventory = PageableInventory
                 .builder()
                 .title(Component.text("Test title"))
@@ -95,5 +96,68 @@ class PageableInventoryTest {
                 () -> builder.slotRange().build(),
                 "The slotRange can't be zero"
         );
+    }
+
+    @Test
+    void testAddSlotUpdate(Env env) {
+        var items = new ArrayList<ISlot>();
+        var pageableInventory = PageableInventory
+                .builder()
+                .title(Component.text("Test title"))
+                .type(TYPE)
+                .layout(new InventoryLayout(TYPE))
+                .slotRange(slotRange)
+                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
+                .values(items)
+                .build();
+        assertEquals(1, pageableInventory.getMaxPages());
+
+        var testSlot = new InventorySlot(ItemStack.of(Material.STICK));
+
+        pageableInventory.add(testSlot);
+
+        assertSame(1, pageableInventory.getMaxPages());
+
+        var entries = new ArrayList<ISlot>();
+
+        for (int i = 0; i <= 8; i++) {
+            entries.add(testSlot);
+        }
+
+        pageableInventory.add(entries);
+
+        assertSame(2, pageableInventory.getMaxPages());
+    }
+
+    @Test
+    void testRemoveSlotUpdate(Env env) {
+        var items = new ArrayList<ISlot>();
+        var uniqueSLot = new InventorySlot(ItemStack.of(Material.ACACIA_FENCE));
+        items.add(uniqueSLot);
+        var otherSlots = new ArrayList<ISlot>();
+        var testSlot = new InventorySlot(ItemStack.of(Material.STICK));
+
+        for (int i = 0; i <= 8; i++) {
+            otherSlots.add(testSlot);
+        }
+        items.addAll(otherSlots);
+        var pageableInventory = PageableInventory
+                .builder()
+                .title(Component.text("Test title"))
+                .type(TYPE)
+                .layout(new InventoryLayout(TYPE))
+                .slotRange(slotRange)
+                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
+                .values(items)
+                .build();
+        assertEquals(2, pageableInventory.getMaxPages());
+
+        pageableInventory.remove(uniqueSLot);
+
+        assertEquals(2, pageableInventory.getMaxPages());
+
+        pageableInventory.remove(otherSlots);
+
+        assertSame(1, pageableInventory.getMaxPages());
     }
 }
