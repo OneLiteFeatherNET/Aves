@@ -67,7 +67,7 @@ public final class Aves extends Extension {
         var inventory = PageableInventory.builder()
                 .title(Component.text("Test"))
                 .type(InventoryType.CHEST_3_ROW)
-                .decoration(layout)
+                .layout(layout)
                 .slotRange(slotRange)
                 .values(list)
                 .build();
