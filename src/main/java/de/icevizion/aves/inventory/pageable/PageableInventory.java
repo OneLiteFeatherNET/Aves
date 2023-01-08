@@ -31,6 +31,15 @@ public interface PageableInventory {
 
     void open(@NotNull Player player);
 
+    /**
+     * Unregister some listener and other stuff from the server process.
+     */
+    void unregister();
+
+    /**
+     * Returns the maximum amount of pages which the inventory can have.
+     * @return the given value
+     */
     int getMaxPages();
 
     /**
@@ -58,6 +67,11 @@ public interface PageableInventory {
          */
         @NotNull Builder type(@NotNull InventoryType type);
 
+        /**
+         * Set a new reference from the {@link PageableControls} interface which defines which items are used to switch between pages.
+         * @param pageableControls the instance to set
+         * @return the builder instance
+         */
         @NotNull Builder controls(@NotNull PageableControls pageableControls);
 
         /**

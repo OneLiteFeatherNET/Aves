@@ -198,6 +198,11 @@ public final class PageableInventoryImpl implements PageableInventory {
     }
 
     @Override
+    public void unregister() {
+
+    }
+
+    @Override
     public void open(@NotNull Player player) {
         player.openInventory(this.globalInventoryBuilder.getInventory());
     }
