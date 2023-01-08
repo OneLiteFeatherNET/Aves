@@ -32,15 +32,13 @@ public final class PageableInventoryImpl implements PageableInventory {
     private final List<ISlot> items;
     private final int[] slotRange;
     private final InventoryLayout dataLayout;
+    private final InventoryClick forwardClick;
+    private final InventoryClick backwardsClick;
     private GlobalInventoryBuilder globalInventoryBuilder;
     private int currentPage;
     private int startPageItemIndex;
     private int endIndex;
     private int maxPages;
-
-    private final InventoryClick forwardClick;
-    private final InventoryClick backwardsClick;
-
     private ISlot oldBackSlot;
     private ISlot forwardSlot;
 
@@ -214,7 +212,13 @@ public final class PageableInventoryImpl implements PageableInventory {
 
     @Override
     public void open(@NotNull Player player, int page) {
+        Check.argCondition(page < 1, "The page index can't be zero oder negativ");
         Check.argCondition(page > this.maxPages, "The page index is to high");
+
+        //The values are the same. Ignore page update
+        if (this.currentPage == page) {
+
+        }
 
     }
 
