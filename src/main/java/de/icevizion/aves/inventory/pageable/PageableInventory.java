@@ -70,10 +70,20 @@ public non-sealed interface PageableInventory extends OpenableInventory {
 
         /**
          * Set's the title for the {@link net.minestom.server.inventory.Inventory} as {@link Component}.
-         * @param component the component to set
+         * @param component the component to
+         * @param pagesInTitle if the current and max pages should be displayed in the title
          * @return the builder instance
          */
-        @NotNull Builder title(@NotNull Component component);
+        @NotNull Builder title(@NotNull Component component, boolean pagesInTitle);
+
+        /**
+         * Set's the title for the {@link net.minestom.server.inventory.Inventory} as {@link Component}.
+         * @param component the component to
+         * @return the builder instance
+         */
+        default @NotNull Builder title(@NotNull Component component) {
+            return this.title(component, false);
+        }
 
         /**
          * Set the layout which contains the decoration layout.
