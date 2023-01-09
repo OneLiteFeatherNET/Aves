@@ -20,6 +20,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
     private final Component titleComponent;
     private CustomInventory inventory;
 
+    @Deprecated(forRemoval = true, since = "Please use the constructor with the component instead")
     public GlobalInventoryBuilder(@NotNull String title, @NotNull InventoryType type) {
         super(type);
         this.titleComponent = Component.text(title);
