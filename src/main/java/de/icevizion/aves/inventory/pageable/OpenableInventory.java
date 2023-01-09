@@ -16,6 +16,8 @@ public sealed interface OpenableInventory permits PageableInventory {
      */
     void open();
 
+    void open(int page);
+
     /**
      * Opens the inventory for a given player.
      * This method opens the inventory at the first page
