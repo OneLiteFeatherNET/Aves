@@ -233,13 +233,20 @@ public final class PageableInventoryImpl implements PageableInventory {
         Check.argCondition(page > this.maxPages, "The page index is to high");
 
         //The values are the same. Ignore page update
-        if (this.currentPage == page) {
+        if (page == this.currentPage) {
             player.openInventory(this.globalInventoryBuilder.getInventory());
             return;
         }
 
-        this.startPageItemIndex = this.slotRange.length * page;
-        this.endIndex = this.slotRange.length * (page + 1);
+        if (page == 1) {
+            this.startPageItemIndex = 0;
+            this.endIndex = this.slotRange.length;
+        } else{
+            this.startPageItemIndex = this.slotRange.length * (page - 1);
+            this.endIndex = this.startPageItemIndex + this.slotRange.length;
+
+        }
+        this.currentPage = page;
         this.updateItems();
         player.openInventory(this.globalInventoryBuilder.getInventory());
     }
