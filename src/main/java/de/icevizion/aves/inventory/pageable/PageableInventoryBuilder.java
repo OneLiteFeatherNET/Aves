@@ -26,10 +26,12 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     private InventoryLayout layout;
     private int[] slotRange;
     private List<ISlot> slots;
+    private boolean pagesInTitle;
 
     @Override
-    public PageableInventory.@NotNull Builder title(@NotNull Component component) {
+    public PageableInventory.@NotNull Builder title(@NotNull Component component, boolean pagesInTitle) {
         this.title = component;
+        this.pagesInTitle = pagesInTitle;
         return this;
     }
 
@@ -71,6 +73,6 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
         if (this.pageableControls == null) {
             this.pageableControls = DefaultPageableControls.fromSize(this.type);
         }
-        return new PageableInventoryImpl(title, type, pageableControls, layout, slots, slotRange);
+        return new PageableInventoryImpl(title, type, pageableControls, layout, slots, pagesInTitle, slotRange);
     }
 }
