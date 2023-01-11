@@ -72,12 +72,12 @@ public final class PageableInventoryImpl implements PageableInventory {
         this.forwardSlot = forwardSlot == null ? EMPTY_SLOT : ISlot.of(forwardSlot);
 
         this.forwardClick = (player, clickType, slot, condition) -> {
-            this.update(PageDirection.FORWARD);
+            this.update(PageAction.FORWARD);
             condition.setCancel(true);
         };
 
         this.backwardsClick = (player, clickType, slot, condition) -> {
-          this.update(PageDirection.BACKWARDS);
+          this.update(PageAction.BACKWARDS);
           condition.setCancel(true);
         };
 
@@ -102,8 +102,8 @@ public final class PageableInventoryImpl implements PageableInventory {
         this.updateMaxPages();
     }
 
-    public void update(@NotNull PageDirection pageDirection) {
-        switch (pageDirection) {
+    public void update(@NotNull PageAction pageAction) {
+        switch (pageAction) {
             case BACKWARDS -> this.previousPage();
             case FORWARD -> this.nextPage();
             default -> this.updatePage();
@@ -259,26 +259,26 @@ public final class PageableInventoryImpl implements PageableInventory {
     @Override
     public void add(@NotNull ISlot slot) {
         this.items.add(slot);
-        this.update(PageDirection.UPDATE);
+        this.update(PageAction.UPDATE);
     }
 
     @Override
     public void add(@NotNull List<ISlot> slots) {
         this.items.addAll(slots);
-        this.update(PageDirection.UPDATE);
+        this.update(PageAction.UPDATE);
     }
 
     @Override
     public void remove(@NotNull ISlot slot) {
         if (this.items.remove(slot)) {
-            this.update(PageDirection.UPDATE);
+            this.update(PageAction.UPDATE);
         }
     }
 
     @Override
     public void remove(@NotNull List<ISlot> inventorySlots) {
         if (this.items.removeAll(inventorySlots)) {
-            this.update(PageDirection.UPDATE);
+            this.update(PageAction.UPDATE);
         }
     }
 
