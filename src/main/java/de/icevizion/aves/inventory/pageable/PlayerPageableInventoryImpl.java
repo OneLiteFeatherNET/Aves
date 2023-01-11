@@ -35,7 +35,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     private final InventoryClick forwardClick;
     private final InventoryClick backwardsClick;
     private final boolean pagesInTitle;
-    private PersonalInventoryBuilder builder;
+    private final PersonalInventoryBuilder builder;
     private int currentPage;
     private int startPageItemIndex;
     private int endIndex;
@@ -60,9 +60,12 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         this.layout = layout;
         this.dataLayout = new InventoryLayout(type);
         this.items = items;
+        this.currentPage = 1;
         this.slotRange = slotRange;
         this.pagesInTitle = pagesInTitle;
-        this.builder = new PersonalInventoryBuilder(title, type, player);
+        this.endIndex = this.slotRange.length;
+        this.updateMaxPages();
+        this.builder = new PersonalInventoryBuilder(pagesInTitle ? getNewTitle() : title, type, player);
         this.dataLayout.blank(this.slotRange);
         this.startPageItemIndex = 0;
         this.builder.setLayout(this.layout);
@@ -86,7 +89,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         };
 
         this.builder.setDataLayoutFunction(inventoryLayout -> dataLayout);
-        this.currentPage = 1;
         this.dataLayout.blank(slotRange);
 
         if (!this.items.isEmpty()) {
@@ -101,9 +103,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         if (this.items.size() > this.slotRange.length) {
             this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), this.forwardClick);
         }
-
-        this.endIndex = this.slotRange.length;
-        this.updateMaxPages();
     }
 
     public void update(@NotNull PageAction pageAction) {
@@ -112,10 +111,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
             case FORWARD -> this.nextPage();
             default -> this.updatePage();
         }
-    }
-
-    private @NotNull Component updateTitle() {
-        return title.append(Component.text(" " + currentPage + "/" + maxPages));
     }
 
     private void updatePage() {
@@ -151,6 +146,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
             }
 
             this.updateItems();
+            this.updateTitle();
             this.builder.invalidateDataLayout();
         }
     }
@@ -174,16 +170,26 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
                 }
             }
 
-
             if (this.currentPage == 1) {
                 this.layout.setItem(this.pageableControls.getBackSlot(), oldBackSlot);
                 this.builder.invalidateLayout();
             }
 
             this.updateItems();
-           // this.globalInventoryBuilder.setTitleComponent(this.updateTitle());
+            this.updateTitle();
             this.builder.invalidateDataLayout();
         }
+    }
+
+    private void updateTitle() {
+        if (this.pagesInTitle) {
+            var component = getNewTitle();
+            this.builder.setTitleComponent(component);
+        }
+    }
+
+    private @NotNull Component getNewTitle() {
+        return title.append(Component.text(" " + currentPage + "/" + maxPages));
     }
 
     /**
@@ -226,7 +232,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      */
     @Override
     public void open(@NotNull Player player) {
-        player.openInventory(this.builder.getInventory());
+        throw new UnsupportedOperationException("Not supported for this specific implementation");
     }
 
     /**
@@ -264,7 +270,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
 
     @Override
     public void open() {
-        throw new UnsupportedOperationException("Not supported for this specific implementation");
+        this.builder.open();
     }
 
     /**
