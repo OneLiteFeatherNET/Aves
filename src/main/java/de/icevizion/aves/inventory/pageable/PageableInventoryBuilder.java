@@ -73,6 +73,6 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
         if (this.pageableControls == null) {
             this.pageableControls = DefaultPageableControls.fromSize(this.type);
         }
-        return new PageableInventoryImpl(title, type, pageableControls, layout, slots, pagesInTitle, slotRange);
+        return new PlayerPageableInventoryImpl(title, type, pageableControls, layout, slots, pagesInTitle, slotRange);
     }
 }
