@@ -4,6 +4,7 @@ import de.icevizion.aves.inventory.InventoryLayout;
 import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.util.LayoutCalculator;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.ApiStatus;
@@ -20,6 +21,7 @@ import java.util.List;
 @ApiStatus.Experimental
 public non-sealed class PageableInventoryBuilder implements PageableInventory.Builder {
 
+    private Player player;
     private Component title;
     private InventoryType type;
     private PageableControls pageableControls;
@@ -27,6 +29,12 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     private int[] slotRange;
     private List<ISlot> slots;
     private boolean pagesInTitle;
+
+    @Override
+    public PageableInventory.@NotNull Builder player(@NotNull Player player) {
+        this.player = player;
+        return this;
+    }
 
     @Override
     public PageableInventory.@NotNull Builder title(@NotNull Component component, boolean pagesInTitle) {
@@ -73,6 +81,20 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
         if (this.pageableControls == null) {
             this.pageableControls = DefaultPageableControls.fromSize(this.type);
         }
-        return new PlayerPageableInventoryImpl(title, type, pageableControls, layout, slots, pagesInTitle, slotRange);
+
+        if (player == null) {
+            return null;
+        }
+
+        return new PlayerPageableInventoryImpl(
+                player,
+                title,
+                type,
+                pageableControls,
+                layout,
+                slots,
+                pagesInTitle,
+                slotRange
+        );
     }
 }
