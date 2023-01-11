@@ -4,21 +4,21 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PageDirectionTest {
+class PageActionTest {
 
     @Test
     void testUpdate() {
-        assertEquals("UPDATE", PageDirection.UPDATE.name());
+        assertEquals("UPDATE", PageAction.UPDATE.name());
     }
 
     @Test
     void testForward() {
-        assertEquals("FORWARD", PageDirection.FORWARD.name());
+        assertEquals("FORWARD", PageAction.FORWARD.name());
     }
 
     @Test
     void testBackwards() {
-        assertEquals("BACKWARDS", PageDirection.BACKWARDS.name());
+        assertEquals("BACKWARDS", PageAction.BACKWARDS.name());
     }
 
 }
