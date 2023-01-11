@@ -121,6 +121,7 @@ public abstract class InventoryBuilder {
      * Marks the inventory layout as not valid an updates the inventory.
      */
     public void invalidateLayout() {
+        if (!inventoryLayoutValid) return;
         inventoryLayoutValid = false;
         if (isOpen()) {
             updateInventory();
@@ -178,11 +179,6 @@ public abstract class InventoryBuilder {
             return;
         }
 
-        if (!Component.EQUALS.test(inventory.getTitle(), title)) {
-            LOGGER.info("UpdateInventory is updating the title");
-            inventory.setTitle(title);
-        }
-
         // Design
         if (applyLayout) {
             var contents = inventory.getItemStacks();
@@ -227,6 +223,10 @@ public abstract class InventoryBuilder {
                 }
             }, ExecutionType.ASYNC);
         }
+    }
+
+    protected void updateTitle(@NotNull Inventory inventory, @NotNull Component newTitle) {
+        inventory.setTitle(newTitle);
     }
 
     /**
