@@ -18,13 +18,18 @@ import java.util.Locale;
 @SuppressWarnings("java:S3252")
 public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
 
-    private final Component titleComponent;
+    private Component titleComponent;
     private CustomInventory inventory;
 
     public GlobalInventoryBuilder(@NotNull Component title, @NotNull InventoryType type) {
         super(type);
         this.titleComponent = title;
         this.holder = new InventoryHolderImpl(this);
+    }
+
+    public void setTitleComponent(@NotNull Component titleComponent) {
+        this.titleComponent = titleComponent;
+        this.updateTitle(inventory, titleComponent);
     }
 
     @Override
@@ -52,7 +57,6 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
             this.inventory.addInventoryCondition(inventoryCondition);
             applyLayout = true;
         }
-
         updateInventory(inventory, titleComponent, null, null, applyLayout);
         updateViewer(inventory);
     }
@@ -72,6 +76,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
                     if (contents[i].material() == Material.AIR) continue;
                     this.inventory.setItemStack(i, contents[i]);
                 }
+                this.dataLayoutValid = true;
                 updateViewer(inventory);
             }
         }
