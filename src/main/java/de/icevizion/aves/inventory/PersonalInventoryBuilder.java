@@ -21,6 +21,7 @@ public class PersonalInventoryBuilder extends GlobalInventoryBuilder {
      * @param type The type for the inventory
      * @param player The player who owns the inventory
      */
+    @Deprecated(forRemoval = true, since = "Please use the constructor with the component instead")
     public PersonalInventoryBuilder(@NotNull String title, @NotNull InventoryType type, @NotNull Player player) {
         super(title, type);
         this.player = player;
