@@ -1,5 +1,6 @@
 package de.icevizion.aves.inventory;
 
+import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.extras.bungee.BungeeCordProxy;
 import net.minestom.server.inventory.InventoryType;
@@ -11,7 +12,7 @@ public class SampleUsageInventoryBuilder {
         var server = MinecraftServer.init();
         BungeeCordProxy.enable();
         server.start("localhost", 25577);
-        var test = new GlobalInventoryBuilder("Just a test", InventoryType.CHEST_1_ROW);
+        var test = new GlobalInventoryBuilder(Component.text("Just a test"), InventoryType.CHEST_1_ROW);
         test.setLayout(new InventoryLayout(InventoryType.CHEST_1_ROW));
         test.setDataLayoutFunction(SampleUsageInventoryBuilder::set);
         test.invalidateDataLayout();
