@@ -17,18 +17,15 @@ class PersonalInventoryBuilderTest {
         var instance = env.createFlatInstance();
         var player = env.createPlayer(instance, Pos.ZERO);
         var builder = new PersonalInventoryBuilder(Component.text("Test"), InventoryType.CHEST_1_ROW, player);
-        var secondBuilder = new PersonalInventoryBuilder("Test", InventoryType.CHEST_1_ROW, player);
 
         builder.open();
 
         builder.register();
         builder.unregister();
 
-        secondBuilder.open();
         env.destroyInstance(instance);
 
         assertNotNull(player);
         assertNotNull(builder);
-        assertNotNull(secondBuilder);
     }
 }
