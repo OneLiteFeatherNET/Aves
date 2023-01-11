@@ -3,6 +3,7 @@ package de.icevizion.aves.inventory.pageable;
 import de.icevizion.aves.inventory.InventoryLayout;
 import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -67,6 +68,8 @@ public non-sealed interface PageableInventory extends OpenableInventory {
      * @since 1.2.0
      */
     sealed interface Builder permits PageableInventoryBuilder {
+
+        @NotNull Builder player(@NotNull Player player);
 
         /**
          * Set's the title for the {@link net.minestom.server.inventory.Inventory} as {@link Component}.
