@@ -1,7 +1,7 @@
 package de.icevizion.aves.inventory.pageable;
 
-import de.icevizion.aves.inventory.GlobalInventoryBuilder;
 import de.icevizion.aves.inventory.InventoryLayout;
+import de.icevizion.aves.inventory.PersonalInventoryBuilder;
 import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
@@ -24,7 +24,7 @@ import static de.icevizion.aves.inventory.util.InventoryConstants.EMPTY_SLOT;
  * @since 1.2.0
  */
 @ApiStatus.Experimental
-public final class PageableInventoryImpl implements PageableInventory {
+public final class PlayerPageableInventoryImpl implements PageableInventory {
 
     private final PageableControls pageableControls;
     private final Component title;
@@ -35,7 +35,7 @@ public final class PageableInventoryImpl implements PageableInventory {
     private final InventoryClick forwardClick;
     private final InventoryClick backwardsClick;
     private final boolean pagesInTitle;
-    private GlobalInventoryBuilder globalInventoryBuilder;
+    private PersonalInventoryBuilder builder;
     private int currentPage;
     private int startPageItemIndex;
     private int endIndex;
@@ -43,7 +43,10 @@ public final class PageableInventoryImpl implements PageableInventory {
     private ISlot oldBackSlot;
     private ISlot forwardSlot;
 
-    PageableInventoryImpl(
+    private final Player player;
+
+    PlayerPageableInventoryImpl(
+            @NotNull Player player,
             @NotNull Component title,
             @NotNull InventoryType type,
             @NotNull PageableControls controls,
@@ -51,6 +54,7 @@ public final class PageableInventoryImpl implements PageableInventory {
             @NotNull List<ISlot> items,
             boolean pagesInTitle,
             int @NotNull ... slotRange) {
+        this.player = player;
         this.title = title;
         this.pageableControls = controls;
         this.layout = layout;
@@ -58,10 +62,10 @@ public final class PageableInventoryImpl implements PageableInventory {
         this.items = items;
         this.slotRange = slotRange;
         this.pagesInTitle = pagesInTitle;
-        this.globalInventoryBuilder = new GlobalInventoryBuilder(title, type);
+        this.builder = new PersonalInventoryBuilder(title, type, player);
         this.dataLayout.blank(this.slotRange);
         this.startPageItemIndex = 0;
-        this.globalInventoryBuilder.setLayout(this.layout);
+        this.builder.setLayout(this.layout);
 
         var backSlot = this.layout.getSlot(this.pageableControls.getBackSlot());
 
@@ -71,17 +75,17 @@ public final class PageableInventoryImpl implements PageableInventory {
 
         this.forwardSlot = forwardSlot == null ? EMPTY_SLOT : ISlot.of(forwardSlot);
 
-        this.forwardClick = (player, clickType, slot, condition) -> {
+        this.forwardClick = (clickPlayer, clickType, slot, condition) -> {
             this.update(PageAction.FORWARD);
             condition.setCancel(true);
         };
 
-        this.backwardsClick = (player, clickType, slot, condition) -> {
+        this.backwardsClick = (clickPlayer, clickType, slot, condition) -> {
           this.update(PageAction.BACKWARDS);
           condition.setCancel(true);
         };
 
-        this.globalInventoryBuilder.setDataLayoutFunction(inventoryLayout -> dataLayout);
+        this.builder.setDataLayoutFunction(inventoryLayout -> dataLayout);
         this.currentPage = 1;
         this.dataLayout.blank(slotRange);
 
@@ -91,8 +95,8 @@ public final class PageableInventoryImpl implements PageableInventory {
             }
         }
 
-        this.globalInventoryBuilder.invalidateDataLayout();
-        this.globalInventoryBuilder.register();
+        this.builder.invalidateDataLayout();
+        this.builder.register();
 
         if (this.items.size() > this.slotRange.length) {
             this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), this.forwardClick);
@@ -118,10 +122,10 @@ public final class PageableInventoryImpl implements PageableInventory {
         this.updateItems();
         if (this.dataLayout.getSlot(this.slotRange[endIndex - 1]) != null) {
             this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), this.forwardClick);
-            this.globalInventoryBuilder.invalidateLayout();
+            this.builder.invalidateLayout();
         }
 
-        this.globalInventoryBuilder.invalidateDataLayout();
+        this.builder.invalidateDataLayout();
         this.updateMaxPages();
     }
 
@@ -134,7 +138,7 @@ public final class PageableInventoryImpl implements PageableInventory {
             var backSlot = this.layout.getSlot(this.pageableControls.getBackSlot());
             if (backSlot != null && backSlot.getItem().material() != this.pageableControls.getBackMaterial()) {
                 this.layout.setItem(this.pageableControls.getBackSlot(), this.pageableControls.getBackButton().get(), backwardsClick);
-                this.globalInventoryBuilder.invalidateLayout();
+                this.builder.invalidateLayout();
             }
 
             if (this.layout.getSlot(this.pageableControls.getBackSlot()) == null) {
@@ -143,11 +147,11 @@ public final class PageableInventoryImpl implements PageableInventory {
 
             if (currentPage == getMaxPages()) {
                 this.layout.setItem(this.pageableControls.getNextSlot(), forwardSlot);
-                this.globalInventoryBuilder.invalidateLayout();
+                this.builder.invalidateLayout();
             }
 
             this.updateItems();
-            this.globalInventoryBuilder.invalidateDataLayout();
+            this.builder.invalidateDataLayout();
         }
     }
 
@@ -166,19 +170,19 @@ public final class PageableInventoryImpl implements PageableInventory {
 
                 if (forwardSlot != null && forwardSlot.getItem().material() != this.pageableControls.getForwardMaterial()) {
                     this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), forwardClick);
-                    this.globalInventoryBuilder.invalidateLayout();
+                    this.builder.invalidateLayout();
                 }
             }
 
 
             if (this.currentPage == 1) {
                 this.layout.setItem(this.pageableControls.getBackSlot(), oldBackSlot);
-                this.globalInventoryBuilder.invalidateLayout();
+                this.builder.invalidateLayout();
             }
 
             this.updateItems();
            // this.globalInventoryBuilder.setTitleComponent(this.updateTitle());
-            this.globalInventoryBuilder.invalidateDataLayout();
+            this.builder.invalidateDataLayout();
         }
     }
 
@@ -196,6 +200,9 @@ public final class PageableInventoryImpl implements PageableInventory {
         }
     }
 
+    /**
+     * Updates the max amount of pages.
+     */
     private void updateMaxPages() {
         if (this.items.isEmpty() || this.items.size() <= this.slotRange.length) {
             this.maxPages = 1;
@@ -210,7 +217,7 @@ public final class PageableInventoryImpl implements PageableInventory {
 
     @Override
     public void unregister() {
-        this.globalInventoryBuilder.unregister();
+        this.builder.unregister();
     }
 
     /**
@@ -219,22 +226,21 @@ public final class PageableInventoryImpl implements PageableInventory {
      */
     @Override
     public void open(@NotNull Player player) {
-        player.openInventory(this.globalInventoryBuilder.getInventory());
+        player.openInventory(this.builder.getInventory());
     }
 
+    /**
+     * Opens the specific page for the player.
+     * @param page the page which should be displayed in the inventory
+     */
     @Override
     public void open(int page) {
-        throw new UnsupportedOperationException("Not supported for this specific implementation");
-    }
-
-    @Override
-    public void open(@NotNull Player player, int page) {
         Check.argCondition(page < 1, "The page index can't be zero oder negativ");
         Check.argCondition(page > this.maxPages, "The page index is to high");
 
         //The values are the same. Ignore page update
         if (page == this.currentPage) {
-            player.openInventory(this.globalInventoryBuilder.getInventory());
+            player.openInventory(this.builder.getInventory());
             return;
         }
 
@@ -248,7 +254,12 @@ public final class PageableInventoryImpl implements PageableInventory {
         }
         this.currentPage = page;
         this.updateItems();
-        player.openInventory(this.globalInventoryBuilder.getInventory());
+        builder.open();
+    }
+
+    @Override
+    public void open(@NotNull Player player, int page) {
+        throw new UnsupportedOperationException("In a PlayerInventory it's not possible to open it for another player");
     }
 
     @Override
@@ -256,18 +267,30 @@ public final class PageableInventoryImpl implements PageableInventory {
         throw new UnsupportedOperationException("Not supported for this specific implementation");
     }
 
+    /**
+     * Add a entry to the inventory.
+     * @param slot the slot to add
+     */
     @Override
     public void add(@NotNull ISlot slot) {
         this.items.add(slot);
         this.update(PageAction.UPDATE);
     }
 
+    /**
+     * Add a list of entries to the inventory.
+     * @param slots the list that has all entries to add
+     */
     @Override
     public void add(@NotNull List<ISlot> slots) {
         this.items.addAll(slots);
         this.update(PageAction.UPDATE);
     }
 
+    /**
+     * Removes a entry from the inventory
+     * @param slot the slot to remove
+     */
     @Override
     public void remove(@NotNull ISlot slot) {
         if (this.items.remove(slot)) {
@@ -275,6 +298,10 @@ public final class PageableInventoryImpl implements PageableInventory {
         }
     }
 
+    /**
+     * Removes a given list of entries from the inventory.
+     * @param inventorySlots the list which contains the slots to remove
+     */
     @Override
     public void remove(@NotNull List<ISlot> inventorySlots) {
         if (this.items.removeAll(inventorySlots)) {
