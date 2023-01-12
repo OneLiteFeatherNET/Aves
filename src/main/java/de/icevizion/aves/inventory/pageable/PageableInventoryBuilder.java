@@ -83,7 +83,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
         }
 
         if (player == null) {
-            return null;
+            throw new UnsupportedOperationException("The player argument can't be null");
         }
 
         return new PlayerPageableInventoryImpl(
