@@ -225,6 +225,12 @@ public abstract class InventoryBuilder {
         }
     }
 
+    /**
+     * Updates the title of an inventory.
+     * Note that this method must be called from the developer
+     * @param inventory the {@link Inventory} to update the title
+     * @param newTitle the new title as {@link Component} to set
+     */
     protected void updateTitle(@NotNull Inventory inventory, @NotNull Component newTitle) {
         inventory.setTitle(newTitle);
     }
