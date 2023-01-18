@@ -16,6 +16,10 @@ public sealed interface OpenableInventory permits PageableInventory {
      */
     void open();
 
+    /**
+     * Opens the inventory at a given page index.
+     * @param page the page index
+     */
     void open(int page);
 
     /**

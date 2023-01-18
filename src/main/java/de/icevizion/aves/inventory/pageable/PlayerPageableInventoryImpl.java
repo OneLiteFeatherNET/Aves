@@ -124,6 +124,11 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         this.updateMaxPages();
     }
 
+    /**
+     * The method is called when the updatePage method is called with the {@link PageAction#FORWARD} value.
+     * Its determines the next index boundary's and updates the inventory view for the player
+     * Also it checks if the forward button must be replaced with the old {@link net.minestom.server.item.ItemStack} reference.
+     */
     private void nextPage() {
         if (this.startPageItemIndex < this.items.size() - 1) {
             this.endIndex += this.slotRange.length;
@@ -151,6 +156,11 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         }
     }
 
+    /**
+     * The method is called when the updatePage method is called with the {@link PageAction#BACKWARDS} value.
+     * Its determines the next index boundary's and updates the inventory view for the player
+     * Also it checks if the back button must be replaced with the old {@link net.minestom.server.item.ItemStack} reference.
+     */
     private void previousPage() {
         if (this.currentPage >= 0) {
             if (this.items.size() % this.slotRange.length != 0 && this.endIndex == this.items.size() - 1) {
@@ -181,6 +191,9 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         }
     }
 
+    /**
+     * Updates the inventory title when the given indicator boolean is true.
+     */
     private void updateTitle() {
         if (this.pagesInTitle) {
             var component = getNewTitle();
@@ -188,6 +201,10 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         }
     }
 
+    /**
+     * Returns a {@link Component} which contains the current page and the max page value as string.
+     * @return the created component
+     */
     private @NotNull Component getNewTitle() {
         return title.append(Component.text(" " + currentPage + "/" + maxPages));
     }
@@ -221,6 +238,9 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         this.maxPages = pageAmount;
     }
 
+    /**
+     * Unregisters the event listener structure from the global event node.
+     */
     @Override
     public void unregister() {
         this.builder.unregister();

@@ -60,10 +60,18 @@ public interface PageableControls {
         return this.getNextButton(null);
     }
 
+    /**
+     * Returns the {@link Material} from the {@link ItemStack} which is used for the next page button.
+     * @return the given material from the item
+     */
     default Material getForwardMaterial() {
         return this.getNextButton().get().material();
     }
 
+    /**
+     * Returns the {@link Material} from the {@link ItemStack} which is used for the previous page button.
+     * @return the given material from the item
+     */
     default Material getBackMaterial() {
         return this.getBackButton().get().material();
     }

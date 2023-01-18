@@ -69,11 +69,16 @@ public non-sealed interface PageableInventory extends OpenableInventory {
      */
     sealed interface Builder permits PageableInventoryBuilder {
 
+        /**
+         * Set's the player who owns the {@link PageableInventory}.
+         * @param player the player which owns the inventory
+         * @return the builder instance
+         */
         @NotNull Builder player(@NotNull Player player);
 
         /**
          * Set's the title for the {@link net.minestom.server.inventory.Inventory} as {@link Component}.
-         * @param component the component to
+         * @param component the component for the inventory as {@link Component}
          * @param pagesInTitle if the current and max pages should be displayed in the title
          * @return the builder instance
          */
