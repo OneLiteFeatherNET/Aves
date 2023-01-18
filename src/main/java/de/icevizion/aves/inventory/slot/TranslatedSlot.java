@@ -63,6 +63,11 @@ public class TranslatedSlot extends Slot {
         throw new UnsupportedOperationException("This TranslatedSlot needs a locale to retrieve the item");
     }
 
+    /**
+     * Throws in this implementation an error because it's not possible to update an {@link ItemStack} in a translated context
+     * @param itemStack can be ignored
+     * @return throws an {@link UnsupportedOperationException}
+     */
     @Override
     public ISlot setItemStack(ItemStack itemStack) {
         throw new UnsupportedOperationException("This TranslatedSlot needs a translated item");
