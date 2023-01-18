@@ -20,5 +20,8 @@ public final class InventoryConstants {
     public static final InventorySlot EMPTY_SLOT = new InventorySlot(ItemStack.AIR);
     public static final int INVENTORY_WIDTH = 9;
 
+    /**
+     * Private constructor without any usage.
+     */
     private InventoryConstants() {}
 }

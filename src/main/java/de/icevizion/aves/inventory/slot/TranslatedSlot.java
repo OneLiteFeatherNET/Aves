@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 /**
- * Represents a {@link Slot} implementation for a translated context.
+ * The implentation of a {@link Slot} can be used for a translation context.
  * @author Patrick Zdarsky / Rxcki
  * @since 1.0.12
  * @version 1.0.0
