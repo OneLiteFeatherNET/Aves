@@ -55,6 +55,7 @@ tasks {
         dependsOn(rootProject.tasks.test)
         reports {
             xml.required.set(true)
+            csv.required.set(true)
         }
     }
 
