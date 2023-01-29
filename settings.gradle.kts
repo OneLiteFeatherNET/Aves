@@ -1,4 +1,5 @@
 rootProject.name = "Aves"
+/*
 val ci = System.getenv().containsKey("CI")
 
 buildCache {
@@ -17,4 +18,4 @@ buildCache {
             }
         }
     }
-}
+}*/
