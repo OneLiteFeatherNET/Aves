@@ -1,9 +1,9 @@
 include:
   - project: onelitefeather/ci-template
-    ref: main
+    ref: imporved-cache
     file: base.yaml
   - project: onelitefeather/ci-template
-    ref: main
+    ref: imporved-cache
     file: sonarqube.yaml
 
 
@@ -11,19 +11,3 @@ deploy:
   stage: deploy
   script:
     - gradle publish
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: push
-    paths:
-      - build
-      - .gradle
-  artifacts:
-    expire_in: 1 week
-    name: "jar-files"
-    paths:
-      - build/libs/*.jar
-  only:
-    - main
-    - master
-    - test
-    - develop
