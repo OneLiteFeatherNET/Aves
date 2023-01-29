@@ -17,7 +17,11 @@ java {
 }
 
 repositories {
-    mavenCentral()
+    mavenCentral {
+        if (System.getenv().containsKey("CI")) {
+            url = uri("https://repo.htl-md.schule/repository/maven-central/")
+        }
+    }
     maven("https://jitpack.io")
 }
 
