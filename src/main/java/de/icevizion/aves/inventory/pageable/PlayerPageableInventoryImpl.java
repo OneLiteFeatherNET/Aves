@@ -261,7 +261,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      */
     @Override
     public void open(int page) {
-        Check.argCondition(page < 1, "The page index can't be zero oder negativ");
+        Check.argCondition(page < 1, "The page index can't be zero or negative");
         Check.argCondition(page > this.maxPages, "The page index is to high");
 
         //The values are the same. Ignore page update
