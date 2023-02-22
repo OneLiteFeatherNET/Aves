@@ -108,20 +108,6 @@ sonarqube-check-mr:
     - <<: *sonar
   script: 
     - echo $CI_PROJECT_ID
-    - gradle sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.gitlab.project_id=$CI_PROJECT_ID -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME -Dsonar.qualitygate.wait=true -Dsonar.gitlab.merge_request_discussion=true -Dsonar.gitlab.ci_merge_request_iid=$CI_MERGE_REQUEST_IID -Dsonar.pullrequest.branch=$CI_COMMIT_REF_NAME -Dsonar.pullrequest.key=$CI_MERGE_REQUEST_IID -Dsonar.pullrequest.base=$CI_EXTERNAL_PULL_REQUEST_TARGET_BRANCH_NAME -Dsonar.gitlab.json_mode=CODECLIMATE -Dsonar.gitlab.failure_notification_mode=commit-status 
+    - gradle sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.gitlab.project_id=$CI_PROJECT_ID -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME -Dsonar.qualitygate.wait=true -Dsonar.gitlab.merge_request_discussion=true -Dsonar.gitlab.ci_merge_request_iid=$CI_MERGE_REQUEST_IID -Dsonar.pullrequest.branch=$CI_COMMIT_REF_NAME -Dsonar.pullrequest.key=$CI_MERGE_REQUEST_IID -Dsonar.pullrequest.base=$CI_EXTERNAL_PULL_REQUEST_TARGET_BRANCH_NAME
   only:
     - merge_requests
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - gl-code-quality-report.json
-
-codequality:
-  stage: quality
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - echo ok
-  artifacts:
-    paths:
-      - gl-code-quality-report.json
