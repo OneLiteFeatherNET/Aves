@@ -17,7 +17,11 @@ java {
 }
 
 repositories {
-    mavenCentral()
+    mavenCentral {
+        if (System.getenv().containsKey("CI")) {
+            url = uri("https://repo.htl-md.schule/repository/maven-central/")
+        }
+    }
     maven("https://jitpack.io")
 }
 
@@ -31,10 +35,10 @@ dependencies {
     compileOnly("com.github.Minestom:Minestom:$minestomVersion")
 
     testImplementation("com.github.Minestom:Minestom:$minestomVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
-    testImplementation("org.mockito:mockito-core:4.11.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:4.11.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("org.mockito:mockito-core:5.1.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.1.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
 
 tasks {
@@ -51,6 +55,7 @@ tasks {
         dependsOn(rootProject.tasks.test)
         reports {
             xml.required.set(true)
+            csv.required.set(true)
         }
     }
 
@@ -62,7 +67,7 @@ tasks {
         }
     }
 
-    getByName("sonarqube") {
+    getByName("sonar") {
         dependsOn(rootProject.tasks.test)
     }
 }
