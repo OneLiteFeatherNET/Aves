@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public sealed interface OpenableInventory permits PageableInventory {
 
+    int FIRST_PAGE = 1;
+
     /**
      * Opens the inventory for a specific player which is handled internally.
      */
@@ -28,7 +30,7 @@ public sealed interface OpenableInventory permits PageableInventory {
      * @param player the player who receives the inventory
      */
     default void open(@NotNull Player player) {
-        this.open(player, 1);
+        this.open(player, FIRST_PAGE);
     }
 
     /**
