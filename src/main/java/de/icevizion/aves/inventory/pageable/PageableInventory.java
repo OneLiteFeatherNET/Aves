@@ -22,7 +22,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
      * @return the created instance
      */
     @Contract(pure = true)
-    static PageableInventory.Builder builder() {
+    static PageableInventory.@NotNull Builder builder() {
         return new PageableInventoryBuilder();
     }
 
