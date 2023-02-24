@@ -47,6 +47,17 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     private int endIndex;
     private int maxPages;
 
+    /**
+     * Creates a new instance from the {@link PlayerPageableInventoryImpl} with the given values from the constructor.
+     * @param player the player who owns the inventory
+     * @param title the title for the inventory
+     * @param type the type for the inventory
+     * @param controls the class which contains the control to swap pages
+     * @param layout the layout that contains the background layout
+     * @param items the list of items to display
+     * @param pagesInTitle if the page amount should be displayed in the title of the inventory
+     * @param slotRange the area where the items would be displayed
+     */
     PlayerPageableInventoryImpl(
             @NotNull Player player,
             @NotNull Component title,
@@ -128,6 +139,12 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         }
     }
 
+    /**
+     * Updates the control item at a specific position in the inventory layout.
+     * @param controlItem the item to set
+     * @param slotIndex the index for the item
+     * @param forward true for the forward logic otherwise the backwards logic
+     */
     private void setControlItems(@NotNull IItem controlItem, int slotIndex, boolean forward) {
         this.layout.setItem(slotIndex, controlItem.get(), forward ? forwardClick : backwardsClick);
     }
