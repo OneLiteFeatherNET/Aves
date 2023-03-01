@@ -27,6 +27,15 @@ class TranslatedItemTest {
     }
 
     @Test
+    void testSetterMethods() {
+        var item = TranslatedItem.of(ItemStack.of(Material.ACACIA_BUTTON));
+        item.setDisplayName("key", "Argument 1", "Argument 2");
+        item.setLore("loreKey", "Argument 1", "Argument 2");
+        assertNotNull(item);
+
+    }
+
+    @Test
     void tesTranslatedItemGetWithoutLocale() {
         var item = TranslatedItem.of(Material.AIR);
         var exception = assertThrows(UnsupportedOperationException.class, item::get);

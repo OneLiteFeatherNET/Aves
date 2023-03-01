@@ -78,7 +78,7 @@ public final class DefaultPageableControls implements PageableControls {
 
     /**
      * Returns the {@link ItemStack} which represents the back button.
-     * @param locale the {@link Locale} instance to get the localed variante
+     * @param locale the {@link Locale} instance to get the localed variant
      * @return the given stack
      */
     @Override
@@ -88,7 +88,7 @@ public final class DefaultPageableControls implements PageableControls {
 
     /**
      * Returns the {@link ItemStack} which represents the next page button.
-     * @param locale the {@link Locale} instance to get the localed variante
+     * @param locale the {@link Locale} instance to get the localed variant
      * @return the given stack
      */
     @Override

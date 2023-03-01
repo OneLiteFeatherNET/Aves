@@ -1,11 +1,10 @@
 include:
   - project: onelitefeather/ci-template
-    ref: main
+    ref: Better-Pipelines
     file: base.yaml
   - project: onelitefeather/ci-template
-    ref: main
+    ref: Better-Pipelines
     file: sonarqube.yaml
-
 
 deploy:
   stage: deploy
