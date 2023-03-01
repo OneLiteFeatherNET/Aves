@@ -3,6 +3,7 @@ package de.icevizion.aves.inventory;
 import at.rxcki.strigiformes.MessageProvider;
 import de.icevizion.aves.inventory.function.CloseFunction;
 import de.icevizion.aves.inventory.function.OpenFunction;
+import de.icevizion.aves.inventory.util.InventoryConstants;
 import de.icevizion.aves.util.functional.ThrowingFunction;
 import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
@@ -33,7 +34,6 @@ import java.util.Locale;
 @SuppressWarnings("java:S3252")
 public abstract class InventoryBuilder {
 
-    private static final int INVALID_SLOT_ID = -999;
     protected static final Logger LOGGER = LoggerFactory.getLogger(InventoryBuilder.class);
     protected final InventoryType type;
     private InventoryLayout inventoryLayout;
@@ -53,7 +53,7 @@ public abstract class InventoryBuilder {
         this.type = type;
 
         this.inventoryCondition = (player, slot, clickType, inventoryConditionResult) -> {
-            if (slot == INVALID_SLOT_ID) return;
+            if (slot == InventoryConstants.INVALID_SLOT_ID) return;
 
             if (this.dataLayout != null) {
                 var clickedSlot = this.dataLayout.getSlot(slot);
@@ -203,6 +203,11 @@ public abstract class InventoryBuilder {
         }
     }
 
+    /**
+     * Set's the given array with the {@link ItemStack}'s into an inventory.
+     * @param inventory the inventory for the items
+     * @param contents the array itself which contains all items
+     */
     private void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
         for (int i = 0; i < contents.length; i++) {
             var contentSlot = contents[i];
@@ -211,6 +216,9 @@ public abstract class InventoryBuilder {
         }
     }
 
+    /**
+     * Executes the logic to retrieve the {@link InventoryLayout} which comes from the {@link ThrowingFunction}.
+     */
     protected void retrieveDataLayout() {
         synchronized (this) {
             if (this.dataLayoutFunction == null) return;
