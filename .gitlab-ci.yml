@@ -1,13 +1,28 @@
 include:
   - project: onelitefeather/ci-template
-    ref: imporved-cache
+    ref: Better-Pipelines
     file: base.yaml
   - project: onelitefeather/ci-template
-    ref: imporved-cache
+    ref: Better-Pipelines
     file: sonarqube.yaml
-
 
 deploy:
   stage: deploy
   script:
     - gradle publish
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
+    paths:
+      - build
+      - .gradle
+  artifacts:
+    expire_in: 1 week
+    name: "jar-files"
+    paths:
+      - build/libs/*.jar
+  only:
+    - main
+    - master
+    - test
+    - develop

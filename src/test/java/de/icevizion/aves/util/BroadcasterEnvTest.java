@@ -37,6 +37,9 @@ class BroadcasterEnvTest {
 
         Broadcaster.broadcast(List.of(playerOne, playerTwo), Component.text("Hallo"));
 
+        playerOne.remove();
+        playerTwo.remove();
+
         env.destroyInstance(instance);
     }
 }

@@ -19,6 +19,10 @@ public final class InventoryConstants {
     public static final Consumer<CancellableEvent> CANCELLABLE_EVENT = event -> event.setCancelled(true);
     public static final InventorySlot EMPTY_SLOT = new InventorySlot(ItemStack.AIR);
     public static final int INVENTORY_WIDTH = 9;
+    public static final int INVALID_SLOT_ID = -999;
 
+    /**
+     * Private constructor without any usage.
+     */
     private InventoryConstants() {}
 }
