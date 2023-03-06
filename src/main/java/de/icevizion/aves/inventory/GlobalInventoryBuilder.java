@@ -4,12 +4,15 @@ import de.icevizion.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
+import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
 /**
+ * The {@link GlobalInventoryBuilder} builds an inventory which can be used in a global context.
+ * That means that the inventory is related to all player's on the server and not bound to a single player.
  * @author Patrick Zdarsky / Rxcki
  * @version 1.0.0
  * @since 1.0.0
@@ -17,21 +20,34 @@ import java.util.Locale;
 @SuppressWarnings("java:S3252")
 public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
 
-    private final Component titleComponent;
+    private Component titleComponent;
     private CustomInventory inventory;
 
-    @Deprecated(forRemoval = true, since = "Please use the constructor with the component instead")
-    public GlobalInventoryBuilder(@NotNull String title, @NotNull InventoryType type) {
-        super(type);
-        this.titleComponent = Component.text(title);
-    }
-
+    /**
+     * Creates a new instance from the builder with the given parameter values.
+     * @param title the title as {@link Component }for the inventory
+     * @param type the {@link InventoryType} for the inventory
+     */
     public GlobalInventoryBuilder(@NotNull Component title, @NotNull InventoryType type) {
         super(type);
         this.titleComponent = title;
         this.holder = new InventoryHolderImpl(this);
     }
 
+    /**
+     * Updates the title for the inventory
+     * @param titleComponent the new title as {@link Component} to set
+     */
+    public void setTitleComponent(@NotNull Component titleComponent) {
+        this.titleComponent = titleComponent;
+        this.updateTitle(inventory, titleComponent);
+    }
+
+    /**
+     * Returns the inventory with the current state of the items.
+     * @param ignored can be ignored
+     * @return the underlying inventory
+     */
     @Override
     public Inventory getInventory(Locale ignored) {
         if (dataLayoutValid && inventoryLayoutValid && inventory != null)
@@ -49,6 +65,9 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
         return inventory != null && !inventory.getViewers().isEmpty();
     }
 
+    /**
+     * Updates the inventory content if something received a change.
+     */
     @Override
     protected void updateInventory() {
         boolean applyLayout = !inventoryLayoutValid;
@@ -57,11 +76,13 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
             this.inventory.addInventoryCondition(inventoryCondition);
             applyLayout = true;
         }
-
         updateInventory(inventory, titleComponent, null, null, applyLayout);
         updateViewer(inventory);
     }
 
+    /**
+     * Applies the data layout to the inventory, if the specific layout is set.
+     */
     @Override
     protected void applyDataLayout() {
         synchronized (this) {
@@ -70,9 +91,14 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
                 var contents = inventory.getItemStacks();
                 getDataLayout().applyLayout(contents, null, null);
                 for (int i = 0; i < contents.length; i++) {
+                    if (contents[i] == null) {
+                        this.inventory.setItemStack(i, ItemStack.AIR);
+                        continue;
+                    }
                     if (contents[i].material() == Material.AIR) continue;
                     this.inventory.setItemStack(i, contents[i]);
                 }
+                this.dataLayoutValid = true;
                 updateViewer(inventory);
             }
         }

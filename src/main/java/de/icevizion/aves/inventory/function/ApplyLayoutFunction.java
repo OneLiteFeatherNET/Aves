@@ -15,10 +15,10 @@ import java.util.Locale;
 public interface ApplyLayoutFunction {
 
     /**
-     *
-     * @param itemStacks
-     * @param locale
-     * @param messageProvider
+     * Applies a given {@link ItemStack} array in a localed context to the layout.
+     * @param itemStacks the array which contains all {@link ItemStack}'s
+     * @param locale the involved {@link Locale}
+     * @param messageProvider the instance from the {@link MessageProvider}
      */
     void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider);
 

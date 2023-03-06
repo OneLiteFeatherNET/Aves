@@ -11,6 +11,8 @@ import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * The class is the basic implementation of the {@link InventoryBuilder} and also represents the middle layer
+ * between the {@link InventoryBuilder} and the concrete inventory implementations.
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
@@ -25,11 +27,19 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
     protected EventListener<InventoryCloseEvent> closeListener;
     protected EventListener<InventoryOpenEvent> openListener;
 
+    /**
+     * Creates a new instance from the {@link BaseInventoryBuilderImpl}.
+     * @param type the {@link InventoryType} to set
+     */
     protected BaseInventoryBuilderImpl(@NotNull InventoryType type) {
         super(type);
         this.holder = new InventoryHolderImpl(this);
     }
 
+    /**
+     * Registers some event listeners into the event graph from the server.
+     * The listeners can't be registered twice
+     */
     @Override
     public void register() {
         this.checkListenerState(this.openListener, this.closeListener);
@@ -44,6 +54,10 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
         this.register(NODE, openListener, closeListener);
     }
 
+    /**
+     * Unregisters all listeners from the event graph.
+     * Also the inventory will be closed for all players who have this is inventory open.
+     */
     @Override
     public void unregister() {
         if (!getInventory().getViewers().isEmpty()) {
