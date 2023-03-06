@@ -12,6 +12,8 @@ import java.util.List;
 
 /**
  *
+ * The interface defines to basic structure for a pageable inventory.
+ * It contains a structure to build an inventory for pagination and add or remove data.
  * @version 1.0.0
  * @since 1.2.0
  */
