@@ -1,12 +1,12 @@
 package de.icevizion.aves.util;
 
+import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.Material;
 import net.minestom.testing.Env;
 import net.minestom.testing.EnvTest;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -20,9 +20,19 @@ class PlayersEnvTest {
     @BeforeAll
     static void init(@NotNull Env env) {
         instance = env.createFlatInstance();
-        for (int i = 0; i < 3; i++) {
-            env.createPlayer(instance, Pos.ZERO);
-        }
+    }
+
+    @AfterAll
+    static void cleanUp(@NotNull Env env) {
+        env.destroyInstance(instance);
+    }
+
+    @Test
+    void testTitleSend(@NotNull Env env) {
+        var player = env.createPlayer(instance, Pos.ZERO);
+        assertNotNull(player);
+        Players.showTitle(player, Component.text("Hallo"), Component.empty(), 10, 50, 10);
+        player.remove();
     }
 
     @Test

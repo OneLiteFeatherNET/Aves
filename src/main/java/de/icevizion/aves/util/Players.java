@@ -4,6 +4,9 @@ import de.icevizion.aves.inventory.util.InventoryConstants;
 import de.icevizion.aves.item.IItem;
 import de.icevizion.aves.item.TranslatedItem;
 import de.icevizion.aves.util.functional.ItemPlacer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
+import net.kyori.adventure.util.Ticks;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.ItemEntity;
@@ -55,6 +58,19 @@ public final class Players {
     }
 
     /**
+     * Send a title to a given player.
+     * @param player the player who receives the title
+     * @param title the title message as {@link Component}
+     * @param subTitle the subTitle message as {@link Component}
+     * @param fadeIn the time to fade in
+     * @param stay the time how long the title stays
+     * @param fadeOut the time to fade out
+     */
+    public static void showTitle(@NotNull Player player, @NotNull Component title, @NotNull Component subTitle, int fadeIn, int stay, int fadeOut) {
+        player.showTitle(Title.title(title, subTitle, Title.Times.times(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut))));
+    }
+
+    /**
      * Drops the complete inventory content from a player to a specific location.
      * @param player The player from which the inventory should be dropped
      */
@@ -68,18 +84,15 @@ public final class Players {
      * @param content The items stored in an array
      */
     public static void dropItemStacks(@NotNull Instance instance, @NotNull Pos pos, @NotNull ItemStack @NotNull ... content) {
-        if (content.length == 0) {
-            throw new IllegalArgumentException("The array can not be null or empty");
-        } else {
-            for (int i = 0; i < content.length; i++) {
-                if (content[i] == null) continue;
-                ItemEntity entity = new ItemEntity(content[i]);
-                entity.setMergeable(true);
-                entity.setPickupDelay(itemDuration);
-                entity.setInstance(instance, pos.withY(y -> y + 1.5));
-                entity.setVelocity(pos.direction().mul(6));
-                entity.spawn();
-            }
+        Check.argCondition(content.length == 0, "The array can not be null or empty");
+        for (int i = 0; i < content.length; i++) {
+            if (content[i] == null) continue;
+            ItemEntity entity = new ItemEntity(content[i]);
+            entity.setMergeable(true);
+            entity.setPickupDelay(itemDuration);
+            entity.setInstance(instance, pos.withY(y -> y + 1.5));
+            entity.setVelocity(pos.direction().mul(6));
+            entity.spawn();
         }
     }
 
@@ -108,22 +121,18 @@ public final class Players {
      * Updates the hotbar items from a given {@link Player}.
      * The locale and shiftedSlot parameter can be null
      * @param player The {@link Player} who receives the new equipment
-     * @param hotbarItems The hot bar items as array
+     * @param hotBarItems The hot bar items as array
      * @param locale The {@link Locale} for {@link TranslatedItem}
      * @param shiftedSlots An array with contains shifted layout only for the hotbar
      */
-    public static void updateHotBar(@NotNull Player player, @NotNull IItem[] hotbarItems, @Nullable Locale locale, int... shiftedSlots) {
-        if (hotbarItems.length > InventoryConstants.INVENTORY_WIDTH) {
-            throw new IllegalArgumentException("The array length for the items is greater than " + InventoryConstants.INVENTORY_WIDTH);
-        }
-        if (shiftedSlots.length > hotbarItems.length) {
-            throw new IllegalArgumentException("The length from shiftedSlots has not the same length with the underlying array");
-        }
+    public static void updateHotBar(@NotNull Player player, @NotNull IItem[] hotBarItems, @Nullable Locale locale, int... shiftedSlots) {
+        Check.argCondition(hotBarItems.length > InventoryConstants.INVENTORY_WIDTH, "The array length for the items is greater than " + InventoryConstants.INVENTORY_WIDTH);
+        Check.argCondition(shiftedSlots.length > hotBarItems.length, "The length from shiftedSlots has not the same length with the underlying array");
         if (placer == null) {
             placer = ItemPlacer.FALLBACK;
             PLAYER_LOGGER.info("Set `ItemPlacer Interface` to fallback implementation");
         }
-        setItems(player, hotbarItems, locale, shiftedSlots);
+        setItems(player, hotBarItems, locale, shiftedSlots);
     }
 
     /**
