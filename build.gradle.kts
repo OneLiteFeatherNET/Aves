@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-val baseVersion = "1.2.0"
+val baseVersion = "1.3.0"
 description = "Aves"
 
 java {
