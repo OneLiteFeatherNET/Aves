@@ -13,6 +13,8 @@ import net.minestom.server.entity.ItemEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
+import net.minestom.server.network.packet.server.play.SetCooldownPacket;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -174,5 +176,25 @@ public final class Players {
     public static Optional<Player> getRandomPlayer(@NotNull List<Player> players) {
         if (players.isEmpty()) return Optional.empty();
         return Optional.of(players.get(ThreadLocalRandom.current().nextInt(players.size())));
+    }
+
+    /**
+     * Send a {@link SetCooldownPacket} to a given {@link Player}.
+     * @param player the player who should receive the packet
+     * @param itemStack the involved {@link ItemStack}
+     * @param ticks how long the cooldown is
+     */
+    public static void sendCooldown(@NotNull Player player, @NotNull ItemStack itemStack, int ticks) {
+        sendCooldown(player, itemStack.material(), ticks);
+    }
+
+    /**
+     * Send a {@link SetCooldownPacket} to a given {@link Player}.
+     * @param player the player who should receive the packet
+     * @param material the {@link Material} to get the id from it2
+     * @param ticks how long the cooldown is
+     */
+    public static void sendCooldown(@NotNull Player player, @NotNull Material material, int ticks) {
+        player.sendPacket(new SetCooldownPacket(material.id(), ticks));
     }
 }
