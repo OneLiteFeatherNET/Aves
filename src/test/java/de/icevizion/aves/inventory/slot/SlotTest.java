@@ -24,4 +24,10 @@ class SlotTest {
         assertNotEquals(Material.AIR, slot.getItem().material());
     }
 
+    @Test
+    void testHashCode() {
+        Slot slot = new InventorySlot(ItemStack.AIR);
+        assertNotEquals(10, slot.hashCode());
+    }
+
 }

@@ -1,6 +1,7 @@
 package de.icevizion.aves.inventory.util;
 
 import net.minestom.server.inventory.InventoryType;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 
 import static de.icevizion.aves.inventory.util.InventoryConstants.*;
@@ -11,7 +12,9 @@ import static de.icevizion.aves.inventory.util.InventoryConstants.*;
  * @since 1.0.0
  * @version 1.0.1
  */
-public class LayoutCalculator {
+public final class LayoutCalculator {
+
+    private static final String CHEST_INVENTORY = "CHEST";
 
     private LayoutCalculator() {}
 
@@ -22,10 +25,7 @@ public class LayoutCalculator {
      * @return an array which contains the slot numbers
      */
     public static int[] repeat(int fromSlot, int toSlot) {
-        if (fromSlot > toSlot) {
-            throw new IllegalArgumentException("fromSlot cannot be higher that toSlot!");
-        }
-
+        Check.argCondition(fromSlot > toSlot, "fromSlot cannot be higher that toSlot!");
         var arr = new int[toSlot - fromSlot];
         for (int i = 0; i < arr.length; i++) {
             arr[i] = fromSlot + i;
@@ -60,9 +60,7 @@ public class LayoutCalculator {
     }
 
     public static int @NotNull [] frame(int firstCornerSlot, int lastCornerSlot) {
-        if (firstCornerSlot == lastCornerSlot) {
-            throw new IllegalArgumentException("The values are the same");
-        }
+        Check.argCondition(firstCornerSlot == lastCornerSlot, "The values can't be the smae");
         var x1 = firstCornerSlot % INVENTORY_WIDTH;
         var y1 = Math.floor(firstCornerSlot / (double)INVENTORY_WIDTH);
 
@@ -93,7 +91,7 @@ public class LayoutCalculator {
      * @return an array which contains the slot numbers
      */
     public static int @NotNull [] fillRow(@NotNull InventoryType type) {
-        return repeat(type.getSize()-9, type.getSize());
+        return repeat(type.getSize() - INVENTORY_WIDTH, type.getSize());
     }
 
     /**
@@ -103,10 +101,7 @@ public class LayoutCalculator {
      * @return an array which contains the slot numbers
      */
     public static int @NotNull [] fillColumn(@NotNull InventoryType type, int column) {
-        if (column < 0 || column > INVENTORY_WIDTH - 1) {
-            throw new IllegalArgumentException("Column cant be less than 0 or more than 8");
-        }
-
+        Check.argCondition(column < 0 || column > INVENTORY_WIDTH - 1, "Column cant be less than 0 or more than 8");
         var arr = new int[getRowCount(type)];
         for (int i = 0; i < arr.length; i++) {
             arr[i] = i * INVENTORY_WIDTH + column;
@@ -130,6 +125,6 @@ public class LayoutCalculator {
      * @return True if the type is a chest otherwise false
      */
     public static boolean isChestInventory(@NotNull InventoryType type) {
-        return type.name().startsWith("CHEST");
+        return type.name().startsWith(CHEST_INVENTORY);
     }
 }

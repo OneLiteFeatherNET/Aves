@@ -6,7 +6,7 @@ import net.minestom.server.inventory.condition.InventoryConditionResult;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a click function in an inventory.
+ * Represents a click function which can be applied to an implementation from the {@link de.icevizion.aves.inventory.slot.ISlot} interface.
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.2.0

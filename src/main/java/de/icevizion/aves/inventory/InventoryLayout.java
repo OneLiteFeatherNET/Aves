@@ -30,16 +30,22 @@ import static de.icevizion.aves.inventory.util.InventoryConstants.EMPTY_SLOT;
 public class InventoryLayout {
 
     private static final String INDEX_ERROR = "The given slot index is out of range";
-
     private ApplyLayoutFunction applyLayoutFunction;
-
     private final ISlot[] contents;
 
+    /**
+     * Creates a new instance from the {@link InventoryLayout}.
+     * @param type the given size for the layout
+     */
     public InventoryLayout(@NotNull InventoryType type) {
         this.contents = new ISlot[type.getSize()];
         this.applyLayoutFunction = new DefaultApplyLayoutFunction(this.contents);
     }
 
+    /**
+     * Creates a deep copy from a given {@link InventoryLayout}.
+     * @param layout the layout to copy
+     */
     private InventoryLayout(@NotNull InventoryLayout layout) {
         this.contents = new ISlot[layout.getContents().length];
         for (int i = 0; i < layout.getContents().length; i++) {
@@ -55,15 +61,28 @@ public class InventoryLayout {
         this.applyLayoutFunction = layout.getApplyLayoutFunction();
     }
 
+    /**
+     * Creates a deep copy of a given {@link InventoryLayout}.
+     * @param inventoryLayout the layout to copy
+     * @return the created copy
+     */
     @Contract(value = "_ -> new", pure = true)
     public static @NotNull InventoryLayout of(@NotNull InventoryLayout inventoryLayout) {
         return new InventoryLayout(inventoryLayout);
     }
 
+    /**
+     * Set a new reference from an implementation of the {@link ApplyLayoutFunction} functional interface.
+     * @param applyLayoutFunction the new implementation to set
+     */
     public void setApplyLayoutFunction(@NotNull ApplyLayoutFunction applyLayoutFunction) {
         this.applyLayoutFunction = applyLayoutFunction;
     }
 
+    /**
+     * Applies a given {@link ItemStack} array to the layout.
+     * @param itemStacks the array which should be applied
+     */
     public void applyLayout(ItemStack[] itemStacks) {
         this.applyLayoutFunction.applyLayout(itemStacks, null, null);
     }
@@ -71,6 +90,7 @@ public class InventoryLayout {
     public void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider) {
         this.applyLayoutFunction.applyLayout(itemStacks, locale, messageProvider);
     }
+
 
     public InventoryLayout setItem(int slot, ItemStack.Builder itemBuilder, InventoryClick clickEvent) {
         Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
@@ -229,6 +249,13 @@ public class InventoryLayout {
         return this;
     }
 
+    /**
+     * Updates an {@link ISlot} at a given index with a new {@link ItemStack}.
+     * @param index the slot index
+     * @param stack the new stack tot set
+     * @param click the click listener for the slot
+     * @return the instance from the layout
+     */
     public InventoryLayout update(int index, @NotNull ItemStack stack, @Nullable InventoryClick click) {
         Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
         var slot = contents[index];
@@ -244,10 +271,8 @@ public class InventoryLayout {
      */
     @Nullable
     public ISlot getSlot(int index) {
-        if (index < 0 || index > this.contents.length) {
-            throw new IllegalArgumentException("The given index " + index + "is not in the range of the array(0, "
-                    + this.contents.length + ")");
-        }
+        Check.argCondition(index < 0 || index > this.contents.length,
+                "The given index does not fit into the array (0, " + this.contents.length + ")");
         return this.contents[index];
     }
 
@@ -268,16 +293,29 @@ public class InventoryLayout {
         return this.contents.length;
     }
 
+    /**
+     * Returns the given {@link ApplyLayoutFunction} instance.
+     * @return the underlying instance from the interface
+     */
     @NotNull
     public ApplyLayoutFunction getApplyLayoutFunction() {
         return applyLayoutFunction;
     }
 
+    /**
+     * Returns a textual representation from the layout class.
+     * @return the textual representation
+     */
     @Override
     public String toString() {
         return "InventoryLayout{" + "contents=" + Arrays.toString(contents) + '}';
     }
 
+    /**
+     * Checks if two layout are equals.
+     * @param o the object to check
+     * @return True when they are equal otherwise false
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -285,6 +323,10 @@ public class InventoryLayout {
         return Arrays.equals(contents, that.contents);
     }
 
+    /**
+     * Returns a hash value as int from the content which is in the layout array.
+     * @return the determined value
+     */
     @Override
     public int hashCode() {
         return Arrays.hashCode(contents);

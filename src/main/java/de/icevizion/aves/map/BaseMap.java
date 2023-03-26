@@ -105,7 +105,7 @@ public class BaseMap {
 
     /**
      * Set the name of a map
-     * @param name The name to set
+     * @param name the name to set
      */
     public void setName(@NotNull String name) {
         Check.argCondition(name.trim().isEmpty(), "The name can not be null or empty");
@@ -114,7 +114,7 @@ public class BaseMap {
 
     /**
      * Set the builder of a map
-     * @param builders The builder's to set
+     * @param builders the builder's to set
      */
     public void setBuilders(String... builders) {
         this.builders = builders;
@@ -122,7 +122,7 @@ public class BaseMap {
 
     /**
      * Set the spawn location of a map
-     * @param spawn The spawn location to set
+     * @param spawn the spawn location to set
      */
     public void setSpawn(@NotNull Pos spawn) {
         this.spawn = spawn;
@@ -131,7 +131,7 @@ public class BaseMap {
     /**
      * Returns the map name.
      *
-     * @return The name of the map
+     * @return the name of the map
      */
     @Nullable
     public String getName() {
@@ -141,7 +141,7 @@ public class BaseMap {
     /**
      * Returns the builders.
      *
-     * @return The builders of the map
+     * @return the builders of the map
      */
     @Nullable
     public String[] getBuilders() {
@@ -151,7 +151,7 @@ public class BaseMap {
     /**
      * Returns the spawn location
      *
-     * @return The spawn of the map
+     * @return the spawn of the map
      */
     @Nullable
     public Pos getSpawn() {

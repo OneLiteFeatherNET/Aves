@@ -1,16 +1,14 @@
-import org.sonarqube.gradle.SonarQubeTask
-
 plugins {
     java
     `java-library`
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.sonarqube") version "3.4.0.2513"
+    id("org.sonarqube") version "4.0.0.2929"
     jacoco
 }
 
 group = "de.icevizion.lib"
-val baseVersion = "1.2.0"
+val baseVersion = "1.3.0"
 description = "Aves"
 
 java {
@@ -19,11 +17,15 @@ java {
 }
 
 repositories {
-    mavenCentral()
+    mavenCentral {
+        if (System.getenv().containsKey("CI")) {
+            url = uri("https://repo.htl-md.schule/repository/maven-central/")
+        }
+    }
     maven("https://jitpack.io")
 }
 
-val sonarKey = "dungeon_aves_AYINRMy8pSUXqILAYb0z"
+val sonarKey = "dungeon_aves_AYQjkAfDgiTSvWSTxrGx"
 val minestomVersion = "master-SNAPSHOT"
 val strigiVersion = "e89dd8352c"
 
@@ -33,10 +35,10 @@ dependencies {
     compileOnly("com.github.Minestom:Minestom:$minestomVersion")
 
     testImplementation("com.github.Minestom:Minestom:$minestomVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
-    testImplementation("org.mockito:mockito-core:4.8.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:4.8.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("org.mockito:mockito-core:5.2.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.2.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
 
 tasks {
@@ -53,6 +55,7 @@ tasks {
         dependsOn(rootProject.tasks.test)
         reports {
             xml.required.set(true)
+            csv.required.set(true)
         }
     }
 
@@ -64,10 +67,11 @@ tasks {
         }
     }
 
-    getByName<SonarQubeTask>("sonarqube") {
+    getByName("sonar") {
         dependsOn(rootProject.tasks.test)
     }
 }
+
 version = if (System.getenv().containsKey("CI")) {
     "${baseVersion}+${System.getenv("CI_COMMIT_SHORT_SHA")}"
 } else {
@@ -76,11 +80,9 @@ version = if (System.getenv().containsKey("CI")) {
 
 publishing {
     publications {
-
         create<MavenPublication>("maven") {
             from(components["java"])
         }
-
     }
     if (System.getenv().containsKey("CI")) {
         repositories {
@@ -105,5 +107,6 @@ publishing {
 sonarqube {
     properties {
         property("sonar.projectKey", sonarKey)
+        property("sonar.qualitygate.wait", true)
     }
 }

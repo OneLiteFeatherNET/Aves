@@ -17,17 +17,6 @@ public class PersonalInventoryBuilder extends GlobalInventoryBuilder {
 
     /**
      * Creates a new instance from the {@link PersonalTranslatedInventoryBuilder} with the given values.
-     * @param title The title for the inventory
-     * @param type The type for the inventory
-     * @param player The player who owns the inventory
-     */
-    public PersonalInventoryBuilder(@NotNull String title, @NotNull InventoryType type, @NotNull Player player) {
-        super(title, type);
-        this.player = player;
-    }
-
-    /**
-     * Creates a new instance from the {@link PersonalTranslatedInventoryBuilder} with the given values.
      * @param component The title for the inventory as {@link Component}
      * @param type The type for the inventory
      * @param player The player who owns the inventory
