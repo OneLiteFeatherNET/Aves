@@ -7,13 +7,13 @@ import org.jetbrains.annotations.Nullable;
 
 public class UnknownSlotImpl implements ISlot {
     @Override
-    public ISlot setClick(@NotNull InventoryClick slot) {
-        return null;
+    public @NotNull ISlot setClick(@NotNull InventoryClick slot) {
+        return this;
     }
 
     @Override
-    public ISlot setItemStack(@Nullable ItemStack itemStack) {
-        return null;
+    public @NotNull ISlot setItemStack(@Nullable ItemStack itemStack) {
+        return this;
     }
 
     @Override

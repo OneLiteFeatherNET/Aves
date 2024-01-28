@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class FileHandlerTest {
 
     private final String testMap = "test.json";
-
     private final FileHandler fileHandler = new GsonFileHandler();
 
     @TempDir
@@ -34,6 +33,12 @@ class FileHandlerTest {
 
     @Order(2)
     @Test
+    void testOtherConstructor() {
+        var fileLoader = new GsonFileHandler(new Gson());
+        assertNotNull(fileLoader);
+    }
+    @Order(3)
+    @Test
     void testGsonFileHandlerWrite() {
         var path = tempDir.toPath().resolve(testMap);
         var baseMap = BaseMap.of("TestMap");
@@ -42,7 +47,7 @@ class FileHandlerTest {
         assertTrue(Files.exists(path));
     }
 
-    @Order(3)
+    @Order(4)
     @Test
     void testGsonFileHandler() {
         var path = tempDir.toPath().resolve(testMap);
@@ -56,16 +61,34 @@ class FileHandlerTest {
         assertArrayEquals(new String[]{"Builder1", "Builder2"}, map.getBuilders());
     }
 
-    @Order(4)
+    @Order(5)
     @Test
     void testFileNotExistsRead() {
         var file = fileHandler.load(tempDir.toPath().resolve("test3.json"), BaseMap.class);
         assertTrue(file::isEmpty);
     }
 
+    @Order(6)
     @Test
-    void testOtherConstructor() {
-        var fileLoader = new GsonFileHandler(new Gson());
-        assertNotNull(fileLoader);
+    void testInvalidPathSave() {
+        var path = tempDir.toPath();
+        var exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> fileHandler.save(path, BaseMap.class)
+        );
+        assertEquals(IllegalArgumentException.class, exception.getClass());
+        assertEquals("Unable to save a directory. Please check the used path", exception.getMessage());
+    }
+
+    @Order(7)
+    @Test
+    void testInvalidPathLoad() {
+        var path = tempDir.toPath();
+        var exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> fileHandler.load(path, BaseMap.class)
+        );
+        assertEquals(IllegalArgumentException.class, exception.getClass());
+        assertEquals("Unable to load a directory. Please check the used path", exception.getMessage());
     }
 }
