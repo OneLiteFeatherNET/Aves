@@ -2,6 +2,7 @@ package de.icevizion.aves.file;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -42,6 +43,7 @@ public final class GsonFileHandler implements FileHandler {
      */
     @Override
     public <T> void save(@NotNull Path path, @NotNull T object) {
+        Check.argCondition(Files.isDirectory(path), "Unable to save a directory. Please check the used path");
         try (var outputStream = Files.newBufferedWriter(path, UTF_8)) {
             if (!Files.exists(path)) {
                 var file = Files.createFile(path).getFileName();
@@ -62,6 +64,7 @@ public final class GsonFileHandler implements FileHandler {
      */
     @Override
     public <T> Optional<T> load(@NotNull Path path, @NotNull Class<T> clazz) {
+        Check.argCondition(Files.isDirectory(path), "Unable to load a directory. Please check the used path");
         if (!Files.exists(path)) {
             return Optional.empty();
         }

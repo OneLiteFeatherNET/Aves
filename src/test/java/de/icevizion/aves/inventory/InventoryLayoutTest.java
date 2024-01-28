@@ -96,8 +96,9 @@ class InventoryLayoutTest {
 
         layout.setNonClickItem(0, new InventorySlot(ItemStack.builder(Material.BLACK_STAINED_GLASS)));
         layout.setNonClickItem(1, ItemStack.builder(Material.DIAMOND).build());
-
+        layout.setNonClickItem(3, ItemStack.builder(Material.CHEST).build());
         assertNotNull(layout.getSlot(0));
+        assertNotNull(layout.getSlot(3));
         assertNotSame(Material.AIR, layout.getSlot(1).getItem().material());
     }
 
@@ -148,6 +149,8 @@ class InventoryLayoutTest {
 
         assertNotNull(layout.getSlot(1));
         assertNotSame(Material.AIR, layout.getSlot(1).getItem().material());
+        layout.update(1, ItemStack.builder(Material.CHEST).build());
+        assertNotSame(Material.ALLIUM, layout.getSlot(1).getItem().material());
     }
 
     @Test

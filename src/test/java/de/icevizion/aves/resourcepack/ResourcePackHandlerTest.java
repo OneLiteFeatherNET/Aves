@@ -64,4 +64,22 @@ class ResourcePackHandlerTest {
         handler.invalidateId(player.getUuid());
         assertTrue(cache.isEmpty());
     }
+
+    @Test
+    void testResourcePackHandlerConditionSet() {
+        var resourcePack = Mockito.mock(ResourcePack.class);
+        var handler = new ResourcePackHandler(resourcePack);
+        assertDoesNotThrow(() -> handler.setCondition((player, resourcePackStatus) -> { }));
+    }
+
+    @Test
+    void testResourcePackHandlerWithANullCondition() {
+        var resourcePack = Mockito.mock(ResourcePack.class);
+        var handler = new ResourcePackHandler(resourcePack);
+        assertThrows(
+                IllegalStateException.class,
+                () -> handler.setCondition(null),
+                "Can't register the handler because the 'ResourcePackCondition' is null"
+        );
+    }
 }

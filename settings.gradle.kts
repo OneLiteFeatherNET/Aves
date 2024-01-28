@@ -1,21 +1,18 @@
-rootProject.name = "Aves"
-/*
-val ci = System.getenv().containsKey("CI")
+rootProject.name = "aves"
 
-buildCache {
-    local {
-        isEnabled = !ci
-    }
-    if (ci) {
-        remote(HttpBuildCache::class) {
-            url = uri(System.getenv("GRADLE_CACHE_URL"))
-            isPush = ci
-            isAllowUntrustedServer = true
-            isAllowInsecureProtocol = true
-            credentials {
-                username = System.getenv("GRADLE_CACHE_USER")
-                password = System.getenv("GRADLE_CACHE_PASSWORD")
-            }
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            version("minestom", "1.2.1")
+            version("junit", "5.10.1")
+            version("mockito", "5.9.0")
+            library("strigiformes", "com.github.PatrickZdarsky", "Strigiformes").version("e89dd8352c")
+            library("minestom", "net.onelitefeather.microtus", "Minestom").versionRef("minestom")
+            library("minestom-test", "net.onelitefeather.microtus.testing", "testing").versionRef("minestom")
+            library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").versionRef("junit")
+            library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").versionRef("junit")
+            library("mockito-core", "org.mockito", "mockito-core").versionRef("mockito")
+            library("mockito-junit", "org.mockito", "mockito-junit-jupiter").versionRef("mockito")
         }
     }
-}*/
+}

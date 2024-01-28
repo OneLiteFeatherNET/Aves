@@ -1,10 +1,17 @@
+image:  repo.htl-md.schule:5003/gradle:8.5.0-jdk17-alpine
+
 include:
   - project: onelitefeather/ci-template
     ref: Better-Pipelines
     file: base.yaml
-  - project: onelitefeather/ci-template
-    ref: Better-Pipelines
-    file: sonarqube.yaml
+  #- project: onelitefeather/ci-template
+  #  ref: Better-Pipelines
+  #  file: sonarqube.yaml
+
+test:
+  image: repo.htl-md.schule:5003/gradle:8.4.0-jdk17-alpine
+#sonarqube-check-mr:
+  #image: repo.htl-md.schule:5003/gradle:8.5.0-jdk17-alpine
 
 deploy:
   stage: deploy
