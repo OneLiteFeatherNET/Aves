@@ -24,7 +24,7 @@ public non-sealed class Item implements IItem {
      *
      * @param itemStack The {@link ItemStack} for the {@link Item}
      */
-    public Item(@NotNull ItemStack itemStack) {
+    protected Item(@NotNull ItemStack itemStack) {
         this.itemStack = itemStack;
     }
 
@@ -35,9 +35,18 @@ public non-sealed class Item implements IItem {
      * @return The created instance from {@link Item}
      */
     @Contract(value = "_ -> new", pure = true)
-    @NotNull
-    public static Item of(@NotNull ItemStack.Builder itemBuilder) {
+    public static @NotNull Item of(@NotNull ItemStack.Builder itemBuilder) {
         return new Item(itemBuilder.build());
+    }
+
+    /**
+     * Creates a new object reference from the {@link Item} with an given {@link ItemStack}.
+     * @param stack the stack for the object
+     * @return the created reference instance
+     */
+    @Contract(value = "_ -> new", pure = true)
+    public static @NotNull Item of(@NotNull ItemStack stack) {
+        return new Item(stack);
     }
 
     /**
@@ -47,8 +56,7 @@ public non-sealed class Item implements IItem {
      * @return The created instance from {@link Item}
      */
     @Contract(value = "_ -> new", pure = true)
-    @NotNull
-    public static Item of(@NotNull Material material) {
+    public static @NotNull Item of(@NotNull Material material) {
         return new Item(ItemStack.of(material));
     }
 

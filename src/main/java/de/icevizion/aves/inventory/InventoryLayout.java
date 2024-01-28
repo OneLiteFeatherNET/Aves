@@ -250,6 +250,18 @@ public class InventoryLayout {
     }
 
     /**
+     * Updates the given ItemStack from a slot.
+     * If the listener is null the {@link de.icevizion.aves.inventory.util.InventoryConstants#CANCEL_CLICK} will set to the slot
+     * @param index The index to get the slot to update
+     * @param stack The {@link ItemStack} to set
+     */
+    public InventoryLayout update(int index, @Nullable ItemStack stack) {
+        Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
+        contents[index].setItemStack(stack);
+        return this;
+    }
+
+    /**
      * Updates an {@link ISlot} at a given index with a new {@link ItemStack}.
      * @param index the slot index
      * @param stack the new stack tot set

@@ -44,8 +44,8 @@ public final class DefaultPageableControls implements PageableControls {
         Check.argCondition(nextSlot < 0 || nextSlot > type.getSize(), "The nextSlot index is not in the inventory range");
         this.backSlot = backSlot;
         this.nextSlot = nextSlot;
-        this.nextPage = new Item(ItemStack.builder(Material.ARROW).displayName(Component.text("Next page", NamedTextColor.GRAY)).build());
-        this.previousPage = new Item(ItemStack.builder(Material.ARROW).displayName(Component.text("Previous page", NamedTextColor.GRAY)).build());
+        this.nextPage = Item.of(ItemStack.builder(Material.ARROW).displayName(Component.text("Next page", NamedTextColor.GRAY)).build());
+        this.previousPage = Item.of(ItemStack.builder(Material.ARROW).displayName(Component.text("Previous page", NamedTextColor.GRAY)).build());
     }
 
     /**

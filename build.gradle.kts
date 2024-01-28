@@ -2,13 +2,13 @@ plugins {
     java
     `java-library`
     `maven-publish`
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.sonarqube") version "4.0.0.2929"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.sonarqube") version "4.2.1.3168"
     jacoco
 }
 
 group = "de.icevizion.lib"
-val baseVersion = "1.3.0"
+val baseVersion = "1.3.2"
 description = "Aves"
 
 java {
@@ -17,28 +17,20 @@ java {
 }
 
 repositories {
-    mavenCentral {
-        if (System.getenv().containsKey("CI")) {
-            url = uri("https://repo.htl-md.schule/repository/maven-central/")
-        }
-    }
+    mavenCentral()
     maven("https://jitpack.io")
 }
 
-val sonarKey = "dungeon_aves_AYQjkAfDgiTSvWSTxrGx"
-val minestomVersion = "master-SNAPSHOT"
-val strigiVersion = "e89dd8352c"
-
 dependencies {
-    implementation("com.github.PatrickZdarsky:Strigiformes:$strigiVersion")
+    implementation(libs.strigiformes)
+    implementation(libs.minestom)
 
-    compileOnly("com.github.Minestom:Minestom:$minestomVersion")
-
-    testImplementation("com.github.Minestom:Minestom:$minestomVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-    testImplementation("org.mockito:mockito-core:5.2.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.2.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testImplementation(libs.minestom)
+    testImplementation(libs.minestom.test)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.junit)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
 tasks {
@@ -106,7 +98,8 @@ publishing {
 
 sonarqube {
     properties {
-        property("sonar.projectKey", sonarKey)
+        property("sonar.projectKey", "dungeon_aves_AYm_s0T3q35l90nqW9QV")
+        property("sonar.projectName", "Aves")
         property("sonar.qualitygate.wait", true)
     }
 }
