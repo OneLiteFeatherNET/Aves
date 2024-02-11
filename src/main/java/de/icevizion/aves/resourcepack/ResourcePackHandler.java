@@ -1,16 +1,15 @@
 package de.icevizion.aves.resourcepack;
 
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.resource.ResourcePackInfo;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerResourcePackStatusEvent;
-import net.minestom.server.resourcepack.ResourcePack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -22,16 +21,16 @@ import java.util.function.Consumer;
  **/
 public class ResourcePackHandler {
 
-    private final ResourcePack resourcePack;
-    private final HashSet<UUID> resourcePackCache;
+    private final ResourcePackInfo resourcePack;
+    private final Set<UUID> resourcePackCache;
     private ResourcePackCondition condition;
     private Consumer<PlayerResourcePackStatusEvent> eventConsumer;
 
     /**
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
-     * @param resourcePack An instance from a {@link ResourcePack}
+     * @param resourcePack An instance from a {@link ResourcePackInfo}
      */
-    public ResourcePackHandler(@NotNull ResourcePack resourcePack) {
+    public ResourcePackHandler(@NotNull ResourcePackInfo resourcePack) {
         this.resourcePack = resourcePack;
         this.resourcePackCache = new HashSet<>();
         this.condition = null;
@@ -39,10 +38,10 @@ public class ResourcePackHandler {
 
     /**
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
-     * @param resourcePack An instance from a {@link ResourcePack}
+     * @param resourcePack An instance from a {@link ResourcePackInfo}
      * @param condition The given {@link ResourcePackCondition}
      */
-    public ResourcePackHandler(@NotNull ResourcePack resourcePack, @NotNull ResourcePackCondition condition) {
+    public ResourcePackHandler(@NotNull ResourcePackInfo resourcePack, @NotNull ResourcePackCondition condition) {
         this.resourcePack = resourcePack;
         this.resourcePackCache = new HashSet<>();
         this.condition = condition;
@@ -50,35 +49,11 @@ public class ResourcePackHandler {
     }
 
     /**
-     * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
-     * @param url The url to the pack
-     * @param hash The hash value
-     * @param force If the pack should be forced or not
-     */
-    public ResourcePackHandler(@NotNull String url, @Nullable String hash, boolean force) {
-        this.resourcePack = force ? ResourcePack.forced(url, hash) : ResourcePack.optional(url, hash);
-        this.resourcePackCache = new HashSet<>();
-        this.condition = null;
-    }
-
-    /**
-     * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
-     * @param url The url to the pack
-     * @param hash The hash value
-     * @param forceMessage The message which the player see when he accepts the resource pack
-     */
-    public ResourcePackHandler(@NotNull String url, @Nullable String hash, @Nullable Component forceMessage) {
-        this.resourcePack = ResourcePack.forced(url, hash, forceMessage);
-        this.resourcePackCache = new HashSet<>();
-        this.condition = null;
-    }
-
-    /**
      * Add a condition what happen when the {@link PlayerResourcePackStatusEvent} is called from the server.
      * The handling musst includes all parameters from {@link ResourcePackCondition}
      * @param condition The condition to set
      */
-    public ResourcePackHandler setCondition(ResourcePackCondition condition) {
+    public @NotNull ResourcePackHandler setCondition(ResourcePackCondition condition) {
         this.condition = condition;
         this.eventConsumer = handleResourcePackChange();
         return this;
@@ -87,7 +62,7 @@ public class ResourcePackHandler {
     /**
      * Add a pre-defined {@link ResourcePackCondition} to the handler.
      */
-    public ResourcePackHandler setDefaultCondition() {
+    public @NotNull ResourcePackHandler setDefaultCondition() {
         this.condition = new DefaultResourcePackCondition(resourcePackCache);
         this.eventConsumer = handleResourcePackChange();
         return this;
@@ -96,7 +71,7 @@ public class ResourcePackHandler {
     /**
      * Add some listener to handle the resource pack handling.
      */
-    public ResourcePackHandler withListener() {
+    public @NotNull ResourcePackHandler withListener() {
         var eventHandler = MinecraftServer.getGlobalEventHandler();
         eventHandler.addListener(PlayerResourcePackStatusEvent.class, eventConsumer);
         eventHandler.addListener(PlayerDisconnectEvent.class, event -> invalidateId(event.getPlayer().getUuid()));
@@ -110,7 +85,7 @@ public class ResourcePackHandler {
      */
     public boolean setPack(@NotNull Player player) {
         if (resourcePack == null || resourcePackCache.contains(player.getUuid())) return false;
-        player.setResourcePack(resourcePack);
+        player.sendResourcePacks(resourcePack);
         resourcePackCache.add(player.getUuid());
         return true;
     }
@@ -121,6 +96,9 @@ public class ResourcePackHandler {
      */
     public void invalidateId(@NotNull UUID uuid) {
         this.resourcePackCache.remove(uuid);
+        final Player player = MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid);
+        if (player == null) return;
+        player.removeResourcePacks(resourcePack.id());
     }
 
     /**

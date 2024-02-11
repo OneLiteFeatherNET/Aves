@@ -1,10 +1,10 @@
 package de.icevizion.aves.resourcepack;
 
+import net.kyori.adventure.resource.ResourcePackInfo;
+import net.kyori.adventure.resource.ResourcePackStatus;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.Player;
-import net.minestom.server.resourcepack.ResourcePack;
-import net.minestom.server.resourcepack.ResourcePackStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -33,7 +33,7 @@ public final class DefaultResourcePackCondition implements ResourcePackCondition
 
     /**
      * Handles the status change when the player declined the resource pack or if the download fails.
-     * @param player The player who deals with the {@link ResourcePack}
+     * @param player The player who deals with the {@link ResourcePackInfo}
      * @param resourcePackStatus The {@link ResourcePackStatus} from the event
      */
     @Override
@@ -50,7 +50,7 @@ public final class DefaultResourcePackCondition implements ResourcePackCondition
     }
 
     /**
-     * Handles what happen if a player declined the {@link ResourcePack}.
+     * Handles what happen if a player declined the {@link ResourcePackInfo}.
      * @param player the player who is involved
      */
     private void handleDeclined(@NotNull Player player) {
@@ -59,7 +59,7 @@ public final class DefaultResourcePackCondition implements ResourcePackCondition
     }
 
     /**
-     * Handles what happen the download of the {@link ResourcePack} failed.
+     * Handles what happen the download of the {@link ResourcePackInfo} failed.
      * @param player the player who is involved
      */
     private void handleDownloadFail(@NotNull Player player) {

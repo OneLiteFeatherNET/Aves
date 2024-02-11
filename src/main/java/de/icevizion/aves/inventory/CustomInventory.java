@@ -31,17 +31,6 @@ public class CustomInventory extends Inventory {
     }
 
     /**
-     * Creates a new instance from the {@link CustomInventory}.
-     * @param holder the holder of the inventory
-     * @param inventoryType the type for the inventory
-     * @param title the title as string
-     */
-    public CustomInventory(InventoryHolder holder, @NotNull InventoryType inventoryType, @NotNull String title) {
-        super(inventoryType, title);
-        this.holder = holder;
-    }
-
-    /**
      * Returns the holder instance from the inventory.
      * @return the underlying instance to the holder
      */
