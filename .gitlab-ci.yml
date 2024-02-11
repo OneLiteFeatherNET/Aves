@@ -1,4 +1,4 @@
-image:  repo.htl-md.schule:5003/gradle:8.5.0-jdk17-alpine
+image:  repo.htl-md.schule:5003/gradle:8.6.0-jdk21-alpine
 
 include:
   - project: onelitefeather/ci-template
@@ -9,7 +9,7 @@ include:
   #  file: sonarqube.yaml
 
 test:
-  image: repo.htl-md.schule:5003/gradle:8.4.0-jdk17-alpine
+  image: repo.htl-md.schule:5003/gradle:8.6.0-jdk21-alpine
 #sonarqube-check-mr:
   #image: repo.htl-md.schule:5003/gradle:8.5.0-jdk17-alpine
 

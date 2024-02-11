@@ -23,6 +23,7 @@ class PersonalInventoryBuilderTest {
         builder.register();
         builder.unregister();
 
+        player.remove();
         env.destroyInstance(instance);
 
         assertNotNull(player);

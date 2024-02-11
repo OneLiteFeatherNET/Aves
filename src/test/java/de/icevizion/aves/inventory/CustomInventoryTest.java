@@ -18,7 +18,7 @@ class CustomInventoryTest {
 
     @Test
     void testConstructorWithTitle() {
-        var customInventory = new CustomInventory(null, InventoryType.CHEST_4_ROW, "Title");
+        var customInventory = new CustomInventory(null, InventoryType.CHEST_4_ROW, Component.text("Title"));
         assertNotNull(customInventory);
         assertNull(customInventory.getHolder());
         assertEquals("Title", PlainTextComponentSerializer.plainText().serialize(customInventory.getTitle()));

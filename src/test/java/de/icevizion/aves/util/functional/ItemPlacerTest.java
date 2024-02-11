@@ -18,6 +18,7 @@ class ItemPlacerTest {
         var instance = env.createFlatInstance();
         var player = env.createPlayer(instance, Pos.ZERO);
         ItemPlacer.FALLBACK.setItem(player, 0, Item.of(Material.SADDLE), null);
+        player.remove();
         env.destroyInstance(instance);
         assertNotNull(player);
         assertNotNull(instance);
