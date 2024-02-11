@@ -49,6 +49,7 @@ class GlobalInventoryBuilderTest {
         builder.invalidateDataLayout();
         player.closeInventory();
 
+        player.remove(true);
         env.destroyInstance(instance);
     }
 

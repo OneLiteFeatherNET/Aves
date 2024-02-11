@@ -19,10 +19,11 @@ class BroadcasterEnvTest {
     @Test
     void testBroadcast(Env env) {
         var instance = env.createFlatInstance();
-        env.createPlayer(instance, Pos.ZERO);
+        var player = env.createPlayer(instance, Pos.ZERO);
 
         Broadcaster.broadcast(instance, text);
         assertNotNull(instance);
+        player.remove();
         env.destroyInstance(instance);
     }
 

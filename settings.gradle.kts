@@ -3,7 +3,7 @@ rootProject.name = "aves"
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("minestom", "1.2.1")
+            version("minestom", "1.3.0")
             version("junit", "5.10.1")
             version("mockito", "5.9.0")
             library("strigiformes", "com.github.PatrickZdarsky", "Strigiformes").version("e89dd8352c")

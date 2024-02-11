@@ -1,7 +1,7 @@
 package de.icevizion.aves.resourcepack;
 
+import net.kyori.adventure.resource.ResourcePackStatus;
 import net.minestom.server.entity.Player;
-import net.minestom.server.resourcepack.ResourcePackStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -49,7 +49,7 @@ class ResourcePackConditionTest {
 
     @Test
     void testOtherActions() {
-        this.condition.handleStatus(this.player, ResourcePackStatus.SUCCESS);
+        this.condition.handleStatus(this.player, ResourcePackStatus.ACCEPTED);
         assertSame(1, this.cache.size());
         this.cache.add(this.player.getUuid());
     }

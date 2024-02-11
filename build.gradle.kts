@@ -8,16 +8,18 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-val baseVersion = "1.3.2"
+val baseVersion = "1.4.0"
 description = "Aves"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
     mavenCentral()
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
     maven("https://jitpack.io")
 }
 
@@ -36,7 +38,7 @@ dependencies {
 tasks {
     compileJava {
         options.encoding = "UTF-8"
-        options.release.set(17)
+        options.release.set(21)
     }
 
     jar {
@@ -54,6 +56,7 @@ tasks {
     test {
         finalizedBy(rootProject.tasks.jacocoTestReport)
         useJUnitPlatform()
+        jvmArgs("-Dminestom.inside-test=true")
         testLogging {
             events("passed", "skipped", "failed")
         }
