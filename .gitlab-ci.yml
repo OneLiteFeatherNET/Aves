@@ -1,35 +1,8 @@
-image:  repo.htl-md.schule:5003/gradle:8.6.0-jdk21-alpine
-
 include:
-  - project: onelitefeather/ci-template
-    ref: Better-Pipelines
-    file: base.yaml
-  #- project: onelitefeather/ci-template
-  #  ref: Better-Pipelines
-  #  file: sonarqube.yaml
-
-test:
-  image: repo.htl-md.schule:5003/gradle:8.6.0-jdk21-alpine
-#sonarqube-check-mr:
-  #image: repo.htl-md.schule:5003/gradle:8.5.0-jdk17-alpine
-
-deploy:
-  stage: deploy
-  script:
-    - gradle publish
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: push
-    paths:
-      - build
-      - .gradle
-  artifacts:
-    expire_in: 1 week
-    name: "jar-files"
-    paths:
-      - build/libs/*.jar
-  only:
-    - main
-    - master
-    - test
-    - develop
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+  - component: gitlab.themeinerlp.dev/dungeon/ci-components/gradle-publish@0.0.3
+variables:
+  SECURE_ANALYZERS_PREFIX: "${HTL_NEXUS_PROXY}/security-products"
+  GRADLE_IMAGE: "${HTL_NEXUS_PROXY}/gradle:8.7.0-jdk21"

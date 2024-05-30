@@ -16,6 +16,7 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.server.play.SetCooldownPacket;
 import net.minestom.server.utils.validate.Check;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -31,20 +32,24 @@ import java.util.stream.Collectors;
 
 /**
  * Contains some methods to work with {@link Player} objects
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
  */
+@ApiStatus.NonExtendable
 public final class Players {
 
     private static final Logger PLAYER_LOGGER = LoggerFactory.getLogger(Players.class);
     private static Duration itemDuration = Duration.ofMillis(3);
     private static ItemPlacer placer;
 
-    private Players() {}
+    private Players() {
+    }
 
     /**
      * Set a new {@link Duration} for the item drop functionality.
+     *
      * @param duration the duration to set
      */
     public static void setItemDuration(@NotNull Duration duration) {
@@ -53,6 +58,7 @@ public final class Players {
 
     /**
      * Set a new instance from a {@link ItemPlacer}.
+     *
      * @param itemPlacer the new instance to set
      */
     public static void setItemPlacer(@NotNull ItemPlacer itemPlacer) {
@@ -61,12 +67,13 @@ public final class Players {
 
     /**
      * Send a title to a given player.
-     * @param player the player who receives the title
-     * @param title the title message as {@link Component}
+     *
+     * @param player   the player who receives the title
+     * @param title    the title message as {@link Component}
      * @param subTitle the subTitle message as {@link Component}
-     * @param fadeIn the time to fade in
-     * @param stay the time how long the title stays
-     * @param fadeOut the time to fade out
+     * @param fadeIn   the time to fade in
+     * @param stay     the time how long the title stays
+     * @param fadeOut  the time to fade out
      */
     public static void showTitle(@NotNull Player player, @NotNull Component title, @NotNull Component subTitle, int fadeIn, int stay, int fadeOut) {
         player.showTitle(Title.title(title, subTitle, Title.Times.times(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut))));
@@ -74,6 +81,7 @@ public final class Players {
 
     /**
      * Drops the complete inventory content from a player to a specific location.
+     *
      * @param player The player from which the inventory should be dropped
      */
     public static void dropPlayerInventory(@NotNull Player player) {
@@ -83,6 +91,7 @@ public final class Players {
 
     /**
      * Drops a certain amount of items to a given location.
+     *
      * @param content The items stored in an array
      */
     public static void dropItemStacks(@NotNull Instance instance, @NotNull Pos pos, @NotNull ItemStack @NotNull ... content) {
@@ -100,6 +109,7 @@ public final class Players {
 
     /**
      * Choose a random player from all players who are currently online.
+     *
      * @return a random player
      */
     public static Optional<Player> getRandomPlayer() {
@@ -122,9 +132,10 @@ public final class Players {
     /**
      * Updates the hotbar items from a given {@link Player}.
      * The locale and shiftedSlot parameter can be null
-     * @param player The {@link Player} who receives the new equipment
-     * @param hotBarItems The hot bar items as array
-     * @param locale The {@link Locale} for {@link TranslatedItem}
+     *
+     * @param player       The {@link Player} who receives the new equipment
+     * @param hotBarItems  The hot bar items as array
+     * @param locale       The {@link Locale} for {@link TranslatedItem}
      * @param shiftedSlots An array with contains shifted layout only for the hotbar
      */
     public static void updateHotBar(@NotNull Player player, @NotNull IItem[] hotBarItems, @Nullable Locale locale, int... shiftedSlots) {
@@ -140,9 +151,10 @@ public final class Players {
     /**
      * Updates the armor items from a given {@link Player}.
      * The locale and shiftedSlot parameter can be null
-     * @param player The {@link Player} who receives the new equipment
+     *
+     * @param player     The {@link Player} who receives the new equipment
      * @param armorItems The array with the items for the armor area
-     * @param locale The {@link Locale} for {@link TranslatedItem}
+     * @param locale     The {@link Locale} for {@link TranslatedItem}
      */
     public static void updateArmorItems(@NotNull Player player, @NotNull IItem[] armorItems, @Nullable Locale locale) {
         if (placer == null) {
@@ -154,9 +166,10 @@ public final class Players {
 
     /**
      * Applies a given array of {@link ItemStack}'s to a {@link Player}.
-     * @param player the player who should get the items
-     * @param items the array with the items
-     * @param locale the locale if the case need some
+     *
+     * @param player       the player who should get the items
+     * @param items        the array with the items
+     * @param locale       the locale if the case need some
      * @param shiftedSlots an array which contains shifted slots
      */
     private static void setItems(@NotNull Player player, @NotNull IItem[] items, Locale locale, int... shiftedSlots) {
@@ -170,6 +183,7 @@ public final class Players {
 
     /**
      * Get a random player from a given list.
+     *
      * @param players A list which contains some player objects
      * @return a random player
      */
@@ -180,9 +194,10 @@ public final class Players {
 
     /**
      * Send a {@link SetCooldownPacket} to a given {@link Player}.
-     * @param player the player who should receive the packet
+     *
+     * @param player    the player who should receive the packet
      * @param itemStack the involved {@link ItemStack}
-     * @param ticks how long the cooldown is
+     * @param ticks     how long the cooldown is
      */
     public static void sendCooldown(@NotNull Player player, @NotNull ItemStack itemStack, int ticks) {
         sendCooldown(player, itemStack.material(), ticks);
@@ -190,9 +205,10 @@ public final class Players {
 
     /**
      * Send a {@link SetCooldownPacket} to a given {@link Player}.
-     * @param player the player who should receive the packet
+     *
+     * @param player   the player who should receive the packet
      * @param material the {@link Material} to get the id from it2
-     * @param ticks how long the cooldown is
+     * @param ticks    how long the cooldown is
      */
     public static void sendCooldown(@NotNull Player player, @NotNull Material material, int ticks) {
         player.sendPacket(new SetCooldownPacket(material.id(), ticks));

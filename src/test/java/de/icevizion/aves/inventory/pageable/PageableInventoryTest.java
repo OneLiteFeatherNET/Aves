@@ -52,7 +52,7 @@ class PageableInventoryTest {
                 .player(player)
                 .title(Component.text("Test title"))
                 .type(TYPE)
-                .layout(new InventoryLayout(TYPE))
+                .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
                 .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
                 .values(this.slots)
@@ -72,7 +72,7 @@ class PageableInventoryTest {
                 .builder()
                 .player(player)
                 .type(TYPE)
-                .layout(new InventoryLayout(TYPE))
+                .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(12)
                 .values(this.slots)
                 .title(Component.text("A"));
@@ -88,7 +88,7 @@ class PageableInventoryTest {
 
     @Test
     void testNoChestInventory(Env env) {
-        var builder = PageableInventory.builder().layout(new InventoryLayout(TYPE)).slotRange(12, 13);
+        var builder = PageableInventory.builder().layout(InventoryLayout.fromType(TYPE)).slotRange(12, 13);
         assertThrowsExactly(
                 IllegalArgumentException.class,
                 () -> builder.type(InventoryType.CRAFTING).build(),
@@ -98,7 +98,7 @@ class PageableInventoryTest {
 
     @Test
     void testInvalidItemRange(Env env) {
-        var builder = PageableInventory.builder().layout(new InventoryLayout(TYPE)).type(TYPE);
+        var builder = PageableInventory.builder().layout(InventoryLayout.fromType(TYPE)).type(TYPE);
         assertThrowsExactly(IllegalArgumentException.class,
                 () -> builder.slotRange().build(),
                 "The slotRange can't be zero"
@@ -114,7 +114,7 @@ class PageableInventoryTest {
                 .player(player)
                 .title(Component.text("Test title"))
                 .type(TYPE)
-                .layout(new InventoryLayout(TYPE))
+                .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
                 .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
                 .values(items)
@@ -158,7 +158,7 @@ class PageableInventoryTest {
                 .player(player)
                 .title(Component.text("Test title"))
                 .type(TYPE)
-                .layout(new InventoryLayout(TYPE))
+                .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
                 .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
                 .values(items)

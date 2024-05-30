@@ -40,7 +40,7 @@ public non-sealed class Item implements IItem {
     }
 
     /**
-     * Creates a new object reference from the {@link Item} with an given {@link ItemStack}.
+     * Creates a new object reference from the {@link Item} with a given {@link ItemStack}.
      * @param stack the stack for the object
      * @return the created reference instance
      */

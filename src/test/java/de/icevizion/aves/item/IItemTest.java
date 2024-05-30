@@ -20,6 +20,7 @@ class IItemTest {
     @Test
     void testNonTranslatedItemWithMaterial() {
         var item = Item.of(Material.AIR);
+        assertNotSame(IItem.AIR, item);
         assertNotSame(ItemStack.AIR, item.get());
     }
 
