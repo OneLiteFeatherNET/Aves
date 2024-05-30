@@ -20,8 +20,8 @@ class GlobalInventoryBuilderTest {
         var instance = env.createFlatInstance();
         var player = env.createPlayer(instance, Pos.ZERO);
         var builder = new GlobalInventoryBuilder(Component.text("Test"), InventoryType.CHEST_2_ROW);
-        var layout = new InventoryLayout(builder.getType());
-        var dataLayout = new InventoryLayout(builder.getType());
+        var layout = new InventoryLayoutImpl(builder.getType());
+        var dataLayout = new InventoryLayoutImpl(builder.getType());
 
         dataLayout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), ItemStack.builder(Material.DIAMOND));
 

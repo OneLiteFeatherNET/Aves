@@ -1,6 +1,7 @@
 package de.icevizion.aves.util;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0.0
  * @since 1.0.0
  **/
+@ApiStatus.NonExtendable
 public final class Futures {
 
     private Futures() {}

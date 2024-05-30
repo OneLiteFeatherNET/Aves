@@ -71,7 +71,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         this.title = title;
         this.pageableControls = controls;
         this.layout = layout;
-        this.dataLayout = new InventoryLayout(type);
+        this.dataLayout = InventoryLayout.fromType(type);
         this.items = items;
         this.currentPage = 1;
         this.slotRange = slotRange;

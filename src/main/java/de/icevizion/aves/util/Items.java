@@ -2,6 +2,7 @@ package de.icevizion.aves.util;
 
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * @since 1.0.6
  * @version 1.0.0
  */
+@ApiStatus.NonExtendable
 public final class Items {
 
     public static final int MAX_STACK_SIZE = 64;
