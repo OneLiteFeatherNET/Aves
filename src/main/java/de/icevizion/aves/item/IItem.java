@@ -1,6 +1,7 @@
 package de.icevizion.aves.item;
 
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Locale;
@@ -14,6 +15,8 @@ import java.util.Locale;
  * @since 1.0.13
  **/
 public sealed interface IItem permits Item, TranslatedItem {
+
+    @NotNull IItem AIR = Item.of(ItemStack.AIR);
 
     /**
      * Returns the underlying {@link ItemStack}.

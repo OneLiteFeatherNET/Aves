@@ -1,27 +1,38 @@
 package de.icevizion.aves.util;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.StringJoiner;
 
+/**
+ * The class contains some useful methods for string manipulation.
+ * Each method has a specific context for the game Minecraft and doesn't relate to a general string manipulation utility.
+ *
+ * @author theEvilReaper
+ * @version 1.0.0
+ * @since 1.2.0
+ */
+@ApiStatus.NonExtendable
 public final class Strings {
 
+     private static final String INT_FORMAT = "%02d";
     private static final int TIME_DIVIDER = 60;
-
     private static final char SPACE = ' ';
     public static final String UTF_8_HEART = "\u2665";
 
-    private Strings() {}
+    private Strings() { }
 
     /**
      * Centers a given text with a given length of a line.
-     * @param text The text to center
+     *
+     * @param text       The text to center
      * @param lineLength The length of a line
      * @return The centered text
      */
-    @NotNull
-    public static String centerText(@NotNull String text, int lineLength) {
+    @Contract(value = "_, _ -> new", pure = true)
+    public static @NotNull String centerText(@NotNull String text, int lineLength) {
         text = text.trim();
         if (text.isEmpty()) {
             throw new IllegalArgumentException("The text can not be empty");
@@ -42,6 +53,7 @@ public final class Strings {
 
     /**
      * Convert a time value into the given format from the {@link TimeFormat} entry.
+     *
      * @param time The time who should be converted
      * @return The converted time
      */
@@ -59,11 +71,10 @@ public final class Strings {
         if (timeFormat == TimeFormat.HH_MM_SS) {
             int hours = minutes / TIME_DIVIDER;
             minutes = minutes % TIME_DIVIDER;
-            stringJoiner.add(String.format("%02d", hours));
+            stringJoiner.add(String.format(INT_FORMAT, hours));
         }
-        stringJoiner.add(String.format("%02d", minutes));
-        stringJoiner.add(String.format("%02d", seconds));
-
+        stringJoiner.add(String.format(INT_FORMAT, minutes));
+        stringJoiner.add(String.format(INT_FORMAT, seconds));
         return stringJoiner.toString();
     }
 }

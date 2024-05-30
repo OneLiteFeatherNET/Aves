@@ -76,13 +76,13 @@ public abstract class InventoryBuilder {
      */
     private void acceptClick(@Nullable ISlot slot, @NotNull Player player, @NotNull ClickType clickType, int slotID, @NotNull InventoryConditionResult result) {
         if (slot != null && slot.getClick() != null) {
-            slot.getClick().onClick(player, clickType, slotID, result);
+            slot.getClick().onClick(player, slotID, clickType, result);
         }
     }
 
     /**
      * Set a new reference to the data layout
-     * @param dataLayout The {@link InventoryLayout} to set
+     * @param dataLayout The {@link InventoryLayoutImpl} to set
      */
     public void setDataLayoutFunction(ThrowingFunction<InventoryLayout, InventoryLayout> dataLayout) {
         this.dataLayoutFunction = dataLayout;
@@ -217,7 +217,7 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Executes the logic to retrieve the {@link InventoryLayout} which comes from the {@link ThrowingFunction}.
+     * Executes the logic to retrieve the {@link InventoryLayoutImpl} which comes from the {@link ThrowingFunction}.
      */
     protected void retrieveDataLayout() {
         synchronized (this) {
@@ -288,16 +288,16 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Set a new instance of the {@link InventoryLayout} to the builder
-     * @param inventoryLayout The layout to set
+     * Set a new instance of the {@link InventoryLayoutImpl} to the builder
+     * @param inventoryLayoutImpl The layout to set
      */
-    public InventoryBuilder setLayout(@NotNull InventoryLayout inventoryLayout) {
-        this.inventoryLayout = inventoryLayout;
+    public InventoryBuilder setLayout(@NotNull InventoryLayout inventoryLayoutImpl) {
+        this.inventoryLayout = inventoryLayoutImpl;
         return this;
     }
 
     /**
-     * Returns the underlying {@link InventoryLayout}.
+     * Returns the underlying {@link InventoryLayoutImpl}.
      * @return the given layout
      */
     @Nullable
@@ -306,7 +306,7 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Get underlying data {@link InventoryLayout}.
+     * Get underlying data {@link InventoryLayoutImpl}.
      * @return the given layout
      */
     @Nullable

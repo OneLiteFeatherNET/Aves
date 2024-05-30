@@ -49,8 +49,7 @@ public class BaseMap {
      * @param name     The name from the map
      */
     @Contract(value = "_ -> new", pure = true)
-    @NotNull
-    public static BaseMap of(@NotNull String name) {
+    public static @NotNull BaseMap of(@NotNull String name) {
         return new BaseMap(name, null);
     }
 
@@ -62,8 +61,7 @@ public class BaseMap {
      * @param spawn    The spawn location from the map
      */
     @Contract(value = "_, _ -> new", pure = true)
-    @NotNull
-    public static BaseMap of(@NotNull String name, Pos spawn) {
+    public static @NotNull BaseMap of(@NotNull String name, Pos spawn) {
         return new BaseMap(name, spawn, "Team");
     }
 
@@ -76,8 +74,7 @@ public class BaseMap {
      * @param spawn    The spawn location from the map
      */
     @Contract(value = "_, _, _ -> new", pure = true)
-    @NotNull
-    public static BaseMap of(@NotNull String name, Pos spawn, String... builders) {
+    public static @NotNull BaseMap of(@NotNull String name, Pos spawn, String... builders) {
         return new BaseMap(name, spawn, builders);
     }
 
@@ -116,7 +113,7 @@ public class BaseMap {
      * Set the builder of a map
      * @param builders the builder's to set
      */
-    public void setBuilders(String... builders) {
+    public void setBuilders(@Nullable String... builders) {
         this.builders = builders;
     }
 
@@ -133,8 +130,7 @@ public class BaseMap {
      *
      * @return the name of the map
      */
-    @Nullable
-    public String getName() {
+    public @Nullable String getName() {
         return name;
     }
 
@@ -143,8 +139,7 @@ public class BaseMap {
      *
      * @return the builders of the map
      */
-    @Nullable
-    public String[] getBuilders() {
+    public @Nullable String[] getBuilders() {
         return builders;
     }
 
@@ -153,8 +148,7 @@ public class BaseMap {
      *
      * @return the spawn of the map
      */
-    @Nullable
-    public Pos getSpawn() {
+    public @Nullable Pos getSpawn() {
         return spawn;
     }
 }

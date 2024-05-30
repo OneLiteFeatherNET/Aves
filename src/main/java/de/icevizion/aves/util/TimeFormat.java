@@ -28,7 +28,7 @@ public enum TimeFormat {
      * Returns the default format from the specific format.
      * @return the given format
      */
-    public String getDefaultFormat() {
+    public @NotNull String getDefaultFormat() {
         return defaultFormat;
     }
 }
