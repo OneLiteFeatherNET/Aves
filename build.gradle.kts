@@ -8,19 +8,13 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-version = "1.4.3"
+version = "1.4.4"
 description = "Aves"
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
-}
-
-repositories {
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-    mavenCentral()
-    maven("https://jitpack.io")
 }
 
 configurations.all {
