@@ -174,9 +174,8 @@ public abstract class InventoryBuilder {
                                    Locale locale,
                                    MessageProvider messageProvider,
                                    boolean applyLayout) {
-        if (getLayout() == null) {
-            LOGGER.info("Can't update content because the main layout is null");
-            return;
+        if (this.inventoryLayout == null && this.dataLayout == null) {
+            throw new IllegalStateException("Can't update content because the layout and datalayout is null");
         }
 
         // Design
@@ -265,7 +264,7 @@ public abstract class InventoryBuilder {
      * Returns the given {@link InventoryType} for the inventory.
      * @return the given type
      */
-    public InventoryType getType() {
+    public @NotNull InventoryType getType() {
         return type;
     }
 
@@ -300,8 +299,7 @@ public abstract class InventoryBuilder {
      * Returns the underlying {@link InventoryLayoutImpl}.
      * @return the given layout
      */
-    @Nullable
-    public InventoryLayout getLayout() {
+    public @Nullable InventoryLayout getLayout() {
         return inventoryLayout;
     }
 
@@ -309,8 +307,7 @@ public abstract class InventoryBuilder {
      * Get underlying data {@link InventoryLayoutImpl}.
      * @return the given layout
      */
-    @Nullable
-    public InventoryLayout getDataLayout() {
+    public @Nullable InventoryLayout getDataLayout() {
         return dataLayout;
     }
 }
