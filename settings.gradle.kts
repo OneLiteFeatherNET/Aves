@@ -34,7 +34,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("microtus","1.4.2-SNAPSHOT")
+            version("microtus","1.4.2")
             library("microtus-bom", "net.onelitefeather.microtus", "bom").versionRef("microtus")
             library("microtus-core", "net.onelitefeather.microtus", "Microtus").withoutVersion()
             library("microtus-test", "net.onelitefeather.microtus.testing", "testing").withoutVersion()
