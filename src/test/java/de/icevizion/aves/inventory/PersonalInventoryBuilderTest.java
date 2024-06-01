@@ -17,7 +17,7 @@ class PersonalInventoryBuilderTest {
         var instance = env.createFlatInstance();
         var player = env.createPlayer(instance, Pos.ZERO);
         var builder = new PersonalInventoryBuilder(Component.text("Test"), InventoryType.CHEST_1_ROW, player);
-
+        builder.setLayout(InventoryLayout.fromType(builder.getType()));
         builder.open();
 
         builder.register();

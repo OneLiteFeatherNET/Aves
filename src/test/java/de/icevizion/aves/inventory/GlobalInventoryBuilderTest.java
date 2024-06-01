@@ -58,6 +58,7 @@ class GlobalInventoryBuilderTest {
         var component = Component.text("Test");
         var instance = env.createFlatInstance();
         var builder = new GlobalInventoryBuilder(component, InventoryType.CHEST_2_ROW);
+        builder.setLayout(InventoryLayout.fromType(builder.getType()));
         builder.setOpenFunction(event -> event.getPlayer().sendMessage(component));
         builder.setCloseFunction(event ->  event.getPlayer().sendMessage(component));
         builder.register();

@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-version = "1.4.4"
+version = "1.4.5"
 description = "Aves"
 
 java {
@@ -65,11 +65,15 @@ tasks {
 publishData {
     addBuildData()
     useGitlabReposForProject("16", "https://gitlab.themeinerlp.dev/")
+    publishTask("shadowJar")
 }
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
+            // configure the publication as defined previously.
             publishData.configurePublication(this)
+            version = publishData.getVersion(false)
         }
     }
     repositories {

@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.testing.Env;
 import net.minestom.testing.EnvTest;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -15,23 +14,25 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class InventoryBuilderTest {
 
-    Component title = Component.text("Title");
+    final Component title = Component.text("Title");
 
-    InventoryType type = InventoryType.CHEST_3_ROW;
+    final InventoryType type = InventoryType.CHEST_3_ROW;
 
-    GlobalInventoryBuilder builder;
-
-    @BeforeAll
-    void onInit(Env env) {
-        builder = new GlobalInventoryBuilder(title, type);
+    @Test
+    void testInventoryUpdateWhichRaisesAnException(Env env) {
+        var builder = new GlobalInventoryBuilder(title, type);
+        var exception = assertThrows(IllegalStateException.class, builder::updateInventory);
+        assertEquals("Can't update content because the layout and datalayout is null", exception.getMessage());
     }
 
     @Test
     void testTitleUpdate(Env env) {
-        var currentTitle = plainText().serialize(this.builder.getInventory().getTitle());
-        this.builder.setTitleComponent(Component.text("Test 2"));
+        var builder = new GlobalInventoryBuilder(title, type);
+        builder.setLayout(InventoryLayout.fromType(type));
+        var currentTitle = plainText().serialize(builder.getInventory().getTitle());
+        builder.setTitleComponent(Component.text("Test 2"));
 
-        var newTitle = plainText().serialize(this.builder.getInventory().getTitle());
+        var newTitle = plainText().serialize(builder.getInventory().getTitle());
 
         assertNotEquals(currentTitle, newTitle);
     }
