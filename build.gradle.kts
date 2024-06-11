@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-version = "1.4.5"
+version = "1.4.6"
 description = "Aves"
 
 java {
@@ -66,6 +66,7 @@ publishData {
     addBuildData()
     useGitlabReposForProject("16", "https://gitlab.themeinerlp.dev/")
     publishTask("shadowJar")
+    publishTask("jar")
 }
 
 publishing {
