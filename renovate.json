@@ -4,7 +4,7 @@
     "config:base",
     ":semanticCommitsDisabled"
   ],
-  "assignees": ["theeveilreaper"],
+  "assignees": ["theevilreaper"],
   "ignoreDeps": [],
   "labels": ["Renovate"],
   "rebaseWhen": "conflicted",

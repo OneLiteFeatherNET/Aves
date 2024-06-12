@@ -42,7 +42,6 @@ dependencyResolutionManagement {
             version("junit", "5.10.2")
             version("mockito", "5.12.0")
             version("publishdata", "1.4.0")
-            library("strigiformes", "com.github.PatrickZdarsky", "Strigiformes").version("e89dd8352c")
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").versionRef("junit")
             library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").versionRef("junit")
             library("mockito-core", "org.mockito", "mockito-core").versionRef("mockito")

@@ -1,6 +1,5 @@
 package de.icevizion.aves.inventory;
 
-import at.rxcki.strigiformes.MessageProvider;
 import de.icevizion.aves.inventory.function.CloseFunction;
 import de.icevizion.aves.inventory.function.OpenFunction;
 import de.icevizion.aves.inventory.util.InventoryConstants;
@@ -166,23 +165,21 @@ public abstract class InventoryBuilder {
      * @param inventory the inventory which should receive the update
      * @param title the title for the inventory
      * @param locale the locale for the inventory
-     * @param messageProvider the instance to a {@link MessageProvider}
      * @param applyLayout if the layout should be applied
      */
     protected void updateInventory(@NotNull Inventory inventory,
                                    Component title,
                                    Locale locale,
-                                   MessageProvider messageProvider,
                                    boolean applyLayout) {
-        if (this.inventoryLayout == null && this.dataLayout == null) {
-            throw new IllegalStateException("Can't update content because the layout and datalayout is null");
+        if (this.inventoryLayout == null) {
+            throw new IllegalStateException("Can't update content because the layout is null");
         }
 
         // Design
         if (applyLayout) {
             var contents = inventory.getItemStacks();
             inventory.clear();
-            getLayout().applyLayout(contents, locale, messageProvider);
+            getLayout().applyLayout(contents, locale);
             this.setItemsInternal(inventory, contents);
             LOGGER.info("UpdateInventory applied the InventoryLayout!");
             this.inventoryLayoutValid = true;
@@ -195,7 +192,7 @@ public abstract class InventoryBuilder {
             } else {
                 if (getDataLayout() != null) {
                     var contents = inventory.getItemStacks();
-                    getDataLayout().applyLayout(contents, locale, messageProvider);
+                    getDataLayout().applyLayout(contents, locale);
                     this.setItemsInternal(inventory, contents);
                 }
             }

@@ -2,13 +2,12 @@ plugins {
     java
     `java-library`
     `maven-publish`
-    id("io.github.goooler.shadow") version "8.1.7"
     jacoco
     alias(libs.plugins.publishdata)
 }
 
 group = "de.icevizion.lib"
-version = "1.4.6"
+version = "1.5.0"
 description = "Aves"
 
 java {
@@ -22,7 +21,6 @@ configurations.all {
 }
 
 dependencies {
-    implementation(libs.strigiformes)
     implementation(platform(libs.microtus.bom))
     compileOnly(libs.microtus.core)
 
@@ -65,7 +63,6 @@ tasks {
 publishData {
     addBuildData()
     useGitlabReposForProject("16", "https://gitlab.themeinerlp.dev/")
-    publishTask("shadowJar")
     publishTask("jar")
 }
 
@@ -73,8 +70,8 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             // configure the publication as defined previously.
-            publishData.configurePublication(this)
-            version = publishData.getVersion(false)
+           publishData.configurePublication(this)
+           version = publishData.getVersion(false)
         }
     }
     repositories {

@@ -76,7 +76,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
             this.inventory.addInventoryCondition(inventoryCondition);
             applyLayout = true;
         }
-        updateInventory(inventory, titleComponent, null, null, applyLayout);
+        updateInventory(inventory, titleComponent, null, applyLayout);
         updateViewer(inventory);
     }
 
@@ -89,7 +89,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
             if (getDataLayout() != null) {
                 LOGGER.info("Applying data layouts");
                 var contents = inventory.getItemStacks();
-                getDataLayout().applyLayout(contents, null, null);
+                getDataLayout().applyLayout(contents, null);
                 for (int i = 0; i < contents.length; i++) {
                     if (contents[i] == null) {
                         this.inventory.setItemStack(i, ItemStack.AIR);

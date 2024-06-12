@@ -21,7 +21,7 @@ class InventoryLayoutTest {
     @Test
     void testCopyConstructor() {
         var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
-        layout.setItem(0, new TranslatedSlot(TranslatedItem.empty()));
+        layout.setItem(0, new TranslatedSlot(TranslatedItem.EMPTY));
         layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ALLIUM).build());
         var copiedLayout = InventoryLayout.of(layout);
 
@@ -51,7 +51,7 @@ class InventoryLayoutTest {
 
         layout.setItem(1, ItemStack.builder(Material.ALLIUM).build());
 
-        layout.applyLayout(itemStacks, Locale.CANADA, null);
+        layout.applyLayout(itemStacks, Locale.CANADA);
 
         assertSame(Material.ALLIUM, layout.getSlot(1).getItem().material());
     }
