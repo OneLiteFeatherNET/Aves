@@ -38,10 +38,6 @@ tasks {
         options.release.set(21)
     }
 
-    jar {
-        dependsOn("shadowJar")
-    }
-
     jacocoTestReport {
         dependsOn(rootProject.tasks.test)
         reports {
