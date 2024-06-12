@@ -1,6 +1,5 @@
 package de.icevizion.aves.inventory;
 
-import at.rxcki.strigiformes.MessageProvider;
 import de.icevizion.aves.inventory.function.ApplyLayoutFunction;
 import de.icevizion.aves.inventory.function.DefaultApplyLayoutFunction;
 import de.icevizion.aves.inventory.function.InventoryClick;
@@ -55,12 +54,10 @@ public final class InventoryLayoutImpl implements InventoryLayout {
         this.contents = new ISlot[layout.getContents().length];
         for (int i = 0; i < layout.getContents().length; i++) {
             var slotEntry = layout.getContents()[i];
-            if (slotEntry instanceof InventorySlot inventorySlot) {
-                this.contents[i] = InventorySlot.of(inventorySlot);
-            } else if (slotEntry instanceof TranslatedSlot translatedSlot) {
-                this.contents[i] = TranslatedSlot.of(translatedSlot);
-            } else {
-                LoggerFactory.getLogger("Aves").info("Found a slot which can not be converted");
+            switch (slotEntry) {
+                case InventorySlot inventorySlot -> this.contents[i] = InventorySlot.of(inventorySlot);
+                case TranslatedSlot translatedSlot -> this.contents[i] = TranslatedSlot.of(translatedSlot);
+                default -> LoggerFactory.getLogger("Aves").info("Found a slot which can not be converted");
             }
         }
         this.applyLayoutFunction = layout.getApplyLayoutFunction();
@@ -83,14 +80,13 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public void applyLayout(ItemStack[] itemStacks) {
-        this.applyLayoutFunction.applyLayout(itemStacks, null, null);
+        this.applyLayoutFunction.applyLayout(itemStacks, null);
     }
 
     @Override
-    public void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider) {
-        this.applyLayoutFunction.applyLayout(itemStacks, locale, messageProvider);
+    public void applyLayout(ItemStack[] itemStacks, Locale locale) {
+        this.applyLayoutFunction.applyLayout(itemStacks, locale);
     }
-
 
     @Override
     public @NotNull InventoryLayoutImpl setItem(int slot, ItemStack.@NotNull Builder itemBuilder, @Nullable InventoryClick clickEvent) {

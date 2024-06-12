@@ -1,6 +1,5 @@
 package de.icevizion.aves.inventory.function;
 
-import at.rxcki.strigiformes.MessageProvider;
 import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.item.ItemStack;
@@ -32,11 +31,10 @@ public class DefaultApplyLayoutFunction implements ApplyLayoutFunction {
     /**
      * Applies the given content which is located in the {@link ISlot} array to the given array from the method.
      * @param itemStacks the array which contains {@link ItemStack}'s
-     * @param messageProvider an instance to a {@link MessageProvider}(can be null)
      * @param locale the locale to get the right item if the context is translated
      */
     @Override
-    public void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider) {
+    public void applyLayout(ItemStack[] itemStacks, Locale locale) {
         if (itemStacks == null || itemStacks.length == 0) return;
         for (int i = 0; i < itemStacks.length; i++) {
             ISlot slot = contents[i];
@@ -49,7 +47,7 @@ public class DefaultApplyLayoutFunction implements ApplyLayoutFunction {
             if (slot == EMPTY_SLOT) {
                 itemStacks[i] = null;
             } else {
-                setItemStack(slot, itemStacks, messageProvider, locale, i);
+                setItemStack(slot, itemStacks, locale, i);
             }
         }
     }
@@ -60,16 +58,11 @@ public class DefaultApplyLayoutFunction implements ApplyLayoutFunction {
      * When the slot is {@link TranslatedSlot} the method use the locale variable to get the right {@link ItemStack}
      * @param slot the slot to get the item from it
      * @param itemStacks the array which contains {@link ItemStack}'s
-     * @param messageProvider an instance to a {@link MessageProvider}(can be null)
      * @param locale the locale to get the right item if the context is translated
      * @param index the index position to set the item
      */
-    private void setItemStack(@NotNull ISlot slot, @NotNull ItemStack[] itemStacks, MessageProvider messageProvider, Locale locale, int index) {
+    private void setItemStack(@NotNull ISlot slot, @NotNull ItemStack[] itemStacks, Locale locale, int index) {
         if (slot instanceof TranslatedSlot translatedSlot) {
-            if (translatedSlot.getTranslatedItem().getMessageProvider() == null) {
-                translatedSlot.getTranslatedItem().setMessageProvider(messageProvider);
-            }
-
             itemStacks[index] = translatedSlot.getItem(locale);
         } else {
             itemStacks[index] = slot.getItem();

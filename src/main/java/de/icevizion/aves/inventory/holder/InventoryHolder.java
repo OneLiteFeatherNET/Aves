@@ -15,6 +15,5 @@ public interface InventoryHolder {
      * Returns the inventory from the holder
      * @return the underling inventory
      */
-    @NotNull
-    Inventory getInventory();
+    @NotNull Inventory getInventory();
 }

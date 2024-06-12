@@ -56,7 +56,7 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
 
     /**
      * Unregisters all listeners from the event graph.
-     * Also the inventory will be closed for all players who have this is inventory open.
+     * Also, the inventory will be closed for all players who have this is inventory open.
      */
     @Override
     public void unregister() {

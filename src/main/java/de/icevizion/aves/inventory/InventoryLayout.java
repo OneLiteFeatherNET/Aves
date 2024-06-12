@@ -1,6 +1,5 @@
 package de.icevizion.aves.inventory;
 
-import at.rxcki.strigiformes.MessageProvider;
 import de.icevizion.aves.inventory.function.ApplyLayoutFunction;
 import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.ISlot;
@@ -65,9 +64,8 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      *
      * @param itemStacks      the array which should be applied
      * @param locale          the locale to apply
-     * @param messageProvider the message provider to get the translation
      */
-    void applyLayout(ItemStack[] itemStacks, Locale locale, MessageProvider messageProvider);
+    void applyLayout(ItemStack[] itemStacks, Locale locale);
 
     /**
      * Set's a single item to one slot with a given listener.

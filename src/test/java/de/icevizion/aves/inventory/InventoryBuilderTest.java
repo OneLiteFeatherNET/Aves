@@ -3,14 +3,14 @@ package de.icevizion.aves.inventory;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.testing.Env;
-import net.minestom.testing.EnvTest;
+import net.minestom.testing.annotations.EnvironmentTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnvTest
+@EnvironmentTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class InventoryBuilderTest {
 
@@ -22,7 +22,7 @@ class InventoryBuilderTest {
     void testInventoryUpdateWhichRaisesAnException(Env env) {
         var builder = new GlobalInventoryBuilder(title, type);
         var exception = assertThrows(IllegalStateException.class, builder::updateInventory);
-        assertEquals("Can't update content because the layout and datalayout is null", exception.getMessage());
+        assertEquals("Can't update content because the layout is null", exception.getMessage());
     }
 
     @Test

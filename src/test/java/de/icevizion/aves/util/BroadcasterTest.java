@@ -1,7 +1,6 @@
 package de.icevizion.aves.util;
 
 import net.kyori.adventure.text.Component;
-import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import org.junit.jupiter.api.Test;
 
