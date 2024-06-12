@@ -1,6 +1,5 @@
 package de.icevizion.aves.inventory;
 
-import at.rxcki.strigiformes.MessageProvider;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.NotNull;
@@ -20,11 +19,10 @@ public class PersonalTranslatedInventoryBuilder extends GlobalTranslatedInventor
     /**
      * Creates a new instance from the {@link PersonalTranslatedInventoryBuilder} with the given values.
      * @param type The type for the inventory
-     * @param messageProvider A valid instance to a {@link MessageProvider}
      * @param player The player who owns the inventory
      */
-    public PersonalTranslatedInventoryBuilder(@NotNull InventoryType type, MessageProvider messageProvider, @NotNull Player player) {
-        super(type, messageProvider);
+    public PersonalTranslatedInventoryBuilder(@NotNull InventoryType type, @NotNull Player player) {
+        super(type);
         this.player = player;
     }
 

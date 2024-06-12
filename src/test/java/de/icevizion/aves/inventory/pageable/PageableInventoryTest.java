@@ -11,7 +11,7 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.testing.Env;
-import net.minestom.testing.EnvTest;
+import net.minestom.testing.annotations.EnvironmentTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -21,7 +21,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnvTest
+@EnvironmentTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PageableInventoryTest {
 

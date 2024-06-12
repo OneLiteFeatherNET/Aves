@@ -1,26 +1,24 @@
 package de.icevizion.aves.inventory;
 
-import at.rxcki.strigiformes.MessageProvider;
+
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
-import net.minestom.testing.Env;
-import net.minestom.testing.EnvTest;
+import net.minestom.testing.annotations.EnvironmentTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@EnvTest
+@EnvironmentTest
 @ExtendWith(MockitoExtension.class)
 class PersonalTranslatedInventoryBuilderTest {
 
     @Test
-    void testConstructor(Env env) {
-        var provider = Mockito.mock(MessageProvider.class);
+    void testConstructor() {
         var player = Mockito.mock(Player.class);
-        var builder = new PersonalTranslatedInventoryBuilder(InventoryType.CHEST_2_ROW, provider, player);
+        var builder = new PersonalTranslatedInventoryBuilder(InventoryType.CHEST_2_ROW, player);
         assertNotNull(builder);
     }
 }

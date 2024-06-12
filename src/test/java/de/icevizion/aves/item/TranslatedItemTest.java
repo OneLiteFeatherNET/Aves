@@ -1,29 +1,66 @@
 package de.icevizion.aves.item;
 
-import at.rxcki.strigiformes.MessageProvider;
-import at.rxcki.strigiformes.message.CompoundMessageCache;
-import at.rxcki.strigiformes.text.TextData;
+import de.icevizion.aves.i18n.AvesTranslationRegistry;
 import de.icevizion.aves.inventory.util.InventoryConstants;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.TranslationRegistry;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.text.MessageFormat;
+import java.util.List;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class TranslatedItemTest {
 
     @Test
-    void testTranslatedItemWithStackReference() {
-        var item = TranslatedItem.of(ItemStack.AIR);
+    void testRendererAves() {
+        var item = TranslatedItem.of(ItemStack.of(Material.ACACIA_BUTTON));
+        item.setDisplayName("key", "Argument 1", "Argument 2");
+        TranslationRegistry translationRegistry = TranslationRegistry.create(Key.key("test", "test"));
+        translationRegistry.register("key", Locale.ENGLISH, new MessageFormat("<arg:0> <arg:1>"));
+        GlobalTranslator.translator().addSource(new AvesTranslationRegistry(translationRegistry));
+        Component displayName = item.get(Locale.ENGLISH).getDisplayName();
+        assertTrue(PlainTextComponentSerializer.plainText().serialize(displayName).equalsIgnoreCase("Argument 1 Argument 2"));
+    }
 
-        assertSame(ItemStack.AIR, item.get(Locale.ENGLISH));
-        assertNull(item.getMessageProvider());
+    @Test
+    void testRenderer() {
+        var item = TranslatedItem.of(ItemStack.of(Material.ACACIA_BUTTON));
+        item.setDisplayName("key", "Argument 1", "Argument 2");
+        TranslationRegistry translationRegistry = TranslationRegistry.create(Key.key("test", "test"));
+        translationRegistry.register("key", Locale.ENGLISH, new MessageFormat("{0} {1}"));
+        GlobalTranslator.translator().addSource(translationRegistry);
+        Component displayName = item.get(Locale.ENGLISH).getDisplayName();
+        assertTrue(PlainTextComponentSerializer.plainText().serialize(displayName).equalsIgnoreCase("Argument 1 Argument 2"));
+    }
+
+    @Test
+    void testRendererLore() {
+        var item = TranslatedItem.of(ItemStack.of(Material.ACACIA_BUTTON));
+        item.setDisplayName("key", "Argument 1", "Argument 2");
+        item.setLore("key", "Argument 1", "Argument 2");
+        TranslationRegistry translationRegistry = TranslationRegistry.create(Key.key("test", "test"));
+        translationRegistry.register("key", Locale.ENGLISH, new MessageFormat("{0} {1}"));
+        GlobalTranslator.translator().addSource(translationRegistry);
+        List<Component> lore = item.get(Locale.ENGLISH).getLore();
+        assertLinesMatch(lore.stream().map(PlainTextComponentSerializer.plainText()::serialize).toList(), List.of("Argument 1 Argument 2"));
     }
 
     @Test
@@ -47,34 +84,6 @@ class TranslatedItemTest {
         var item = TranslatedItem.of(ItemStack.builder(Material.ACACIA_BOAT));
         assertNotNull(item);
         assertSame(Material.ACACIA_BOAT, item.get(Locale.ENGLISH).material());
-    }
-
-    @Test
-    void testCreateOfMethodWithBuilderAndMessageProvider() {
-        var item = TranslatedItem.of(ItemStack.builder(Material.ALLIUM), Mockito.mock(MessageProvider.class));
-        assertNotNull(item);
-    }
-
-    @Test
-    void testTranslatedMethods() {
-        var item = TranslatedItem.of(ItemStack.builder(Material.ALLIUM), Mockito.mock(MessageProvider.class));
-        var mockedCache = Mockito.mock(CompoundMessageCache.class);
-        item.setDisplayName(new TextData("displayName"));
-        item.setLore(new TextData("lore"));
-        assertThrows(IllegalStateException.class, () -> item.setLore(mockedCache));
-    }
-
-    @Test
-    void testEmptySlotCreation() {
-        var item = TranslatedItem.empty();
-        assertNotNull(item);
-    }
-
-    @Test
-    void testSetItemStackMethod() {
-        var item = TranslatedItem.empty();
-        item.setItemStack(ItemStack.builder(Material.ANDESITE_SLAB).build());
-        assertNotSame(Material.AIR, item.get(Locale.ENGLISH).material());
     }
 
     @Test
