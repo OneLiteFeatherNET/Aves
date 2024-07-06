@@ -39,7 +39,7 @@ dependencyResolutionManagement {
             library("microtus-core", "net.onelitefeather.microtus", "Microtus").withoutVersion()
             library("microtus-test", "net.onelitefeather.microtus.testing", "testing").withoutVersion()
 
-            version("junit", "5.10.2")
+            version("junit", "5.10.3")
             version("mockito", "5.12.0")
             version("publishdata", "1.4.0")
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").versionRef("junit")
