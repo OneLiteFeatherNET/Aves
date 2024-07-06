@@ -5,6 +5,7 @@ import net.kyori.adventure.text.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * The TextData is a record which holds some information about a message with optional arguments.
@@ -12,6 +13,23 @@ import java.util.Arrays;
  * @param args optional arguments for the message
  */
 public record TextData(@NotNull String key, @NotNull Component... args) {
+
+    /**
+     * Creates a new instance of the TextData.
+     * @param key the key for the message
+     * @return the created instance
+     */
+    public static @NotNull TextData of(@NotNull String key, @NotNull Component... args) {
+        return new TextData(key, args);
+    }
+
+    /**
+     * Creates a new instance of the TextData.
+     * @param key the key for the message
+     */
+    public static @NotNull TextData of(@NotNull String key, @NotNull String... args) {
+        return new TextData(key, args);
+    }
 
     /**
      * Creates a new instance of the TextData.
@@ -36,5 +54,18 @@ public record TextData(@NotNull String key, @NotNull Component... args) {
      */
     public @NotNull TranslatableComponent createComponent() {
         return args == null ? Component.translatable(key) : Component.translatable(key, args);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TextData textData = (TextData) o;
+        return Objects.equals(key, textData.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(key);
     }
 }
