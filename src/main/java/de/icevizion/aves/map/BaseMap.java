@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author theEvilReaper
  * @since 1.0.0
- * @version 1.0.4
+ * @version 1.0.5
  */
 public class BaseMap {
 
@@ -121,7 +121,7 @@ public class BaseMap {
      * Set the spawn location of a map
      * @param spawn the spawn location to set
      */
-    public void setSpawn(@NotNull Pos spawn) {
+    public void setSpawn(@Nullable Pos spawn) {
         this.spawn = spawn;
     }
 

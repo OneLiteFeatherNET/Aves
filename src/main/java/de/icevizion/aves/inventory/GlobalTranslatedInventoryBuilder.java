@@ -18,17 +18,20 @@ import java.util.Map;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-
 public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     private final Map<Locale,CustomInventory> inventoryTranslatedObjectCache = new HashMap<>();
     private TextData titleData;
 
+    /**
+     * Creates a new instance from the class with the given {@link InventoryType}.
+     * @param type the type to define the size of the inventory
+     */
     public GlobalTranslatedInventoryBuilder(@NotNull InventoryType type) {
         super(type);
     }
 
-    @Contract(value = " -> new", pure = true)
+    @Contract(value = "_ -> new", pure = true)
     private @NotNull CustomInventory create(Locale locale) {
         var title = GlobalTranslator.render(titleData.createComponent(), locale);
         var inventory = new CustomInventory(new InventoryHolderImpl(this), type, title);
@@ -42,7 +45,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
         this.unregister(NODE, openListener, closeListener);
         this.holder = null;
 
-        if (!this.inventoryTranslatedObjectCache.isEmpty()) return;
+        if (this.inventoryTranslatedObjectCache.isEmpty()) return;
 
         for (var entry : this.inventoryTranslatedObjectCache.entrySet()) {
             if (entry.getValue().getViewers().isEmpty()) continue;
@@ -102,19 +105,15 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
      * Overwrites the current {@link TextData} with a new one.
      * @param titleData The {@link TextData} to set.
      */
-
     public void setTitleData(@NotNull TextData titleData) {
         this.titleData = titleData;
     }
-
 
     /**
      * Returns the {@link TextData} from the builder.
      * @return The underlying value
      */
-
     public TextData getTitleData() {
         return titleData;
     }
 }
-

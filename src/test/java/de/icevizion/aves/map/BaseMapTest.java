@@ -14,14 +14,13 @@ class BaseMapTest {
 
     private BaseMap firstMap;
     private BaseMap secondMap;
-
     private String[] builders;
 
     @BeforeAll
     void init() {
         this.builders = new String[]{"theEvilReaper, Tresson", "SeelenRetterin"};
         this.firstMap = BaseMap.of("Test");
-        this.secondMap = BaseMap.of("Test", new Pos(120,51,23), builders[0], builders[1]);
+        this.secondMap = BaseMap.of("Test", new Pos(120, 51, 23), builders[0], builders[1]);
     }
 
     @Test
@@ -71,8 +70,8 @@ class BaseMapTest {
 
     @Test
     void testSetBuilders() {
-        var builders = new String[]{"theEvilReaper, SeelenRetterin"};
-        assertFalse(Arrays.equals(this.secondMap.getBuilders(), builders));
+        var mapBuilders = new String[]{"theEvilReaper, SeelenRetterin"};
+        assertFalse(Arrays.equals(this.secondMap.getBuilders(), mapBuilders));
     }
 
     @Test
@@ -88,7 +87,7 @@ class BaseMapTest {
 
     @Test
     void testSetSpawn() {
-        this.secondMap.setSpawn(new Pos(1,2,3));
+        this.secondMap.setSpawn(new Pos(1, 2, 3));
         assertNotNull(this.secondMap.getSpawn());
     }
 
