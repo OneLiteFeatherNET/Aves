@@ -27,6 +27,18 @@ dependencyResolutionManagement {
         }
     } else {
         repositories {
+            maven {
+                val groupdId = 28 // Gitlab Group
+                url = uri("https://gitlab.themeinerlp.dev/api/v4/groups/$groupdId/-/packages/maven")
+                name = "GitLab"
+                credentials(HttpHeaderCredentials::class.java) {
+                    name = "Private-Token"
+                    value = providers.gradleProperty("gitLabPrivateToken").get()
+                }
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
+            }
             maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             mavenCentral()
             maven("https://jitpack.io")
@@ -35,17 +47,16 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("microtus","1.4.2")
+            version("bom", "1.0.4")
+            version("publishdata", "1.4.0")
+            library("bom.base", "net.theevilreaper.dungeon.bom", "base").versionRef("bom")
             library("microtus-bom", "net.onelitefeather.microtus", "bom").versionRef("microtus")
             library("microtus-core", "net.onelitefeather.microtus", "Microtus").withoutVersion()
             library("microtus-test", "net.onelitefeather.microtus.testing", "testing").withoutVersion()
-
-            version("junit", "5.10.3")
-            version("mockito", "5.12.0")
-            version("publishdata", "1.4.0")
-            library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").versionRef("junit")
-            library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").versionRef("junit")
-            library("mockito-core", "org.mockito", "mockito-core").versionRef("mockito")
-            library("mockito-junit", "org.mockito", "mockito-junit-jupiter").versionRef("mockito")
+            library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").withoutVersion()
+            library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").withoutVersion()
+            library("mockito-core", "org.mockito", "mockito-core").withoutVersion()
+            library("mockito-junit", "org.mockito", "mockito-junit-jupiter").withoutVersion()
 
             plugin("publishdata", "de.chojo.publishdata").versionRef("publishdata")
         }
