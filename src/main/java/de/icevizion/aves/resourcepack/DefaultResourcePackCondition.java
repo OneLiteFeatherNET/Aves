@@ -40,15 +40,13 @@ public final class DefaultResourcePackCondition implements ResourcePackCondition
      */
     @Override
     public void handleStatus(@NotNull Player player, @NotNull ResourcePackStatus resourcePackStatus) {
-        if (resourcePackStatus == ResourcePackStatus.DECLINED) {
-            this.handleDeclined(player);
-            return;
+        switch (resourcePackStatus) {
+            case DECLINED -> this.handleDeclined(player);
+            case FAILED_DOWNLOAD -> this.handleDownloadFail(player);
+            default -> {
+                // Nothing to do
+            }
         }
-
-        if (resourcePackStatus == ResourcePackStatus.FAILED_DOWNLOAD) {
-            this.handleDownloadFail(player);
-        }
-
     }
 
     /**
