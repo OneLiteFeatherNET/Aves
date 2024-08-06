@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-version = "1.5.1"
+version = "1.5.2"
 description = "Aves"
 
 java {
@@ -21,6 +21,7 @@ configurations.all {
 }
 
 dependencies {
+    implementation(platform(libs.bom.base))
     implementation(platform(libs.microtus.bom))
     compileOnly(libs.microtus.core)
 

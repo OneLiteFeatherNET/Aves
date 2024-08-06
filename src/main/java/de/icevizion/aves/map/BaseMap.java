@@ -9,13 +9,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 /**
- * The map class represents a summary with all relevant map data
- * This contains some default values like the name, builders and spawn location
- * The map object needs a separate mapper or parser to edit / load the given structure
+ * The {@link BaseMap} defines a basic structure for a map which can be used in a game context or similar.
+ * It contains some default values like the name, builders and spawn location.
+ * The map object needs a separate mapper or parser to edit / load the given structure.
+ * It should be extended to add more values and methods to the map structure.
  *
  * @author theEvilReaper
- * @since 1.0.0
  * @version 1.0.5
+ * @since 1.0.0
  */
 public class BaseMap {
 
@@ -24,16 +25,19 @@ public class BaseMap {
     private Pos spawn;
 
     /**
-     * Empty constructor for jsoniter.
+     * Empty constructor to create a new instance of the {@link BaseMap} with any values.
+     * Sometimes such constructors are required for serialization or deserialization.
      */
-    public BaseMap() { }
+    public BaseMap() {
+    }
 
     /**
-     * The constructor sets all relevant values for a map.
+     * Creates a new reference from the {@link BaseMap}.
+     * It requires all values which are needed to create a map.
      *
-     * @param name     The name from the map
-     * @param builders The builders from the map
-     * @param spawn    The spawn location from the map
+     * @param name     the name from the map
+     * @param builders the builders from the map
+     * @param spawn    the spawn location from the map
      */
     public BaseMap(@NotNull String name, Pos spawn, String... builders) {
         Check.argCondition(name.trim().isEmpty(), "The name can not be null or empty");
@@ -44,9 +48,8 @@ public class BaseMap {
 
     /**
      * Creates a new instance from the {@link BaseMap} with all given values.
-     * This method should only be used at runtime
      *
-     * @param name     The name from the map
+     * @param name the name from the map
      */
     @Contract(value = "_ -> new", pure = true)
     public static @NotNull BaseMap of(@NotNull String name) {
@@ -55,23 +58,21 @@ public class BaseMap {
 
     /**
      * The constructor sets all relevant values for a map.
-     * This method should only be used at runtime
      *
-     * @param name     The name from the map
-     * @param spawn    The spawn location from the map
+     * @param name  the name from the map
+     * @param spawn the spawn location from the map
      */
     @Contract(value = "_, _ -> new", pure = true)
     public static @NotNull BaseMap of(@NotNull String name, Pos spawn) {
-        return new BaseMap(name, spawn, "Team");
+        return new BaseMap(name, spawn, "team");
     }
 
     /**
      * The constructor sets all relevant values for a map.
-     * This method should only be used at runtime
      *
-     * @param name     The name from the map
-     * @param builders The builders from the map
-     * @param spawn    The spawn location from the map
+     * @param name     the name from the map
+     * @param builders the builders from the map
+     * @param spawn    the spawn location from the map
      */
     @Contract(value = "_, _, _ -> new", pure = true)
     public static @NotNull BaseMap of(@NotNull String name, Pos spawn, String... builders) {
@@ -80,8 +81,9 @@ public class BaseMap {
 
     /**
      * Overrides the equal the method from the object class.
-     * @param o The object to compare
-     * @return True if the given object is the same otherwise false
+     *
+     * @param o the object to compare
+     * @return true if the given object is the same otherwise false
      */
     @Override
     public boolean equals(Object o) {
@@ -92,8 +94,11 @@ public class BaseMap {
     }
 
     /**
-     * Overrides hashCode from the object class.
-     * @return A hash value
+     * Returns a hash value from some data which are provided by the object.
+     * In general, the hash relies on the unique data.
+     * For the basic implementation that is only the name of the map.
+     *
+     * @return a created hash code
      */
     @Override
     public int hashCode() {
@@ -102,6 +107,7 @@ public class BaseMap {
 
     /**
      * Set the name of a map
+     *
      * @param name the name to set
      */
     public void setName(@NotNull String name) {
@@ -111,6 +117,7 @@ public class BaseMap {
 
     /**
      * Set the builder of a map
+     *
      * @param builders the builder's to set
      */
     public void setBuilders(@Nullable String... builders) {
@@ -119,10 +126,20 @@ public class BaseMap {
 
     /**
      * Set the spawn location of a map
+     *
      * @param spawn the spawn location to set
      */
     public void setSpawn(@Nullable Pos spawn) {
         this.spawn = spawn;
+    }
+
+    /**
+     * Checks if the map has a spawn location.
+     *
+     * @return true if the map has a spawn location otherwise false
+     */
+    public boolean hasSpawn() {
+        return spawn != null;
     }
 
     /**

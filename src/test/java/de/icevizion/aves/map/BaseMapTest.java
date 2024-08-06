@@ -82,6 +82,7 @@ class BaseMapTest {
 
     @Test
     void testNoSpawn() {
+        assertFalse(this.firstMap.hasSpawn());
         assertNull(this.firstMap.getSpawn());
     }
 

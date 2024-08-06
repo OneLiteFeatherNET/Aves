@@ -1,10 +1,12 @@
-package de.icevizion.aves.inventory;
+package de.icevizion.aves.inventory.util;
 
-import de.icevizion.aves.inventory.util.LayoutCalculator;
 import net.minestom.server.inventory.InventoryType;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -12,9 +14,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class LayoutCalculatorsTest {
 
     @Test
+    void testFrom() {
+        var testFrom = LayoutCalculator.from(1, 2, 3, 4, 5);
+
+        for (int i = 0; i < 5; i++) {
+            assertEquals(i + 1, testFrom[i]);
+        }
+    }
+
+    @Test
     void repeat() {
         var arr = LayoutCalculator.repeat(0, 3);
-        var expected = new int[]{0,1,2};
+        var expected = new int[]{0, 1, 2};
         assertArrayEquals(expected, arr);
     }
 
@@ -44,7 +55,7 @@ class LayoutCalculatorsTest {
     @Test
     void frame() {
         var arr = LayoutCalculator.frame(10, 31);
-        var expected = new int[] {10, 28, 11, 29, 12, 30, 13, 31, 19, 22};
+        var expected = new int[]{10, 28, 11, 29, 12, 30, 13, 31, 19, 22};
 
         assertArrayEquals(expected, arr);
     }

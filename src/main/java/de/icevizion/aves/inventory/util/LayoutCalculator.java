@@ -2,7 +2,10 @@ package de.icevizion.aves.inventory.util;
 
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.utils.validate.Check;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 import static de.icevizion.aves.inventory.util.InventoryConstants.*;
 
@@ -24,7 +27,7 @@ public final class LayoutCalculator {
      * @param toSlot The id from the end slot
      * @return an array which contains the slot numbers
      */
-    public static int[] repeat(int fromSlot, int toSlot) {
+    public static int @NotNull [] repeat(int fromSlot, int toSlot) {
         Check.argCondition(fromSlot > toSlot, "fromSlot cannot be higher that toSlot!");
         var arr = new int[toSlot - fromSlot];
         for (int i = 0; i < arr.length; i++) {
@@ -34,7 +37,17 @@ public final class LayoutCalculator {
         return arr;
     }
 
-    public static int[] quad(int firstCornerSlot, int lastCornerSlot) {
+    /**
+     * Creates a new array with the given slots.
+     * @param slots The slots to copy
+     * @return a new array with the given slots
+     */
+    @Contract(pure = true)
+    public static int @NotNull [] from(int... slots) {
+        return Arrays.copyOfRange(slots, 0, slots.length);
+    }
+
+    public static int @NotNull [] quad(int firstCornerSlot, int lastCornerSlot) {
         var x1 = firstCornerSlot % INVENTORY_WIDTH;
         var y1 = Math.floor(firstCornerSlot / (double)INVENTORY_WIDTH);
 
