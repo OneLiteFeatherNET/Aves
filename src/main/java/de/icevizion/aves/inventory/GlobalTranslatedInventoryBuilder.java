@@ -18,6 +18,7 @@ import java.util.Map;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
+@SuppressWarnings("java:S3252")
 public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     private final Map<Locale,CustomInventory> inventoryTranslatedObjectCache = new HashMap<>();
