@@ -74,7 +74,7 @@ class TranslatedItemTest {
 
     @Test
     void tesTranslatedItemGetWithoutLocale() {
-        var item = TranslatedItem.of(Material.AIR);
+        var item = TranslatedItem.of(Material.ACACIA_BOAT);
         var exception = assertThrows(UnsupportedOperationException.class, item::get);
         assertEquals("Can not get item without a locale in a translated context", exception.getMessage());
     }
@@ -88,12 +88,12 @@ class TranslatedItemTest {
 
     @Test
     void testHashCode() {
-        assertNotSame(12, TranslatedItem.of(Material.AIR).hashCode());
+        assertNotSame(12, TranslatedItem.of(Material.GOLDEN_APPLE).hashCode());
     }
 
     @Test
     void testToSlot() {
-        var slot = TranslatedItem.of(ItemStack.AIR).toSlot();
+        var slot = TranslatedItem.of(ItemStack.of(Material.ACACIA_LEAVES)).toSlot();
         assertNull(slot.getClick());
     }
 
@@ -111,8 +111,8 @@ class TranslatedItemTest {
 
     @Test
     void testEquals() {
-        var firstSlot = TranslatedItem.of(ItemStack.AIR);
-        var secondSlot = TranslatedItem.of(ItemStack.AIR);
+        var firstSlot = TranslatedItem.of(ItemStack.of(Material.ACACIA_SLAB));
+        var secondSlot = TranslatedItem.of(ItemStack.of(Material.GLOW_SQUID_SPAWN_EGG));
         assertThrows(NullPointerException.class, () -> firstSlot.equals(secondSlot));
     }
 }

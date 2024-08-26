@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
-import static de.icevizion.aves.inventory.util.InventoryConstants.EMPTY_SLOT;
+import static de.icevizion.aves.inventory.util.InventoryConstants.BLANK_SLOT;
 
 /**
  * This class includes a default implementation from the {@link ApplyLayoutFunction}.
@@ -44,7 +44,7 @@ public class DefaultApplyLayoutFunction implements ApplyLayoutFunction {
             if (slot instanceof TranslatedSlot && locale == null) {
                 throw new IllegalArgumentException("Tried to apply the InventoryLayout with an Translated slot and provided no locale!");
             }
-            if (slot == EMPTY_SLOT) {
+            if (slot == BLANK_SLOT) {
                 itemStacks[i] = null;
             } else {
                 setItemStack(slot, itemStacks, locale, i);

@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static de.icevizion.aves.inventory.util.InventoryConstants.EMPTY_SLOT;
+import static de.icevizion.aves.inventory.util.InventoryConstants.BLANK_SLOT;
 
 /**
  * The class is the implementation for the {@link PageableInventory} interface.
@@ -85,13 +85,13 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
 
         var backSlot = this.layout.getSlot(this.pageableControls.getBackSlot());
 
-        this.oldBackSlot = backSlot == null ? EMPTY_SLOT : ISlot.of(backSlot);
+        this.oldBackSlot = backSlot == null ? BLANK_SLOT : ISlot.of(backSlot);
 
         this.forwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
 
         var forwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
 
-        this.forwardSlot = forwardSlot == null ? EMPTY_SLOT : ISlot.of(forwardSlot);
+        this.forwardSlot = forwardSlot == null ? BLANK_SLOT : ISlot.of(forwardSlot);
 
         this.forwardClick = (clickPlayer, clickType, slot, condition) -> {
             this.update(PageAction.FORWARD);
@@ -255,7 +255,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         for (int i = 0; i < this.slotRange.length; i++) {
             var newIndex = i + this.startPageItemIndex;
             if (newIndex >= this.items.size()) {
-                this.dataLayout.setItem(this.slotRange[i], EMPTY_SLOT);
+                this.dataLayout.setItem(this.slotRange[i], BLANK_SLOT);
             } else {
                 this.dataLayout.setItem(this.slotRange[i], this.items.get(newIndex));
             }

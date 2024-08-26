@@ -3,6 +3,7 @@ package de.icevizion.aves.inventory;
 import de.icevizion.aves.inventory.function.ApplyLayoutFunction;
 import de.icevizion.aves.inventory.function.DefaultApplyLayoutFunction;
 import de.icevizion.aves.inventory.function.InventoryClick;
+import de.icevizion.aves.inventory.slot.EmptySlot;
 import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.inventory.InventoryType;
@@ -17,7 +18,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import static de.icevizion.aves.inventory.util.InventoryConstants.CANCEL_CLICK;
-import static de.icevizion.aves.inventory.util.InventoryConstants.EMPTY_SLOT;
+import static de.icevizion.aves.inventory.util.InventoryConstants.BLANK_SLOT;
 
 /**
  * Represents a layout which contains all items for an inventory.
@@ -57,6 +58,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
             switch (slotEntry) {
                 case InventorySlot inventorySlot -> this.contents[i] = InventorySlot.of(inventorySlot);
                 case TranslatedSlot translatedSlot -> this.contents[i] = TranslatedSlot.of(translatedSlot);
+                case EmptySlot emptySlot -> this.contents[i] = emptySlot;
                 default -> LoggerFactory.getLogger("Aves").info("Found a slot which can not be converted");
             }
         }
@@ -139,7 +141,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     @Override
     public @NotNull InventoryLayoutImpl blank(int slot) {
         Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
-        this.contents[slot] = EMPTY_SLOT;
+        this.contents[slot] = BLANK_SLOT;
         return this;
     }
 

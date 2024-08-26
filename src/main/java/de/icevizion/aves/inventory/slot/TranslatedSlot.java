@@ -69,7 +69,7 @@ public class TranslatedSlot extends Slot {
      * @return throws an {@link UnsupportedOperationException}
      */
     @Override
-    public ISlot setItemStack(ItemStack itemStack) {
+    public @NotNull ISlot setItemStack(ItemStack itemStack) {
         throw new UnsupportedOperationException("This TranslatedSlot needs a translated item");
     }
 

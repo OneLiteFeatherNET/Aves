@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,9 +25,9 @@ import java.util.Objects;
  * @since 1.0.13
  * @see IItem
  */
+@SuppressWarnings("java:S3252")
 public non-sealed class TranslatedItem implements IItem {
 
-    public static final TranslatedItem EMPTY = TranslatedItem.of(ItemStack.AIR);
     private final Map<Locale, ItemStack> objectCache;
     private ItemStack itemStack;
     private TextData nameTextData;
@@ -38,7 +39,8 @@ public non-sealed class TranslatedItem implements IItem {
      *
      * @param itemStack the {@link ItemStack} to set
      */
-    protected TranslatedItem(@Nullable ItemStack itemStack) {
+    protected TranslatedItem(@NotNull ItemStack itemStack) {
+        Check.argCondition(itemStack == ItemStack.AIR || itemStack.material() == Material.AIR, "ItemStack can't be from type air");
         this.itemStack = itemStack;
         this.objectCache = new HashMap<>();
     }
