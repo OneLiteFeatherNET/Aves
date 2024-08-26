@@ -2,6 +2,7 @@ package de.icevizion.aves.inventory.slot;
 
 import de.icevizion.aves.inventory.function.InventoryClick;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,7 +26,7 @@ public abstract class Slot implements ISlot {
      * Creates a new instance from the {@link Slot} class.
      * @param inventoryClick the {@link InventoryClick} for the slot
      */
-    protected Slot(InventoryClick inventoryClick) {
+    protected Slot(@NotNull InventoryClick inventoryClick) {
         this.inventoryClick = inventoryClick;
     }
 
@@ -34,7 +35,8 @@ public abstract class Slot implements ISlot {
      * @param inventoryClick the {@link InventoryClick} for the slot
      * @param itemStack the {@link ItemStack} to set
      */
-    protected Slot(InventoryClick inventoryClick, ItemStack itemStack) {
+    protected Slot(@NotNull InventoryClick inventoryClick, @NotNull ItemStack itemStack) {
+        Check.argCondition(itemStack.isAir() || itemStack == ItemStack.AIR, "ItemStack can't be from type air");
         this.inventoryClick = inventoryClick;
         this.itemStack = itemStack;
     }
@@ -45,7 +47,7 @@ public abstract class Slot implements ISlot {
      * @return the slot reference
      */
     @Override
-    public ISlot setClick(@NotNull InventoryClick slot) {
+    public @NotNull ISlot setClick(@NotNull InventoryClick slot) {
         this.inventoryClick = slot;
         return this;
     }
@@ -56,7 +58,7 @@ public abstract class Slot implements ISlot {
      * @return the slot reference
      */
     @Override
-    public ISlot setItemStack(ItemStack itemStack) {
+    public @NotNull ISlot setItemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
         return this;
     }
@@ -66,7 +68,7 @@ public abstract class Slot implements ISlot {
      * @return the given reference or null when no listener is set
      */
     @Override
-    public InventoryClick getClick() {
+    public @NotNull InventoryClick getClick() {
         return this.inventoryClick;
     }
 

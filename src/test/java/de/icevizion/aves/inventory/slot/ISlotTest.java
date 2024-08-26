@@ -12,18 +12,18 @@ class ISlotTest {
 
     @Test
     void testGetter() {
-        ISlot iSlot = new InventorySlot(ItemStack.AIR, InventoryConstants.CANCEL_CLICK);
-        assertSame(Material.AIR, iSlot.getItem().material());
+        ISlot iSlot = new InventorySlot(ItemStack.of(Material.CARVED_PUMPKIN), InventoryConstants.CANCEL_CLICK);
+        assertSame(Material.CARVED_PUMPKIN, iSlot.getItem().material());
         assertEquals(InventoryConstants.CANCEL_CLICK, iSlot.getClick());
     }
 
     @Test
     void testSetter() {
-        ISlot iSlot = new InventorySlot(ItemStack.AIR);
-        assertSame(Material.AIR, iSlot.getItem().material());
-        assertNull(iSlot.getClick());
+        ISlot iSlot = new InventorySlot(ItemStack.of(Material.CARVED_PUMPKIN));
+        assertSame(Material.CARVED_PUMPKIN, iSlot.getItem().material());
+        assertNotNull(iSlot.getClick());
         iSlot.setItemStack(ItemStack.of(Material.ACACIA_FENCE));
-        assertNotSame(Material.AIR, iSlot.getItem().material());
+        assertNotSame(InventoryConstants.BLANK_SLOT.getItem().material(), iSlot.getItem().material());
         iSlot.setClick(InventoryConstants.CANCEL_CLICK);
         assertNotNull(iSlot.getClick());
     }

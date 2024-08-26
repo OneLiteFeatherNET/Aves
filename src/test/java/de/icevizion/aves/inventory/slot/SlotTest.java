@@ -12,22 +12,21 @@ class SlotTest {
 
     @Test
     void testSlotCreationWithClick() {
-        Slot slot = new InventorySlot(ItemStack.AIR, InventoryConstants.CANCEL_CLICK);
+        Slot slot = new InventorySlot(ItemStack.of(Material.PAPER), InventoryConstants.CANCEL_CLICK);
         assertNotNull(slot.getClick());
-        assertSame(Material.AIR, slot.getItem().material());
+        assertSame(Material.PAPER, slot.getItem().material());
     }
 
     @Test
     void testSetItemStack() {
-        Slot slot = new InventorySlot(ItemStack.AIR);
+        Slot slot = new InventorySlot(ItemStack.of(Material.PAPER));
         slot.setItemStack(ItemStack.builder(Material.ACACIA_DOOR).build());
         assertNotEquals(Material.AIR, slot.getItem().material());
     }
 
     @Test
     void testHashCode() {
-        Slot slot = new InventorySlot(ItemStack.AIR);
+        Slot slot = new InventorySlot(ItemStack.of(Material.PAPER));
         assertNotEquals(10, slot.hashCode());
     }
-
 }

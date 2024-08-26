@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-version = "1.5.3"
+version = "1.5.4"
 description = "Aves"
 
 java {

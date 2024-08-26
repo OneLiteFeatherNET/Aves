@@ -31,6 +31,14 @@ public class CustomInventory extends Inventory {
     }
 
     /**
+     * Checks if the inventory has any viewers.
+     * @return true if the inventory has viewers
+     */
+    public boolean hasViewers() {
+        return !this.getViewers().isEmpty();
+    }
+
+    /**
      * Returns the holder instance from the inventory.
      * @return the underlying instance to the holder
      */

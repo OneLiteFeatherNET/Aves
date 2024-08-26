@@ -39,20 +39,19 @@ public interface ISlot {
      * Set's a new {@link InventoryClick} reference to the slot
      * @param slot The slot to set
      */
-    ISlot setClick(@NotNull InventoryClick slot);
+    @NotNull ISlot setClick(@NotNull InventoryClick slot);
 
     /**
      * Set a new {@link ItemStack} to the slot.
      * @param itemStack the stack to set
      */
-    ISlot setItemStack(@Nullable ItemStack itemStack);
+    @NotNull ISlot setItemStack(@Nullable ItemStack itemStack);
 
     /**
      * Returns the given inventory click from the slot
      * @return the given click
      */
-    @Nullable
-    InventoryClick getClick();
+    @NotNull InventoryClick getClick();
 
     /**
      * Returns the given {@link ItemStack} from the slot.
