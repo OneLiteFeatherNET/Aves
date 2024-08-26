@@ -18,23 +18,23 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ItemStackGsonTypeAdapterTest {
 
-    final String STACK_WITHOUT_MATERIAL_AND_META = """
+    static final String STACK_WITHOUT_MATERIAL_AND_META = """
             {"amount":1}
             """.trim();
 
-    final String STACK_WITH_AMOUNT = """
-           {"material":"minecraft:allium","amount":1,"meta":{}}
+    static final String STACK_WITH_AMOUNT = """
+            {"material":"minecraft:allium","amount":1,"meta":{}}
             """.trim();
 
-    final String STACK_WITH_DISPLAYNAME = """
+    static final String STACK_WITH_DISPLAYNAME = """
             {"material":"minecraft:allium","amount":1,"meta":{"displayName":"Test"}}
             """.trim();
 
-    final String STACK_WITH_ENCHANTMENTS = """
+    static final String STACK_WITH_ENCHANTMENTS = """
             {"material":"minecraft:diamond","amount":1,"meta":{"enchantments":[{"enchantment":"minecraft:channeling","level":1}]}}
             """.trim();
 
-    final String STACK_WITH_LORE = """
+    static final String STACK_WITH_LORE = """
             {"material":"minecraft:light","amount":1,"meta":{"lore":["Test1","Test2"]}}
             """.trim();
 
@@ -63,7 +63,7 @@ class ItemStackGsonTypeAdapterTest {
     @Test
     void testItemWriteWithEnchantmentsWrite() {
         var stack = ItemStack.builder(Material.DIAMOND)
-                .meta(builder -> builder.enchantment(Enchantment.CHANNELING, (short)1)).build();
+                .meta(builder -> builder.enchantment(Enchantment.CHANNELING, (short) 1)).build();
         var json = gson.toJson(stack, ItemStack.class);
         assertEquals(STACK_WITH_ENCHANTMENTS, json);
     }
@@ -101,7 +101,7 @@ class ItemStackGsonTypeAdapterTest {
     @Test
     void testItemReadWitEnchantments() {
         var originalStack = ItemStack.builder(Material.DIAMOND)
-                .meta(builder -> builder.enchantment(Enchantment.CHANNELING, (short)1)).build();
+                .meta(builder -> builder.enchantment(Enchantment.CHANNELING, (short) 1)).build();
         var stack = gson.fromJson(STACK_WITH_ENCHANTMENTS, ItemStack.class);
         assertEquals(originalStack, stack);
     }
