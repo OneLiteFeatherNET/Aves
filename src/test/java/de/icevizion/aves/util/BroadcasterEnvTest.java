@@ -3,14 +3,14 @@ package de.icevizion.aves.util;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.testing.Env;
-import net.minestom.testing.EnvTest;
+import net.minestom.testing.annotations.EnvironmentTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@EnvTest
+@EnvironmentTest
 class BroadcasterEnvTest {
 
     static Component text = Component.text("Test");

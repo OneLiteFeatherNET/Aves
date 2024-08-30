@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.testing.Env;
-import net.minestom.testing.EnvTest;
+import net.minestom.testing.annotations.EnvironmentTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnvTest
+@EnvironmentTest
 class PlayersEnvTest {
 
     static Instance instance;
