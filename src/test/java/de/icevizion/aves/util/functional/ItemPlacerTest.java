@@ -5,12 +5,12 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.testing.Env;
-import net.minestom.testing.EnvTest;
+import net.minestom.testing.annotations.EnvironmentTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnvTest
+@EnvironmentTest
 class ItemPlacerTest {
 
     @Test
