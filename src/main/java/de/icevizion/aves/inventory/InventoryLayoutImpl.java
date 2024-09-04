@@ -119,20 +119,6 @@ public final class InventoryLayoutImpl implements InventoryLayout {
         return this;
     }
 
-    @Override
-    public @NotNull InventoryLayoutImpl setNonClickItem(int slot, @NotNull ItemStack itemStack) {
-        Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
-        this.contents[slot] = new InventorySlot(itemStack, CANCEL_CLICK);
-        return this;
-    }
-    @Override
-    public @NotNull InventoryLayoutImpl setNonClickItem(int slot, ISlot slotItem) {
-        Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
-        slotItem.setClick(CANCEL_CLICK);
-        contents[slot] = slotItem;
-        return this;
-    }
-
     /**
      * Blanks a single slot in the layout.
      *

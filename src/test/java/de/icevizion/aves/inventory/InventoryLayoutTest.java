@@ -22,7 +22,7 @@ class InventoryLayoutTest {
     void testCopyConstructor() {
         var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
         layout.setItem(0, new TranslatedSlot(TranslatedItem.of(Material.ITEM_FRAME)));
-        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ALLIUM).build());
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ALLIUM).build());
         var copiedLayout = InventoryLayout.of(layout);
 
         assertEquals(layout, copiedLayout);
@@ -94,9 +94,9 @@ class InventoryLayoutTest {
     void testNonClickItemMethods() {
         var layout = new InventoryLayoutImpl(InventoryType.CHEST_2_ROW);
 
-        layout.setNonClickItem(0, new InventorySlot(ItemStack.builder(Material.BLACK_STAINED_GLASS)));
-        layout.setNonClickItem(1, ItemStack.builder(Material.DIAMOND).build());
-        layout.setNonClickItem(3, ItemStack.builder(Material.CHEST).build());
+        layout.setItem(0, new InventorySlot(ItemStack.builder(Material.BLACK_STAINED_GLASS)));
+        layout.setItem(1, ItemStack.builder(Material.DIAMOND).build());
+        layout.setItem(3, ItemStack.builder(Material.CHEST).build());
         assertNotNull(layout.getSlot(0));
         assertNotNull(layout.getSlot(3));
         assertNotSame(Material.CHEST, layout.getSlot(1).getItem().material());
@@ -105,11 +105,11 @@ class InventoryLayoutTest {
     @Test
     void testSetNonItemsMethods() {
         var layout = new InventoryLayoutImpl(InventoryType.CHEST_4_ROW);
-        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ENDER_CHEST));
-        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), ItemStack.of(Material.PAPER));
-        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_3_ROW), ItemStack.builder(Material.ALLIUM));
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ENDER_CHEST));
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), ItemStack.of(Material.PAPER));
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_3_ROW), ItemStack.builder(Material.ALLIUM));
         var slot = new InventorySlot(ItemStack.of(Material.PAPER));
-        layout.setNonClickItems(LayoutCalculator.fillRow(InventoryType.CHEST_4_ROW), slot);
+        layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_4_ROW), slot);
 
         for (int i = InventoryType.CHEST_4_ROW.getSize() - 9; i < InventoryType.CHEST_4_ROW.getSize(); i++) {
             assertSame(slot, layout.getSlot(i));
@@ -177,11 +177,11 @@ class InventoryLayoutTest {
         catchError(IllegalArgumentException.class, () -> layout.setItem(-1, slot));
         catchError(IllegalArgumentException.class, () -> layout.setItem(100, slot));
 
-        catchError(IllegalArgumentException.class, () -> layout.setNonClickItem(-1, ItemStack.of(Material.PAPER)));
-        catchError(IllegalArgumentException.class, () -> layout.setNonClickItem(100, ItemStack.of(Material.PAPER)));
+        catchError(IllegalArgumentException.class, () -> layout.setItem(-1, ItemStack.of(Material.PAPER)));
+        catchError(IllegalArgumentException.class, () -> layout.setItem(100, ItemStack.of(Material.PAPER)));
 
-        catchError(IllegalArgumentException.class, () -> layout.setNonClickItem(-1, slot));
-        catchError(IllegalArgumentException.class, () -> layout.setNonClickItem(100, slot));
+        catchError(IllegalArgumentException.class, () -> layout.setItem(-1, slot));
+        catchError(IllegalArgumentException.class, () -> layout.setItem(100, slot));
     }
 
     @Test

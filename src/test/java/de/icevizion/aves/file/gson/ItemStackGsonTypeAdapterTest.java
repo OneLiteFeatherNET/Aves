@@ -4,17 +4,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.item.Enchantment;
+import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.component.EnchantmentList;
+import net.minestom.server.item.enchant.Enchantment;
+import net.minestom.testing.Env;
+import net.minestom.testing.extension.MicrotusExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MicrotusExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ItemStackGsonTypeAdapterTest {
 
@@ -23,7 +29,7 @@ class ItemStackGsonTypeAdapterTest {
             """.trim();
 
     static final String STACK_WITH_AMOUNT = """
-            {"material":"minecraft:allium","amount":1,"meta":{}}
+           {"material":"minecraft:allium","amount":1,"meta":{}}
             """.trim();
 
     static final String STACK_WITH_DISPLAYNAME = """
@@ -38,7 +44,7 @@ class ItemStackGsonTypeAdapterTest {
             {"material":"minecraft:light","amount":1,"meta":{"lore":["Test1","Test2"]}}
             """.trim();
 
-    Gson gson;
+    private Gson gson;
 
     @BeforeAll
     void init() {
@@ -55,15 +61,17 @@ class ItemStackGsonTypeAdapterTest {
     @Test
     void testItemWriteWithDisplayNameWrite() {
         var stack = ItemStack.builder(Material.ALLIUM).amount(1)
-                .displayName(Component.text("Test")).build();
+                .customName(Component.text("Test")).build();
         var json = gson.toJson(stack, ItemStack.class);
         assertEquals(STACK_WITH_DISPLAYNAME, json);
     }
 
     @Test
     void testItemWriteWithEnchantmentsWrite() {
+        var enchantmentList = new EnchantmentList(Enchantment.CHANNELING, 1);
         var stack = ItemStack.builder(Material.DIAMOND)
-                .meta(builder -> builder.enchantment(Enchantment.CHANNELING, (short) 1)).build();
+                .set(ItemComponent.ENCHANTMENTS, enchantmentList)
+                .build();
         var json = gson.toJson(stack, ItemStack.class);
         assertEquals(STACK_WITH_ENCHANTMENTS, json);
     }
@@ -93,15 +101,17 @@ class ItemStackGsonTypeAdapterTest {
     @Test
     void testItemReadWithDisplayName() {
         var originalStack = ItemStack.builder(Material.ALLIUM).amount(1)
-                .displayName(Component.text("Test")).build();
+                .customName(Component.text("Test")).build();
         var stack = gson.fromJson(STACK_WITH_DISPLAYNAME, ItemStack.class);
         assertEquals(originalStack, stack);
     }
 
     @Test
-    void testItemReadWitEnchantments() {
+    void testItemReadWitEnchantments(Env env) {
+        var enchantmentList = new EnchantmentList(Enchantment.CHANNELING, 1);
         var originalStack = ItemStack.builder(Material.DIAMOND)
-                .meta(builder -> builder.enchantment(Enchantment.CHANNELING, (short) 1)).build();
+                .set(ItemComponent.ENCHANTMENTS, enchantmentList)
+                .build();
         var stack = gson.fromJson(STACK_WITH_ENCHANTMENTS, ItemStack.class);
         assertEquals(originalStack, stack);
     }

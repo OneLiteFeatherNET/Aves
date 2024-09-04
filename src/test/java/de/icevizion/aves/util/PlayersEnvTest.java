@@ -4,15 +4,16 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.testing.Env;
-import net.minestom.testing.annotations.EnvironmentTest;
+import net.minestom.testing.extension.MicrotusExtension;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnvironmentTest
+@ExtendWith(MicrotusExtension.class)
 class PlayersEnvTest {
 
     static Instance instance;
@@ -40,12 +41,4 @@ class PlayersEnvTest {
         var randomPlayer = Players.getRandomPlayer();
         assertFalse(randomPlayer::isPresent);
     }
-
-    /*@Test
-    void testDropInventory(@NotNull Env env) {
-        var player = env.createPlayer(instance, Pos.ZERO);
-        player.getInventory().addItemStack(ItemStack.builder(Material.STONE).build());
-        Players.dropPlayerInventory(player);
-        assertNotNull(player);
-    }*/
 }

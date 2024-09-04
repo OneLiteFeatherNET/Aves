@@ -7,12 +7,13 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.testing.Env;
-import net.minestom.testing.annotations.EnvironmentTest;
+import net.minestom.testing.extension.MicrotusExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnvironmentTest
+@ExtendWith(MicrotusExtension.class)
 class GlobalInventoryBuilderTest {
 
     @Test

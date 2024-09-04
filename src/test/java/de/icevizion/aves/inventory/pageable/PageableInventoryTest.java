@@ -11,17 +11,18 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.testing.Env;
-import net.minestom.testing.annotations.EnvironmentTest;
+import net.minestom.testing.extension.MicrotusExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnvironmentTest
+@ExtendWith(MicrotusExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PageableInventoryTest {
 
@@ -33,7 +34,6 @@ class PageableInventoryTest {
 
     int[] slotRange = LayoutCalculator.repeat(InventoryType.CHEST_1_ROW.getSize() + 1, InventoryType.CHEST_2_ROW.getSize() - 1);
 
-
     @BeforeAll
     void init(Env env) {
         this.slots = new ArrayList<>();
@@ -41,7 +41,7 @@ class PageableInventoryTest {
             this.slots.add(
                     new InventorySlot(
                             ItemStack.builder(Material.ACACIA_BUTTON)
-                                    .displayName(Component.text("Hallo " + i))
+                                    .customName(Component.text("Hallo " + i))
                                     .build()
                     )
             );
@@ -60,7 +60,7 @@ class PageableInventoryTest {
     }
 
     @Test
-    void testUpdate(Env env) {
+    void testUpdate() {
         this.pageableInventory.add(new InventorySlot(ItemStack.of(Material.ITEM_FRAME)));
         assertEquals(2, this.pageableInventory.getMaxPages());
     }
@@ -81,13 +81,13 @@ class PageableInventoryTest {
     }
 
     @Test
-    void testMissingLayout(Env env) {
+    void testMissingLayout() {
         var builder = PageableInventory.builder().type(TYPE).slotRange(12, 13);
         assertThrowsExactly(IllegalArgumentException.class, builder::build, "The layout can't be null");
     }
 
     @Test
-    void testNoChestInventory(Env env) {
+    void testNoChestInventory() {
         var builder = PageableInventory.builder().layout(InventoryLayout.fromType(TYPE)).slotRange(12, 13);
         assertThrowsExactly(
                 IllegalArgumentException.class,
@@ -97,7 +97,7 @@ class PageableInventoryTest {
     }
 
     @Test
-    void testInvalidItemRange(Env env) {
+    void testInvalidItemRange() {
         var builder = PageableInventory.builder().layout(InventoryLayout.fromType(TYPE)).type(TYPE);
         assertThrowsExactly(IllegalArgumentException.class,
                 () -> builder.slotRange().build(),

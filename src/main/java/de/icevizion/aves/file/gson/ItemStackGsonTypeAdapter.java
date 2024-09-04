@@ -12,18 +12,18 @@ import com.google.gson.JsonSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import net.minestom.server.item.Enchantment;
-import net.minestom.server.item.ItemHideFlag;
-import net.minestom.server.item.ItemMeta;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.component.EnchantmentList;
+import net.minestom.server.item.enchant.Enchantment;
+import net.minestom.server.registry.DynamicRegistry;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The ItemStackTypeAdapter allows serializing and deserialize from {@link ItemStack} into a valid json object or from a json object into {@link ItemStack}
@@ -36,6 +36,7 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
     private static final String DISPLAY_NAME = "displayName";
     private static final String ENCHANTMENTS = "enchantments";
     private static final String MATERIAL = "material";
+    private static final String CUSTOM_MODEL_DATA = "customModelData";
 
     @Override
     public JsonElement serialize(@NotNull ItemStack itemStack, Type type, JsonSerializationContext jsonSerializationContext) {
@@ -44,30 +45,53 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
         object.addProperty("amount", itemStack.amount());
 
         JsonObject metaObject = new JsonObject();
-        ItemMeta meta = itemStack.meta();
-        if (meta.getDisplayName() != null)
-            metaObject.addProperty(DISPLAY_NAME, PlainTextComponentSerializer.plainText().serialize(meta.getDisplayName()));
-        if (!meta.getEnchantmentMap().isEmpty()) {
-            JsonArray enchantsArray = new JsonArray();
-            for (var enchantEntry : meta.getEnchantmentMap().entrySet()) {
-                JsonObject enchantmentObject = new JsonObject();
-                enchantmentObject.addProperty("enchantment", enchantEntry.getKey().name());
-                enchantmentObject.addProperty("level", enchantEntry.getValue());
-                enchantsArray.add(enchantmentObject);
-            }
-            metaObject.add(ENCHANTMENTS, enchantsArray);
+
+        if (itemStack.has(ItemComponent.CUSTOM_NAME)) {
+            final Component itemName = itemStack.get(ItemComponent.CUSTOM_NAME);
+            final String displayName = PlainTextComponentSerializer.plainText().serialize(itemName);
+            metaObject.addProperty(DISPLAY_NAME, displayName);
         }
 
-        if (!meta.getLore().isEmpty()) {
-            JsonArray lore = new JsonArray();
-            for (Component component : meta.getLore()) {
-                lore.add(PlainTextComponentSerializer.plainText().serialize(component));
+        if (itemStack.has(ItemComponent.LORE)) {
+            final List<Component> loreLines = itemStack.get(ItemComponent.LORE);
+
+            if (loreLines != null && !loreLines.isEmpty()) {
+                JsonArray loreArray = new JsonArray();
+                for (Component loreLine : loreLines) {
+                    loreArray.add(PlainTextComponentSerializer.plainText().serialize(loreLine));
+                }
+                metaObject.add("lore", loreArray);
             }
-            metaObject.add("lore", lore);
+        }
+
+        if (itemStack.has(ItemComponent.HIDE_TOOLTIP)) {
+            metaObject.addProperty("hideTooltip", "true");
+        }
+
+        if (itemStack.has(ItemComponent.HIDE_ADDITIONAL_TOOLTIP)) {
+            metaObject.addProperty("hideAdditionalTooltip", "true");
+        }
+
+        if (itemStack.has(ItemComponent.CUSTOM_MODEL_DATA)) {
+            metaObject.addProperty(CUSTOM_MODEL_DATA, itemStack.get(ItemComponent.CUSTOM_MODEL_DATA));
+        }
+
+        if (itemStack.has(ItemComponent.ENCHANTMENTS)) {
+            JsonArray enchantsArray = new JsonArray();
+            final EnchantmentList enchantmentList = itemStack.get(ItemComponent.ENCHANTMENTS);
+            if (enchantmentList != null && !enchantmentList.enchantments().isEmpty()) {
+                Set<Map.Entry<DynamicRegistry.Key<Enchantment>, Integer>> entries = enchantmentList.enchantments().entrySet();
+                for (Map.Entry<DynamicRegistry.Key<Enchantment>, Integer> keyIntegerEntry : entries) {
+                    JsonObject enchantmentObject = new JsonObject();
+                    enchantmentObject.addProperty("enchantment", keyIntegerEntry.getKey().name());
+                    enchantmentObject.addProperty("level", keyIntegerEntry.getValue());
+                    enchantsArray.add(enchantmentObject);
+                }
+                metaObject.add(ENCHANTMENTS, enchantsArray);
+            }
         }
 
         object.add("meta", metaObject);
-
         return object;
     }
 
@@ -79,10 +103,11 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
 
         if (object.has(MATERIAL)) {
             var materialString = object.get(MATERIAL).getAsString();
-            material = Material.fromNamespaceId(materialString);
+            var fetchedMaterial = Material.fromNamespaceId(materialString);
+            material = fetchedMaterial == null ? Material.STONE : fetchedMaterial;
         }
 
-        var itemBuilder = ItemStack.builder(material);
+        ItemStack.Builder itemBuilder = ItemStack.builder(material);
         itemBuilder.amount(object.get("amount").getAsInt());
 
         if (!object.has("meta")) {
@@ -91,33 +116,49 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
 
         JsonObject metaObject = object.getAsJsonObject("meta");
 
-        if (metaObject.has(DISPLAY_NAME))
-            itemBuilder.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize(metaObject.get(DISPLAY_NAME).getAsString()));
-        if (metaObject.has(ENCHANTMENTS)) {
-            JsonArray enchantsArray = metaObject.getAsJsonArray(ENCHANTMENTS);
-
-            Map<Enchantment, Short> enchantments = new HashMap<>();
-
-            for (JsonElement enchantElement : enchantsArray) {
-                var level = ((JsonObject)enchantElement).get("level").getAsShort();
-                var nameSpace = ((JsonObject)enchantElement).get("enchantment").getAsString();
-                enchantments.putIfAbsent(Enchantment.fromNamespaceId(nameSpace), level);
-            }
-            itemBuilder.meta(itemMetaBuilder -> itemMetaBuilder.enchantments(enchantments));
+        if (metaObject.has(DISPLAY_NAME)) {
+            String rawDisplayName = metaObject.get(DISPLAY_NAME).getAsString();
+            itemBuilder.customName(LegacyComponentSerializer.legacyAmpersand().deserialize(rawDisplayName));
         }
+
         if (metaObject.has("lore")) {
             JsonArray loreArray = metaObject.getAsJsonArray("lore");
             List<Component> lore = new ArrayList<>();
-            for (JsonElement element : loreArray)
+            for (JsonElement element : loreArray) {
                 lore.add(LegacyComponentSerializer.legacyAmpersand().deserialize(element.getAsString()));
+            }
             itemBuilder.lore(lore);
         }
-        if (metaObject.has("flags")) {
-            JsonArray flagArray = metaObject.getAsJsonArray("flags");
-            for (JsonElement element : flagArray)
-                itemBuilder.meta(itemMetaBuilder -> itemMetaBuilder.hideFlag(ItemHideFlag.valueOf(element.getAsString())));
+
+        if (metaObject.has("hideTooltip")) {
+            itemBuilder.set(ItemComponent.HIDE_TOOLTIP);
         }
 
+        if (metaObject.has("hideAdditionalTooltip")) {
+            itemBuilder.set(ItemComponent.HIDE_ADDITIONAL_TOOLTIP);
+        }
+
+        if (metaObject.has(CUSTOM_MODEL_DATA)) {
+            int customModelData = metaObject.get(CUSTOM_MODEL_DATA).getAsInt();
+            itemBuilder.set(ItemComponent.CUSTOM_MODEL_DATA, customModelData);
+        }
+
+        if (metaObject.has(ENCHANTMENTS)) {
+            JsonArray enchantsArray = metaObject.getAsJsonArray(ENCHANTMENTS);
+            Map<DynamicRegistry.Key<Enchantment>, Integer> enchantments = new HashMap<>();
+            for (JsonElement enchantElement : enchantsArray) {
+                final JsonObject enchantObject = (JsonObject) enchantElement;
+                String nameSpace = enchantObject.get("enchantment").getAsString();
+                var level = enchantObject.get("level").getAsInt();
+                DynamicRegistry<Enchantment> enchantmentRegistry = MinecraftServer.getEnchantmentRegistry();
+                Enchantment rawEnchantment = enchantmentRegistry.get(NamespaceID.from(nameSpace));
+                if (rawEnchantment == null) continue;
+                DynamicRegistry.Key<Enchantment> enchantment = enchantmentRegistry.getKey(rawEnchantment);
+                enchantments.putIfAbsent(enchantment, level);
+            }
+            EnchantmentList enchantmentList = new EnchantmentList(enchantments);
+            itemBuilder.set(ItemComponent.ENCHANTMENTS, enchantmentList);
+        }
         return itemBuilder.build();
     }
 }
