@@ -236,7 +236,7 @@ public abstract class InventoryBuilder {
                 } catch (Exception exception) {
                     MinecraftServer.getExceptionManager().handleException(exception);
                 }
-            }, ExecutionType.ASYNC);
+            });
         }
     }
 
