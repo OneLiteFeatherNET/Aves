@@ -47,7 +47,7 @@ public class ItemStackGsonTypeAdapter implements JsonSerializer<ItemStack>, Json
         JsonObject metaObject = new JsonObject();
 
         if (itemStack.has(ItemComponent.CUSTOM_NAME)) {
-            final Component itemName = itemStack.get(ItemComponent.CUSTOM_NAME);
+            final Component itemName = itemStack.get(ItemComponent.CUSTOM_NAME, Component.empty());
             final String displayName = PlainTextComponentSerializer.plainText().serialize(itemName);
             metaObject.addProperty(DISPLAY_NAME, displayName);
         }
