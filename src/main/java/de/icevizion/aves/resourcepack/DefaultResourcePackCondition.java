@@ -21,7 +21,7 @@ import java.util.UUID;
 public final class DefaultResourcePackCondition implements ResourcePackCondition {
 
     private static final Component ERROR_DOWNLOAD_MESSAGE =
-            Component.text("§cFailed to download resource pack. Please report the issue and try /rsp load in a few minutes", NamedTextColor.RED);
+            Component.text("Failed to download resource pack. Please report the issue and try /rsp load in a few minutes", NamedTextColor.RED);
     private static final Component KICK_MESSAGE = Component.text("You must accept the resource pack to play on the serve", NamedTextColor.RED);
     private final Set<UUID> cache;
 
