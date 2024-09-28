@@ -78,11 +78,7 @@ public abstract class InventoryBuilder {
      */
     private void acceptClick(@Nullable ISlot slot, @NotNull Player player, @NotNull ClickType clickType, int slotID, @NotNull InventoryConditionResult result) {
         if (slot == null) return;
-        if (slot instanceof EmptySlot) {
-            LOGGER.warn("Found a BLANK_SLOT on slot index: {}!", slotID);
-            LOGGER.warn("This specific slot should not be used. Please check the layout!");
-            return;
-        }
+        if (slot instanceof EmptySlot) return;
         slot.getClick().onClick(player, slotID, clickType, result);
     }
 
