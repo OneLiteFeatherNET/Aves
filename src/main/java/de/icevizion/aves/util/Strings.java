@@ -17,12 +17,14 @@ import java.util.StringJoiner;
 @ApiStatus.NonExtendable
 public final class Strings {
 
-     private static final String INT_FORMAT = "%02d";
+    private static final String INT_FORMAT = "%02d";
     private static final int TIME_DIVIDER = 60;
     private static final char SPACE = ' ';
     public static final String UTF_8_HEART = "\u2665";
 
-    private Strings() { }
+    private Strings() {
+        // Utility class nothing to instantiate
+    }
 
     /**
      * Centers a given text with a given length of a line.
