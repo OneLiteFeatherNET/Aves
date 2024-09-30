@@ -1,6 +1,7 @@
 package de.icevizion.aves.util.functional;
 
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -29,4 +30,23 @@ public interface ItemStackFunction<R> {
      * @return the function result
      */
     @Nullable R apply(@Nullable ItemStack itemStack);
+
+    /**
+     * Returns a composed {@code ItemStackFunction} that performs, in sequence, this
+     * operation followed by the {@code after} operation.
+     * If performing either operation throws an exception, it is relayed to the caller of the
+     * composed operation.
+     * If performing this operation throws an exception, the {@code after} operation will not be performed.
+     *
+     * @param after the operation to perform after this operation
+     * @return a composed {@code ItemStackFunction} that performs in sequence this
+     * operation followed by the {@code after} operation
+     * @throws NullPointerException if {@code after} is null
+     */
+    default ItemStackFunction<R> andThen(@NotNull ItemStackFunction<R> after) {
+        return itemStack -> {
+            this.apply(itemStack);
+            return after.apply(itemStack);
+        };
+    }
 }
