@@ -109,7 +109,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @return the layout reference
      */
     default @NotNull InventoryLayout setItem(int slot, ItemStack itemStack) {
-        return this.setItem(slot, itemStack, null);
+        return this.setItem(slot, itemStack, CANCEL_CLICK);
     }
 
     /**
