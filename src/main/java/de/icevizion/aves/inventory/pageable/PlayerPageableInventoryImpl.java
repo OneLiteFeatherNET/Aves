@@ -134,7 +134,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      */
     private void initItems() {
         if (this.items.isEmpty()) return;
-        for (int i = 0; i < slotRange.length; i++) {
+        for (int i = 0; i < this.items.size() && i < slotRange.length ; i++) {
             this.dataLayout.setItem(slotRange[i], this.items.get(i));
         }
     }
