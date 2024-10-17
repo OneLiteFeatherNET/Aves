@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * The class is the basic implementation of the {@link InventoryBuilder} and also represents the middle layer
  * between the {@link InventoryBuilder} and the concrete inventory implementations.
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
@@ -29,6 +30,7 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
 
     /**
      * Creates a new instance from the {@link BaseInventoryBuilderImpl}.
+     *
      * @param type the {@link InventoryType} to set
      */
     protected BaseInventoryBuilderImpl(@NotNull InventoryType type) {
@@ -67,5 +69,25 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
         }
         this.unregister(NODE, openListener, closeListener);
         this.holder = null;
+    }
+
+    /**
+     * Returns the holder of the inventory.
+     *
+     * @return the holder of the inventory
+     */
+    @Override
+    public boolean hasCloseFunction() {
+        return this.closeFunction != null;
+    }
+
+    /**
+     * Returns an indicator if the open function is registered.
+     *
+     * @return true if the function is registered
+     */
+    @Override
+    public boolean hasOpenFunction() {
+        return this.openFunction != null;
     }
 }
