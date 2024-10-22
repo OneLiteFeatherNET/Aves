@@ -8,7 +8,7 @@ class PageActionTest {
 
     @Test
     void testUpdate() {
-        assertEquals("UPDATE", PageAction.UPDATE.name());
+        assertEquals("REFRESH", PageAction.REFRESH.name());
     }
 
     @Test

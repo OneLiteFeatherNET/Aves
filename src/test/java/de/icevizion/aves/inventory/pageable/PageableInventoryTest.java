@@ -12,6 +12,7 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.testing.Env;
 import net.minestom.testing.extension.MicrotusExtension;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -50,7 +51,7 @@ class PageableInventoryTest {
         this.pageableInventory = PageableInventory
                 .builder()
                 .player(player)
-                .title(Component.text("Test title"))
+                .titleData(TitleData.builder().title(Component.text("Test title")).build())
                 .type(TYPE)
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
@@ -106,13 +107,13 @@ class PageableInventoryTest {
     }
 
     @Test
-    void testAddSlotUpdate(Env env) {
+    void testAddSlotUpdate(@NotNull Env env) {
         var items = new ArrayList<ISlot>();
         Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
         var pageableInventory = PageableInventory
                 .builder()
                 .player(player)
-                .title(Component.text("Test title"))
+                .titleData(titleBuilder -> titleBuilder.title(Component.text("Test title")))
                 .type(TYPE)
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
@@ -141,7 +142,7 @@ class PageableInventoryTest {
     }
 
     @Test
-    void testRemoveSlotUpdate(Env env) {
+    void testRemoveSlotUpdate(@NotNull Env env) {
         var items = new ArrayList<ISlot>();
         var uniqueSLot = new InventorySlot(ItemStack.of(Material.ACACIA_FENCE));
         items.add(uniqueSLot);

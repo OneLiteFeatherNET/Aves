@@ -11,11 +11,13 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * This class is the implementation for the {@link PageableInventory.Builder} interface.
+ *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.2.0
  */
 @ApiStatus.Experimental
@@ -26,12 +28,14 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     private InventoryType type;
     private PageableControls pageableControls;
     private InventoryLayout layout;
-    private int[] slotRange;
+    private TitleData titleData;
     private List<ISlot> slots;
+    private int[] slotRange;
     private boolean pagesInTitle;
 
     /**
      * Set the player reference which owns the inventory.
+     *
      * @param player the player which owns the inventory
      * @return the builder instance
      */
@@ -43,7 +47,8 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
 
     /**
      * Set the title for the {@link PageableInventory}.
-     * @param component the component for the inventory as {@link Component}
+     *
+     * @param component    the component for the inventory as {@link Component}
      * @param pagesInTitle if the current and max pages should be displayed in the title
      * @return the builder instance
      */
@@ -56,7 +61,8 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
 
     /**
      * Set the layout reference which is used for the decoration in the layout.
-     * Please don't add any items to it which displays dynmaic data
+     * Please don't add any items to it which displays dynamic data
+     *
      * @param layout the layout which contains the decoration
      * @return the builder instance
      */
@@ -70,6 +76,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
      * Set the {@link InventoryType} for the inventory.
      * This type must be a {@link InventoryType} which is related to a chest inventory.
      * Otherwise, the builder throws an exception
+     *
      * @param type the {@link InventoryType} to set
      * @return the builder instance
      */
@@ -82,6 +89,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
 
     /**
      * Set an implementation reference from the {@link PageableControls}.
+     *
      * @param pageableControls the instance to set
      * @return the builder instance
      */
@@ -104,6 +112,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
 
     /**
      * Set's a list reference which contains all items for the inventory.
+     *
      * @param slots the list which contains all slots
      * @return the builder instance
      */
@@ -114,7 +123,34 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     }
 
     /**
+     * Set the title data which contains the data for the title in the inventory.
+     *
+     * @param titleData the data to set
+     * @return the builder instance
+     */
+    @Override
+    public PageableInventory.@NotNull Builder titleData(@NotNull TitleData titleData) {
+        this.titleData = titleData;
+        return this;
+    }
+
+    /**
+     * Set the title data which contains the data for the title in the inventory.
+     *
+     * @param titleBuilder the builder to set the title data
+     * @return the builder instance
+     */
+    @Override
+    public PageableInventory.@NotNull Builder titleData(@NotNull Consumer<TitleData.Builder> titleBuilder) {
+        TitleData.Builder builder = TitleData.builder();
+        titleBuilder.accept(builder);
+        this.titleData = builder.build();
+        return this;
+    }
+
+    /**
      * Returns a new instance from the {@link PlayerPageableInventoryImpl} with all parameters from the builder.
+     *
      * @return the created instance from the inventory class
      */
     @Override
@@ -125,14 +161,21 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
             this.pageableControls = DefaultPageableControls.fromSize(this.type);
         }
 
+        TitleData data;
+
+        if (this.title != null && this.titleData == null) {
+            data = TitleData.builder().title(this.title).showPageNumbers(pagesInTitle).build();
+        } else {
+            data = this.titleData;
+        }
+
         return new PlayerPageableInventoryImpl(
                 player,
-                title,
                 type,
                 pageableControls,
                 layout,
                 slots,
-                pagesInTitle,
+                data,
                 slotRange
         );
     }
