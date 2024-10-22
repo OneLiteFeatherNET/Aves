@@ -3,6 +3,7 @@ package de.icevizion.aves.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.coordinate.Point;
@@ -28,8 +29,8 @@ import static de.icevizion.aves.util.Strings.UTF_8_HEART;
 @ApiStatus.NonExtendable
 public final class Components {
 
-    public static final NamedTextColor FILLED_HEART = NamedTextColor.RED;
-    public static final NamedTextColor EMPTY_HEARTS = NamedTextColor.GRAY;
+    public static final TextColor FILLED_HEART = NamedTextColor.RED;
+    public static final TextColor EMPTY_HEARTS = NamedTextColor.GRAY;
 
     private Components() {
     }
@@ -50,8 +51,8 @@ public final class Components {
                                                     int max,
                                                     int totalBars,
                                                     @NotNull String symbol,
-                                                    @NotNull NamedTextColor completedColor,
-                                                    @NotNull NamedTextColor notCompletedColor) {
+                                                    @NotNull TextColor completedColor,
+                                                    @NotNull TextColor notCompletedColor) {
         float percent = (float) current / max;
         int progressBars = (int) (totalBars * percent);
         String completedCharAsString = symbol.repeat(progressBars);
@@ -69,8 +70,8 @@ public final class Components {
      */
     @Contract(value = "_, _, _ -> new ", pure = true)
     public static @NotNull Component getHealthString(double paramHealth,
-                                                     @NotNull NamedTextColor remainingHearth,
-                                                     @NotNull NamedTextColor goneHearth) {
+                                                     @NotNull TextColor remainingHearth,
+                                                     @NotNull TextColor goneHearth) {
         int health = (int) Math.round(paramHealth);
         health /= 2;
         int healthAway = 10 - health;
