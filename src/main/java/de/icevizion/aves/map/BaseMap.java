@@ -168,4 +168,14 @@ public class BaseMap {
     public @Nullable Pos getSpawn() {
         return spawn;
     }
+
+    /**
+     * Returns the spawn location or the default spawn location if the spawn is null.
+     *
+     * @param defaultSpawn the default spawn location
+     * @return the spawn location or the default spawn location
+     */
+    public @Nullable Pos getSpawnOrDefault(@NotNull Pos defaultSpawn) {
+        return spawn != null ? spawn : defaultSpawn;
+    }
 }
