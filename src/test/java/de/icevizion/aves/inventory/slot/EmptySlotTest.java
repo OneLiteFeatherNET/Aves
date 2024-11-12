@@ -1,0 +1,29 @@
+package de.icevizion.aves.inventory.slot;
+
+import de.icevizion.aves.inventory.util.InventoryConstants;
+import net.minestom.server.item.ItemStack;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class EmptySlotTest {
+
+    @Test
+    void testEmptySlot() {
+        EmptySlot emptySlot = InventoryConstants.BLANK_SLOT;
+
+        assertThrowsExactly(
+                UnsupportedOperationException.class,
+                () -> emptySlot.setClick((player, slot, clickType, condition) -> {
+                }),
+                "Cannot set a click on an empty slot"
+        );
+        assertThrowsExactly(
+                UnsupportedOperationException.class,
+                () -> emptySlot.setItemStack(ItemStack.AIR),
+                "Cannot set an item on an empty slot"
+        );
+        assertEquals(InventoryConstants.CANCEL_CLICK, emptySlot.getClick());
+    }
+
+}

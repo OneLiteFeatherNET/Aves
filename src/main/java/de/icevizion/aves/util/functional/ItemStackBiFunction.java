@@ -4,7 +4,6 @@ import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -48,10 +47,7 @@ public interface ItemStackBiFunction<U, R> {
      * applies the {@code after} function
      * @throws NullPointerException if {@code after} is null
      */
-    default <T> ItemStackBiFunction<U, T> andThen(Function<? super R, ? extends T> after) {
-        if (after == null) {
-            throw new NullPointerException("After function must not be null");
-        }
+    default <T> ItemStackBiFunction<U, T> andThen(@NotNull Function<? super R, ? extends T> after) {
         return (ItemStack itemStack, U u) -> after.apply(apply(itemStack, u));
     }
 }

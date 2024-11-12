@@ -14,14 +14,14 @@ class TranslatedSlotTest {
 
     @Test
     void testCopyConstructor() {
-        var translatedSlot = new TranslatedSlot(TranslatedItem.EMPTY, CANCEL_CLICK);
+        var translatedSlot = new TranslatedSlot(TranslatedItem.of(Material.ACACIA_BUTTON), CANCEL_CLICK);
         var copiedSlot = TranslatedSlot.of(translatedSlot);
         assertNotEquals(translatedSlot, copiedSlot);
     }
 
     @Test
     void testGetItemStack() {
-        var translatedSlot = new TranslatedSlot(TranslatedItem.EMPTY, CANCEL_CLICK);
+        var translatedSlot = new TranslatedSlot(TranslatedItem.of(Material.ACACIA_BUTTON), CANCEL_CLICK);
         assertThrowsExactly(
                 UnsupportedOperationException.class,
                 translatedSlot::getItem,
@@ -31,7 +31,7 @@ class TranslatedSlotTest {
 
     @Test
     void testSetItemStack() {
-        var translatedSlot = new TranslatedSlot(TranslatedItem.EMPTY, CANCEL_CLICK);
+        var translatedSlot = new TranslatedSlot(TranslatedItem.of(ItemStack.of(Material.ACACIA_SLAB)), CANCEL_CLICK);
         assertThrowsExactly(
                 UnsupportedOperationException.class,
                 () -> translatedSlot.setItemStack(ItemStack.AIR),
@@ -41,26 +41,26 @@ class TranslatedSlotTest {
 
     @Test
     void testGetItemStackWithLocale() {
-        var translatedSlot = new TranslatedSlot(TranslatedItem.EMPTY, CANCEL_CLICK);
+        var translatedSlot = new TranslatedSlot(TranslatedItem.of(Material.ITEM_FRAME), CANCEL_CLICK);
         var item = translatedSlot.getItem(Locale.CANADA);
         assertNotSame(Material.ACACIA_BOAT, item.material());
     }
 
     @Test
     void testSetTranslatedItem() {
-        var translatedSlot = new TranslatedSlot(TranslatedItem.EMPTY, CANCEL_CLICK);
+        var translatedSlot = new TranslatedSlot(TranslatedItem.of(Material.ACACIA_BOAT), CANCEL_CLICK);
         translatedSlot.setTranslatedItem(TranslatedItem.of(Material.ITEM_FRAME));
         assertSame(Material.ITEM_FRAME, translatedSlot.getItem(Locale.CANADA).material());
     }
 
     @Test
     void testGetTranslatedItem() {
-        var translatedSlot = new TranslatedSlot(TranslatedItem.EMPTY, CANCEL_CLICK);
+        var translatedSlot = new TranslatedSlot(TranslatedItem.of(Material.ACACIA_BUTTON), CANCEL_CLICK);
         assertNotNull(translatedSlot.getTranslatedItem());
     }
 
     @Test
     void testToString() {
-        assertNotNull(new TranslatedSlot(TranslatedItem.EMPTY, CANCEL_CLICK).toString());
+        assertNotNull(new TranslatedSlot(TranslatedItem.of(Material.GOLDEN_APPLE), CANCEL_CLICK).toString());
     }
 }

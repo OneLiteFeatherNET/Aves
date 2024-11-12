@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ResourcePackHandlerTest {
 
-    final String EMPTY = "";
+    static final String EMPTY = "";
 
     final Set<UUID> cache = new HashSet<>();
 

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "de.icevizion.lib"
-version = "1.5.3"
+version = "1.6.0"
 description = "Aves"
 
 java {
@@ -23,10 +23,10 @@ configurations.all {
 dependencies {
     implementation(platform(libs.bom.base))
     implementation(platform(libs.microtus.bom))
-    compileOnly(libs.microtus.core)
+    compileOnly(libs.minestom)
 
-    testImplementation(libs.microtus.core)
-    testImplementation(libs.microtus.test)
+    testImplementation(libs.minestom)
+    testImplementation(libs.minestom.test)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit)
@@ -86,5 +86,4 @@ publishing {
             url = uri(publishData.getRepository())
         }
     }
-
 }

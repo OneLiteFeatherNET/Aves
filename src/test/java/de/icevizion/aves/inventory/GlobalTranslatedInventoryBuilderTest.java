@@ -1,6 +1,5 @@
 package de.icevizion.aves.inventory;
 
-
 import de.icevizion.aves.i18n.AvesTranslationRegistry;
 import de.icevizion.aves.i18n.TextData;
 import net.kyori.adventure.key.Key;
@@ -9,8 +8,9 @@ import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.TranslationRegistry;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.testing.Env;
-import net.minestom.testing.annotations.EnvironmentTest;
+import net.minestom.testing.extension.MicrotusExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -19,8 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-@EnvironmentTest
+@ExtendWith(MicrotusExtension.class)
 class GlobalTranslatedInventoryBuilderTest {
 
     @Test

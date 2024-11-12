@@ -2,17 +2,23 @@ package de.icevizion.aves.util;
 
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.testing.Env;
-import net.minestom.testing.EnvTest;
+import net.minestom.testing.extension.MicrotusExtension;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnvTest
+@ExtendWith(MicrotusExtension.class)
 class PlayersEnvTest {
 
     static Instance instance;
@@ -36,16 +42,34 @@ class PlayersEnvTest {
     }
 
     @Test
-    void testRandomPlayer(Env env) {
+    void testEmptyRandomPlayer(@NotNull Env env) {
         var randomPlayer = Players.getRandomPlayer();
         assertFalse(randomPlayer::isPresent);
     }
 
-    /*@Test
-    void testDropInventory(@NotNull Env env) {
-        var player = env.createPlayer(instance, Pos.ZERO);
-        player.getInventory().addItemStack(ItemStack.builder(Material.STONE).build());
-        Players.dropPlayerInventory(player);
+    @Test
+    void testRandomPlayerWithOneExistingPlayer(@NotNull Env env) {
+        Player player = env.createPlayer(instance);
         assertNotNull(player);
-    }*/
+        Optional<Player> randomPlayer = Players.getRandomPlayer();
+        assertTrue(randomPlayer::isPresent);
+        Player targetPlayer = randomPlayer.get();
+        assertNotNull(targetPlayer);
+        assertEquals(player.getUuid(), targetPlayer.getUuid());
+        player.remove();
+    }
+
+    @Test
+    void testRandomPlayer(@NotNull Env env) {
+        List<Player> playerList = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            playerList.add(env.createPlayer(instance));
+        }
+        assertEquals(3, playerList.size());
+        Optional<Player> randomPlayer = Players.getRandomPlayer();
+        assertTrue(randomPlayer::isPresent);
+        for (Player player : playerList) {
+            player.remove();
+        }
+    }
 }

@@ -93,6 +93,15 @@ class BaseMapTest {
     }
 
     @Test
+    void testGetSpawnOrDefault() {
+        BaseMap baseMap = BaseMap.of("Test");
+        assertNull(baseMap.getSpawn());
+
+        Pos defaultPos = new Pos(1, 2, 3);
+        assertEquals(defaultPos, baseMap.getSpawnOrDefault(defaultPos));
+    }
+
+    @Test
     void testEquals() {
         assertNotSame(1203, this.firstMap.hashCode());
     }

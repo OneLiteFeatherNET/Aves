@@ -9,18 +9,20 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
- *
  * The interface defines to basic structure for a pageable inventory.
  * It contains a structure to build an inventory for pagination and add or remove data.
- * @version 1.0.0
+ *
+ * @version 1.1.0
  * @since 1.2.0
  */
 public non-sealed interface PageableInventory extends OpenableInventory {
 
     /**
      * Creates a new instance from the {@link PageableInventory.Builder}.
+     *
      * @return the created instance
      */
     @Contract(pure = true)
@@ -30,24 +32,28 @@ public non-sealed interface PageableInventory extends OpenableInventory {
 
     /**
      * Add a new entry which should be displayed in the inventory.
+     *
      * @param slot the slot to add
      */
     void add(@NotNull ISlot slot);
 
     /**
      * Add a list of entries which should be displayed in the inventory.
+     *
      * @param slots the list that has all entries to add
      */
     void add(@NotNull List<ISlot> slots);
 
     /**
      * Remove a single entry from the list.
+     *
      * @param slot the slot to remove
      */
     void remove(@NotNull ISlot slot);
 
     /**
      * Removes a list of {@link ISlot} from the underlying list.
+     *
      * @param slots the list which contains the slots to remove
      */
     void remove(@NotNull List<ISlot> slots);
@@ -59,12 +65,14 @@ public non-sealed interface PageableInventory extends OpenableInventory {
 
     /**
      * Returns the maximum amount of pages which the inventory can have.
+     *
      * @return the given value
      */
     int getMaxPages();
 
     /**
      * The builder interface contains all method for the builder to build a new instance from an {@link PageableInventory}.
+     *
      * @author theEvilReaper
      * @version 1.0.0
      * @since 1.2.0
@@ -73,6 +81,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
 
         /**
          * Set's the player who owns the {@link PageableInventory}.
+         *
          * @param player the player which owns the inventory
          * @return the builder instance
          */
@@ -80,14 +89,17 @@ public non-sealed interface PageableInventory extends OpenableInventory {
 
         /**
          * Set's the title for the {@link net.minestom.server.inventory.Inventory} as {@link Component}.
-         * @param component the component for the inventory as {@link Component}
+         *
+         * @param component    the component for the inventory as {@link Component}
          * @param pagesInTitle if the current and max pages should be displayed in the title
          * @return the builder instance
          */
+        @Deprecated(forRemoval = true, since = "Please use #titleData instead")
         @NotNull Builder title(@NotNull Component component, boolean pagesInTitle);
 
         /**
          * Set's the title for the {@link net.minestom.server.inventory.Inventory} as {@link Component}.
+         *
          * @param component the component to
          * @return the builder instance
          */
@@ -99,6 +111,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
          * Set the layout which contains the decoration layout.
          * Don't add any entries to this layout which shoes data from a specific use case.
          * For that use the {@link PageableInventory#add(ISlot)} etc. methods to add or remove data values
+         *
          * @param layout the layout which contains the decoration
          * @return the builder instance
          */
@@ -107,6 +120,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
         /**
          * Set the {@link InventoryType} for the paginated inventory.
          * The {@link InventoryType} must be a chest type otherwise an exception will be thrown
+         *
          * @param type the {@link InventoryType} to set
          * @return the builder instance
          */
@@ -114,6 +128,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
 
         /**
          * Set a new reference from the {@link PageableControls} interface which defines which items are used to switch between pages.
+         *
          * @param pageableControls the instance to set
          * @return the builder instance
          */
@@ -121,6 +136,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
 
         /**
          * Set the slot range where the items should be placed in the layout
+         *
          * @param itemSlots the array which contains all valid slots
          * @return the builder instance
          */
@@ -128,13 +144,31 @@ public non-sealed interface PageableInventory extends OpenableInventory {
 
         /**
          * Set the list which contains the items to the builder.
+         *
          * @param slots the list which contains all slots
          * @return the builder instance
          */
         @NotNull Builder values(@NotNull List<ISlot> slots);
 
         /**
+         * Set the title data which contains the data for the title in the inventory.
+         *
+         * @param titleData the data to set
+         * @return the builder instance
+         */
+        @NotNull Builder titleData(@NotNull TitleData titleData);
+
+        /**
+         * Set the title data which contains the data for the title in the inventory.
+         *
+         * @param titleBuilder the builder to set the title data
+         * @return the builder instance
+         */
+        @NotNull Builder titleData(@NotNull Consumer<TitleData.Builder> titleBuilder);
+
+        /**
          * Returns a new instance from an {@link PageableInventory}.
+         *
          * @return the created instance from the {@link PageableInventory}
          */
         @NotNull PageableInventory build();

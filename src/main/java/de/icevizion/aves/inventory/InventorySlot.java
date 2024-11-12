@@ -3,6 +3,7 @@ package de.icevizion.aves.inventory;
 import de.icevizion.aves.inventory.function.InventoryClick;
 import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.slot.Slot;
+import de.icevizion.aves.inventory.util.InventoryConstants;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,7 @@ public class InventorySlot extends Slot {
      * @param itemStack The {@link ItemStack} to set
      */
     public InventorySlot(@NotNull ItemStack itemStack) {
-        super(null, itemStack);
+        super(InventoryConstants.CANCEL_CLICK, itemStack);
     }
 
     /**
@@ -41,7 +42,7 @@ public class InventorySlot extends Slot {
      * @param itemBuilder The {@link ItemStack.Builder} were the item will be built from
      */
     public InventorySlot(@NotNull ItemStack.Builder itemBuilder) {
-        super(null, itemBuilder.build());
+        super(InventoryConstants.CANCEL_CLICK, itemBuilder.build());
     }
 
     /**
@@ -77,7 +78,7 @@ public class InventorySlot extends Slot {
      * @param itemStack The stack to set
      */
     @Override
-    public ISlot setItemStack(@NotNull ItemStack itemStack) {
+    public @NotNull ISlot setItemStack(@NotNull ItemStack itemStack) {
         this.itemStack = itemStack;
         return this;
     }
