@@ -27,6 +27,7 @@ dependencyResolutionManagement {
         }
     } else {
         repositories {
+            maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             maven {
                 val groupdId = 28 // Gitlab Group
                 url = uri("https://gitlab.onelitefeather.dev/api/v4/groups/$groupdId/-/packages/maven")
@@ -46,13 +47,13 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("microtus","1.4.2")
-            version("bom", "1.0.4")
+            version("microtus","1.5.0")
+            version("bom", "1.1.1")
             version("publishdata", "1.4.0")
             library("bom.base", "net.theevilreaper.dungeon.bom", "base").versionRef("bom")
             library("microtus-bom", "net.onelitefeather.microtus", "bom").versionRef("microtus")
-            library("microtus-core", "net.onelitefeather.microtus", "Microtus").withoutVersion()
-            library("microtus-test", "net.onelitefeather.microtus.testing", "testing").withoutVersion()
+            library("minestom", "net.onelitefeather.microtus", "Microtus").withoutVersion()
+            library("minestom-test", "net.onelitefeather.microtus.testing", "testing").withoutVersion()
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").withoutVersion()
             library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").withoutVersion()
             library("mockito-core", "org.mockito", "mockito-core").withoutVersion()

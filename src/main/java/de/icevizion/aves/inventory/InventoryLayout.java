@@ -109,7 +109,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @return the layout reference
      */
     default @NotNull InventoryLayout setItem(int slot, ItemStack itemStack) {
-        return this.setItem(slot, itemStack, null);
+        return this.setItem(slot, itemStack, CANCEL_CLICK);
     }
 
     /**
@@ -200,78 +200,16 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
     }
 
     /**
-     * Set's a single {@link ISlot} to each slot which is provided by the array.
-     * The method set's a listener which cancel the click event to each slot.
-     *
-     * @param slot      the slot to set
-     * @param itemStack the stack to set
-     * @return the instance from the layout
-     */
-    @NotNull InventoryLayout setNonClickItem(int slot, @NotNull ItemStack itemStack);
-
-    /**
-     * Set's a single {@link ISlot} to a specific slot index.
-     *
-     * @param slot     the slot index
-     * @param slotItem the slot reference
-     * @return the instance from the layout
-     */
-    @NotNull InventoryLayout setNonClickItem(int slot, @NotNull ISlot slotItem);
-
-    /**
-     * Set's a single {@link ISlot} to each slot which is provided by the array.
-     *
-     * @param array the array which contains all indices where the item should be set
-     * @param slot  the {@link ISlot} which should be set into each slot index
-     * @return the instance from the layout
-     */
-    default @NotNull InventoryLayout setNonClickItems(int[] array, @NotNull ISlot slot) {
-        for (int i = 0; i < array.length; i++) {
-            setNonClickItem(array[i], slot);
-        }
-        return this;
-    }
-
-    /**
-     * Set's a single {@link ItemStack} to each slot which is provided by the array.
-     *
-     * @param array       the array which contains all indices where the item should be set
-     * @param itemBuilder the builder reference which contains the information about the {@link ItemStack}
-     * @return the instance from the layout
-     */
-    default @NotNull InventoryLayout setNonClickItems(int[] array, @NotNull ItemStack.Builder itemBuilder) {
-        for (int i = 0; i < array.length; i++) {
-            setItem(array[i], itemBuilder, CANCEL_CLICK);
-        }
-        return this;
-    }
-
-    /**
-     * Set's a single {@link ItemStack} to each slot which is provided by the array.
-     * The implementation set's the {@link de.icevizion.aves.inventory.util.InventoryConstants#CANCEL_CLICK} to each slot
-     *
-     * @param array the array which contains all indices where the item should be set
-     * @param stack the {@link ItemStack} which should be set into each slot index
-     * @return the instance from the layout
-     */
-    default @NotNull InventoryLayout setNonClickItems(int[] array, @NotNull ItemStack stack) {
-        for (int i = 0; i < array.length; i++) {
-            setNonClickItem(array[i], stack);
-        }
-        return this;
-    }
-
-    /**
      * Blanks a single slot in the layout.
      *
-     * @param slot The slot to blank
+     * @param slot the slot to blank
      */
     @NotNull InventoryLayout blank(int slot);
 
     /**
      * Marks an all given slot with a dummy slot object.
      *
-     * @param slots The slots to mark
+     * @param slots the slots to mark
      */
     @NotNull
     default InventoryLayout blank(int... slots) {
@@ -305,8 +243,8 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * Updates the given listener from a slot.
      * If the listener is null the {@link de.icevizion.aves.inventory.util.InventoryConstants#CANCEL_CLICK} will set to the slot
      *
-     * @param index    The index to get the slot to update
-     * @param listener The listener to set
+     * @param index    the index to get the slot to update
+     * @param listener the listener to set
      */
     @NotNull InventoryLayout update(int index, @Nullable InventoryClick listener);
 
@@ -314,8 +252,8 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * Updates the given ItemStack from a slot.
      * If the listener is null the {@link de.icevizion.aves.inventory.util.InventoryConstants#CANCEL_CLICK} will set to the slot
      *
-     * @param index The index to get the slot to update
-     * @param stack The {@link ItemStack} to set
+     * @param index the index to get the slot to update
+     * @param stack the {@link ItemStack} to set
      */
     @NotNull InventoryLayout update(int index, @Nullable ItemStack stack);
 
@@ -332,8 +270,8 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
     /**
      * Returns a slot from the content array by a specific index.
      *
-     * @param index The index to get the slot
-     * @return The fetched slot otherwise null
+     * @param index the index to get the slot
+     * @return the fetched slot otherwise null
      */
     @Nullable
     default ISlot getSlot(int index) {

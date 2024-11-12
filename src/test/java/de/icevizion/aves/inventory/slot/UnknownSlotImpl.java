@@ -17,7 +17,7 @@ public class UnknownSlotImpl implements ISlot {
     }
 
     @Override
-    public @Nullable InventoryClick getClick() {
+    public @NotNull InventoryClick getClick() {
         return null;
     }
 

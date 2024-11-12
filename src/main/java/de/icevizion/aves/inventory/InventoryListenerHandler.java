@@ -13,18 +13,20 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Handles the {@link EventListener} creation for some {@link net.minestom.server.event.trait.InventoryEvent}'s.
  * The class reduces some duplicated code parts in the inventory system.
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
  **/
 sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
 
-     EventNode<InventoryEvent> NODE = EventNode.type("inventories", EventFilter.INVENTORY);
+    EventNode<InventoryEvent> NODE = EventNode.type("inventories", EventFilter.INVENTORY);
 
     /**
      * Register the a {@link InventoryOpenEvent} and {@link InventoryCloseEvent} listener instance to the event node.
-     * @param eventNode the {@link EventNode} for the events
-     * @param openListener the instance of the {@link EventListener} for the {@link InventoryOpenEvent}
+     *
+     * @param eventNode     the {@link EventNode} for the events
+     * @param openListener  the instance of the {@link EventListener} for the {@link InventoryOpenEvent}
      * @param closeListener the instance of the {@link EventListener} for the {@link InventoryCloseEvent}
      */
     default void register(
@@ -42,8 +44,9 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
 
     /**
      * Unregister the instance of an {@link InventoryOpenEvent} and {@link InventoryCloseEvent}.
-     * @param eventNode the {@link EventNode} for the events
-     * @param openListener the instance of the {@link EventListener} for the {@link InventoryOpenEvent}
+     *
+     * @param eventNode     the {@link EventNode} for the events
+     * @param openListener  the instance of the {@link EventListener} for the {@link InventoryOpenEvent}
      * @param closeListener the instance of the {@link EventListener} for the {@link InventoryCloseEvent}
      */
     default void unregister(@NotNull EventNode<InventoryEvent> eventNode,
@@ -62,7 +65,8 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
      * Checks if the given listener can be registered or not.
      * Please note that the listener only checks if the given reference to the listeners are null and
      * not if the reference is registered in the node
-     * @param openListener the instance to the {@link EventListener} for the {@link InventoryOpenEvent}
+     *
+     * @param openListener  the instance to the {@link EventListener} for the {@link InventoryOpenEvent}
      * @param closeListener the instance to the {@link EventListener} for the {@link InventoryCloseEvent}
      */
     default void checkListenerState(EventListener<InventoryOpenEvent> openListener,
@@ -74,8 +78,9 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
 
     /**
      * Create a new {@link EventListener} for the {@link InventoryOpenEvent}.
+     *
      * @param builder The builder to handle the event
-     * @param holder The holder from the inventory
+     * @param holder  The holder from the inventory
      * @return the created listener
      */
     default EventListener<InventoryOpenEvent> registerOpen(@NotNull InventoryBuilder builder, @NotNull InventoryHolder holder) {
@@ -88,8 +93,9 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
 
     /**
      * Create a new {@link EventListener} for the {@link InventoryCloseEvent}.
+     *
      * @param builder The builder to handle the event
-     * @param holder The holder from the inventory
+     * @param holder  The holder from the inventory
      * @return the created listener
      */
     default EventListener<InventoryCloseEvent> registerClose(@NotNull InventoryBuilder builder, @NotNull InventoryHolder holder) {
@@ -99,4 +105,18 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
             }
         });
     }
+
+    /**
+     * Returns an indicator if the open or close function is registered.
+     *
+     * @return true if the function is registered
+     */
+    boolean hasOpenFunction();
+
+    /**
+     * Returns an indicator if the close or open function is registered.
+     *
+     * @return true if the function is registered
+     */
+    boolean hasCloseFunction();
 }

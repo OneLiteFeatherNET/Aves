@@ -45,7 +45,7 @@ public final class Items {
         int spaceCount = 0;
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             var currentStack = player.getInventory().getItemStacks()[i];
-            if (currentStack == null || currentStack.material() == ItemStack.AIR.material()) {
+            if (currentStack.material() == ItemStack.AIR.material()) {
                 spaceCount += MAX_STACK_SIZE;
                 continue;
             }

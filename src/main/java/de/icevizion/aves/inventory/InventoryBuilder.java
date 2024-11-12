@@ -2,9 +2,10 @@ package de.icevizion.aves.inventory;
 
 import de.icevizion.aves.inventory.function.CloseFunction;
 import de.icevizion.aves.inventory.function.OpenFunction;
+import de.icevizion.aves.inventory.slot.EmptySlot;
+import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.util.InventoryConstants;
 import de.icevizion.aves.util.functional.ThrowingFunction;
-import de.icevizion.aves.inventory.slot.ISlot;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
@@ -46,6 +47,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Creates a new instance from the inventory builder with the given size.
+     *
      * @param type The type from the inventory to get the size from it
      */
     protected InventoryBuilder(@NotNull InventoryType type) {
@@ -68,19 +70,21 @@ public abstract class InventoryBuilder {
 
     /**
      * Handles the click request on a given slot.
-     * @param slot the {@link ISlot} which is clicked
-     * @param player the {@link Player} who is involved
+     *
+     * @param slot      the {@link ISlot} which is clicked
+     * @param player    the {@link Player} who is involved
      * @param clickType the given {@link ClickType}
-     * @param result the given {@link InventoryConditionResult}
+     * @param result    the given {@link InventoryConditionResult}
      */
     private void acceptClick(@Nullable ISlot slot, @NotNull Player player, @NotNull ClickType clickType, int slotID, @NotNull InventoryConditionResult result) {
-        if (slot != null && slot.getClick() != null) {
-            slot.getClick().onClick(player, slotID, clickType, result);
-        }
+        if (slot == null) return;
+        if (slot instanceof EmptySlot) return;
+        slot.getClick().onClick(player, slotID, clickType, result);
     }
 
     /**
      * Set a new reference to the data layout
+     *
      * @param dataLayout The {@link InventoryLayoutImpl} to set
      */
     public void setDataLayoutFunction(ThrowingFunction<InventoryLayout, InventoryLayout> dataLayout) {
@@ -102,6 +106,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Returns if the inventory is currently opened by a player.
+     *
      * @return True if a player does the inventory currently opened otherwise false
      */
     protected abstract boolean isOpen();
@@ -142,29 +147,30 @@ public abstract class InventoryBuilder {
 
     /**
      * Handles the open function when an inventory will be opened.
+     *
      * @param event The instance from the inventory event
      */
     protected void handleOpen(@NotNull InventoryOpenEvent event) {
-        if (openFunction != null) {
-            openFunction.onOpen(event);
-        }
+        if (this.openFunction == null) return;
+        openFunction.onOpen(event);
     }
 
     /**
      * Handles the close function if a close event is called from the server
+     *
      * @param event The instance from the close event
      */
     protected void handleClose(@NotNull InventoryCloseEvent event) {
-        if (closeFunction != null) {
-            closeFunction.onClose(event);
-        }
+        if (this.closeFunction == null) return;
+        closeFunction.onClose(event);
     }
 
     /**
      * Updates the given inventory with the content.
-     * @param inventory the inventory which should receive the update
-     * @param title the title for the inventory
-     * @param locale the locale for the inventory
+     *
+     * @param inventory   the inventory which should receive the update
+     * @param title       the title for the inventory
+     * @param locale      the locale for the inventory
      * @param applyLayout if the layout should be applied
      */
     protected void updateInventory(@NotNull Inventory inventory,
@@ -201,8 +207,9 @@ public abstract class InventoryBuilder {
 
     /**
      * Set's the given array with the {@link ItemStack}'s into an inventory.
+     *
      * @param inventory the inventory for the items
-     * @param contents the array itself which contains all items
+     * @param contents  the array itself which contains all items
      */
     private void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
         for (int i = 0; i < contents.length; i++) {
@@ -225,15 +232,16 @@ public abstract class InventoryBuilder {
                 } catch (Exception exception) {
                     MinecraftServer.getExceptionManager().handleException(exception);
                 }
-            }, ExecutionType.ASYNC);
+            });
         }
     }
 
     /**
      * Updates the title of an inventory.
      * Note that this method must be called from the developer
+     *
      * @param inventory the {@link Inventory} to update the title
-     * @param newTitle the new title as {@link Component} to set
+     * @param newTitle  the new title as {@link Component} to set
      */
     protected void updateTitle(@NotNull Inventory inventory, @NotNull Component newTitle) {
         inventory.setTitle(newTitle);
@@ -241,6 +249,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Updates the inventory for all current viewers.
+     *
      * @param inventory The inventory to update
      */
     protected void updateViewer(@NotNull Inventory inventory) {
@@ -251,6 +260,7 @@ public abstract class InventoryBuilder {
     /**
      * Returns the underlying inventory.
      * Please note this method ignores the translation context
+     *
      * @return the given inventory
      */
     public Inventory getInventory() {
@@ -259,6 +269,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Returns the given {@link InventoryType} for the inventory.
+     *
      * @return the given type
      */
     public @NotNull InventoryType getType() {
@@ -267,6 +278,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Set's the open function to the builder
+     *
      * @param openFunction The function to set
      */
     public InventoryBuilder setOpenFunction(OpenFunction openFunction) {
@@ -276,6 +288,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Set's the close function to the builder
+     *
      * @param closeFunction The function to set
      */
     public InventoryBuilder setCloseFunction(CloseFunction closeFunction) {
@@ -285,6 +298,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Set a new instance of the {@link InventoryLayoutImpl} to the builder
+     *
      * @param inventoryLayoutImpl The layout to set
      */
     public InventoryBuilder setLayout(@NotNull InventoryLayout inventoryLayoutImpl) {
@@ -294,6 +308,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Returns the underlying {@link InventoryLayoutImpl}.
+     *
      * @return the given layout
      */
     public @Nullable InventoryLayout getLayout() {
@@ -302,6 +317,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Get underlying data {@link InventoryLayoutImpl}.
+     *
      * @return the given layout
      */
     public @Nullable InventoryLayout getDataLayout() {

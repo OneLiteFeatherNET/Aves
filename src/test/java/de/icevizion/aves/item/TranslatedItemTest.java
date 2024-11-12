@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.TranslationRegistry;
+import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.junit.jupiter.api.Test;
@@ -17,14 +18,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertLinesMatch;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class TranslatedItemTest {
@@ -36,7 +30,8 @@ class TranslatedItemTest {
         TranslationRegistry translationRegistry = TranslationRegistry.create(Key.key("test", "test"));
         translationRegistry.register("key", Locale.ENGLISH, new MessageFormat("<arg:0> <arg:1>"));
         GlobalTranslator.translator().addSource(new AvesTranslationRegistry(translationRegistry));
-        Component displayName = item.get(Locale.ENGLISH).getDisplayName();
+        Component displayName = item.get(Locale.ENGLISH).get(ItemComponent.CUSTOM_NAME);
+        assertNotNull(displayName);
         assertTrue(PlainTextComponentSerializer.plainText().serialize(displayName).equalsIgnoreCase("Argument 1 Argument 2"));
     }
 
@@ -47,7 +42,8 @@ class TranslatedItemTest {
         TranslationRegistry translationRegistry = TranslationRegistry.create(Key.key("test", "test"));
         translationRegistry.register("key", Locale.ENGLISH, new MessageFormat("{0} {1}"));
         GlobalTranslator.translator().addSource(translationRegistry);
-        Component displayName = item.get(Locale.ENGLISH).getDisplayName();
+        Component displayName = item.get(Locale.ENGLISH).get(ItemComponent.CUSTOM_NAME);
+        assertNotNull(displayName);
         assertTrue(PlainTextComponentSerializer.plainText().serialize(displayName).equalsIgnoreCase("Argument 1 Argument 2"));
     }
 
@@ -59,7 +55,9 @@ class TranslatedItemTest {
         TranslationRegistry translationRegistry = TranslationRegistry.create(Key.key("test", "test"));
         translationRegistry.register("key", Locale.ENGLISH, new MessageFormat("{0} {1}"));
         GlobalTranslator.translator().addSource(translationRegistry);
-        List<Component> lore = item.get(Locale.ENGLISH).getLore();
+        List<Component> lore = item.get(Locale.ENGLISH).get(ItemComponent.LORE);
+        assertNotNull(lore);
+        assertFalse(lore.isEmpty());
         assertLinesMatch(lore.stream().map(PlainTextComponentSerializer.plainText()::serialize).toList(), List.of("Argument 1 Argument 2"));
     }
 
@@ -74,7 +72,7 @@ class TranslatedItemTest {
 
     @Test
     void tesTranslatedItemGetWithoutLocale() {
-        var item = TranslatedItem.of(Material.AIR);
+        var item = TranslatedItem.of(Material.ACACIA_BOAT);
         var exception = assertThrows(UnsupportedOperationException.class, item::get);
         assertEquals("Can not get item without a locale in a translated context", exception.getMessage());
     }
@@ -88,12 +86,12 @@ class TranslatedItemTest {
 
     @Test
     void testHashCode() {
-        assertNotSame(12, TranslatedItem.of(Material.AIR).hashCode());
+        assertNotSame(12, TranslatedItem.of(Material.GOLDEN_APPLE).hashCode());
     }
 
     @Test
     void testToSlot() {
-        var slot = TranslatedItem.of(ItemStack.AIR).toSlot();
+        var slot = TranslatedItem.of(ItemStack.of(Material.ACACIA_LEAVES)).toSlot();
         assertNull(slot.getClick());
     }
 
@@ -111,8 +109,8 @@ class TranslatedItemTest {
 
     @Test
     void testEquals() {
-        var firstSlot = TranslatedItem.of(ItemStack.AIR);
-        var secondSlot = TranslatedItem.of(ItemStack.AIR);
+        var firstSlot = TranslatedItem.of(ItemStack.of(Material.ACACIA_SLAB));
+        var secondSlot = TranslatedItem.of(ItemStack.of(Material.GLOW_SQUID_SPAWN_EGG));
         assertThrows(NullPointerException.class, () -> firstSlot.equals(secondSlot));
     }
 }

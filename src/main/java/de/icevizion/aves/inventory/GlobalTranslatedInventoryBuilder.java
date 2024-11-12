@@ -18,6 +18,7 @@ import java.util.Map;
 /**
  * @author Patrick Zdarsky / Rxcki
  */
+@SuppressWarnings("java:S3252")
 public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     private final Map<Locale,CustomInventory> inventoryTranslatedObjectCache = new HashMap<>();
@@ -48,7 +49,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
         if (this.inventoryTranslatedObjectCache.isEmpty()) return;
 
         for (var entry : this.inventoryTranslatedObjectCache.entrySet()) {
-            if (entry.getValue().getViewers().isEmpty()) continue;
+            if (!entry.getValue().hasViewers()) continue;
 
             for (Player viewer : entry.getValue().getViewers()) {
                 viewer.closeInventory();

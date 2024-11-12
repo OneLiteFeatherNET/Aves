@@ -13,14 +13,15 @@ class InventorySlotTest {
 
     @Test
     void testSlotCreation() {
-        var slot = new InventorySlot(ItemStack.AIR);
-        assertSame(ItemStack.AIR, slot.getItem());
+        var slot = new InventorySlot(ItemStack.of(Material.PAPER));
+        assertNotSame(ItemStack.AIR, slot.getItem());
     }
 
     @Test
     void testOtherSlotCreation() {
-        var slot = new InventorySlot(ItemStack.AIR, InventoryConstants.CANCEL_CLICK);
-        assertSame(ItemStack.AIR, slot.getItem());
+        final ItemStack itemStack = ItemStack.of(Material.ACACIA_SLAB);
+        var slot = new InventorySlot(itemStack, InventoryConstants.CANCEL_CLICK);
+        assertSame(itemStack, slot.getItem());
         assertSame(InventoryConstants.CANCEL_CLICK, slot.getClick());
     }
 
@@ -33,7 +34,7 @@ class InventorySlotTest {
 
     @Test
     void testCopySlotCreation() {
-        var slot = new InventorySlot(ItemStack.AIR, InventoryConstants.CANCEL_CLICK);
+        var slot = new InventorySlot(ItemStack.of(Material.BAMBOO_DOOR), InventoryConstants.CANCEL_CLICK);
         var copySlot = InventorySlot.of(slot);
         assertSame(slot.getItem(), copySlot.getItem());
         assertSame(slot.getClick(), copySlot.getClick());
@@ -42,7 +43,7 @@ class InventorySlotTest {
 
     @Test
     void setItemSet() {
-        var slot = new InventorySlot(ItemStack.AIR, InventoryConstants.CANCEL_CLICK);
+        var slot = new InventorySlot(ItemStack.of(Material.BAMBOO_DOOR), InventoryConstants.CANCEL_CLICK);
         slot.setItemStack(ItemStack.builder(Material.ALLIUM).build());
         assertNotSame(ItemStack.AIR, slot.getItem());
     }
@@ -62,7 +63,6 @@ class InventorySlotTest {
 
         var translatedSlot = new TranslatedSlot(TranslatedItem.of(Material.ALLIUM));
         copiedSLot = ISlot.of(translatedSlot);
-        //assertEquals(translatedSlot.itemStack, copiedSLot.getItem());
         assertSame(translatedSlot.inventoryClick, copiedSLot.getClick());
     }
 }
