@@ -65,6 +65,13 @@ public sealed interface MapEntry permits BaseMapEntry {
     boolean hasMapFile();
 
     /**
+     * Returns the path to the directory which contains the map data.
+     *
+     * @return the given path reference
+     */
+    @NotNull Path getDirectoryRoot();
+
+    /**
      * Returns the path to the file which stores information about a map.
      * It can be nullable when the file doesn't contain the specific file
      *
