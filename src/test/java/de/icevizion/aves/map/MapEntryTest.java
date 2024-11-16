@@ -9,6 +9,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -45,6 +46,7 @@ class MapEntryTest {
     void testMapEntryWithStandardFileEnding() {
         MapEntry standardEntry = MapEntry.of(tempDir);
         assertNotNull(standardEntry);
+        assertEquals(tempDir, standardEntry.getDirectoryRoot());
         assertTrue(standardEntry.hasStandardEnding());
         assertNull(standardEntry.getMapFile());
         try {
