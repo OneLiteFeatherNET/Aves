@@ -2,10 +2,8 @@ package de.icevizion.aves.file.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.minestom.server.utils.NamespaceID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -18,8 +16,9 @@ class MiniMessageComponentGsonAdapterTest {
 
     private static final String KEY_JSON = """
             {"minimessage":"\\u003cred\\u003eexample"}""";
-    Component writeKey;
-    Gson gson;
+
+    private Component writeKey;
+    private Gson gson;
 
     @BeforeAll
     void init() {

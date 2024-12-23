@@ -4,8 +4,6 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.BiFunction;
-
 /**
  * Implementation of the {@link TitleData} interface.
  *

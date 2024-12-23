@@ -3,8 +3,6 @@ package de.icevizion.aves.inventory.pageable;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.BiFunction;
-
 /**
  * The @{TitleDataBuilder} is the implementation of the {@link TitleData.Builder} interface.
  * It provides the possibility to build a {@link TitleData} instance.
