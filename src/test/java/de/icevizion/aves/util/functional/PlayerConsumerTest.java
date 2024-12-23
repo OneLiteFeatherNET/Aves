@@ -23,7 +23,7 @@ class PlayerConsumerTest {
         Instance testInstance = env.createFlatInstance();
         Player testPlayer = env.createPlayer(testInstance);
         ItemStack stack = ItemStack.builder(Material.DAMAGED_ANVIL).build();
-        PlayerConsumer playerConsumer = (player) -> player.getInventory().setItemStack(SLOT_INDEX, stack);
+        PlayerConsumer playerConsumer = player -> player.getInventory().setItemStack(SLOT_INDEX, stack);
 
         assertNotNull(playerConsumer);
         playerConsumer.accept(testPlayer);
@@ -39,8 +39,8 @@ class PlayerConsumerTest {
         Instance testInstance = env.createFlatInstance();
         Player testPlayer = env.createPlayer(testInstance);
         ItemStack stack = ItemStack.builder(Material.DAMAGED_ANVIL).build();
-        PlayerConsumer playerConsumer = (player) -> player.getInventory().setItemStack(SLOT_INDEX, stack);
-        PlayerConsumer playerConsumerAfter = (player) -> {
+        PlayerConsumer playerConsumer = player -> player.getInventory().setItemStack(SLOT_INDEX, stack);
+        PlayerConsumer playerConsumerAfter = player -> {
             ItemStack slotItem = testPlayer.getInventory().getItemStack(SLOT_INDEX);
             assertNotNull(slotItem);
             assertEquals(Material.DAMAGED_ANVIL, slotItem.material());

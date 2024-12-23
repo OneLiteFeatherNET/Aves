@@ -17,7 +17,7 @@ import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PointToLoreTest {
+class PointToLoreTest {
 
     private static DecimalFormat decimalFormat;
 

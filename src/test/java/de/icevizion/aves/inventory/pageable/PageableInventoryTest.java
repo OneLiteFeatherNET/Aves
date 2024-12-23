@@ -29,11 +29,9 @@ class PageableInventoryTest {
 
     static final InventoryType TYPE = InventoryType.CHEST_3_ROW;
 
-    PageableInventory pageableInventory;
-
-    List<ISlot> slots;
-
-    int[] slotRange = LayoutCalculator.repeat(InventoryType.CHEST_1_ROW.getSize() + 1, InventoryType.CHEST_2_ROW.getSize() - 1);
+    private final int[] slotRange = LayoutCalculator.repeat(InventoryType.CHEST_1_ROW.getSize() + 1, InventoryType.CHEST_2_ROW.getSize() - 1);
+    private PageableInventory pageableInventory;
+    private List<ISlot> slots;
 
     @BeforeAll
     void init(Env env) {
@@ -110,7 +108,7 @@ class PageableInventoryTest {
     void testAddSlotUpdate(@NotNull Env env) {
         var items = new ArrayList<ISlot>();
         Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
-        var pageableInventory = PageableInventory
+        PageableInventory pageInventory = PageableInventory
                 .builder()
                 .player(player)
                 .titleData(titleBuilder -> titleBuilder.title(Component.text("Test title")))
@@ -120,13 +118,13 @@ class PageableInventoryTest {
                 .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
                 .values(items)
                 .build();
-        assertEquals(1, pageableInventory.getMaxPages());
+        assertEquals(1, pageInventory.getMaxPages());
 
         var testSlot = new InventorySlot(ItemStack.of(Material.STICK));
 
-        pageableInventory.add(testSlot);
+        pageInventory.add(testSlot);
 
-        assertSame(1, pageableInventory.getMaxPages());
+        assertSame(1, pageInventory.getMaxPages());
 
         var entries = new ArrayList<ISlot>();
 
@@ -134,11 +132,10 @@ class PageableInventoryTest {
             entries.add(testSlot);
         }
 
-        pageableInventory.add(entries);
+        pageInventory.add(entries);
 
-        assertSame(2, pageableInventory.getMaxPages());
-
-        player.remove();
+        assertSame(2, pageInventory.getMaxPages());
+        env.destroyInstance(player.getInstance(), true);
     }
 
     @Test
@@ -154,7 +151,7 @@ class PageableInventoryTest {
         }
         Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
         items.addAll(otherSlots);
-        var pageableInventory = PageableInventory
+        PageableInventory pageInventory = PageableInventory
                 .builder()
                 .player(player)
                 .title(Component.text("Test title"))
@@ -164,16 +161,13 @@ class PageableInventoryTest {
                 .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
                 .values(items)
                 .build();
-        assertEquals(2, pageableInventory.getMaxPages());
+        assertEquals(2, pageInventory.getMaxPages());
+        pageInventory.remove(uniqueSLot);
 
-        pageableInventory.remove(uniqueSLot);
+        assertEquals(2, pageInventory.getMaxPages());
+        pageInventory.remove(otherSlots);
 
-        assertEquals(2, pageableInventory.getMaxPages());
-
-        pageableInventory.remove(otherSlots);
-
-        assertSame(1, pageableInventory.getMaxPages());
-
-        player.remove();
+        assertSame(1, pageInventory.getMaxPages());
+        env.destroyInstance(player.getInstance(), true);
     }
 }

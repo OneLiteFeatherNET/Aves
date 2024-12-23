@@ -3,9 +3,6 @@ package de.icevizion.aves.file.gson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.key.Namespaced;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.coordinate.Vec;
 import net.minestom.server.utils.NamespaceID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,8 +15,8 @@ class KeyGsonAdapterTest {
 
     private static final String KEY_JSON = """
              {"namespace":"aves","value":"example"}""";
-    Key writeKey;
-    Gson gson;
+    private Key writeKey;
+    private Gson gson;
 
     @BeforeAll
     void init() {

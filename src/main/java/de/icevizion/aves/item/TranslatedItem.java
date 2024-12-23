@@ -6,7 +6,6 @@ import de.icevizion.aves.inventory.slot.TranslatedSlot;
 import de.icevizion.aves.inventory.util.InventoryConstants;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.translation.GlobalTranslator;
-import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.utils.validate.Check;
