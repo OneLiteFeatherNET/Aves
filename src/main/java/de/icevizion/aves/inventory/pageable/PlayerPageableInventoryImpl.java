@@ -88,9 +88,8 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
 
         this.forwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
 
-        var forwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
-
-        this.forwardSlot = forwardSlot == null ? BLANK_SLOT : ISlot.of(forwardSlot);
+        ISlot givenForwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
+        this.forwardSlot = givenForwardSlot == null ? BLANK_SLOT : ISlot.of(givenForwardSlot);
 
         this.forwardClick = (clickPlayer, clickType, slot, condition) -> {
             this.update(PageAction.FORWARD);
