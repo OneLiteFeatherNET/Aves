@@ -35,17 +35,6 @@ class ResourcePackHandlerTest {
     }
 
     @Test
-    void testResourcePackConstructorWithForceMessage() {
-        final ResourcePackInfo resourcePackInfo = ResourcePackInfo.resourcePackInfo()
-                .id(UUID.randomUUID())
-                .hash(EMPTY)
-                .uri(URI.create(EMPTY))
-                .build();
-        var handler = new ResourcePackHandler(resourcePackInfo);
-        assertNotNull(handler);
-    }
-
-    @Test
     void testConstructorWithResourcePack() {
         var resourcePack = Mockito.mock(ResourcePackInfo.class);
         assertNotNull(resourcePack);
