@@ -12,6 +12,7 @@ import java.util.Objects;
  * @param key the key for the message
  * @param args optional arguments for the message
  */
+@SuppressWarnings("java:S6218")
 public record TextData(@NotNull String key, @NotNull Component... args) {
 
     /**
