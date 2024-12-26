@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Tests for the Components utility class")
 class ComponentsTest {
 
-    static final String TEST_BAR = "&b|&9|||||||||";
-    private final Component HEART_STRING = getHealthString(10);
+    private static final String TEST_BAR = "&b|&9|||||||||";
+    private static final Component HEART_STRING = getHealthString(10);
 
     private static final Pos TEST_POS = new Pos(1, 2, 3, 40, -50);
 
