@@ -3,7 +3,6 @@ package de.icevizion.aves.inventory.pageable;
 import de.icevizion.aves.inventory.InventoryLayout;
 import de.icevizion.aves.inventory.slot.ISlot;
 import de.icevizion.aves.inventory.util.LayoutCalculator;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.utils.validate.Check;
@@ -24,7 +23,6 @@ import java.util.function.Consumer;
 public non-sealed class PageableInventoryBuilder implements PageableInventory.Builder {
 
     private Player player;
-    private Component title;
     private InventoryType type;
     private PageableControls pageableControls;
     private InventoryLayout layout;
@@ -42,20 +40,6 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     @Override
     public PageableInventory.@NotNull Builder player(@NotNull Player player) {
         this.player = player;
-        return this;
-    }
-
-    /**
-     * Set the title for the {@link PageableInventory}.
-     *
-     * @param component    the component for the inventory as {@link Component}
-     * @param pagesInTitle if the current and max pages should be displayed in the title
-     * @return the builder instance
-     */
-    @Override
-    public PageableInventory.@NotNull Builder title(@NotNull Component component, boolean pagesInTitle) {
-        this.title = component;
-        this.pagesInTitle = pagesInTitle;
         return this;
     }
 
@@ -161,13 +145,6 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
             this.pageableControls = DefaultPageableControls.fromSize(this.type);
         }
 
-        TitleData data;
-
-        if (this.title != null && this.titleData == null) {
-            data = TitleData.builder().title(this.title).showPageNumbers(pagesInTitle).build();
-        } else {
-            data = this.titleData;
-        }
 
         return new PlayerPageableInventoryImpl(
                 player,
@@ -175,7 +152,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
                 pageableControls,
                 layout,
                 slots,
-                data,
+                titleData,
                 slotRange
         );
     }
