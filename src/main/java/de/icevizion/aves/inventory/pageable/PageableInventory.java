@@ -2,7 +2,6 @@ package de.icevizion.aves.inventory.pageable;
 
 import de.icevizion.aves.inventory.InventoryLayout;
 import de.icevizion.aves.inventory.slot.ISlot;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.Contract;
@@ -86,26 +85,6 @@ public non-sealed interface PageableInventory extends OpenableInventory {
          * @return the builder instance
          */
         @NotNull Builder player(@NotNull Player player);
-
-        /**
-         * Set's the title for the {@link net.minestom.server.inventory.Inventory} as {@link Component}.
-         *
-         * @param component    the component for the inventory as {@link Component}
-         * @param pagesInTitle if the current and max pages should be displayed in the title
-         * @return the builder instance
-         */
-        @Deprecated(forRemoval = true, since = "Please use #titleData instead")
-        @NotNull Builder title(@NotNull Component component, boolean pagesInTitle);
-
-        /**
-         * Set's the title for the {@link net.minestom.server.inventory.Inventory} as {@link Component}.
-         *
-         * @param component the component to
-         * @return the builder instance
-         */
-        default @NotNull Builder title(@NotNull Component component) {
-            return this.title(component, false);
-        }
 
         /**
          * Set the layout which contains the decoration layout.

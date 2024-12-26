@@ -74,7 +74,7 @@ class PageableInventoryTest {
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(12)
                 .values(this.slots)
-                .title(Component.text("A"));
+                .titleData(TitleData.builder().title(Component.text("A")).build());
         assertNotNull(builder.build());
         player.remove();
     }
@@ -154,7 +154,7 @@ class PageableInventoryTest {
         PageableInventory pageInventory = PageableInventory
                 .builder()
                 .player(player)
-                .title(Component.text("Test title"))
+                .titleData(builder -> builder.title(Component.text("Test title")))
                 .type(TYPE)
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
