@@ -29,7 +29,6 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     private TitleData titleData;
     private List<ISlot> slots;
     private int[] slotRange;
-    private boolean pagesInTitle;
 
     /**
      * Set the player reference which owns the inventory.
