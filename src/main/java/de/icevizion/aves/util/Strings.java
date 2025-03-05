@@ -19,7 +19,8 @@ public final class Strings {
 
     private static final String INT_FORMAT = "%02d";
     private static final int TIME_DIVIDER = 60;
-    private static final char SPACE = ' ';
+
+    public static final String SPACE = " ";
     public static final String UTF_8_HEART = "\u2665";
 
     private Strings() {
@@ -39,18 +40,15 @@ public final class Strings {
         if (text.isEmpty()) {
             throw new IllegalArgumentException("The text can not be empty");
         }
-
         if (lineLength < text.length()) {
             throw new IllegalArgumentException("The length of the line must be greater than the text length");
         }
 
-        StringBuilder builder = new StringBuilder(text);
-        int distance = (lineLength - text.length()) / 2;
-        for (int i = 0; i < distance; i++) {
-            builder.insert(0, SPACE);
-            builder.append(SPACE);
-        }
-        return builder.toString();
+        int totalPadding = lineLength - text.length();
+        int leftPadding = totalPadding / 2;
+        int rightPadding = totalPadding / 2; // This ensures equal padding
+
+        return SPACE.repeat(leftPadding) + text + SPACE.repeat(rightPadding);
     }
 
     /**
