@@ -11,8 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 /**
- * The {@link GlobalInventoryBuilder} builds an inventory which can be used in a global context.
+ * Th   e {@link GlobalInventoryBuilder} builds an inventory which can be used in a global context.
  * That means that the inventory is related to all player's on the server and not bound to a single player.
+ *
  * @author Patrick Zdarsky / Rxcki
  * @version 1.0.0
  * @since 1.0.0
@@ -25,8 +26,9 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
 
     /**
      * Creates a new instance from the builder with the given parameter values.
+     *
      * @param title the title as {@link Component }for the inventory
-     * @param type the {@link InventoryType} for the inventory
+     * @param type  the {@link InventoryType} for the inventory
      */
     public GlobalInventoryBuilder(@NotNull Component title, @NotNull InventoryType type) {
         super(type);
@@ -36,6 +38,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
 
     /**
      * Updates the title for the inventory
+     *
      * @param titleComponent the new title as {@link Component} to set
      */
     public void setTitleComponent(@NotNull Component titleComponent) {
@@ -45,6 +48,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
 
     /**
      * Returns the inventory with the current state of the items.
+     *
      * @param ignored can be ignored
      * @return the underlying inventory
      */
@@ -58,6 +62,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
 
     /**
      * Indicates if an inventory is currently open by a player.
+     *
      * @return True if a player has the inventory open otherwise false
      */
     @Override
@@ -86,21 +91,20 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
     @Override
     protected void applyDataLayout() {
         synchronized (this) {
-            if (getDataLayout() != null) {
-                LOGGER.info("Applying data layouts");
-                var contents = inventory.getItemStacks();
-                getDataLayout().applyLayout(contents, null);
-                for (int i = 0; i < contents.length; i++) {
-                    if (contents[i] == null) {
-                        this.inventory.setItemStack(i, ItemStack.AIR);
-                        continue;
-                    }
-                    if (contents[i].material() == Material.AIR) continue;
-                    this.inventory.setItemStack(i, contents[i]);
+            if (getDataLayout() == null) return;
+            LOGGER.info("Applying data layouts");
+            ItemStack[] contents = inventory.getItemStacks();
+            getDataLayout().applyLayout(contents, null);
+            for (int i = 0; i < contents.length; i++) {
+                if (contents[i] == null) {
+                    this.inventory.setItemStack(i, ItemStack.AIR);
+                    continue;
                 }
-                this.dataLayoutValid = true;
-                updateViewer(inventory);
+                if (contents[i].material() == Material.AIR) continue;
+                this.inventory.setItemStack(i, contents[i]);
             }
+            this.dataLayoutValid = true;
+            updateViewer(inventory);
         }
     }
 }
