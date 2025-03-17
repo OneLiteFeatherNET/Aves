@@ -4,9 +4,8 @@
     "config:base",
     ":semanticCommitsDisabled"
   ],
-  "assignees": ["theevilreaper"],
-  "ignoreDeps": [],
-  "labels": ["Renovate"],
-  "rebaseWhen": "conflicted",
-  "schedule": ["on the first day of the month"]
+  "labels": [
+    "Renovate"
+  ],
+  "rebaseWhen": "conflicted"
 }
