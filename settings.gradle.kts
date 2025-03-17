@@ -47,7 +47,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("microtus","1.5.0")
+            version("microtus","1.5.1")
             version("bom", "1.1.1")
             version("publishdata", "1.4.0")
             library("bom.base", "net.theevilreaper.dungeon.bom", "base").versionRef("bom")
