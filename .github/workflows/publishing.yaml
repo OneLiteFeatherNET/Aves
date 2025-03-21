@@ -24,6 +24,9 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+        env:
+          ONELITEFEATHER_MAVEN_USERNAME: ${{ secrets.ONELITEFEATHER_MAVEN_USERNAME }}
+          ONELITEFEATHER_MAVEN_PASSWORD: ${{ secrets.ONELITEFEATHER_MAVEN_PASSWORD }}
 
       - name: Publish to Maven
         run: ./gradlew publish
