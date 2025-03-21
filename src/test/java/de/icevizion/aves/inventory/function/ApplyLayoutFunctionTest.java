@@ -1,14 +1,19 @@
 package de.icevizion.aves.inventory.function;
 
-/**
- * @author theEvilReaper
- * @version 1.0.0
- * @since
- **/
-// @ExtendWith(MockitoExtension.class)
+import de.icevizion.aves.inventory.InventorySlot;
+import de.icevizion.aves.inventory.slot.ISlot;
+import net.minestom.server.inventory.InventoryType;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 class ApplyLayoutFunctionTest {
 
-    /*@Test
+    @Test
     void testApplyLayoutWithOnlyItemStacks() {
         var slots = new ISlot[InventoryType.CHEST_1_ROW.getSize()];
         var item = ItemStack.builder(Material.BLACK_STAINED_GLASS).build();
@@ -17,10 +22,10 @@ class ApplyLayoutFunctionTest {
         Arrays.fill(slots, inventorySlot);
 
         var applyFunction = new DefaultApplyLayoutFunction(slots);
-        Mockito.spy(applyFunction).applyLayout(itemStacks);
+        applyFunction.applyLayout(itemStacks);
 
-        for (int i = 0; i < itemStacks.length; i++) {
-            assertNotNull(itemStacks[i]);
+        for (ItemStack itemStack : itemStacks) {
+            assertNotNull(itemStack);
         }
-    }*/
+    }
 }
