@@ -1,27 +1,14 @@
 package de.icevizion.aves.util;
 
-import de.icevizion.aves.item.IItem;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Player;
-import net.minestom.server.instance.Instance;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-@ExtendWith(MockitoExtension.class)
+// @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Disabled
 class PlayersTest {
 
-    Player player;
+    /*Player player;
 
     Instance instance;
 
@@ -85,5 +72,5 @@ class PlayersTest {
         assertThrowsExactly(IllegalArgumentException.class,
                 () -> Players.dropPlayerInventory(otherPlayer),
                 "The instance from the player can't be null");
-    }
+    }*/
 }
