@@ -25,6 +25,7 @@ dependencies {
     implementation(platform(libs.microtus.bom))
     compileOnly(libs.minestom)
 
+    testImplementation(platform(libs.bom.base))
     testImplementation(libs.minestom)
     testImplementation(libs.minestom.test)
     testImplementation(libs.junit.jupiter)
