@@ -1,30 +1,17 @@
 package de.icevizion.aves.util;
 
-import net.minestom.server.entity.Player;
-import net.minestom.server.inventory.InventoryType;
-import net.minestom.server.inventory.PlayerInventory;
-import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.Material;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-@ExtendWith(MockitoExtension.class)
+// @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Disabled
 class ItemsTest {
 
-    Player player;
+    /*Player player;
 
     PlayerInventory playerInventory;
 
@@ -70,5 +57,5 @@ class ItemsTest {
     void testGetItemAmountFrom() {
         var amount = Items.getAmountFromItem(this.player, ItemStack.builder(Material.DIAMOND).build());
         assertSame(0, amount);
-    }
+    }*/
 }

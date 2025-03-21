@@ -29,8 +29,6 @@ dependencies {
     testImplementation(libs.minestom)
     testImplementation(libs.minestom.test)
     testImplementation(libs.junit.jupiter)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.junit)
     testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
