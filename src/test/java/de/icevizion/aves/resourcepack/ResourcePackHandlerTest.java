@@ -1,69 +1,59 @@
 package de.icevizion.aves.resourcepack;
 
-/*@ExtendWith(MockitoExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)*/
+import net.kyori.adventure.resource.ResourcePackInfo;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 class ResourcePackHandlerTest {
 
-    /*static final String EMPTY = "";
+    static final String EMPTY = "";
+    private static ResourcePackInfo testResourcePackInfo;
+    private static Set<UUID> cache;
 
-    final Set<UUID> cache = new HashSet<>();
-
-    @Test
-    void testResourcePackConstructorWithForce() {
-        final ResourcePackInfo resourcePackInfo = ResourcePackInfo.resourcePackInfo()
+    @BeforeAll
+    static void init() {
+        testResourcePackInfo = ResourcePackInfo.resourcePackInfo()
                 .id(UUID.randomUUID())
                 .hash(EMPTY)
                 .uri(URI.create(EMPTY))
                 .build();
-        var handler = new ResourcePackHandler(resourcePackInfo);
-        assertNotNull(handler);
+        cache = new HashSet<>();
     }
 
     @Test
     void testConstructorWithResourcePack() {
-        var resourcePack = Mockito.mock(ResourcePackInfo.class);
-        assertNotNull(resourcePack);
-        var handler = new ResourcePackHandler(resourcePack);
+        var handler = new ResourcePackHandler(testResourcePackInfo);
         assertNotNull(handler);
     }
 
     @Test
     void testConstructorWithResourcePackAndCondition() {
-        var resourcePack = Mockito.mock(ResourcePackInfo.class);
-        assertNotNull(resourcePack);
-        var handler = new ResourcePackHandler(resourcePack, new DefaultResourcePackCondition(cache));
+        var handler = new ResourcePackHandler(testResourcePackInfo, new DefaultResourcePackCondition(cache));
         assertNotNull(handler);
     }
 
     @Test
-    void testResourcePackHandlerMethods() {
-        var resourcePack = Mockito.mock(ResourcePackInfo.class);
-        var handler = new ResourcePackHandler(resourcePack);
-        var uuid = UUID.randomUUID();
-        var player = Mockito.mock(Player.class);
-
-        handler.setDefaultCondition();
-        Mockito.when(player.getUuid()).thenReturn(uuid);
-        assertTrue(handler.setPack(player));
-        handler.invalidateId(player.getUuid());
-        assertTrue(cache.isEmpty());
-    }
-
-    @Test
     void testResourcePackHandlerConditionSet() {
-        var resourcePack = Mockito.mock(ResourcePackInfo.class);
-        var handler = new ResourcePackHandler(resourcePack);
+        var handler = new ResourcePackHandler(testResourcePackInfo);
         assertDoesNotThrow(() -> handler.setCondition((player, resourcePackStatus) -> { }));
     }
 
     @Test
     void testResourcePackHandlerWithANullCondition() {
-        var resourcePack = Mockito.mock(ResourcePackInfo.class);
-        var handler = new ResourcePackHandler(resourcePack);
+        var handler = new ResourcePackHandler(testResourcePackInfo);
         assertThrows(
                 IllegalStateException.class,
                 () -> handler.setCondition(null),
                 "Can't register the handler because the 'ResourcePackCondition' is null"
         );
-    }*/
+    }
 }
