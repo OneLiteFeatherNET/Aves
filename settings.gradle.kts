@@ -32,7 +32,7 @@ dependencyResolutionManagement {
             version("microtus","1.5.1")
             version("bom", "1.1.1")
             version("publishdata", "1.4.0")
-            library("bom.base", "net.theevilreaper.dungeon.bom", "base").versionRef("bom")
+            library("bom.base", "net.theevilreaper.mycelium.bom", "mycelium-bom").versionRef("bom")
             library("microtus-bom", "net.onelitefeather.microtus", "bom").versionRef("microtus")
             library("minestom", "net.onelitefeather.microtus", "Microtus").withoutVersion()
             library("minestom-test", "net.onelitefeather.microtus.testing", "testing").withoutVersion()
