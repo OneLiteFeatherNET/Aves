@@ -29,7 +29,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("microtus","1.5.1")
-            version("bom", "1.1.1")
+            version("bom", "1.1.2")
             version("publishdata", "1.4.0")
             library("bom.base", "net.theevilreaper.mycelium.bom", "mycelium-bom").versionRef("bom")
             library("microtus-bom", "net.onelitefeather.microtus", "bom").versionRef("microtus")
