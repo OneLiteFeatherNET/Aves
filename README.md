@@ -12,21 +12,21 @@ inventories, resource packs and more.
 
 Aves offers various utility packages to assist in common server development tasks:
 
-- **File Management**: File operations and GSON serialization.
-- **Internationalization (i18n)**: Multi-language support for in-game text.
+- **File Management**: File operations and GSON serialization
+- **Internationalization (i18n)**: Multi-language support for in-game text
 - **Inventory System**:
-    - Custom inventory handling.
-    - Pageable inventories.
-    - Functional inventory components.
-    - Slot management utilities.
-- **Item Utilities**: Simplifies item creation and manipulation.
-- **Map Utilities**: Tools for managing and rendering Minecraft maps.
-- **Resource Pack Management**: Utilities for handling and deploying resource packs.
+    - Custom inventory handling
+    - Pageable inventories
+    - Functional inventory components
+    - Slot management utilities
+- **Item Utilities**: Simplifies item creation and manipulation
+- **Map Utilities**: Tools for managing and rendering Minecraft maps
+- **Resource Pack Management**: Utilities for handling and deploying resource packs
 - **General Utilities**:
-    - Collection helpers.
-    - Exception handling.
-    - Functional programming utilities.
-    - Vector manipulation.
+    - Collection helpers
+    - Exception handling
+    - Functional programming utilities
+    - Vector manipulation
 
 ### Gradle (Kotlin DSL)
 
