@@ -1,5 +1,5 @@
 name: "Merge Request"
-description: "Create a merge request to merge your changes into the cli project"
+description: "Create a merge request to merge your changes"
 body:
   - type: textarea
     attributes:
