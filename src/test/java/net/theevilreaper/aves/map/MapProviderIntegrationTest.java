@@ -45,7 +45,6 @@ class MapProviderIntegrationTest {
     static void init() throws URISyntaxException {
         URL resourceUrl = MapProviderIntegrationTest.class.getClassLoader().getResource("map");
         rootPath = Paths.get(resourceUrl.toURI());
-        System.out.println("Root path: " + rootPath);
         PositionGsonAdapter positionGsonAdapter = new PositionGsonAdapter();
         fileHandler = new GsonFileHandler(
                 new GsonBuilder()
