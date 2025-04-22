@@ -103,6 +103,7 @@ public abstract class AbstractMapProvider implements MapProvider {
 
     @Override
     public @UnmodifiableView @NotNull List<MapEntry> getEntries() {
+        if (this.mapEntries == null) return Collections.emptyList();
         return Collections.unmodifiableList(this.mapEntries);
     }
 
