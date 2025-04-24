@@ -22,11 +22,11 @@ configurations.all {
 
 dependencies {
     implementation(platform(libs.bom.base))
-    implementation(platform(libs.microtus.bom))
-    implementation("net.kyori:adventure-text-minimessage:4.20.0")
+    compileOnly(libs.adventure)
     compileOnly(libs.minestom)
 
     testImplementation(platform(libs.bom.base))
+    testImplementation(libs.adventure)
     testImplementation(libs.minestom)
     testImplementation(libs.cyano)
     testImplementation(libs.junit.jupiter)
