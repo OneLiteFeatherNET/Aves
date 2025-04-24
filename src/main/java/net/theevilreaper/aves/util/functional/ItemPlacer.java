@@ -2,6 +2,7 @@ package net.theevilreaper.aves.util.functional;
 
 import net.theevilreaper.aves.item.IItem;
 import net.theevilreaper.aves.item.TranslatedItem;
+import net.minestom.server.entity.EquipmentSlot;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -24,10 +25,10 @@ public interface ItemPlacer {
         var itemStack = iitem instanceof TranslatedItem && locale != null ? iitem.get(locale) : iitem.get();
         if (armor) {
             switch (slotID) {
-                case 0 -> player.getInventory().setHelmet(itemStack);
-                case 1 -> player.getInventory().setChestplate(itemStack);
-                case 2 -> player.getInventory().setLeggings(itemStack);
-                case 3 -> player.getInventory().setBoots(itemStack);
+                case 0 -> player.getInventory().setEquipment(EquipmentSlot.HELMET, ((byte) EquipmentSlot.HELMET.armorSlot()), itemStack);
+                case 1 -> player.getInventory().setEquipment(EquipmentSlot.CHESTPLATE, ((byte) EquipmentSlot.CHESTPLATE.armorSlot()), itemStack);
+                case 2 -> player.getInventory().setEquipment(EquipmentSlot.LEGGINGS, ((byte) EquipmentSlot.LEGGINGS.armorSlot()),itemStack);
+                case 3 -> player.getInventory().setEquipment(EquipmentSlot.BOOTS, ((byte) EquipmentSlot.BOOTS.armorSlot()),itemStack);
                 default -> throw new IllegalArgumentException("The slotID is greater than four");
             }
         } else {

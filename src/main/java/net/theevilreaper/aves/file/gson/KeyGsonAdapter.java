@@ -4,7 +4,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import net.kyori.adventure.key.Key;
-import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +24,7 @@ import java.util.function.BiFunction;
  * A key can be created by calling the {@link Key#key(String, String)} method.
  * Use {@link #create()} to create a default adapter.
  * Use {@link #create(BiFunction)} to create an adapter with a custom key creation function.
- * Use {@link #createMinestom()} to create an adapter with a custom key({@link NamespaceID}) creation function for Minestom.
+ * Use {@link #createMinestom()} to create an adapter with a custom key({@link Key}) creation function for Minestom.
  *
  * @since 1.0.0
  * @version 1.0.0
@@ -65,11 +64,11 @@ public class KeyGsonAdapter extends TypeAdapter<Key> {
     }
 
     /**
-     * Creates a new instance of the {@link KeyGsonAdapter} with a custom key({@link NamespaceID}) creation function for Minestom.
+     * Creates a new instance of the {@link KeyGsonAdapter} with a custom key) creation function for Minestom.
      * @return the new instance of the {@link KeyGsonAdapter}
      */
     public static @NotNull KeyGsonAdapter createMinestom() {
-        return new KeyGsonAdapter(NamespaceID::new);
+        return new KeyGsonAdapter(Key::key);
     }
 
     @Override

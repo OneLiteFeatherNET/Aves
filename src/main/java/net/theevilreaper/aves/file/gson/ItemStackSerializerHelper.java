@@ -3,6 +3,7 @@ package net.theevilreaper.aves.file.gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.MinecraftServer;
@@ -11,7 +12,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.component.EnchantmentList;
 import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.registry.DynamicRegistry;
-import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -123,7 +123,7 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
             String nameSpace = enchantObject.get("enchantment").getAsString();
             var level = enchantObject.get("level").getAsInt();
             DynamicRegistry<Enchantment> enchantmentRegistry = MinecraftServer.getEnchantmentRegistry();
-            Enchantment rawEnchantment = enchantmentRegistry.get(NamespaceID.from(nameSpace));
+            Enchantment rawEnchantment = enchantmentRegistry.get(Key.key(nameSpace));
             if (rawEnchantment == null) continue;
             DynamicRegistry.Key<Enchantment> enchantment = enchantmentRegistry.getKey(rawEnchantment);
             enchantments.putIfAbsent(enchantment, level);
