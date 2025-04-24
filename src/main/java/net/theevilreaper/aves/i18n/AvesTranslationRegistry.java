@@ -47,6 +47,11 @@ public final class AvesTranslationRegistry implements TranslationRegistry {
         return backedRegistry.contains(key);
     }
 
+    @Override
+    public boolean contains(@NotNull String key, @NotNull Locale locale) {
+        return false;
+    }
+
     /**
      * Returns the name of the registry as {@link Key}.
      * @return the given name from the registry

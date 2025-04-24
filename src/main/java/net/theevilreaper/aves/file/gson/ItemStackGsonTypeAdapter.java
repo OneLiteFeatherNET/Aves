@@ -46,7 +46,7 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
         }
 
         if (itemStack.has(ItemComponent.CUSTOM_MODEL_DATA)) {
-            metaObject.addProperty(CUSTOM_MODEL_DATA, itemStack.get(ItemComponent.CUSTOM_MODEL_DATA));
+          //  metaObject.addProperty(CUSTOM_MODEL_DATA, itemStack.get(ItemComponent.CUSTOM_MODEL_DATA));
         }
 
         serializeEnchantments(itemStack, metaObject);
@@ -62,8 +62,9 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
 
         if (object.has(MATERIAL)) {
             var materialString = object.get(MATERIAL).getAsString();
-            var fetchedMaterial = Material.fromNamespaceId(materialString);
-            material = fetchedMaterial == null ? Material.STONE : fetchedMaterial;
+         //   var fetchedMaterial = Material.fromNamespaceId(materialString);
+            //material = fetchedMaterial == null ? Material.STONE : fetchedMaterial;
+            material = Material.STONE;
         }
 
         ItemStack.Builder itemBuilder = ItemStack.builder(material);
@@ -92,7 +93,7 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
 
         if (metaObject.has(CUSTOM_MODEL_DATA)) {
             int customModelData = metaObject.get(CUSTOM_MODEL_DATA).getAsInt();
-            itemBuilder.set(ItemComponent.CUSTOM_MODEL_DATA, customModelData);
+          //  itemBuilder.set(ItemComponent.CUSTOM_MODEL_DATA, customModelData);
         }
 
         itemBuilder = deserializeEnchantments(itemBuilder, metaObject);
