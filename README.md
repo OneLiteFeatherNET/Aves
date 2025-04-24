@@ -34,7 +34,7 @@ Add the following dependency to your `build.gradle.kts` file:
 
 ```kotlin
 dependencies {
-    implementation("de.icevizion.lib:aves:1.6.1")
+    implementation("net.theevilreaper.aves:aves:1.6.1")
 }
 ```
 
