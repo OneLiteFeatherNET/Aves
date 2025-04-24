@@ -3,7 +3,6 @@ package net.theevilreaper.aves.file.gson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
-import net.minestom.server.utils.NamespaceID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,7 +22,7 @@ class KeyGsonAdapterTest {
         this.writeKey = Key.key("aves:example");
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(Key.class, KeyGsonAdapter.create())
-                .registerTypeAdapter(NamespaceID.class, KeyGsonAdapter.createMinestom())
+                .registerTypeAdapter(Key.class, KeyGsonAdapter.createMinestom())
                 .create();
     }
 
@@ -43,17 +42,17 @@ class KeyGsonAdapterTest {
 
     @Test
     void testNamespaceIDWrite() {
-        var namespaceID = NamespaceID.from("aves:example");
-        var output = this.gson.toJson(namespaceID, NamespaceID.class);
+        var namespaceID = Key.key("aves:example");
+        var output = this.gson.toJson(namespaceID, Key.class);
         assertNotNull(output);
         assertEquals(KEY_JSON, output);
     }
 
     @Test
     void testNamespaceIDRead() {
-        var fromJson = this.gson.fromJson(KEY_JSON, NamespaceID.class);
+        var fromJson = this.gson.fromJson(KEY_JSON, Key.class);
         assertNotNull(fromJson);
-        assertEquals(NamespaceID.from("aves:example"), fromJson);
+        assertEquals(Key.key("aves:example"), fromJson);
     }
 
 }
