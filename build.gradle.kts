@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.publishdata)
 }
 
-group = "de.icevizion.lib"
+group = "net.theevilreaper.aves"
 version = "1.6.1"
 description = "Aves"
 
