@@ -12,6 +12,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.component.CustomModelData;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
@@ -28,7 +29,7 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
     private static final String CUSTOM_MODEL_DATA = "customModelData";
 
     @Override
-    public JsonElement serialize(@NotNull ItemStack itemStack, Type type, JsonSerializationContext jsonSerializationContext) {
+    public JsonElement serialize(@NotNull ItemStack itemStack, Type type, JsonSerializationContext context) {
         JsonObject object = new JsonObject();
         object.addProperty(MATERIAL, itemStack.material().name());
         object.addProperty("amount", itemStack.amount());
@@ -46,8 +47,9 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
         }
 
         if (itemStack.has(ItemComponent.CUSTOM_MODEL_DATA)) {
-            //metaObject.addProperty(CUSTOM_MODEL_DATA, itemStack.get(ItemComponent.CUSTOM_MODEL_DATA).);
-          //  metaObject.addProperty(CUSTOM_MODEL_DATA, itemStack.get(ItemComponent.CUSTOM_MODEL_DATA));
+            CustomModelData modelData = itemStack.get(ItemComponent.CUSTOM_MODEL_DATA);
+            JsonElement customData = context.serialize(modelData);
+            metaObject.add(CUSTOM_MODEL_DATA, customData);
         }
 
         serializeEnchantments(itemStack, metaObject);
@@ -56,7 +58,7 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
     }
 
     @Override
-    public ItemStack deserialize(@NotNull JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+    public ItemStack deserialize(@NotNull JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject object = jsonElement.getAsJsonObject();
 
         Material material = Material.STONE;
@@ -92,8 +94,9 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
         }
 
         if (metaObject.has(CUSTOM_MODEL_DATA)) {
-            int customModelData = metaObject.get(CUSTOM_MODEL_DATA).getAsInt();
-          //  itemBuilder.set(ItemComponent.CUSTOM_MODEL_DATA, customModelData);
+            JsonElement customModelElement = metaObject.get(CUSTOM_MODEL_DATA);
+            CustomModelData customModelData = context.deserialize(customModelElement, CustomModelData.class);
+            itemBuilder.set(ItemComponent.CUSTOM_MODEL_DATA, customModelData);
         }
 
         itemBuilder = deserializeEnchantments(itemBuilder, metaObject);
