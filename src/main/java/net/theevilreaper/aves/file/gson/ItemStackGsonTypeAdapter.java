@@ -46,6 +46,7 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
         }
 
         if (itemStack.has(ItemComponent.CUSTOM_MODEL_DATA)) {
+            //metaObject.addProperty(CUSTOM_MODEL_DATA, itemStack.get(ItemComponent.CUSTOM_MODEL_DATA).);
           //  metaObject.addProperty(CUSTOM_MODEL_DATA, itemStack.get(ItemComponent.CUSTOM_MODEL_DATA));
         }
 
@@ -61,10 +62,9 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
         Material material = Material.STONE;
 
         if (object.has(MATERIAL)) {
-            var materialString = object.get(MATERIAL).getAsString();
-         //   var fetchedMaterial = Material.fromNamespaceId(materialString);
-            //material = fetchedMaterial == null ? Material.STONE : fetchedMaterial;
-            material = Material.STONE;
+            String materialString = object.get(MATERIAL).getAsString();
+            Material fetchedMaterial = Material.fromKey(materialString);
+            material = fetchedMaterial == null ? Material.STONE : fetchedMaterial;
         }
 
         ItemStack.Builder itemBuilder = ItemStack.builder(material);
