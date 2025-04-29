@@ -6,8 +6,8 @@ plugins {
     alias(libs.plugins.publishdata)
 }
 
-group = "de.icevizion.lib"
-version = "1.6.1"
+group = "net.theevilreaper.aves"
+version = "1.7.0"
 description = "Aves"
 
 java {
@@ -22,13 +22,15 @@ configurations.all {
 
 dependencies {
     implementation(platform(libs.bom.base))
-    implementation(platform(libs.microtus.bom))
+    compileOnly(libs.adventure)
     compileOnly(libs.minestom)
 
     testImplementation(platform(libs.bom.base))
+    testImplementation(libs.adventure)
     testImplementation(libs.minestom)
-    testImplementation(libs.minestom.test)
+    testImplementation(libs.cyano)
     testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.platform.launcher)
     testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
