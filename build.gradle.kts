@@ -6,8 +6,8 @@ plugins {
     alias(libs.plugins.publishdata)
 }
 
-group = "net.theevilreaper.aves"
-version = "1.7.0"
+group = "net.theevilreaper"
+version = "1.7.1"
 description = "Aves"
 
 java {
@@ -21,11 +21,11 @@ configurations.all {
 }
 
 dependencies {
-    implementation(platform(libs.bom.base))
+    implementation(platform(libs.mycelium.bom))
     compileOnly(libs.adventure)
     compileOnly(libs.minestom)
 
-    testImplementation(platform(libs.bom.base))
+    testImplementation(platform(libs.mycelium.bom))
     testImplementation(libs.adventure)
     testImplementation(libs.minestom)
     testImplementation(libs.cyano)
