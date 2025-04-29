@@ -33,7 +33,7 @@ dependencyResolutionManagement {
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
             library("minestom","net.minestom", "minestom-snapshots").withoutVersion()
             library("adventure", "net.kyori", "adventure-text-minimessage").withoutVersion()
-            library("cyano", "net.onelitefeather.cyano", "cyano").withoutVersion()
+            library("cyano", "net.onelitefeather", "cyano").withoutVersion()
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").withoutVersion()
             library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").withoutVersion()
             library("junit.platform.launcher", "org.junit.platform", "junit-platform-launcher").versionRef("junit.platform")
