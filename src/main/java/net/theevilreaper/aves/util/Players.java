@@ -211,6 +211,6 @@ public final class Players {
      * @param ticks    how long the cooldown is
      */
     public static void sendCooldown(@NotNull Player player, @NotNull Material material, int ticks) {
-        player.sendPacket(new SetCooldownPacket(material.id(), ticks));
+        player.sendPacket(new SetCooldownPacket(material.name(), ticks));
     }
 }

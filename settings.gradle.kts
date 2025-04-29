@@ -26,16 +26,17 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("microtus","1.5.1")
-            version("bom", "1.1.2")
+            version("bom", "1.2.0")
+            version("junit.platform", "1.12.2")
             version("publishdata", "1.4.0")
-            library("bom.base", "net.theevilreaper.mycelium.bom", "mycelium-bom").versionRef("bom")
-            library("microtus-bom", "net.onelitefeather.microtus", "bom").versionRef("microtus")
-            library("minestom", "net.onelitefeather.microtus", "Microtus").withoutVersion()
-            library("minestom-test", "net.onelitefeather.microtus.testing", "testing").withoutVersion()
+
+            library("bom.base", "net.onelitefeather.mycelium.bom", "mycelium-bom").versionRef("bom")
+            library("minestom","net.minestom", "minestom-snapshots").withoutVersion()
+            library("adventure", "net.kyori", "adventure-text-minimessage").withoutVersion()
+            library("cyano", "net.onelitefeather.cyano", "cyano").withoutVersion()
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").withoutVersion()
             library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").withoutVersion()
-
+            library("junit.platform.launcher", "org.junit.platform", "junit-platform-launcher").versionRef("junit.platform")
             plugin("publishdata", "de.chojo.publishdata").versionRef("publishdata")
         }
     }
