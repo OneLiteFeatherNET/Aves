@@ -2,7 +2,10 @@ package net.theevilreaper.aves.map;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -15,6 +18,8 @@ import java.nio.file.Path;
  * @author theEvilReaper
  */
 public final class BaseMapEntry implements MapEntry {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseMapEntry.class);
 
     private final String mapFileNaming;
     private final Path directory;
@@ -36,6 +41,18 @@ public final class BaseMapEntry implements MapEntry {
         Path resolvedPath = directory.resolve(mapFileNaming);
         if (Files.exists(resolvedPath)) {
             this.mapFilePath = resolvedPath;
+        }
+    }
+
+    @Override
+    public void createFile() {
+        if (this.mapFilePath != null && Files.exists(mapFilePath)) return;
+
+        try {
+            this.mapFilePath = directory.resolve(mapFileNaming);
+            Files.createFile(this.mapFilePath);
+        } catch (IOException exception) {
+            LOGGER.warn("Could not create map file for path {}", mapFilePath, exception);
         }
     }
 
