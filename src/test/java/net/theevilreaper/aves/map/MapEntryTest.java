@@ -1,6 +1,6 @@
 package net.theevilreaper.aves.map;
 
-import de.icevizion.aves.FileTestBase;
+import net.theevilreaper.aves.FileTestBase;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
