@@ -5,7 +5,6 @@ import net.theevilreaper.aves.TestMapProvider;
 import net.theevilreaper.aves.file.FileHandler;
 import net.theevilreaper.aves.file.GsonFileHandler;
 import net.theevilreaper.aves.file.gson.PositionGsonAdapter;
-import net.theevilreaper.aves.objects.TestMapProvider;
 import net.theevilreaper.aves.util.functional.PathFilter;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
