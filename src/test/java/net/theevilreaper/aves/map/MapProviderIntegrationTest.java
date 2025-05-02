@@ -1,10 +1,10 @@
 package net.theevilreaper.aves.map;
 
 import com.google.gson.GsonBuilder;
+import de.icevizion.aves.objects.TestMapProvider;
 import net.theevilreaper.aves.file.FileHandler;
 import net.theevilreaper.aves.file.GsonFileHandler;
 import net.theevilreaper.aves.file.gson.PositionGsonAdapter;
-import net.theevilreaper.aves.objects.TestMapProvider;
 import net.theevilreaper.aves.util.functional.PathFilter;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -104,8 +104,8 @@ class MapProviderIntegrationTest {
             env.tick();
         }
 
-        assertNotEquals(instance.getUniqueId(), player.getInstance().getUniqueId());
-        assertNotEquals(Pos.ZERO, player.getPosition());
+        assertEquals(instance.getUuid(), player.getInstance().getUuid());
+        assertEquals(Pos.ZERO, player.getPosition());
 
         player.teleport(Pos.ZERO);
 
