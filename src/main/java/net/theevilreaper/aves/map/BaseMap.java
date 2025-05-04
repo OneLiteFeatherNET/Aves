@@ -175,7 +175,7 @@ public class BaseMap {
      * @param defaultSpawn the default spawn location
      * @return the spawn location or the default spawn location
      */
-    public @Nullable Pos getSpawnOrDefault(@NotNull Pos defaultSpawn) {
+    public @NotNull Pos getSpawnOrDefault(@NotNull Pos defaultSpawn) {
         return spawn != null ? spawn : defaultSpawn;
     }
 }

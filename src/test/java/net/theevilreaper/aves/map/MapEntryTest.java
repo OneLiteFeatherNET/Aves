@@ -1,12 +1,8 @@
 package net.theevilreaper.aves.map;
 
-import org.junit.jupiter.api.AfterEach;
+import net.theevilreaper.aves.FileTestBase;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,21 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class MapEntryTest {
-
-    @TempDir
-    static Path tempDir;
-
-    @AfterEach
-    void tearDown() {
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(tempDir)) {
-            for (Path file : stream) {
-                Files.delete(file);
-            }
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-    }
+class MapEntryTest extends FileTestBase {
 
     @Test
     void testCreationOnNonDirectory() {
@@ -43,18 +25,26 @@ class MapEntryTest {
     }
 
     @Test
+    void testMapEntryFileCreation() {
+        MapEntry mapEntry = MapEntry.of(tempDir);
+        assertNotNull(mapEntry);
+        assertNull(mapEntry.getMapFile());
+        assertFalse(mapEntry.hasMapFile());
+
+        mapEntry.createFile();
+
+        assertNotNull(mapEntry.getMapFile());
+        assertTrue(mapEntry.hasMapFile());
+    }
+
+    @Test
     void testMapEntryWithStandardFileEnding() {
         MapEntry standardEntry = MapEntry.of(tempDir);
         assertNotNull(standardEntry);
         assertEquals(tempDir, standardEntry.getDirectoryRoot());
         assertTrue(standardEntry.hasStandardEnding());
         assertNull(standardEntry.getMapFile());
-        try {
-            Files.createFile(tempDir.resolve(MapEntry.MAP_FILE));
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        standardEntry.refresh();
+        standardEntry.createFile();
         assertTrue(standardEntry.hasMapFile());
         assertNotNull(standardEntry.getMapFile());
     }
@@ -66,12 +56,8 @@ class MapEntryTest {
         assertNotNull(customEntry);
         assertFalse(customEntry.hasStandardEnding());
         assertNull(customEntry.getMapFile());
-        try {
-            Files.createFile(tempDir.resolve(customMapEnding));
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        customEntry.refresh();
+
+        customEntry.createFile();
         assertNotNull(customEntry.getMapFile());
     }
 }
