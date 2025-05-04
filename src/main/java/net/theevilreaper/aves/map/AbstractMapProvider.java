@@ -37,7 +37,7 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractMapProvider implements MapProvider {
 
-    protected static final Logger MAP_LOGGER = LoggerFactory.getLogger(AbstractMapProvider.class);
+    private static final Logger MAP_LOGGER = LoggerFactory.getLogger(AbstractMapProvider.class);
 
     private final PathFilter<MapEntry> mapFilter;
 
