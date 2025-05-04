@@ -27,7 +27,6 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("bom", "1.2.3")
-            version("junit.platform", "1.12.2")
             version("publishdata", "1.4.0")
 
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
@@ -36,7 +35,8 @@ dependencyResolutionManagement {
             library("cyano", "net.onelitefeather", "cyano").withoutVersion()
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").withoutVersion()
             library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").withoutVersion()
-            library("junit.platform.launcher", "org.junit.platform", "junit-platform-launcher").versionRef("junit.platform")
+            library("junit.platform.launcher", "org.junit.platform", "junit-platform-launcher").withoutVersion()
+
             plugin("publishdata", "de.chojo.publishdata").versionRef("publishdata")
         }
     }
