@@ -1,4 +1,4 @@
-package de.icevizion.aves.objects;
+package net.theevilreaper.aves;
 
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.instance.InstanceContainer;
