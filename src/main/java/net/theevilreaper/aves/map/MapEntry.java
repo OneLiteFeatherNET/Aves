@@ -45,9 +45,15 @@ public sealed interface MapEntry permits BaseMapEntry {
     }
 
     /**
+     * Creates a new MapEntry from the given path.
+     */
+    void createFile();
+
+    /**
      * If the method is called the entry checks if the data file exists.
      * This can be used to update the path references in special cases.
      */
+    @Deprecated(forRemoval = true, since = "Please use createFile instead")
     void refresh();
 
     /**
