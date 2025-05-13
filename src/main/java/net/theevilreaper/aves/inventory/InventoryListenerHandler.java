@@ -8,6 +8,7 @@ import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryOpenEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.trait.InventoryEvent;
+import net.minestom.server.inventory.click.Click;
 import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.holder.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
@@ -129,7 +130,7 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
 
                 switch (click) {
                     case ClickHolder.CancelClick ignored1 -> event.setCancelled(true);
-                    case ClickHolder.MinestomClick minestomClick-> event.setClick(minestomClick.click());
+                    case ClickHolder.MinestomClick(@NotNull Click minestomClick) -> event.setClick(minestomClick);
                     case ClickHolder.NOPClick ignored -> {
                     }
                 }
