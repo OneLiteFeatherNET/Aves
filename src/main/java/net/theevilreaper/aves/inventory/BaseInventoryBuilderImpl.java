@@ -3,7 +3,6 @@ package net.theevilreaper.aves.inventory;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.theevilreaper.aves.inventory.holder.InventoryHolder;
 import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
@@ -20,10 +19,6 @@ import org.jetbrains.annotations.NotNull;
  * @since 1.0.0
  **/
 public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuilder implements InventoryListenerHandler {
-
-    static {
-        MinecraftServer.getGlobalEventHandler().addChild(NODE);
-    }
 
     protected InventoryHolder holder;
     protected EventListener<InventoryCloseEvent> closeListener;
@@ -59,7 +54,7 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
             this.clickListener = registerClick(this, holder);
         }
 
-        this.register(NODE, openListener, closeListener, clickListener);
+        this.register(this.holder.getInventory().eventNode(), openListener, closeListener, clickListener);
     }
 
     /**
@@ -73,7 +68,7 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
                 viewer.closeInventory();
             }
         }
-        this.unregister(NODE, openListener, closeListener, clickListener);
+        this.unregister(this.holder.getInventory().eventNode(), openListener, closeListener, clickListener);
         this.holder = null;
     }
 

@@ -1,6 +1,5 @@
 package net.theevilreaper.aves.inventory;
 
-import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.inventory.InventoryClickEvent;
@@ -23,8 +22,6 @@ import org.jetbrains.annotations.Nullable;
  * @since 1.0.0
  **/
 sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
-
-    EventNode<InventoryEvent> NODE = EventNode.type("inventories", EventFilter.INVENTORY);
 
     /**
      * Register the a {@link InventoryOpenEvent} and {@link InventoryCloseEvent} listener instance to the event node.
@@ -124,7 +121,7 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
             @NotNull InventoryBuilder builder,
             @NotNull InventoryHolder holder
     ) {
-        EventListener<InventoryPreClickEvent> eventListener = EventListener.of(InventoryPreClickEvent.class, event -> {
+        return EventListener.of(InventoryPreClickEvent.class, event -> {
             if (event.getInventory() instanceof CustomInventory customInventory && customInventory.getHolder() == holder) {
                 ClickHolder click = builder.inventoryClick.onClick(event.getPlayer(), event.getSlot(), event.getClick());
 
@@ -132,12 +129,11 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
                     case ClickHolder.CancelClick ignored1 -> event.setCancelled(true);
                     case ClickHolder.MinestomClick(@NotNull Click minestomClick) -> event.setClick(minestomClick);
                     case ClickHolder.NOPClick ignored -> {
+                        // No operation
                     }
                 }
             }
         });
-        holder.getInventory().eventNode().addListener(eventListener);
-        return  eventListener;
     }
 
     /**

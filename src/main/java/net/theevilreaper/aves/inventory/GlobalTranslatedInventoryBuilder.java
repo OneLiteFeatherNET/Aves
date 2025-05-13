@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.inventory;
 
+import net.kyori.adventure.text.Component;
 import net.theevilreaper.aves.i18n.TextData;
 import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.translation.GlobalTranslator;
@@ -34,15 +35,15 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     @Contract(value = "_ -> new", pure = true)
     private @NotNull CustomInventory create(Locale locale) {
-        var title = GlobalTranslator.render(titleData.createComponent(), locale);
-        var inventory = new CustomInventory(new InventoryHolderImpl(this), type, title);
+        Component title = GlobalTranslator.render(titleData.createComponent(), locale);
+        CustomInventory inventory = new CustomInventory(new InventoryHolderImpl(this), type, title);
         updateInventory(inventory, title, locale, true);
         return inventory;
     }
 
     @Override
     public void unregister() {
-        this.unregister(NODE, openListener, closeListener, clickListener);
+        this.unregister(this.getInventory().eventNode(), openListener, closeListener, clickListener);
         this.holder = null;
 
         if (this.inventoryTranslatedObjectCache.isEmpty()) return;
