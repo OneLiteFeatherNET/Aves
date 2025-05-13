@@ -54,7 +54,6 @@ public abstract class InventoryBuilder {
         this.type = type;
 
         this.inventoryClick = (player, slot, clickType) -> {
-            LOGGER.info("Clicked slot: " + slot);
             if (slot == InventoryConstants.INVALID_SLOT_ID) return ClickHolder.noClick();
 
             if (this.dataLayout != null) {
