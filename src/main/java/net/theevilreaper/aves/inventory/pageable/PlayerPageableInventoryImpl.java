@@ -2,6 +2,7 @@ package net.theevilreaper.aves.inventory.pageable;
 
 import net.theevilreaper.aves.inventory.InventoryLayout;
 import net.theevilreaper.aves.inventory.PersonalInventoryBuilder;
+import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.theevilreaper.aves.item.IItem;
@@ -91,14 +92,14 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         ISlot givenForwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
         this.forwardSlot = givenForwardSlot == null ? BLANK_SLOT : ISlot.of(givenForwardSlot);
 
-        this.forwardClick = (clickPlayer, clickType, slot, condition) -> {
+        this.forwardClick = (clickPlayer, slot, click) -> {
             this.update(PageAction.FORWARD);
-            condition.setCancel(true);
+            return ClickHolder.cancelClick();
         };
 
-        this.backwardsClick = (clickPlayer, clickType, slot, condition) -> {
+        this.backwardsClick = (clickPlayer, slot, click) -> {
             this.update(PageAction.BACKWARDS);
-            condition.setCancel(true);
+            return ClickHolder.cancelClick();
         };
 
         this.builder.setDataLayoutFunction(inventoryLayout -> dataLayout);

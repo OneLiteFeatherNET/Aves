@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.inventory;
 
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.theevilreaper.aves.inventory.holder.InventoryHolder;
 import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import net.minestom.server.MinecraftServer;
@@ -27,6 +28,7 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
     protected InventoryHolder holder;
     protected EventListener<InventoryCloseEvent> closeListener;
     protected EventListener<InventoryOpenEvent> openListener;
+    protected EventListener<InventoryPreClickEvent> clickListener;
 
     /**
      * Creates a new instance from the {@link BaseInventoryBuilderImpl}.
@@ -45,15 +47,19 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
     @Override
     public void register() {
         this.checkListenerState(this.openListener, this.closeListener);
-        if (this.openFunction != null) {
+        if (this.openFunction == null) {
             this.openListener = registerOpen(this, holder);
         }
 
-        if (this.closeFunction != null) {
+        if (this.closeFunction == null) {
             this.closeListener = registerClose(this, holder);
         }
 
-        this.register(NODE, openListener, closeListener);
+        if (this.clickListener == null) {
+            this.clickListener = registerClick(this, holder);
+        }
+
+        this.register(NODE, openListener, closeListener, clickListener);
     }
 
     /**
@@ -67,7 +73,7 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
                 viewer.closeInventory();
             }
         }
-        this.unregister(NODE, openListener, closeListener);
+        this.unregister(NODE, openListener, closeListener, clickListener);
         this.holder = null;
     }
 

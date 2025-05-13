@@ -36,14 +36,13 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
     private @NotNull CustomInventory create(Locale locale) {
         var title = GlobalTranslator.render(titleData.createComponent(), locale);
         var inventory = new CustomInventory(new InventoryHolderImpl(this), type, title);
-        inventory.addInventoryCondition(this.inventoryCondition);
         updateInventory(inventory, title, locale, true);
         return inventory;
     }
 
     @Override
     public void unregister() {
-        this.unregister(NODE, openListener, closeListener);
+        this.unregister(NODE, openListener, closeListener, clickListener);
         this.holder = null;
 
         if (this.inventoryTranslatedObjectCache.isEmpty()) return;
