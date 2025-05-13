@@ -30,14 +30,10 @@ public sealed interface ClickHolder permits ClickHolder.MinestomClick, ClickHold
 
     final class InternalClickRegistry {
 
-
-        private static final InternalClickRegistry INSTANCE;
-
         private static final ClickHolder CANCEL_CLICK;
         private static final ClickHolder NOP_CLICK;
 
         static {
-            INSTANCE = new InternalClickRegistry();
             CANCEL_CLICK = new CancelClick();
             NOP_CLICK = new NOPClick();
         }
