@@ -1,13 +1,14 @@
 package net.theevilreaper.aves.inventory;
 
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
-import net.theevilreaper.aves.inventory.holder.InventoryHolder;
-import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryOpenEvent;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.InventoryType;
+import net.theevilreaper.aves.inventory.exception.ListenerStateException;
+import net.theevilreaper.aves.inventory.holder.InventoryHolder;
+import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,7 +42,7 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
      */
     @Override
     public void register() {
-        this.checkListenerState(this.openListener, this.closeListener);
+        this.checkListenerState(this.openListener, this.closeListener, this.clickListener);
         if (this.openFunction == null) {
             this.openListener = registerOpen(this, holder);
         }
@@ -50,9 +51,7 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
             this.closeListener = registerClose(this, holder);
         }
 
-        if (this.clickListener == null) {
-            this.clickListener = registerClick(this, holder);
-        }
+        this.clickListener = registerClick(this, holder);
 
         this.register(this.holder.getInventory().eventNode(), openListener, closeListener, clickListener);
     }

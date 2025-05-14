@@ -9,9 +9,11 @@ import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.trait.InventoryEvent;
 import net.minestom.server.inventory.click.Click;
 import net.theevilreaper.aves.inventory.click.ClickHolder;
+import net.theevilreaper.aves.inventory.exception.ListenerStateException;
 import net.theevilreaper.aves.inventory.holder.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 /**
  * Handles the {@link EventListener} creation for some {@link InventoryEvent}'s.
@@ -85,10 +87,16 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
      */
     default void checkListenerState(
             @Nullable EventListener<InventoryOpenEvent> openListener,
-            @Nullable EventListener<InventoryCloseEvent> closeListener
+            @Nullable EventListener<InventoryCloseEvent> closeListener,
+            @Nullable EventListener<InventoryPreClickEvent> clickListener
     ) {
+        // Since clickListener is always present after registration, check it first
+        if (clickListener != null) {
+            throw new ListenerStateException("Can't register click listener twice");
+        }
+        // Keep the original check as a fallback
         if (openListener != null && closeListener != null) {
-            throw new IllegalStateException("Can't register listener twice");
+            throw new ListenerStateException("The open and close listener can't be registered twice");
         }
     }
 
