@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.item.ItemComponent;
+import net.minestom.server.component.DataComponents;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.CustomModelData;
@@ -78,7 +78,7 @@ class ItemStackGsonTypeAdapterTest {
         assertNotNull(decodedStack);
         assertEquals(Material.DIAMOND, decodedStack.material());
 
-        CustomModelData data = decodedStack.get(ItemComponent.CUSTOM_MODEL_DATA);
+        CustomModelData data = decodedStack.get(DataComponents.CUSTOM_MODEL_DATA);
         assertNotNull(data);
 
         assertEquals(List.of(1f), data.floats());
@@ -99,7 +99,7 @@ class ItemStackGsonTypeAdapterTest {
     void testItemWriteWithEnchantmentsWrite() {
         var enchantmentList = new EnchantmentList(Enchantment.CHANNELING, 1);
         ItemStack stack = ItemStack.builder(Material.DIAMOND)
-                .set(ItemComponent.ENCHANTMENTS, enchantmentList)
+                .set(DataComponents.ENCHANTMENTS, enchantmentList)
                 .build();
         String json = gson.toJson(stack, ItemStack.class);
         assertEquals(STACK_WITH_ENCHANTMENTS, json);
@@ -139,7 +139,7 @@ class ItemStackGsonTypeAdapterTest {
     void testItemReadWitEnchantments(Env env) {
         var enchantmentList = new EnchantmentList(Enchantment.CHANNELING, 1);
         ItemStack originalStack = ItemStack.builder(Material.DIAMOND)
-                .set(ItemComponent.ENCHANTMENTS, enchantmentList)
+                .set(DataComponents.ENCHANTMENTS, enchantmentList)
                 .build();
         ItemStack stack = gson.fromJson(STACK_WITH_ENCHANTMENTS, ItemStack.class);
         assertEquals(originalStack, stack);
