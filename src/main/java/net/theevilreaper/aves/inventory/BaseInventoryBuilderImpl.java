@@ -6,7 +6,6 @@ import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryOpenEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.InventoryType;
-import net.theevilreaper.aves.inventory.exception.ListenerStateException;
 import net.theevilreaper.aves.inventory.holder.InventoryHolder;
 import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import org.jetbrains.annotations.NotNull;
