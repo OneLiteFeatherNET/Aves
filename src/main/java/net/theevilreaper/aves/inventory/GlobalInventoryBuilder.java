@@ -54,8 +54,9 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
      */
     @Override
     public Inventory getInventory(Locale ignored) {
-        if (dataLayoutValid && inventoryLayoutValid && inventory != null)
+        if (dataLayoutValid && inventoryLayoutValid && inventory != null) {
             return inventory;
+        }
         updateInventory();
         return inventory;
     }
@@ -80,7 +81,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
             this.inventory = new CustomInventory(this.holder, type, titleComponent);
             applyLayout = true;
         }
-        updateInventory(inventory, titleComponent, null, applyLayout);
+        updateInventory(inventory, null, applyLayout);
         updateViewer(inventory);
     }
 

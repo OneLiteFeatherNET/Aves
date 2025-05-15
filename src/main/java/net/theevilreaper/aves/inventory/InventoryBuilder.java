@@ -1,6 +1,16 @@
 package net.theevilreaper.aves.inventory;
 
+import net.kyori.adventure.text.Component;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.Player;
+import net.minestom.server.event.inventory.InventoryCloseEvent;
+import net.minestom.server.event.inventory.InventoryOpenEvent;
+import net.minestom.server.inventory.Inventory;
+import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.inventory.click.Click;
+import net.minestom.server.inventory.click.ClickType;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.function.CloseFunction;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
@@ -9,16 +19,6 @@ import net.theevilreaper.aves.inventory.slot.EmptySlot;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.theevilreaper.aves.inventory.util.InventoryConstants;
 import net.theevilreaper.aves.util.functional.ThrowingFunction;
-import net.kyori.adventure.text.Component;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.entity.Player;
-import net.minestom.server.event.inventory.InventoryCloseEvent;
-import net.minestom.server.event.inventory.InventoryOpenEvent;
-import net.minestom.server.inventory.Inventory;
-import net.minestom.server.inventory.InventoryType;
-import net.minestom.server.inventory.click.ClickType;
-import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -170,14 +170,14 @@ public abstract class InventoryBuilder {
      * Updates the given inventory with the content.
      *
      * @param inventory   the inventory which should receive the update
-     * @param title       the title for the inventory
      * @param locale      the locale for the inventory
      * @param applyLayout if the layout should be applied
      */
-    protected void updateInventory(@NotNull Inventory inventory,
-                                   Component title,
-                                   Locale locale,
-                                   boolean applyLayout) {
+    protected void updateInventory(
+            @NotNull Inventory inventory,
+            Locale locale,
+            boolean applyLayout
+    ) {
         if (this.inventoryLayout == null) {
             throw new IllegalStateException("Can't update content because the layout is null");
         }

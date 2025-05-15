@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -37,7 +38,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
     private @NotNull CustomInventory create(Locale locale) {
         Component title = GlobalTranslator.render(titleData.createComponent(), locale);
         CustomInventory inventory = new CustomInventory(new InventoryHolderImpl(this), type, title);
-        updateInventory(inventory, title, locale, true);
+        updateInventory(inventory, locale, true);
         return inventory;
     }
 
@@ -48,7 +49,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
         if (this.inventoryTranslatedObjectCache.isEmpty()) return;
 
-        for (var entry : this.inventoryTranslatedObjectCache.entrySet()) {
+        for (Map.Entry<Locale, CustomInventory> entry : this.inventoryTranslatedObjectCache.entrySet()) {
             if (!entry.getValue().hasViewers()) continue;
 
             for (Player viewer : entry.getValue().getViewers()) {
@@ -69,7 +70,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
     @Override
     protected boolean isOpen() {
         if (inventoryTranslatedObjectCache.isEmpty()) return false;
-        for (var inventory : inventoryTranslatedObjectCache.values())
+        for (Inventory inventory : inventoryTranslatedObjectCache.values())
             if (!inventory.getViewers().isEmpty())
                 return true;
         return false;
@@ -77,9 +78,9 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     @Override
     protected void updateInventory() {
-        for (var entry : inventoryTranslatedObjectCache.entrySet()) {
-            var locale = entry.getKey();
-            updateInventory(entry.getValue(), GlobalTranslator.render(titleData.createComponent(), locale), locale, true);
+        for (Map.Entry<Locale, CustomInventory> entry : inventoryTranslatedObjectCache.entrySet()) {
+            Locale locale = entry.getKey();
+            updateInventory(entry.getValue(), locale, true);
             updateViewer(entry.getValue());
         }
     }
