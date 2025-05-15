@@ -13,7 +13,6 @@ import net.theevilreaper.aves.inventory.exception.ListenerStateException;
 import net.theevilreaper.aves.inventory.holder.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 /**
  * Handles the {@link EventListener} creation for some {@link InventoryEvent}'s.
