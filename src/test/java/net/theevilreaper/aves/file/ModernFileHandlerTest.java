@@ -1,6 +1,5 @@
 package net.theevilreaper.aves.file;
 
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.theevilreaper.aves.map.BaseMap;
