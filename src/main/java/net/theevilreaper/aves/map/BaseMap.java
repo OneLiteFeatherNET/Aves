@@ -80,6 +80,27 @@ public class BaseMap {
     }
 
     /**
+     * Creates a new instance of the {@link BaseMapBuilder} to build a new map.
+     * The builder can be used to set all values which are required for a map.
+     *
+     * @return a new instance of the {@link BaseMapBuilder}
+     */
+    @Contract(pure = true)
+    public static @NotNull BaseMapBuilder builder() {
+        return new BaseMapBuilder();
+    }
+
+    /**
+     * Creates a new instance from the {@link BaseMap} with all given values.
+     *
+     * @param baseMap the base map to copy
+     */
+    @Contract(value = "_ -> new", pure = true)
+    public static @NotNull BaseMapBuilder builder(@NotNull BaseMap baseMap) {
+        return new BaseMapBuilder(baseMap);
+    }
+
+    /**
      * Overrides the equal the method from the object class.
      *
      * @param o the object to compare
