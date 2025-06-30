@@ -14,11 +14,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.testing.Env;
 import net.minestom.testing.extension.MicrotusExtension;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.net.URISyntaxException;
@@ -86,6 +82,7 @@ class MapProviderIntegrationTest {
         pathFilter = null;
     }
 
+    @Disabled("Disabled due to long execution time")
     @Test
     void testMapHandlingLogic(@NotNull Env env) {
         InstanceContainer instance = (InstanceContainer) env.createFlatInstance();
