@@ -87,7 +87,7 @@ public class BaseMap {
 
     /**
      * Creates a new instance of the {@link BaseMapBuilder} to build a new map.
-     * The builder can be used to set all values which are required for a map.
+     * The builder can be used to set all values that are required for a map.
      *
      * @return a new instance of the {@link BaseMapBuilder}
      */
