@@ -1,11 +1,5 @@
 package net.theevilreaper.aves.inventory;
 
-import net.theevilreaper.aves.inventory.function.CloseFunction;
-import net.theevilreaper.aves.inventory.function.OpenFunction;
-import net.theevilreaper.aves.inventory.slot.EmptySlot;
-import net.theevilreaper.aves.inventory.slot.ISlot;
-import net.theevilreaper.aves.inventory.util.InventoryConstants;
-import net.theevilreaper.aves.util.functional.ThrowingFunction;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
@@ -13,11 +7,18 @@ import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryOpenEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
+import net.minestom.server.inventory.click.Click;
 import net.minestom.server.inventory.click.ClickType;
-import net.minestom.server.inventory.condition.InventoryCondition;
-import net.minestom.server.inventory.condition.InventoryConditionResult;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.theevilreaper.aves.inventory.click.ClickHolder;
+import net.theevilreaper.aves.inventory.function.CloseFunction;
+import net.theevilreaper.aves.inventory.function.InventoryClick;
+import net.theevilreaper.aves.inventory.function.OpenFunction;
+import net.theevilreaper.aves.inventory.slot.EmptySlot;
+import net.theevilreaper.aves.inventory.slot.ISlot;
+import net.theevilreaper.aves.inventory.util.InventoryConstants;
+import net.theevilreaper.aves.util.functional.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public abstract class InventoryBuilder {
     protected OpenFunction openFunction;
     protected CloseFunction closeFunction;
     protected ThrowingFunction<InventoryLayout, InventoryLayout> dataLayoutFunction;
-    protected InventoryCondition inventoryCondition;
+    protected InventoryClick inventoryClick;
 
     /**
      * Creates a new instance from the inventory builder with the given size.
@@ -52,18 +53,20 @@ public abstract class InventoryBuilder {
     protected InventoryBuilder(@NotNull InventoryType type) {
         this.type = type;
 
-        this.inventoryCondition = (player, slot, clickType, inventoryConditionResult) -> {
-            if (slot == InventoryConstants.INVALID_SLOT_ID) return;
+        this.inventoryClick = (player, slot, clickType) -> {
+            if (slot == InventoryConstants.INVALID_SLOT_ID) return ClickHolder.noClick();
 
             if (this.dataLayout != null) {
                 var clickedSlot = this.dataLayout.getSlot(slot);
-                acceptClick(clickedSlot, player, clickType, slot, inventoryConditionResult);
+                return acceptClick(clickedSlot, player, clickType, slot);
             }
 
             if (this.inventoryLayout != null) {
                 var clickedSlot = this.inventoryLayout.getSlot(slot);
-                acceptClick(clickedSlot, player, clickType, slot, inventoryConditionResult);
+                return acceptClick(clickedSlot, player, clickType, slot);
             }
+
+            return ClickHolder.noClick();
         };
     }
 
@@ -73,12 +76,11 @@ public abstract class InventoryBuilder {
      * @param slot      the {@link ISlot} which is clicked
      * @param player    the {@link Player} who is involved
      * @param clickType the given {@link ClickType}
-     * @param result    the given {@link InventoryConditionResult}
      */
-    private void acceptClick(@Nullable ISlot slot, @NotNull Player player, @NotNull ClickType clickType, int slotID, @NotNull InventoryConditionResult result) {
-        if (slot == null) return;
-        if (slot instanceof EmptySlot) return;
-        slot.getClick().onClick(player, slotID, clickType, result);
+    private @NotNull ClickHolder acceptClick(@Nullable ISlot slot, @NotNull Player player, @NotNull Click clickType, int slotID) {
+        if (slot == null) return ClickHolder.noClick();
+        if (slot instanceof EmptySlot) return ClickHolder.noClick();
+        return slot.getClick().onClick(player, slotID, clickType);
     }
 
     /**
@@ -168,14 +170,14 @@ public abstract class InventoryBuilder {
      * Updates the given inventory with the content.
      *
      * @param inventory   the inventory which should receive the update
-     * @param title       the title for the inventory
      * @param locale      the locale for the inventory
      * @param applyLayout if the layout should be applied
      */
-    protected void updateInventory(@NotNull Inventory inventory,
-                                   Component title,
-                                   Locale locale,
-                                   boolean applyLayout) {
+    protected void updateInventory(
+            @NotNull Inventory inventory,
+            Locale locale,
+            boolean applyLayout
+    ) {
         if (this.inventoryLayout == null) {
             throw new IllegalStateException("Can't update content because the layout is null");
         }

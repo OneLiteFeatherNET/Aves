@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.item;
 
+import net.minestom.server.component.DataComponents;
 import net.theevilreaper.aves.i18n.AvesTranslationRegistry;
 import net.theevilreaper.aves.inventory.util.InventoryConstants;
 import net.kyori.adventure.key.Key;
@@ -7,7 +8,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.TranslationRegistry;
-import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ class TranslatedItemTest {
         TranslationRegistry translationRegistry = TranslationRegistry.create(Key.key("test", "test"));
         translationRegistry.register("key", Locale.ENGLISH, new MessageFormat("<arg:0> <arg:1>"));
         GlobalTranslator.translator().addSource(new AvesTranslationRegistry(translationRegistry));
-        Component displayName = item.get(Locale.ENGLISH).get(ItemComponent.CUSTOM_NAME);
+        Component displayName = item.get(Locale.ENGLISH).get(DataComponents.CUSTOM_NAME);
         assertNotNull(displayName);
         assertTrue(PlainTextComponentSerializer.plainText().serialize(displayName).equalsIgnoreCase("Argument 1 Argument 2"));
     }
@@ -39,7 +39,7 @@ class TranslatedItemTest {
         TranslationRegistry translationRegistry = TranslationRegistry.create(Key.key("test", "test"));
         translationRegistry.register("key", Locale.ENGLISH, new MessageFormat("{0} {1}"));
         GlobalTranslator.translator().addSource(translationRegistry);
-        Component displayName = item.get(Locale.ENGLISH).get(ItemComponent.CUSTOM_NAME);
+        Component displayName = item.get(Locale.ENGLISH).get(DataComponents.CUSTOM_NAME);
         assertNotNull(displayName);
         assertTrue(PlainTextComponentSerializer.plainText().serialize(displayName).equalsIgnoreCase("Argument 1 Argument 2"));
     }
@@ -52,7 +52,7 @@ class TranslatedItemTest {
         TranslationRegistry translationRegistry = TranslationRegistry.create(Key.key("test", "test"));
         translationRegistry.register("key", Locale.ENGLISH, new MessageFormat("{0} {1}"));
         GlobalTranslator.translator().addSource(translationRegistry);
-        List<Component> lore = item.get(Locale.ENGLISH).get(ItemComponent.LORE);
+        List<Component> lore = item.get(Locale.ENGLISH).get(DataComponents.LORE);
         assertNotNull(lore);
         assertFalse(lore.isEmpty());
         assertLinesMatch(lore.stream().map(PlainTextComponentSerializer.plainText()::serialize).toList(), List.of("Argument 1 Argument 2"));
@@ -100,7 +100,7 @@ class TranslatedItemTest {
 
     @Test
     void testToSlotWithClickListener() {
-        var slot = TranslatedItem.of(Material.ACACIA_BOAT).toSlot((player, clickType, slot1, condition) -> {});
+        var slot = TranslatedItem.of(Material.ACACIA_BOAT).toSlot((player, iSlot, click) -> null);
         assertNotSame(InventoryConstants.CANCEL_CLICK, slot.getClick());
     }
 

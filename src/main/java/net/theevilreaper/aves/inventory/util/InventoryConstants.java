@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.inventory.util;
 
+import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
 import net.theevilreaper.aves.inventory.slot.EmptySlot;
 import net.minestom.server.event.trait.CancellableEvent;
@@ -14,7 +15,8 @@ import java.util.function.Consumer;
  **/
 public final class InventoryConstants {
 
-    public static final InventoryClick CANCEL_CLICK = (player, clickType, slotID, condition) -> condition.setCancel(true);
+    public static final InventoryClick CANCEL_CLICK = (player, slot, click) -> ClickHolder.cancelClick();
+    @Deprecated(forRemoval = true, since = "Not needed anymore due to the changes to the inventory system")
     public static final Consumer<CancellableEvent> CANCELLABLE_EVENT = event -> event.setCancelled(true);
     public static final EmptySlot BLANK_SLOT = new EmptySlot();
     public static final int INVENTORY_WIDTH = 9;
