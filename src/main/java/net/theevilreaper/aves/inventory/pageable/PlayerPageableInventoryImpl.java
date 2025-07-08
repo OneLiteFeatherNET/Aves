@@ -92,14 +92,14 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         ISlot givenForwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
         this.forwardSlot = givenForwardSlot == null ? BLANK_SLOT : ISlot.of(givenForwardSlot);
 
-        this.forwardClick = (clickPlayer, slot, click) -> {
+        this.forwardClick = (clickPlayer, slot, click, result) -> {
             this.update(PageAction.FORWARD);
-            return ClickHolder.cancelClick();
+            result.accept(ClickHolder.cancelClick());
         };
 
-        this.backwardsClick = (clickPlayer, slot, click) -> {
+        this.backwardsClick = (clickPlayer, slot, click, result) -> {
             this.update(PageAction.BACKWARDS);
-            return ClickHolder.cancelClick();
+            result.accept(ClickHolder.cancelClick());
         };
 
         this.builder.setDataLayoutFunction(inventoryLayout -> dataLayout);
