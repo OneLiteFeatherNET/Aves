@@ -100,7 +100,7 @@ class TranslatedItemTest {
 
     @Test
     void testToSlotWithClickListener() {
-        var slot = TranslatedItem.of(Material.ACACIA_BOAT).toSlot((player, iSlot, click) -> null);
+        var slot = TranslatedItem.of(Material.ACACIA_BOAT).toSlot((player, iSlot, click, result) -> {});
         assertNotSame(InventoryConstants.CANCEL_CLICK, slot.getClick());
     }
 
