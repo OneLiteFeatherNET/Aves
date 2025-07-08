@@ -1,8 +1,9 @@
 package net.theevilreaper.aves.inventory.function;
 
 import net.minestom.server.entity.Player;
+import net.minestom.server.inventory.click.Click;
 import net.minestom.server.inventory.click.ClickType;
-import net.minestom.server.inventory.condition.InventoryConditionResult;
+import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,7 +23,6 @@ public interface InventoryClick {
      * @param player    the {@link Player} who is involved
      * @param clickType the given {@link ClickType}
      * @param slot      the clicked slot as int
-     * @param condition the given {@link net.minestom.server.inventory.condition.InventoryCondition}
      */
-    void onClick(@NotNull Player player, int slot, @NotNull ClickType clickType, @NotNull InventoryConditionResult condition);
+    @NotNull ClickHolder onClick(@NotNull Player player, int slot, @NotNull Click clickType);
 }

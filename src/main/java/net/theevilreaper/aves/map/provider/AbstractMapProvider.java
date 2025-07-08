@@ -1,6 +1,8 @@
-package net.theevilreaper.aves.map;
+package net.theevilreaper.aves.map.provider;
 
 import net.theevilreaper.aves.file.FileHandler;
+import net.theevilreaper.aves.map.BaseMap;
+import net.theevilreaper.aves.map.MapEntry;
 import net.theevilreaper.aves.util.functional.PathFilter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;

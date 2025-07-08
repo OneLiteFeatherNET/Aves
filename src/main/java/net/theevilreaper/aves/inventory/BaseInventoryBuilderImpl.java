@@ -1,13 +1,13 @@
 package net.theevilreaper.aves.inventory;
 
-import net.theevilreaper.aves.inventory.holder.InventoryHolder;
-import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryOpenEvent;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.InventoryType;
+import net.theevilreaper.aves.inventory.holder.InventoryHolder;
+import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,13 +20,10 @@ import org.jetbrains.annotations.NotNull;
  **/
 public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuilder implements InventoryListenerHandler {
 
-    static {
-        MinecraftServer.getGlobalEventHandler().addChild(NODE);
-    }
-
     protected InventoryHolder holder;
     protected EventListener<InventoryCloseEvent> closeListener;
     protected EventListener<InventoryOpenEvent> openListener;
+    protected EventListener<InventoryPreClickEvent> clickListener;
 
     /**
      * Creates a new instance from the {@link BaseInventoryBuilderImpl}.
@@ -44,16 +41,18 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
      */
     @Override
     public void register() {
-        this.checkListenerState(this.openListener, this.closeListener);
-        if (this.openFunction != null) {
+        this.checkListenerState(this.openListener, this.closeListener, this.clickListener);
+        if (this.openFunction == null) {
             this.openListener = registerOpen(this, holder);
         }
 
-        if (this.closeFunction != null) {
+        if (this.closeFunction == null) {
             this.closeListener = registerClose(this, holder);
         }
 
-        this.register(NODE, openListener, closeListener);
+        this.clickListener = registerClick(this, holder);
+
+        this.register(this.holder.getInventory().eventNode(), openListener, closeListener, clickListener);
     }
 
     /**
@@ -67,7 +66,7 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
                 viewer.closeInventory();
             }
         }
-        this.unregister(NODE, openListener, closeListener);
+        this.unregister(this.holder.getInventory().eventNode(), openListener, closeListener, clickListener);
         this.holder = null;
     }
 

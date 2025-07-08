@@ -9,10 +9,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.minestom.server.item.ItemComponent;
+import net.minestom.server.component.DataComponents;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.CustomModelData;
+import net.minestom.server.item.component.TooltipDisplay;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
@@ -38,16 +39,17 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
         serializeCustomName(itemStack, metaObject);
         serializeLore(itemStack, metaObject);
 
-        if (itemStack.has(ItemComponent.HIDE_TOOLTIP)) {
-            metaObject.addProperty("hideTooltip", "true");
+
+        if (itemStack.has(DataComponents.TOOLTIP_DISPLAY)) {
+            TooltipDisplay tooltipDisplay = itemStack.get(DataComponents.TOOLTIP_DISPLAY);
+            if (tooltipDisplay.hideTooltip()) {
+                metaObject.addProperty("hideTooltip", true);
+            }
         }
 
-        if (itemStack.has(ItemComponent.HIDE_ADDITIONAL_TOOLTIP)) {
-            metaObject.addProperty("hideAdditionalTooltip", "true");
-        }
 
-        if (itemStack.has(ItemComponent.CUSTOM_MODEL_DATA)) {
-            CustomModelData modelData = itemStack.get(ItemComponent.CUSTOM_MODEL_DATA);
+        if (itemStack.has(DataComponents.CUSTOM_MODEL_DATA)) {
+            CustomModelData modelData = itemStack.get(DataComponents.CUSTOM_MODEL_DATA);
             JsonElement customData = context.serialize(modelData);
             metaObject.add(CUSTOM_MODEL_DATA, customData);
         }
@@ -86,17 +88,13 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
         itemBuilder = deserializeLore(itemBuilder, metaObject);
 
         if (metaObject.has("hideTooltip")) {
-            itemBuilder.set(ItemComponent.HIDE_TOOLTIP);
-        }
-
-        if (metaObject.has("hideAdditionalTooltip")) {
-            itemBuilder.set(ItemComponent.HIDE_ADDITIONAL_TOOLTIP);
+            itemBuilder.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, null));
         }
 
         if (metaObject.has(CUSTOM_MODEL_DATA)) {
             JsonElement customModelElement = metaObject.get(CUSTOM_MODEL_DATA);
             CustomModelData customModelData = context.deserialize(customModelElement, CustomModelData.class);
-            itemBuilder.set(ItemComponent.CUSTOM_MODEL_DATA, customModelData);
+            itemBuilder.set(DataComponents.CUSTOM_MODEL_DATA, customModelData);
         }
 
         itemBuilder = deserializeEnchantments(itemBuilder, metaObject);

@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.inventory;
 
+import net.kyori.adventure.text.Component;
 import net.theevilreaper.aves.i18n.TextData;
 import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.translation.GlobalTranslator;
@@ -34,21 +35,20 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     @Contract(value = "_ -> new", pure = true)
     private @NotNull CustomInventory create(Locale locale) {
-        var title = GlobalTranslator.render(titleData.createComponent(), locale);
-        var inventory = new CustomInventory(new InventoryHolderImpl(this), type, title);
-        inventory.addInventoryCondition(this.inventoryCondition);
-        updateInventory(inventory, title, locale, true);
+        Component title = GlobalTranslator.render(titleData.createComponent(), locale);
+        CustomInventory inventory = new CustomInventory(new InventoryHolderImpl(this), type, title);
+        updateInventory(inventory, locale, true);
         return inventory;
     }
 
     @Override
     public void unregister() {
-        this.unregister(NODE, openListener, closeListener);
+        this.unregister(this.getInventory().eventNode(), openListener, closeListener, clickListener);
         this.holder = null;
 
         if (this.inventoryTranslatedObjectCache.isEmpty()) return;
 
-        for (var entry : this.inventoryTranslatedObjectCache.entrySet()) {
+        for (Map.Entry<Locale, CustomInventory> entry : this.inventoryTranslatedObjectCache.entrySet()) {
             if (!entry.getValue().hasViewers()) continue;
 
             for (Player viewer : entry.getValue().getViewers()) {
@@ -69,7 +69,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
     @Override
     protected boolean isOpen() {
         if (inventoryTranslatedObjectCache.isEmpty()) return false;
-        for (var inventory : inventoryTranslatedObjectCache.values())
+        for (Inventory inventory : inventoryTranslatedObjectCache.values())
             if (!inventory.getViewers().isEmpty())
                 return true;
         return false;
@@ -77,9 +77,9 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     @Override
     protected void updateInventory() {
-        for (var entry : inventoryTranslatedObjectCache.entrySet()) {
-            var locale = entry.getKey();
-            updateInventory(entry.getValue(), GlobalTranslator.render(titleData.createComponent(), locale), locale, true);
+        for (Map.Entry<Locale, CustomInventory> entry : inventoryTranslatedObjectCache.entrySet()) {
+            Locale locale = entry.getKey();
+            updateInventory(entry.getValue(), locale, true);
             updateViewer(entry.getValue());
         }
     }
