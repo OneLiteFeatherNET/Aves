@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 /**
- * Th   e {@link GlobalInventoryBuilder} builds an inventory which can be used in a global context.
+ * The {@link GlobalInventoryBuilder} builds an inventory which can be used in a global context.
  * That means that the inventory is related to all player's on the server and not bound to a single player.
  *
  * @author Patrick Zdarsky / Rxcki
@@ -54,8 +54,9 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
      */
     @Override
     public Inventory getInventory(Locale ignored) {
-        if (dataLayoutValid && inventoryLayoutValid && inventory != null)
+        if (dataLayoutValid && inventoryLayoutValid && inventory != null) {
             return inventory;
+        }
         updateInventory();
         return inventory;
     }
@@ -78,10 +79,9 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
         boolean applyLayout = !inventoryLayoutValid;
         if (inventory == null) {
             this.inventory = new CustomInventory(this.holder, type, titleComponent);
-            this.inventory.addInventoryCondition(inventoryCondition);
             applyLayout = true;
         }
-        updateInventory(inventory, titleComponent, null, applyLayout);
+        updateInventory(inventory, null, applyLayout);
         updateViewer(inventory);
     }
 

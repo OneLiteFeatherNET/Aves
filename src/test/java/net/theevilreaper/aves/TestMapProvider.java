@@ -3,7 +3,7 @@ package net.theevilreaper.aves;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.instance.InstanceContainer;
 import net.theevilreaper.aves.file.FileHandler;
-import net.theevilreaper.aves.map.AbstractMapProvider;
+import net.theevilreaper.aves.map.provider.AbstractMapProvider;
 import net.theevilreaper.aves.map.BaseMap;
 import net.theevilreaper.aves.map.MapEntry;
 import net.theevilreaper.aves.util.functional.PathFilter;

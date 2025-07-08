@@ -26,11 +26,10 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("bom", "1.2.3")
+            version("bom", "1.3.0")
             version("publishdata", "1.4.0")
-
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
-            library("minestom","net.minestom", "minestom-snapshots").withoutVersion()
+            library("minestom","net.minestom", "minestom").withoutVersion()
             library("adventure", "net.kyori", "adventure-text-minimessage").withoutVersion()
             library("cyano", "net.onelitefeather", "cyano").withoutVersion()
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").withoutVersion()

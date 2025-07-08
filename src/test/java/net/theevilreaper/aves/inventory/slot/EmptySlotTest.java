@@ -14,7 +14,8 @@ class EmptySlotTest {
 
         assertThrowsExactly(
                 UnsupportedOperationException.class,
-                () -> emptySlot.setClick((player, slot, clickType, condition) -> {
+                () -> emptySlot.setClick((player, slot, click) -> {
+                    return null;
                 }),
                 "Cannot set a click on an empty slot"
         );

@@ -57,14 +57,6 @@ public final class BaseMapEntry implements MapEntry {
     }
 
     /**
-     * Refreshes the map entry. It will check if the map file exists.
-     */
-    @Override
-    public void refresh() {
-        this.mapFilePath = this.directory.resolve(this.mapFileNaming);
-    }
-
-    /**
      * Checks if the map has a standard ending.
      *
      * @return {@code true} if the map has a standard ending
