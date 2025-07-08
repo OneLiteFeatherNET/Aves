@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -53,20 +55,25 @@ public abstract class InventoryBuilder {
     protected InventoryBuilder(@NotNull InventoryType type) {
         this.type = type;
 
-        this.inventoryClick = (player, slot, clickType) -> {
-            if (slot == InventoryConstants.INVALID_SLOT_ID) return ClickHolder.noClick();
+        this.inventoryClick = (player, slot, clickType, result) -> {
+            if (slot == InventoryConstants.INVALID_SLOT_ID) {
+                result.accept(ClickHolder.noClick());
+                return;
+            }
 
             if (this.dataLayout != null) {
                 var clickedSlot = this.dataLayout.getSlot(slot);
-                return acceptClick(clickedSlot, player, clickType, slot);
+                acceptClick(clickedSlot, player, clickType, slot, result);
+                return;
             }
 
             if (this.inventoryLayout != null) {
                 var clickedSlot = this.inventoryLayout.getSlot(slot);
-                return acceptClick(clickedSlot, player, clickType, slot);
+                acceptClick(clickedSlot, player, clickType, slot, result);
+                return;
             }
 
-            return ClickHolder.noClick();
+            result.accept(ClickHolder.noClick());
         };
     }
 
@@ -77,10 +84,16 @@ public abstract class InventoryBuilder {
      * @param player    the {@link Player} who is involved
      * @param clickType the given {@link ClickType}
      */
-    private @NotNull ClickHolder acceptClick(@Nullable ISlot slot, @NotNull Player player, @NotNull Click clickType, int slotID) {
-        if (slot == null) return ClickHolder.noClick();
-        if (slot instanceof EmptySlot) return ClickHolder.noClick();
-        return slot.getClick().onClick(player, slotID, clickType);
+    private void acceptClick(@Nullable ISlot slot, @NotNull Player player, @NotNull Click clickType, int slotID, Consumer<ClickHolder> result) {
+        if (slot == null) {
+            result.accept(ClickHolder.noClick());
+            return;
+        }
+        if (slot instanceof EmptySlot) {
+            result.accept(ClickHolder.noClick());
+            return;
+        }
+        slot.getClick().onClick(player, slotID, clickType, result);
     }
 
     /**
