@@ -1,5 +1,7 @@
 package net.theevilreaper.aves.inventory;
 
+import net.minestom.server.instance.Instance;
+import net.theevilreaper.aves.inventory.exception.ListenerStateException;
 import net.theevilreaper.aves.inventory.util.LayoutCalculator;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
@@ -8,6 +10,7 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.testing.Env;
 import net.minestom.testing.extension.MicrotusExtension;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -55,16 +58,16 @@ class GlobalInventoryBuilderTest {
     }
 
     @Test
-    void testListenerRegisterTwice(Env env) {
-        var component = Component.text("Test");
-        var instance = env.createFlatInstance();
-        var builder = new GlobalInventoryBuilder(component, InventoryType.CHEST_2_ROW);
+    void testListenerRegisterTwice(@NotNull Env env) {
+        Component component = Component.text("Test");
+        Instance instance = env.createFlatInstance();
+        InventoryBuilder builder = new GlobalInventoryBuilder(component, InventoryType.CHEST_2_ROW);
         builder.setLayout(InventoryLayout.fromType(builder.getType()));
         builder.setOpenFunction(event -> event.getPlayer().sendMessage(component));
         builder.setCloseFunction(event ->  event.getPlayer().sendMessage(component));
         builder.register();
 
-        assertThrowsExactly(IllegalStateException.class, builder::register, "Can't register listener twice");
+        assertThrowsExactly(ListenerStateException.class, builder::register, "Can't register click listener twice");
 
         builder.unregister();
         env.destroyInstance(instance);

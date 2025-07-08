@@ -7,11 +7,12 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.item.ItemComponent;
+import net.minestom.server.component.DataComponents;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.component.EnchantmentList;
 import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.registry.DynamicRegistry;
+import net.minestom.server.registry.RegistryKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,8 +43,8 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
      * @param object the object to serialize the data
      */
     default void serializeCustomName(@NotNull ItemStack stack, @NotNull JsonObject object) {
-        if (!stack.has(ItemComponent.CUSTOM_NAME)) return;
-        final Component itemName = stack.get(ItemComponent.CUSTOM_NAME, Component.empty());
+        if (!stack.has(DataComponents.CUSTOM_NAME)) return;
+        final Component itemName = stack.get(DataComponents.CUSTOM_NAME, Component.empty());
         final String displayName = plainText().serialize(itemName);
         object.addProperty(DISPLAY_NAME, displayName);
     }
@@ -55,8 +56,8 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
      * @param jsonObject the object to deserialize the data
      */
     default void serializeLore(@NotNull ItemStack stack, @NotNull JsonObject jsonObject) {
-        if (!stack.has(ItemComponent.LORE)) return;
-        final List<Component> loreLines = stack.get(ItemComponent.LORE);
+        if (!stack.has(DataComponents.LORE)) return;
+        final List<Component> loreLines = stack.get(DataComponents.LORE);
 
         if (loreLines != null && !loreLines.isEmpty()) {
             JsonArray loreArray = new JsonArray();
@@ -92,12 +93,12 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
      * @param object the object to serialize the data
      */
     default void serializeEnchantments(@NotNull ItemStack stack, @NotNull JsonObject object) {
-        if (!stack.has(ItemComponent.ENCHANTMENTS)) return;
+        if (!stack.has(DataComponents.ENCHANTMENTS)) return;
         JsonArray enchantsArray = new JsonArray();
-        final EnchantmentList enchantmentList = stack.get(ItemComponent.ENCHANTMENTS);
+        final EnchantmentList enchantmentList = stack.get(DataComponents.ENCHANTMENTS);
         if (enchantmentList != null && !enchantmentList.enchantments().isEmpty()) {
-            Set<Map.Entry<DynamicRegistry.Key<Enchantment>, Integer>> entries = enchantmentList.enchantments().entrySet();
-            for (Map.Entry<DynamicRegistry.Key<Enchantment>, Integer> entry : entries) {
+            Set<Map.Entry<RegistryKey<Enchantment>, Integer>> entries = enchantmentList.enchantments().entrySet();
+            for (Map.Entry<RegistryKey<Enchantment>, Integer> entry : entries) {
                 JsonObject enchantmentObject = new JsonObject();
                 enchantmentObject.addProperty("enchantment", entry.getKey().name());
                 enchantmentObject.addProperty("level", entry.getValue());
@@ -117,7 +118,7 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
     default @NotNull ItemStack.Builder deserializeEnchantments(@NotNull ItemStack.Builder builder, @NotNull JsonObject object) {
         if (!object.has(ENCHANTMENTS)) return builder;
         JsonArray enchantsArray = object.getAsJsonArray(ENCHANTMENTS);
-        Map<DynamicRegistry.Key<Enchantment>, Integer> enchantments = new HashMap<>();
+        Map<RegistryKey<Enchantment>, Integer> enchantments = new HashMap<>();
         for (JsonElement enchantElement : enchantsArray) {
             final JsonObject enchantObject = (JsonObject) enchantElement;
             String nameSpace = enchantObject.get("enchantment").getAsString();
@@ -125,10 +126,10 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
             DynamicRegistry<Enchantment> enchantmentRegistry = MinecraftServer.getEnchantmentRegistry();
             Enchantment rawEnchantment = enchantmentRegistry.get(Key.key(nameSpace));
             if (rawEnchantment == null) continue;
-            DynamicRegistry.Key<Enchantment> enchantment = enchantmentRegistry.getKey(rawEnchantment);
+            RegistryKey<Enchantment> enchantment = enchantmentRegistry.getKey(rawEnchantment);
             enchantments.putIfAbsent(enchantment, level);
         }
         EnchantmentList enchantmentList = new EnchantmentList(enchantments);
-        return builder.set(ItemComponent.ENCHANTMENTS, enchantmentList);
+        return builder.set(DataComponents.ENCHANTMENTS, enchantmentList);
     }
 }
