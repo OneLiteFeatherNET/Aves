@@ -14,9 +14,9 @@ import java.util.Optional;
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
- * * @deprecated This interface is deprecated since version 1.8.1 and will be removed in a future release. Use {@link ModernFileHandler} instead.
+ * * @deprecated This interface is deprecated since version 1.9.0 and will be removed in a future release. Use {@link ModernFileHandler} instead.
  **/
-@Deprecated(since = "1.8.1", forRemoval = true)
+@Deprecated(since = "1.9.0", forRemoval = true)
 public interface FileHandler {
 
     Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
