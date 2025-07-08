@@ -7,6 +7,8 @@ import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Consumer;
+
 /**
  * Represents a click function which can be applied to an implementation from the {@link ISlot} interface.
  *
@@ -24,5 +26,5 @@ public interface InventoryClick {
      * @param clickType the given {@link ClickType}
      * @param slot      the clicked slot as int
      */
-    @NotNull ClickHolder onClick(@NotNull Player player, int slot, @NotNull Click clickType);
+    void onClick(@NotNull Player player, int slot, @NotNull Click clickType, Consumer<ClickHolder> result);
 }
