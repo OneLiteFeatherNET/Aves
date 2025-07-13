@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "net.theevilreaper"
-version = "1.9.0"
+version = "1.10.0"
 description = "Aves"
 
 java {
