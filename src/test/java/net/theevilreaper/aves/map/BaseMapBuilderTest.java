@@ -52,4 +52,23 @@ class BaseMapBuilderTest {
         assertEquals(new Pos(1, 65, 1), updatedMap.getSpawn());
         assertNotEquals(map.getSpawn(), updatedMap.getSpawn());
     }
+
+    @Test
+    void testBuilderGetter() {
+        BaseMapBuilder builder = BaseMap.builder();
+
+        assertNotNull(builder);
+
+        builder.name("TestMap")
+                .builders("Author1");
+
+        assertEquals("TestMap", builder.getName());
+        assertEquals(1, builder.getBuilders().size());
+        assertEquals("Author1", builder.getBuilders().getFirst());
+        assertNull(builder.getSpawn());
+
+        builder.spawn(new Pos(0, 64, 0));
+        assertNotNull(builder.getSpawn());
+        assertEquals(new Pos(0, 64, 0), builder.getSpawn());
+    }
 }
