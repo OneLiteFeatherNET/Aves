@@ -3,6 +3,7 @@ package net.theevilreaper.aves.map;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,5 +101,32 @@ public class BaseMapBuilder {
      */
     public @NotNull BaseMap build() {
         return new BaseMap(name, spawn, builders.toArray(new String[0]));
+    }
+
+    /**
+     * Returns the spawn position of the map.
+     *
+     * @return the spawn position, or null if not set
+     */
+    public @Nullable Pos getSpawn() {
+        return spawn;
+    }
+
+    /**
+     * Returns the name of the map.
+     *
+     * @return the name of the map, or null if not set
+     */
+    public @Nullable String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the list of builders associated with the map.
+     *
+     * @return a list of builder names
+     */
+    public @NotNull List<String> getBuilders() {
+        return builders;
     }
 }
