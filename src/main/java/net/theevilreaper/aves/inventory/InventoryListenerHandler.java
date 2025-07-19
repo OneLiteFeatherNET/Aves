@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * The class reduces some duplicated code parts in the inventory system.
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.0
  **/
 sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
@@ -141,7 +141,7 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
                         }
                     }
                 };
-                builder.inventoryClick.onClick(event.getPlayer(), event.getSlot(), event.getClick(), result);
+                builder.inventoryClick.onClick(event.getPlayer(), event.getSlot(), event.getClick(), event.getClickedItem(), result);
             }
         });
     }

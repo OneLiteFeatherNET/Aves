@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Patrick Zdarsky / Rxcki
- * @version 1.2.0
+ * @version 1.3.0
  * @since 1.0.12
  */
 @SuppressWarnings("java:S3252")
@@ -55,7 +55,7 @@ public abstract class InventoryBuilder {
     protected InventoryBuilder(@NotNull InventoryType type) {
         this.type = type;
 
-        this.inventoryClick = (player, slot, clickType, result) -> {
+        this.inventoryClick = (player, slot, clickType, stack, result) -> {
             if (slot == InventoryConstants.INVALID_SLOT_ID) {
                 result.accept(ClickHolder.noClick());
                 return;
@@ -63,13 +63,13 @@ public abstract class InventoryBuilder {
 
             if (this.dataLayout != null) {
                 var clickedSlot = this.dataLayout.getSlot(slot);
-                acceptClick(clickedSlot, player, clickType, slot, result);
+                acceptClick(clickedSlot, player, clickType, slot, stack, result);
                 return;
             }
 
             if (this.inventoryLayout != null) {
                 var clickedSlot = this.inventoryLayout.getSlot(slot);
-                acceptClick(clickedSlot, player, clickType, slot, result);
+                acceptClick(clickedSlot, player, clickType, slot, stack, result);
                 return;
             }
 
@@ -80,11 +80,21 @@ public abstract class InventoryBuilder {
     /**
      * Handles the click request on a given slot.
      *
-     * @param slot      the {@link ISlot} which is clicked
-     * @param player    the {@link Player} who is involved
-     * @param clickType the given {@link ClickType}
+     * @param slot   the {@link ISlot} which is clicked
+     * @param player the {@link Player} who is involved
+     * @param click  the given {@link ClickType}
+     * @param slotID the slot ID which is clicked
+     * @param stack  the {@link ItemStack} which is clicked
+     * @param result the consumer to accept the {@link ClickHolder} result
      */
-    private void acceptClick(@Nullable ISlot slot, @NotNull Player player, @NotNull Click clickType, int slotID, Consumer<ClickHolder> result) {
+    private void acceptClick(
+            @Nullable ISlot slot,
+            @NotNull Player player,
+            @NotNull Click click,
+            int slotID,
+            @NotNull ItemStack stack,
+            @NotNull Consumer<ClickHolder> result
+    ) {
         if (slot == null) {
             result.accept(ClickHolder.noClick());
             return;
@@ -93,7 +103,7 @@ public abstract class InventoryBuilder {
             result.accept(ClickHolder.noClick());
             return;
         }
-        slot.getClick().onClick(player, slotID, clickType, result);
+        slot.getClick().onClick(player, slotID, click, stack, result);
     }
 
     /**

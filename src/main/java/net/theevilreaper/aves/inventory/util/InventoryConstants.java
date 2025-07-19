@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  **/
 public final class InventoryConstants {
 
-    public static final InventoryClick CANCEL_CLICK = (player, slot, click, result) -> result.accept(ClickHolder.cancelClick());
+    public static final InventoryClick CANCEL_CLICK = (player, slot, click, stack, result) -> result.accept(ClickHolder.cancelClick());
     @Deprecated(forRemoval = true, since = "Not needed anymore due to the changes to the inventory system")
     public static final Consumer<CancellableEvent> CANCELLABLE_EVENT = event -> event.setCancelled(true);
     public static final EmptySlot BLANK_SLOT = new EmptySlot();
