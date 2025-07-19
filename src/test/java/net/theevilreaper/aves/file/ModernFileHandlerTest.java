@@ -46,7 +46,7 @@ class ModernFileHandlerTest {
     @Test
     void testGsonFileHandlerWrite() {
         var path = tempDir.toPath().resolve(testMap);
-        var baseMap = BaseMap.of("TestMap");
+        var baseMap = new BaseMap("TestMap", null);
         baseMap.setBuilders("Builder1", "Builder2");
         fileHandler.save(path, baseMap, TypeToken.get(BaseMap.class));
         assertTrue(Files.exists(path));
@@ -77,7 +77,7 @@ class ModernFileHandlerTest {
     @Test
     void testInvalidPathSave() {
         var path = tempDir.toPath();
-        var baseMap = BaseMap.of("TestMap");
+        var baseMap = new BaseMap("TestMap", null);
         var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> fileHandler.save(path, baseMap, TypeToken.get(BaseMap.class))

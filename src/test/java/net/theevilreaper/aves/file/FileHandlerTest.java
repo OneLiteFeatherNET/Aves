@@ -41,7 +41,7 @@ class FileHandlerTest {
     @Test
     void testGsonFileHandlerWrite() {
         var path = tempDir.toPath().resolve(testMap);
-        var baseMap = BaseMap.of("TestMap");
+        var baseMap = new BaseMap("TestMap", null);
         baseMap.setBuilders("Builder1", "Builder2");
         fileHandler.save(path, baseMap);
         assertTrue(Files.exists(path));

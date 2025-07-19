@@ -19,13 +19,13 @@ class BaseMapTest {
     @BeforeAll
     void init() {
         this.builders = new String[]{"theEvilReaper, Tresson", "SeelenRetterin"};
-        this.firstMap = BaseMap.of("Test");
-        this.secondMap = BaseMap.of("Test", new Pos(120, 51, 23), builders[0], builders[1]);
+        this.firstMap = new BaseMap("Test", null);
+        this.secondMap = new BaseMap("Test", new Pos(120, 51, 23), builders[0], builders[1]);
     }
 
     @Test
     void testOtherConstructor() {
-        var baseMap = BaseMap.of("Test", Pos.ZERO);
+        var baseMap = new BaseMap("Test", Pos.ZERO);
         assertSame("Test", baseMap.getName());
         assertSame(Pos.ZERO, baseMap.getSpawn());
     }
@@ -64,7 +64,7 @@ class BaseMapTest {
 
     @Test
     void testEmptyNameConstructor() {
-        var exception = assertThrows(IllegalArgumentException.class, () -> BaseMap.of(""));
+        var exception = assertThrows(IllegalArgumentException.class, () -> new BaseMap("", null));
         assertEquals("The name can not be null or empty", exception.getMessage());
     }
 
@@ -94,7 +94,7 @@ class BaseMapTest {
 
     @Test
     void testGetSpawnOrDefault() {
-        BaseMap baseMap = BaseMap.of("Test");
+        BaseMap baseMap = new BaseMap("Test", null);
         assertNull(baseMap.getSpawn());
 
         Pos defaultPos = new Pos(1, 2, 3);
