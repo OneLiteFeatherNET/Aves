@@ -47,45 +47,6 @@ public class BaseMap {
     }
 
     /**
-     * Creates a new instance from the {@link BaseMap} with all given values.
-     * Deprecated since 1.9.0, use {@link #builder()} instead.
-     *
-     * @param name the name from the map
-     */
-    @Deprecated(forRemoval = true, since = "1.9.0")
-    @Contract(value = "_ -> new", pure = true)
-    public static @NotNull BaseMap of(@NotNull String name) {
-        return new BaseMap(name, null);
-    }
-
-    /**
-     * The constructor sets all relevant values for a map.
-     * Deprecated since 1.9.0, use {@link #builder()} instead.
-     *
-     * @param name  the name from the map
-     * @param spawn the spawn location from the map
-     */
-    @Deprecated(forRemoval = true, since = "1.9.0")
-    @Contract(value = "_, _ -> new", pure = true)
-    public static @NotNull BaseMap of(@NotNull String name, Pos spawn) {
-        return new BaseMap(name, spawn, "team");
-    }
-
-    /**
-     * The constructor sets all relevant values for a map.
-     * Deprecated since 1.9.0, use {@link #builder()} instead.
-     *
-     * @param name     the name from the map
-     * @param builders the builders from the map
-     * @param spawn    the spawn location from the map
-     */
-    @Contract(value = "_, _, _ -> new", pure = true)
-    @Deprecated(forRemoval = true, since = "1.9.0")
-    public static @NotNull BaseMap of(@NotNull String name, Pos spawn, String... builders) {
-        return new BaseMap(name, spawn, builders);
-    }
-
-    /**
      * Creates a new instance of the {@link BaseMapBuilder} to build a new map.
      * The builder can be used to set all values that are required for a map.
      *
