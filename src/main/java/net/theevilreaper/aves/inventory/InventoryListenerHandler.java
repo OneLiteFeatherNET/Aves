@@ -14,12 +14,14 @@ import net.theevilreaper.aves.inventory.holder.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
+
 /**
  * Handles the {@link EventListener} creation for some {@link InventoryEvent}'s.
  * The class reduces some duplicated code parts in the inventory system.
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.0
  **/
 sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
@@ -130,15 +132,16 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
     ) {
         return EventListener.of(InventoryPreClickEvent.class, event -> {
             if (event.getInventory() instanceof CustomInventory customInventory && customInventory.getHolder() == holder) {
-                ClickHolder click = builder.inventoryClick.onClick(event.getPlayer(), event.getSlot(), event.getClick());
-
-                switch (click) {
-                    case ClickHolder.CancelClick ignored1 -> event.setCancelled(true);
-                    case ClickHolder.MinestomClick(@NotNull Click minestomClick) -> event.setClick(minestomClick);
-                    case ClickHolder.NOPClick ignored -> {
-                        // No operation
+                Consumer<ClickHolder> result = click -> {
+                    switch (click) {
+                        case ClickHolder.CancelClick ignored1 -> event.setCancelled(true);
+                        case ClickHolder.MinestomClick(@NotNull Click minestomClick) -> event.setClick(minestomClick);
+                        case ClickHolder.NOPClick ignored -> {
+                            // No operation
+                        }
                     }
-                }
+                };
+                builder.inventoryClick.onClick(event.getPlayer(), event.getSlot(), event.getClick(), event.getClickedItem(), result);
             }
         });
     }
