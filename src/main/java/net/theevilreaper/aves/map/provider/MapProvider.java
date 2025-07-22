@@ -25,6 +25,9 @@ import java.util.function.Supplier;
  */
 public interface MapProvider {
 
+    /**
+     * A static fallback position which can be used if no spawn position is set.
+     */
     Pos FALLBACK_POS = new Pos(0, 100, 0);
 
     /**
