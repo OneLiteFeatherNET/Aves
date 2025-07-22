@@ -7,6 +7,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * The {@link Vec2D} class represents a vector in a two-dimensional space with x and y coordinates.
+ *
+ * @param x coordinate of the vector
+ * @param y coordinate of the vector
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
@@ -19,6 +23,7 @@ public record Vec2D(double x, double y) {
 
     /**
      * Creates a 2d vector from a {@link Pos}.
+     *
      * @param pos The input pos
      */
     public Vec2D(@NotNull Pos pos) {
@@ -27,6 +32,7 @@ public record Vec2D(double x, double y) {
 
     /**
      * Creates a 2d vector from a {@link Vec}.
+     *
      * @param vec The input vec
      */
     public Vec2D(@NotNull Vec vec) {
@@ -35,6 +41,7 @@ public record Vec2D(double x, double y) {
 
     /**
      * Adds the given values to the vector and returns the result in a new vector.
+     *
      * @param x x value to add
      * @param y y value to add
      * @return result vector
@@ -46,16 +53,18 @@ public record Vec2D(double x, double y) {
 
     /**
      * Adds the vector to a given vector and returns the result in a new vector.
+     *
      * @param vector vector to add
      * @return result vector
      */
     @Contract("_ -> new")
     public @NotNull Vec2D add(@NotNull Vec2D vector) {
-        return new Vec2D(this.x + vector.x,  this.y + vector.y);
+        return new Vec2D(this.x + vector.x, this.y + vector.y);
     }
 
     /**
      * Subtracts the given values from the vector and returns the result in a new vector.
+     *
      * @param x x value to add
      * @param y y value to add
      * @return result vector
@@ -67,6 +76,7 @@ public record Vec2D(double x, double y) {
 
     /**
      * Subtracts the given vector from the vector and returns the result in a new vector.
+     *
      * @param vector vector to subtract
      * @return result vector
      */
@@ -77,6 +87,7 @@ public record Vec2D(double x, double y) {
 
     /**
      * Creates the negation of a vector and returns the result in a new vector.
+     *
      * @return result vector
      */
     @Contract(" -> new")
@@ -86,6 +97,7 @@ public record Vec2D(double x, double y) {
 
     /**
      * Multiplicates the given value to the vector and returns the result in a new vector.
+     *
      * @param multiplier value to multiply
      * @return result vector
      */
@@ -96,6 +108,7 @@ public record Vec2D(double x, double y) {
 
     /**
      * Returns the length of the vector with a squared calculation.
+     *
      * @return the calculated length
      */
     public double lengthSquared() {
@@ -104,6 +117,7 @@ public record Vec2D(double x, double y) {
 
     /**
      * Calculates the length of the vector.
+     *
      * @return length of the vector
      */
     public double length() {

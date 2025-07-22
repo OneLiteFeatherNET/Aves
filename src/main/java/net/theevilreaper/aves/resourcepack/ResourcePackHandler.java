@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 
 /**
  * The class can be used to manage the allocation of the resource pack to the players
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.1
@@ -30,6 +31,7 @@ public final class ResourcePackHandler {
 
     /**
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
+     *
      * @param resourcePack An instance from a {@link ResourcePackInfo}
      */
     public ResourcePackHandler(@NotNull ResourcePackInfo resourcePack) {
@@ -40,8 +42,9 @@ public final class ResourcePackHandler {
 
     /**
      * Creates a new instance from the {@link ResourcePackHandler} with the given parameters.
+     *
      * @param resourcePack An instance from a {@link ResourcePackInfo}
-     * @param condition The given {@link ResourcePackCondition}
+     * @param condition    The given {@link ResourcePackCondition}
      */
     public ResourcePackHandler(@NotNull ResourcePackInfo resourcePack, @NotNull ResourcePackCondition condition) {
         this.resourcePack = resourcePack;
@@ -52,8 +55,10 @@ public final class ResourcePackHandler {
 
     /**
      * Add a condition what happen when the {@link PlayerResourcePackStatusEvent} is called from the server.
-     * The handling musst includes all parameters from {@link ResourcePackCondition}
+     * The handling must include all parameters from {@link ResourcePackCondition}
+     *
      * @param condition The condition to set
+     * @return the current instance of the handler
      */
     public @NotNull ResourcePackHandler setCondition(ResourcePackCondition condition) {
         this.condition = condition;
@@ -63,6 +68,8 @@ public final class ResourcePackHandler {
 
     /**
      * Add a pre-defined {@link ResourcePackCondition} to the handler.
+     *
+     * @return the current instance of the handler
      */
     public @NotNull ResourcePackHandler setDefaultCondition() {
         this.condition = new DefaultResourcePackCondition(resourcePackCache);
@@ -72,6 +79,8 @@ public final class ResourcePackHandler {
 
     /**
      * Add some listener to handle the resource pack handling.
+     *
+     * @return the current instance of the handler
      */
     public @NotNull ResourcePackHandler withListener() {
         var eventHandler = MinecraftServer.getGlobalEventHandler();
@@ -82,6 +91,7 @@ public final class ResourcePackHandler {
 
     /**
      * Set the resource pack to a given player.
+     *
      * @param player The player who receives the pack
      * @return true when the player can receive the pack otherwise false
      */
@@ -94,6 +104,7 @@ public final class ResourcePackHandler {
 
     /**
      * Invalidates an uuid (player uuid) in the underlying cache.
+     *
      * @param uuid the uuid from the user
      */
     public void invalidateId(@NotNull UUID uuid) {
@@ -105,6 +116,7 @@ public final class ResourcePackHandler {
 
     /**
      * Creates the consumer for the {@link PlayerResourcePackStatusEvent}.
+     *
      * @return the created consumer
      */
     @Contract(pure = true)

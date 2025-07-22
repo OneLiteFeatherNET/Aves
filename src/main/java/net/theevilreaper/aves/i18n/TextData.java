@@ -9,7 +9,8 @@ import java.util.Objects;
 
 /**
  * The TextData is a record which holds some information about a message with optional arguments.
- * @param key the key for the message
+ *
+ * @param key  the key for the message
  * @param args optional arguments for the message
  */
 @SuppressWarnings("java:S6218")
@@ -17,6 +18,7 @@ public record TextData(@NotNull String key, @NotNull Component... args) {
 
     /**
      * Creates a new instance of the TextData.
+     *
      * @param key the key for the message
      * @return the created instance
      */
@@ -26,7 +28,10 @@ public record TextData(@NotNull String key, @NotNull Component... args) {
 
     /**
      * Creates a new instance of the TextData.
-     * @param key the key for the message
+     *
+     * @param key  the key for the message
+     * @param args the arguments for the message
+     * @return the created instance with the given key and arguments
      */
     public static @NotNull TextData of(@NotNull String key, @NotNull String... args) {
         return new TextData(key, args);
@@ -34,6 +39,7 @@ public record TextData(@NotNull String key, @NotNull Component... args) {
 
     /**
      * Creates a new instance of the TextData.
+     *
      * @param key the key for the message
      */
     public TextData(@NotNull String key) {
@@ -42,7 +48,8 @@ public record TextData(@NotNull String key, @NotNull Component... args) {
 
     /**
      * Creates a new instance of the TextData.
-     * @param key the key for the message
+     *
+     * @param key  the key for the message
      * @param args the arguments for the message
      */
     public TextData(@NotNull String key, @NotNull String... args) {
@@ -51,6 +58,7 @@ public record TextData(@NotNull String key, @NotNull Component... args) {
 
     /**
      * Returns a {@link TranslatableComponent} from the given data.
+     *
      * @return the created component
      */
     public @NotNull TranslatableComponent createComponent() {
