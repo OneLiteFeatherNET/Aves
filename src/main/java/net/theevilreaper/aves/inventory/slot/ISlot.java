@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a slot in an {@link net.minestom.server.inventory.Inventory}.
+ *
  * @author Patrick Zdarsky / Rxcki
  * @version 1.1.0
  * @since 1.0.12
@@ -19,6 +20,7 @@ public interface ISlot {
      * Creates a copy of a given slot.
      * The method checks which slot implementation is present and call then the specific copy method.
      * This method only work with the given implementations at the moment. Each custom implementation will not work!
+     *
      * @param iSlot the slot to copy
      * @return the created if the slot matches with an implementation otherwise null
      */
@@ -37,24 +39,30 @@ public interface ISlot {
 
     /**
      * Set's a new {@link InventoryClick} reference to the slot
+     *
      * @param slot The slot to set
+     * @return the current slot instance
      */
     @NotNull ISlot setClick(@NotNull InventoryClick slot);
 
     /**
      * Set a new {@link ItemStack} to the slot.
+     *
      * @param itemStack the stack to set
+     * @return the current slot instance
      */
     @NotNull ISlot setItemStack(@Nullable ItemStack itemStack);
 
     /**
      * Returns the given inventory click from the slot
+     *
      * @return the given click
      */
     @NotNull InventoryClick getClick();
 
     /**
      * Returns the given {@link ItemStack} from the slot.
+     *
      * @return the stack from the slot
      */
     ItemStack getItem();
