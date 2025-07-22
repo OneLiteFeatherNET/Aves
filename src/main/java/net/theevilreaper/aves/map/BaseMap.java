@@ -61,6 +61,7 @@ public class BaseMap {
      * Creates a new instance from the {@link BaseMap} with all given values.
      *
      * @param baseMap the base map to copy
+     * @return a new instance of the {@link BaseMapBuilder} with the given values
      */
     @Contract(value = "_ -> new", pure = true)
     public static @NotNull BaseMapBuilder builder(@NotNull BaseMap baseMap) {

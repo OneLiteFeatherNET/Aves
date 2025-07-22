@@ -15,6 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Type;
 
 /**
+ * The {@link PositionGsonAdapter} class is a custom implementation of the {@link JsonSerializer} and {@link JsonDeserializer} interfaces for gson.
+ * It allows the serialization and deserialization of {@link Point} objects, specifically handling both {@link Pos} and {@link Vec} types.
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
@@ -34,9 +37,9 @@ public class PositionGsonAdapter implements JsonSerializer<Point>, JsonDeseriali
         if (object.has("yaw") && object.has(PITCH)) {
             yaw = object.get("yaw").getAsFloat();
             pitch = object.get(PITCH).getAsFloat();
-            return new Pos(x,y,z, yaw, pitch);
+            return new Pos(x, y, z, yaw, pitch);
         }
-        return new Vec(x,y,z);
+        return new Vec(x, y, z);
     }
 
     @Override

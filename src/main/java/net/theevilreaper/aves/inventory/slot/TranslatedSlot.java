@@ -10,9 +10,10 @@ import java.util.Locale;
 
 /**
  * The implentation of a {@link Slot} can be used for a translation context.
+ *
  * @author Patrick Zdarsky / Rxcki
- * @since 1.0.12
  * @version 1.0.0
+ * @since 1.0.12
  */
 public class TranslatedSlot extends Slot {
 
@@ -20,6 +21,7 @@ public class TranslatedSlot extends Slot {
 
     /**
      * Creates a new instance from the slot.
+     *
      * @param translatedItem The item for the slot
      */
     public TranslatedSlot(@NotNull TranslatedItem translatedItem) {
@@ -28,8 +30,9 @@ public class TranslatedSlot extends Slot {
 
     /**
      * Creates a new instance from the {@link TranslatedSlot} with the given values.
+     *
      * @param translatedItem the {@link TranslatedItem} to for the slot
-     * @param clickListener the {@link InventoryClick} for the slot
+     * @param clickListener  the {@link InventoryClick} for the slot
      */
     public TranslatedSlot(@NotNull TranslatedItem translatedItem, InventoryClick clickListener) {
         super(clickListener);
@@ -38,6 +41,7 @@ public class TranslatedSlot extends Slot {
 
     /**
      * Constructor which creates a copy of a {@link TranslatedSlot}.
+     *
      * @param translatedSlot the item to copy
      */
     private TranslatedSlot(@NotNull TranslatedSlot translatedSlot) {
@@ -47,6 +51,7 @@ public class TranslatedSlot extends Slot {
 
     /**
      * Creates a copy of a given {@link TranslatedSlot}.
+     *
      * @param translatedSlot the slot to create the copy from
      * @return a created copy from the slots
      */
@@ -65,6 +70,7 @@ public class TranslatedSlot extends Slot {
 
     /**
      * Throws in this implementation an error because it's not possible to update an {@link ItemStack} in a translated context
+     *
      * @param itemStack can be ignored
      * @return throws an {@link UnsupportedOperationException}
      */
@@ -75,6 +81,7 @@ public class TranslatedSlot extends Slot {
 
     /**
      * Returns the {@link ItemStack} which is bounds on the slot
+     *
      * @param locale The locale to get the right {@link ItemStack}
      * @return the determined item which is based on the locale
      */
@@ -84,7 +91,9 @@ public class TranslatedSlot extends Slot {
 
     /**
      * Updates the given item reference to a new reference.
+     *
      * @param translatedItem the item to set
+     * @return the current instance of the slot with the new item
      */
     public TranslatedSlot setTranslatedItem(@NotNull TranslatedItem translatedItem) {
         this.translatedItem = translatedItem;
@@ -93,6 +102,7 @@ public class TranslatedSlot extends Slot {
 
     /**
      * Returns the {@link TranslatedItem} reference from the slot.
+     *
      * @return the given reference to the {@link TranslatedItem}
      */
     @NotNull
@@ -102,6 +112,7 @@ public class TranslatedSlot extends Slot {
 
     /**
      * Returns a representation of the class as string.
+     *
      * @return the object as string
      */
     @Override

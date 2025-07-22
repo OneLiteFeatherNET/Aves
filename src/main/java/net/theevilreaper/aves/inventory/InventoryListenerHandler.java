@@ -32,6 +32,7 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
      * @param eventNode     the {@link EventNode} for the events
      * @param openListener  the instance of the {@link EventListener} for the {@link InventoryOpenEvent}
      * @param closeListener the instance of the {@link EventListener} for the {@link InventoryCloseEvent}
+     * @param clickListener the instance of the {@link EventListener} for the {@link InventoryPreClickEvent}
      */
     default void register(
             @NotNull EventNode<InventoryEvent> eventNode,
@@ -58,6 +59,7 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
      * @param eventNode     the {@link EventNode} for the events
      * @param openListener  the instance of the {@link EventListener} for the {@link InventoryOpenEvent}
      * @param closeListener the instance of the {@link EventListener} for the {@link InventoryCloseEvent}
+     * @param clickListener the instance of the {@link EventListener} for the {@link InventoryPreClickEvent}
      */
     default void unregister(
             @NotNull EventNode<InventoryEvent> eventNode,
@@ -85,6 +87,7 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
      *
      * @param openListener  the instance to the {@link EventListener} for the {@link InventoryOpenEvent}
      * @param closeListener the instance to the {@link EventListener} for the {@link InventoryCloseEvent}
+     * @param clickListener the instance to the {@link EventListener} for the {@link InventoryPreClickEvent}
      */
     default void checkListenerState(
             @Nullable EventListener<InventoryOpenEvent> openListener,

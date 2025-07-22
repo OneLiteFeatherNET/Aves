@@ -54,8 +54,9 @@ public final class Strings {
     /**
      * Convert a time value into the given format from the {@link TimeFormat} entry.
      *
-     * @param time The time who should be converted
-     * @return The converted time
+     * @param timeFormat the format, which should be used for the conversion
+     * @param time       the time who should be converted
+     * @return the converted time
      */
     @Contract(pure = true)
     public static @NotNull String getTimeString(@NotNull TimeFormat timeFormat, int time) {
