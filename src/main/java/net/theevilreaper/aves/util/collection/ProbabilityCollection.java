@@ -1,5 +1,7 @@
 package net.theevilreaper.aves.util.collection;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NavigableSet;
@@ -52,6 +54,8 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
+     * Indicates if the collection is empty or not.
+     *
      * @return true if the collection contains no elements, else False
      */
     public boolean isEmpty() {
@@ -74,9 +78,11 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
+     * Get a {@link Iterator} reference to this collection.
+     *
      * @return iterator over this collection
      */
-    public Iterator<ProbabilitySetElement<E>> iterator() {
+    public @NotNull Iterator<ProbabilitySetElement<E>> iterator() {
         return this.collection.iterator();
     }
 
@@ -149,7 +155,7 @@ public final class ProbabilityCollection<E> {
     /**
      * Get a random object from this collection, based on probability.
      *
-     * @return <E> Random object
+     * @return a random object from this collection
      * @throws IllegalStateException if this collection is empty
      */
     public E get() {
@@ -164,6 +170,8 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
+     * Get the total probability of all elements in this collection.
+     *
      * @return Sum of all element's probability
      */
     public int getTotalProbability() {
