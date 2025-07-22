@@ -34,7 +34,7 @@ Add the following dependency to your `build.gradle.kts` file:
 
 ```kotlin
 dependencies {
-    implementation("net.theevilreaper:aves:<version>")
+    implementation("net.theevilreaper:aves:1.0.0")
 }
 ```
 
