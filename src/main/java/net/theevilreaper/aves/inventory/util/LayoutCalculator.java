@@ -10,21 +10,24 @@ import java.util.Arrays;
 import static net.theevilreaper.aves.inventory.util.InventoryConstants.*;
 
 /**
- * Contains some usefully methods to calculate some layouts for an inventory.
+ * Contains some useful methods to calculate some layouts for an inventory.
+ *
  * @author Patrick Zdarsky / Rxcki
- * @since 1.0.0
  * @version 1.0.1
+ * @since 1.0.0
  */
 public final class LayoutCalculator {
 
     private static final String CHEST_INVENTORY = "CHEST";
 
-    private LayoutCalculator() {}
+    private LayoutCalculator() {
+    }
 
     /**
      * Calculates the slot numbers between two slot numbers.
+     *
      * @param fromSlot The id from the start slot
-     * @param toSlot The id from the end slot
+     * @param toSlot   The id from the end slot
      * @return an array which contains the slot numbers
      */
     public static int @NotNull [] repeat(int fromSlot, int toSlot) {
@@ -39,6 +42,7 @@ public final class LayoutCalculator {
 
     /**
      * Creates a new array with the given slots.
+     *
      * @param slots The slots to copy
      * @return a new array with the given slots
      */
@@ -47,21 +51,28 @@ public final class LayoutCalculator {
         return Arrays.copyOfRange(slots, 0, slots.length);
     }
 
+    /**
+     * Calculates the slot numbers to fill a quad between two slots.
+     *
+     * @param firstCornerSlot The first corner slot
+     * @param lastCornerSlot  The last corner slot
+     * @return an array which contains the slot numbers
+     */
     public static int @NotNull [] quad(int firstCornerSlot, int lastCornerSlot) {
         var x1 = firstCornerSlot % INVENTORY_WIDTH;
-        var y1 = Math.floor(firstCornerSlot / (double)INVENTORY_WIDTH);
+        var y1 = Math.floor(firstCornerSlot / (double) INVENTORY_WIDTH);
 
         var x2 = lastCornerSlot % INVENTORY_WIDTH;
-        var y2 = Math.floor(lastCornerSlot / (double)INVENTORY_WIDTH);
+        var y2 = Math.floor(lastCornerSlot / (double) INVENTORY_WIDTH);
 
-        var width = (x2-x1) + 1;
-        var height = (y2-y1) + 1;
+        var width = (x2 - x1) + 1;
+        var height = (y2 - y1) + 1;
 
         var arr = new int[(int) Math.floor(width * height)];
 
         for (int i = 0; i < arr.length; i++) {
             var xSquare = i % width;
-            var ySquare = Math.floor(i / (double)width);
+            var ySquare = Math.floor(i / (double) width);
 
             var x = x1 + xSquare;
             var y = y1 + ySquare;
@@ -72,27 +83,34 @@ public final class LayoutCalculator {
         return arr;
     }
 
+    /**
+     * Calculates the slot numbers to fill a frame between two slots.
+     *
+     * @param firstCornerSlot The first corner slot
+     * @param lastCornerSlot  The last corner slot
+     * @return an array which contains the slot numbers
+     */
     public static int @NotNull [] frame(int firstCornerSlot, int lastCornerSlot) {
         Check.argCondition(firstCornerSlot == lastCornerSlot, "The values can't be the smae");
         var x1 = firstCornerSlot % INVENTORY_WIDTH;
-        var y1 = Math.floor(firstCornerSlot / (double)INVENTORY_WIDTH);
+        var y1 = Math.floor(firstCornerSlot / (double) INVENTORY_WIDTH);
 
         var x2 = lastCornerSlot % INVENTORY_WIDTH;
-        var y2 = Math.floor(lastCornerSlot / (double)INVENTORY_WIDTH);
+        var y2 = Math.floor(lastCornerSlot / (double) INVENTORY_WIDTH);
 
-        var width = (x2-x1) + 1;
-        var height = (y2-y1) + 1;
+        var width = (x2 - x1) + 1;
+        var height = (y2 - y1) + 1;
 
-        var arr = new int[(int) ((width-2)*2 + (height-2)*2 + 4)];
+        var arr = new int[(int) ((width - 2) * 2 + (height - 2) * 2 + 4)];
         var index = 0;
 
         for (int i = 0; i < width; i++) {
             arr[index++] = (int) y1 * INVENTORY_WIDTH + x1 + i;
             arr[index++] = (int) y2 * INVENTORY_WIDTH + x1 + i;
         }
-        for (int i = 0; i < height-2; i++) {
-            arr[index++] = (int) (y1+1+i) * INVENTORY_WIDTH + x1;
-            arr[index++] = (int) (y1+1+i)*  INVENTORY_WIDTH + x2;
+        for (int i = 0; i < height - 2; i++) {
+            arr[index++] = (int) (y1 + 1 + i) * INVENTORY_WIDTH + x1;
+            arr[index++] = (int) (y1 + 1 + i) * INVENTORY_WIDTH + x2;
         }
 
         return arr;
@@ -100,6 +118,7 @@ public final class LayoutCalculator {
 
     /**
      * Calculates the slot numbers to fill a complete row in an inventory.
+     *
      * @param type The {@link InventoryType} to get the maximum slot value of a row
      * @return an array which contains the slot numbers
      */
@@ -109,7 +128,8 @@ public final class LayoutCalculator {
 
     /**
      * Calculates the index numbers to fill a row.
-     * @param type The type from an inventory
+     *
+     * @param type   The type from an inventory
      * @param column The column to start
      * @return an array which contains the slot numbers
      */
@@ -124,6 +144,7 @@ public final class LayoutCalculator {
 
     /**
      * Calculates the row count of a given {@link InventoryType}.
+     *
      * @param type The type to define the row count
      * @return Returns the determined row count
      */
@@ -134,6 +155,7 @@ public final class LayoutCalculator {
 
     /**
      * Checks if a given {@link InventoryType} is a chest or not.
+     *
      * @param type The typ to check
      * @return True if the type is a chest otherwise false
      */
