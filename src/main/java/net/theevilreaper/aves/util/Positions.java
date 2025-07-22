@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Includes some helpful methods for the {@link Pos} and {@link net.minestom.server.coordinate.Vec} from minestom.
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
@@ -15,10 +16,12 @@ import org.jetbrains.annotations.NotNull;
 @ApiStatus.NonExtendable
 public final class Positions {
 
-    private Positions() {}
+    private Positions() {
+    }
 
     /**
      * Calculates the yaw value from two given double values.
+     *
      * @param dX The x value
      * @param dZ The y value
      * @return the calculated yaw value
@@ -29,6 +32,7 @@ public final class Positions {
 
     /**
      * Center a given pos in the 3D dimension.
+     *
      * @param pos The pos to center
      * @return the centered pos
      */
@@ -39,6 +43,7 @@ public final class Positions {
 
     /**
      * Center a given pos in the 2D dimension.
+     *
      * @param pos the pos to center
      * @return the centered pos
      */
@@ -47,6 +52,12 @@ public final class Positions {
         return pos.add(0.5, 0, 0.5);
     }
 
+    /**
+     * Calculates the squared length of a given position.
+     *
+     * @param pos The position to calculate the length from
+     * @return the squared length of the position
+     */
     public static double lengthSquaredPos(@NotNull Point pos) {
         return Math.pow(pos.x(), 2) + Math.pow(pos.y(), 2) + Math.pow(pos.z(), 2);
     }

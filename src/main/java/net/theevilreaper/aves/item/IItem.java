@@ -16,6 +16,9 @@ import java.util.Locale;
  **/
 public sealed interface IItem permits Item, TranslatedItem {
 
+    /**
+     * A reference to an {@link IItem} which represents an empty item.
+     */
     @NotNull IItem AIR = Item.of(ItemStack.AIR);
 
     /**

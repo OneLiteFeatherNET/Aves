@@ -1,5 +1,7 @@
 package net.theevilreaper.aves.util.collection;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NavigableSet;
@@ -9,26 +11,23 @@ import java.util.TreeSet;
 
 /**
  * Taken from <a href="https://github.com/lewysDavies/Java-Probability-Collection/blob/master/src/main/java/com/lewdev/probabilitylib/ProbabilityCollection.java">https://github.com/lewysDavies/Java-Probability-Collection/blob/master/src/main/java/com/lewdev/probabilitylib/ProbabilityCollection.java</a>
- * ProbabilityCollection for retrieving random elements based on probability.
- * <br>
- * <br>
- * <b>Selection Algorithm Implementation</b>:
  * <p>
- * <ul>
- * <li>Elements have a "block" of space, sized based on their probability share
- * <li>"Blocks" start from index 1 and end at the total probability of all
- * elements
- * <li>A random number is selected between 1 and the total probability
- * <li>Which "block" the random number falls in is the element that is selected
- * <li>Therefore "block"s with larger probability have a greater chance of being
- * selected than those with smaller probability.
+ * ProbabilityCollection for retrieving random elements based on probability.
  * </p>
+ *
+ * <b>Selection Algorithm Implementation</b>:
+ * <ul>
+ * <li>Elements have a "block" of space, sized based on their probability share</li>
+ * <li>"Blocks" start from index 1 and end at the total probability of all elements</li>
+ * <li>A random number is selected between 1 and the total probability</li>
+ * <li>Which "block" the random number falls in is the element that is selected</li>
+ * <li>Therefore "blocks" with larger probability have a greater chance of being
+ * selected than those with smaller probability</li>
  * </ul>
  *
+ * @param <E> Type of elements
  * @author Lewys Davies
  * @version 0.8
- *
- * @param <E> Type of elements
  */
 public final class ProbabilityCollection<E> {
 
@@ -46,23 +45,29 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
-     * @return Number of objects inside the collection
+     * The sie of the collection.
+     *
+     * @return number of objects inside the collection
      */
     public int size() {
         return this.collection.size();
     }
 
     /**
-     * @return True if collection contains no elements, else False
+     * Indicates if the collection is empty or not.
+     *
+     * @return true if the collection contains no elements, else False
      */
     public boolean isEmpty() {
         return this.collection.isEmpty();
     }
 
     /**
+     * Check if the collection contains a specific object.
+     *
      * @param object the object to check
-     * @return True if collection contains the object, else False
-     * @throws IllegalArgumentException if object is null
+     * @return true if the collection contains the object, else False
+     * @throws IllegalArgumentException if the object is null
      */
     public boolean contains(E object) {
         if (object == null) {
@@ -73,20 +78,19 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
-     * @return Iterator over this collection
+     * Get a {@link Iterator} reference to this collection.
+     *
+     * @return iterator over this collection
      */
-    public Iterator<ProbabilitySetElement<E>> iterator() {
+    public @NotNull Iterator<ProbabilitySetElement<E>> iterator() {
         return this.collection.iterator();
     }
 
     /**
-     * Add an object to this collection
+     * Add an object to this collection with a specific probability.
      *
-     * @param object Not null.
-     * @param probability share. Must be greater than 0.
-     *
-     * @throws IllegalArgumentException if object is null
-     * @throws IllegalArgumentException if probability <= 0
+     * @param object      the object to add
+     * @param probability the probability share of this object in the collection.
      */
     public void add(E object, int probability) {
         if (object == null) {
@@ -109,7 +113,6 @@ public final class ProbabilityCollection<E> {
      *
      * @param object the object to remove
      * @return True if object was removed, else False.
-     *
      * @throws IllegalArgumentException if object is null
      */
     public boolean remove(E object) {
@@ -152,8 +155,7 @@ public final class ProbabilityCollection<E> {
     /**
      * Get a random object from this collection, based on probability.
      *
-     * @return <E> Random object
-     *
+     * @return a random object from this collection
      * @throws IllegalStateException if this collection is empty
      */
     public E get() {
@@ -168,6 +170,8 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
+     * Get the total probability of all elements in this collection.
+     *
      * @return Sum of all element's probability
      */
     public int getTotalProbability() {
@@ -177,13 +181,12 @@ public final class ProbabilityCollection<E> {
     /**
      * Used internally to store information about a object's state in a collection.
      * Specifically, the probability and index within the collection.
-     *
+     * <p>
      * Indexes refer to the start position of this element's "block" of space. The
      * space between element "block"s represents their probability of being selected
      *
-     * @author Lewys Davies
-     *
      * @param <T> Type of element
+     * @author Lewys Davies
      */
     static final class ProbabilitySetElement<T> {
         private final T object;
@@ -191,8 +194,7 @@ public final class ProbabilityCollection<E> {
         private int index;
 
         /**
-         *
-         * @param object object
+         * @param object      object
          * @param probability share within the collection
          */
 

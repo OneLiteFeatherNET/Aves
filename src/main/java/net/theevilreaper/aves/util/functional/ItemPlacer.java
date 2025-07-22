@@ -11,6 +11,7 @@ import java.util.Locale;
 
 /**
  * With the interface a developer can manipulate how an item would set into the inventory of a player.
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
@@ -25,10 +26,14 @@ public interface ItemPlacer {
         var itemStack = iitem instanceof TranslatedItem && locale != null ? iitem.get(locale) : iitem.get();
         if (armor) {
             switch (slotID) {
-                case 0 -> player.getInventory().setEquipment(EquipmentSlot.HELMET, ((byte) EquipmentSlot.HELMET.armorSlot()), itemStack);
-                case 1 -> player.getInventory().setEquipment(EquipmentSlot.CHESTPLATE, ((byte) EquipmentSlot.CHESTPLATE.armorSlot()), itemStack);
-                case 2 -> player.getInventory().setEquipment(EquipmentSlot.LEGGINGS, ((byte) EquipmentSlot.LEGGINGS.armorSlot()),itemStack);
-                case 3 -> player.getInventory().setEquipment(EquipmentSlot.BOOTS, ((byte) EquipmentSlot.BOOTS.armorSlot()),itemStack);
+                case 0 ->
+                        player.getInventory().setEquipment(EquipmentSlot.HELMET, ((byte) EquipmentSlot.HELMET.armorSlot()), itemStack);
+                case 1 ->
+                        player.getInventory().setEquipment(EquipmentSlot.CHESTPLATE, ((byte) EquipmentSlot.CHESTPLATE.armorSlot()), itemStack);
+                case 2 ->
+                        player.getInventory().setEquipment(EquipmentSlot.LEGGINGS, ((byte) EquipmentSlot.LEGGINGS.armorSlot()), itemStack);
+                case 3 ->
+                        player.getInventory().setEquipment(EquipmentSlot.BOOTS, ((byte) EquipmentSlot.BOOTS.armorSlot()), itemStack);
                 default -> throw new IllegalArgumentException("The slotID is greater than four");
             }
         } else {
@@ -38,9 +43,11 @@ public interface ItemPlacer {
 
     /**
      * Set's a given {@link ItemStack} to the inventory from a player
-     * @param player The player who receives the itemStack
-     * @param slotID The slotId for the itemStack
-     * @param item The itemStack itself
+     *
+     * @param player the player who receives the itemStack
+     * @param slotID he slotId for the itemStack
+     * @param item   the itemStack itself
+     * @param locale the locale for the itemStack, if the itemStack is a {@link TranslatedItem} it will be translated to the given locale
      */
     default void setItem(@NotNull Player player, int slotID, @NotNull IItem item, Locale locale) {
         this.setItem(player, slotID, item, locale, false);
@@ -48,10 +55,12 @@ public interface ItemPlacer {
 
     /**
      * Set's a given {@link ItemStack} to the inventory from a player
-     * @param player The player who receives the itemStack
-     * @param slotID The slotId for the itemStack
-     * @param item The itemStack itself
-     * @param armor If the item is an armor item or not
+     *
+     * @param player the player who receives the itemStack
+     * @param slotID the slotId for the itemStack
+     * @param item   the itemStack itself
+     * @param locale the locale for the itemStack, if the itemStack is a {@link TranslatedItem} it will be translated to the given locale
+     * @param armor  if the item is an armor item or not
      */
     void setItem(@NotNull Player player, int slotID, @NotNull IItem item, Locale locale, boolean armor);
 }
