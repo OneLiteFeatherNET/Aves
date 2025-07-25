@@ -15,8 +15,6 @@ import net.minestom.testing.Env;
 import net.minestom.testing.TestConnection;
 import net.minestom.testing.extension.MicrotusExtension;
 import net.theevilreaper.aves.inventory.click.ClickHolder;
-import net.theevilreaper.aves.inventory.slot.ISlot;
-import net.theevilreaper.aves.item.Item;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,11 +29,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MicrotusExtension.class)
 class InventoryClickLogicIntegrationTest {
 
-    private static ItemStack TEST_ITEM;
+    private static ItemStack testItem;
 
     @BeforeAll
     static void setup() {
-        TEST_ITEM = ItemStack.builder(Material.DIAMOND)
+        testItem = ItemStack.builder(Material.DIAMOND)
                 .customName(Component.text("Test Item"))
                 .build();
     }
@@ -51,7 +49,7 @@ class InventoryClickLogicIntegrationTest {
 
         InventoryLayout layout = InventoryLayout.fromType(builder.getType());
         AtomicBoolean clicked = new AtomicBoolean(false);
-        layout.setItem(0, TEST_ITEM, (player, slot, click, stack, result) -> {
+        layout.setItem(0, testItem, (player, slot, click, stack, result) -> {
             result.accept(ClickHolder.cancelClick());
             clicked.set(true);
         });
@@ -65,7 +63,7 @@ class InventoryClickLogicIntegrationTest {
 
         Collector<WindowItemsPacket> windowsPacketCollector = testConnection.trackIncoming(WindowItemsPacket.class);
 
-        testLeftClick(testPlayer, 0, TEST_ITEM);
+        testLeftClick(testPlayer, 0, testItem);
         // The return value should only be one packet, the one that updates the slots
         windowsPacketCollector.assertCount(2);
         assertTrue(clicked.get());
@@ -88,7 +86,7 @@ class InventoryClickLogicIntegrationTest {
         InventoryLayout layout = InventoryLayout.fromType(builder.getType());
 
         AtomicBoolean clicked = new AtomicBoolean(false);
-        layout.setItem(0, TEST_ITEM, (player, slot, click, stack, result) -> {
+        layout.setItem(0, testItem, (player, slot, click, stack, result) -> {
             result.accept(ClickHolder.cancelClick());
             clicked.set(true);
         });
@@ -102,7 +100,7 @@ class InventoryClickLogicIntegrationTest {
 
         Collector<WindowItemsPacket> windowsPacketCollector = testConnection.trackIncoming(WindowItemsPacket.class);
 
-        testLeftClick(testPlayer, 0, TEST_ITEM);
+        testLeftClick(testPlayer, 0, testItem);
         // The return value should only be one packet, the one that updates the slots
         windowsPacketCollector.assertCount(2);
 
@@ -113,7 +111,7 @@ class InventoryClickLogicIntegrationTest {
         assertNotNull(items, "Items in the inventory packet should not be null");
         assertEquals(layout.getSize(), items.size(), "Items size should match layout size");
 
-        assertEquals(TEST_ITEM, items.getFirst(), "First item should be the test item");
+        assertEquals(testItem, items.getFirst(), "First item should be the test item");
 
         env.destroyInstance(instance, true);
         assertTrue(instance.getPlayers().isEmpty(), "Instance should not have any players");
