@@ -62,19 +62,17 @@ public abstract class InventoryBuilder {
                 return;
             }
 
+            ISlot clickedSlot = null;
+
             if (this.dataLayout != null) {
-                var clickedSlot = this.dataLayout.getSlot(slot);
-                acceptClick(clickedSlot, player, clickType, slot, stack, result);
-                return;
+                clickedSlot = this.dataLayout.getSlot(slot);
             }
 
-            if (this.inventoryLayout != null) {
-                var clickedSlot = this.inventoryLayout.getSlot(slot);
-                acceptClick(clickedSlot, player, clickType, slot, stack, result);
-                return;
+            if ((clickedSlot == null || clickedSlot instanceof EmptySlot) && this.inventoryLayout != null) {
+                clickedSlot = this.inventoryLayout.getSlot(slot);
             }
 
-            result.accept(ClickHolder.noClick());
+            acceptClick(clickedSlot, player, clickType, slot, stack, result);
         };
     }
 
