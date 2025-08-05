@@ -7,6 +7,7 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.validate.Check;
 import net.theevilreaper.aves.inventory.util.InventoryConstants;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +23,7 @@ import static net.theevilreaper.aves.inventory.util.InventoryConstants.CANCEL_CL
  * @version 1.2.0
  * @since 1.0.0
  */
+@ApiStatus.NonExtendable
 public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**

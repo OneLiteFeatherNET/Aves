@@ -15,7 +15,6 @@ import java.util.Collection;
  * @since 1.2.0
  * @version 1.0.0
  */
-@ApiStatus.NonExtendable
 public final class Broadcaster {
 
     private Broadcaster() {}

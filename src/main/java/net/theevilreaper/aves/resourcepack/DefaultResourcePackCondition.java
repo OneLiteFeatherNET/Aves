@@ -5,7 +5,6 @@ import net.kyori.adventure.resource.ResourcePackStatus;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.Player;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -17,7 +16,6 @@ import java.util.UUID;
  * @version 1.0.0
  * @since 1.0.0
  **/
-@ApiStatus.NonExtendable
 public final class DefaultResourcePackCondition implements ResourcePackCondition {
 
     private static final Component ERROR_DOWNLOAD_MESSAGE =
@@ -59,7 +57,7 @@ public final class DefaultResourcePackCondition implements ResourcePackCondition
     }
 
     /**
-     * Handles what happen the download of the {@link ResourcePackInfo} failed.
+     * Handles what happening the download of the {@link ResourcePackInfo} failed.
      * @param player the player who is involved
      */
     private void handleDownloadFail(@NotNull Player player) {

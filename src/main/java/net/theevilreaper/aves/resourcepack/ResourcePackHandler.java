@@ -5,7 +5,6 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerResourcePackStatusEvent;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +20,6 @@ import java.util.function.Consumer;
  * @version 1.0.0
  * @since 1.0.1
  **/
-@ApiStatus.NonExtendable
 public final class ResourcePackHandler {
 
     private final ResourcePackInfo resourcePack;
