@@ -8,7 +8,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -20,13 +19,12 @@ import java.util.List;
 import static net.theevilreaper.aves.util.Strings.UTF_8_HEART;
 
 /**
- * The class contains some usefully methods for {@link Component} from adventure.
+ * The class contains some useful methods for {@link Component} from adventure.
  *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
  **/
-@ApiStatus.NonExtendable
 public final class Components {
 
     /**

@@ -16,7 +16,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.server.play.SetCooldownPacket;
 import net.minestom.server.utils.validate.Check;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -37,7 +36,6 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ApiStatus.NonExtendable
 public final class Players {
 
     private static final Logger PLAYER_LOGGER = LoggerFactory.getLogger(Players.class);

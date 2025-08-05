@@ -2,7 +2,6 @@ package net.theevilreaper.aves.util;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
  * @version 1.0.0
  * @since 1.0.0
  **/
-@ApiStatus.NonExtendable
 public final class Positions {
 
     private Positions() {

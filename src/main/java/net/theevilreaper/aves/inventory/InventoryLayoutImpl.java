@@ -30,7 +30,6 @@ import static net.theevilreaper.aves.inventory.util.InventoryConstants.BLANK_SLO
  */
 @SuppressWarnings("java:S3776")
 @ApiStatus.Internal
-@ApiStatus.NonExtendable
 public final class InventoryLayoutImpl implements InventoryLayout {
 
     private static final String INDEX_ERROR = "The given slot index is out of range";

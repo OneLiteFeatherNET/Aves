@@ -2,20 +2,18 @@ package net.theevilreaper.aves.util;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
 
 /**
- * The class contains some usefully method to work with vectors.
+ * The class contains some useful method to work with vectors.
  *
  * @author theEvilReaper
  * @version 1.0.1
  * @since 1.0.0
  */
-@ApiStatus.NonExtendable
 public final class Vectors {
 
     private static final SecureRandom random = new SecureRandom();

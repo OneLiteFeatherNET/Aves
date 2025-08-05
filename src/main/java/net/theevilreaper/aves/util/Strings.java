@@ -1,6 +1,5 @@
 package net.theevilreaper.aves.util;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +13,6 @@ import java.util.StringJoiner;
  * @version 1.0.0
  * @since 1.2.0
  */
-@ApiStatus.NonExtendable
 public final class Strings {
 
     private static final String INT_FORMAT = "%02d";
