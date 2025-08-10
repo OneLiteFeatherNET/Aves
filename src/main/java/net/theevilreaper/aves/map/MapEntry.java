@@ -18,6 +18,10 @@ import java.nio.file.Path;
  */
 public sealed interface MapEntry permits BaseMapEntry {
 
+    /**
+     * The default file name which is used to store the map data.
+     * This file is used when no specific file name is given.
+     */
     @NotNull String MAP_FILE = "map.json";
 
     /**

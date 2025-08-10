@@ -1,19 +1,21 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "github>OneLiteFeatherNET/renovate:default(OneLiteFeatherNET/aves-maintainers)",
+    "github>OneLiteFeatherNET/renovate:minestom",
     ":semanticCommitsDisabled"
   ],
-  "labels": [
-    "Renovate"
-  ],
-  "rebaseWhen": "conflicted",
-  "packageRules": [
+  "customManagers": [
     {
-      "matchUpdateTypes": [
-        "patch"
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/README.md/"
       ],
-      "automerge": true
+      "matchStrings": [
+        "implementation\\(\"net\\.theevilreaper:aves:(?<currentValue>.*?)\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "net.theevilreaper:aves"
     }
   ]
 }

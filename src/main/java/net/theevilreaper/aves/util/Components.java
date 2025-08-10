@@ -8,7 +8,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -20,16 +19,22 @@ import java.util.List;
 import static net.theevilreaper.aves.util.Strings.UTF_8_HEART;
 
 /**
- * The class contains some usefully methods for {@link Component} from adventure.
+ * The class contains some useful methods for {@link Component} from adventure.
  *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
  **/
-@ApiStatus.NonExtendable
 public final class Components {
 
+    /**
+     * Represents a constant color which can be used for a filled heart.
+     */
     public static final TextColor FILLED_HEART = NamedTextColor.RED;
+
+    /**
+     * Represents a constant color which can be used for an empty heart.
+     */
     public static final TextColor EMPTY_HEARTS = NamedTextColor.GRAY;
 
     private Components() {
@@ -44,7 +49,7 @@ public final class Components {
      * @param symbol            the symbol to display
      * @param completedColor    the color for the completed part
      * @param notCompletedColor the color for the not completed part
-     * @return the progressbar as string
+     * @return the progressbar as a {@link Component}
      */
     @Contract(pure = true)
     public static @NotNull Component getProgressBar(int current,
@@ -163,10 +168,10 @@ public final class Components {
      * Converts a {@link Point} to a list of {@link Component} which represents the lore.
      * The method has a given color scheme which can't be changed.
      *
-     * @param miniMessage                    the mini message instance
-     * @param point                          the point to convert
-     * @param format                         the decimal format to format the values
-     * @param <T>                            the point implementation class
+     * @param miniMessage the mini message instance
+     * @param point       the point to convert
+     * @param format      the decimal format to format the values
+     * @param <T>         the point implementation class
      * @return the list of components
      */
     @Contract(value = "_, _, _-> new", pure = true)
@@ -189,10 +194,10 @@ public final class Components {
     /**
      * Converts a {@link Point} to a list of {@link Component} which represents the lore.
      *
-     * @param point                          the point to convert
-     * @param format                         the decimal format to format the values
-     * @param <T>                            the point implementation class
-     * @param partArguments                  the components for the values
+     * @param point         the point to convert
+     * @param format        the decimal format to format the values
+     * @param <T>           the point implementation class
+     * @param partArguments the components for the values
      * @return the list of components
      */
     @Contract(value = "_, _, _ -> new", pure = true)

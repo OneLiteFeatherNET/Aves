@@ -42,7 +42,7 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
 
         if (itemStack.has(DataComponents.TOOLTIP_DISPLAY)) {
             TooltipDisplay tooltipDisplay = itemStack.get(DataComponents.TOOLTIP_DISPLAY);
-            if (tooltipDisplay.hideTooltip()) {
+            if (tooltipDisplay != null && tooltipDisplay.hideTooltip()) {
                 metaObject.addProperty("hideTooltip", true);
             }
         }

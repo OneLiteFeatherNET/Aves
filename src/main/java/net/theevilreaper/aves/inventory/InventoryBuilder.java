@@ -26,9 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
+ * The {@link InventoryBuilder} is the base class which contains the necessary methods to create different context implementations for an inventory.
+ *
  * @author Patrick Zdarsky / Rxcki
  * @version 1.3.0
  * @since 1.0.12
@@ -61,19 +62,17 @@ public abstract class InventoryBuilder {
                 return;
             }
 
+            ISlot clickedSlot = null;
+
             if (this.dataLayout != null) {
-                var clickedSlot = this.dataLayout.getSlot(slot);
-                acceptClick(clickedSlot, player, clickType, slot, stack, result);
-                return;
+                clickedSlot = this.dataLayout.getSlot(slot);
             }
 
-            if (this.inventoryLayout != null) {
-                var clickedSlot = this.inventoryLayout.getSlot(slot);
-                acceptClick(clickedSlot, player, clickType, slot, stack, result);
-                return;
+            if ((clickedSlot == null || clickedSlot instanceof EmptySlot) && this.inventoryLayout != null) {
+                clickedSlot = this.inventoryLayout.getSlot(slot);
             }
 
-            result.accept(ClickHolder.noClick());
+            acceptClick(clickedSlot, player, clickType, slot, stack, result);
         };
     }
 
@@ -125,13 +124,19 @@ public abstract class InventoryBuilder {
      */
     public abstract void unregister();
 
-    //Abstract methods
+    /**
+     * Returns the inventory for the given locale.
+     * If the locale is null, it indicates that the context is not translated and the non translated inventory will be returned.
+     *
+     * @param locale the locale to use
+     * @return the inventory for the given locale
+     */
     public abstract Inventory getInventory(@Nullable Locale locale);
 
     /**
      * Returns if the inventory is currently opened by a player.
      *
-     * @return True if a player does the inventory currently opened otherwise false
+     * @return true if a player does the inventory currently opened otherwise false
      */
     protected abstract boolean isOpen();
 
@@ -301,9 +306,10 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Set's the open function to the builder
+     * Set the open function to the builder
      *
      * @param openFunction The function to set
+     * @return the current instance of the builder
      */
     public InventoryBuilder setOpenFunction(OpenFunction openFunction) {
         this.openFunction = openFunction;
@@ -311,9 +317,10 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Set's the close function to the builder
+     * Set the close function to the builder.
      *
-     * @param closeFunction The function to set
+     * @param closeFunction the function to set
+     * @return the current instance of the builder
      */
     public InventoryBuilder setCloseFunction(CloseFunction closeFunction) {
         this.closeFunction = closeFunction;
@@ -324,6 +331,7 @@ public abstract class InventoryBuilder {
      * Set a new instance of the {@link InventoryLayoutImpl} to the builder
      *
      * @param inventoryLayoutImpl The layout to set
+     * @return the current instance of the builder
      */
     public InventoryBuilder setLayout(@NotNull InventoryLayout inventoryLayoutImpl) {
         this.inventoryLayout = inventoryLayoutImpl;

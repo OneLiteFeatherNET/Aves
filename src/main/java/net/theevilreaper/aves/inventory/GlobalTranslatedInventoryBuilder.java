@@ -17,16 +17,21 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * The {@link GlobalTranslatedInventoryBuilder} is an implementation of the {@link BaseInventoryBuilderImpl} for a global translation context.
+ *
  * @author Patrick Zdarsky / Rxcki
+ * @version 1.0.0
+ * @since 1.0.12
  */
 @SuppressWarnings("java:S3252")
 public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
-    private final Map<Locale,CustomInventory> inventoryTranslatedObjectCache = new HashMap<>();
+    private final Map<Locale, CustomInventory> inventoryTranslatedObjectCache = new HashMap<>();
     private TextData titleData;
 
     /**
      * Creates a new instance from the class with the given {@link InventoryType}.
+     *
      * @param type the type to define the size of the inventory
      */
     public GlobalTranslatedInventoryBuilder(@NotNull InventoryType type) {
@@ -104,6 +109,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     /**
      * Overwrites the current {@link TextData} with a new one.
+     *
      * @param titleData The {@link TextData} to set.
      */
     public void setTitleData(@NotNull TextData titleData) {
@@ -112,6 +118,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     /**
      * Returns the {@link TextData} from the builder.
+     *
      * @return The underlying value
      */
     public TextData getTitleData() {

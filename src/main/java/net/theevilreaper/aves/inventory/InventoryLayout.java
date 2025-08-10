@@ -7,6 +7,7 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.validate.Check;
 import net.theevilreaper.aves.inventory.util.InventoryConstants;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +23,7 @@ import static net.theevilreaper.aves.inventory.util.InventoryConstants.CANCEL_CL
  * @version 1.2.0
  * @since 1.0.0
  */
+@ApiStatus.NonExtendable
 public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**
@@ -63,8 +65,8 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
     /**
      * Applies an array of {@link ItemStack} to the layout with a given locale.
      *
-     * @param itemStacks      the array which should be applied
-     * @param locale          the locale to apply
+     * @param itemStacks the array which should be applied
+     * @param locale     the locale to apply
      */
     void applyLayout(ItemStack[] itemStacks, Locale locale);
 
@@ -179,6 +181,13 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
         return this;
     }
 
+    /**
+     * Set's a single {@link ItemStack} to each slot that is provided by the array.
+     *
+     * @param array       the array which contains all indices where the item should be set
+     * @param itemBuilder the builder reference which contains the information about the {@link ItemStack}
+     * @return the instance from the layout
+     */
     default @NotNull InventoryLayout setItems(int[] array, ItemStack.Builder itemBuilder) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], itemBuilder);
@@ -204,13 +213,15 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * Blanks a single slot in the layout.
      *
      * @param slot the slot to blank
+     * @return the instance from the layout
      */
     @NotNull InventoryLayout blank(int slot);
 
     /**
-     * Marks an all given slot with a dummy slot object.
+     * Marks an all-given slot with a fake slot object.
      *
      * @param slots the slots to mark
+     * @return the instance from the layout
      */
     @NotNull
     default InventoryLayout blank(int... slots) {
@@ -224,13 +235,15 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * Removes the slot object at a given index.
      *
      * @param slot The index to remove the slot
+     * @return the instance from the layout
      */
     @NotNull InventoryLayout clear(int slot);
 
     /**
-     * Removes all slot object which stands in the given array.
+     * Removes all slot object that stands in the given array.
      *
-     * @param slots The array which contains all slot to remove
+     * @param slots The array which contains all slots to remove
+     * @return the instance from the layout
      */
     @NotNull
     default InventoryLayout clear(int... slots) {
@@ -246,6 +259,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      *
      * @param index    the index to get the slot to update
      * @param listener the listener to set
+     * @return the instance from the layout
      */
     @NotNull InventoryLayout update(int index, @Nullable InventoryClick listener);
 
@@ -255,6 +269,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      *
      * @param index the index to get the slot to update
      * @param stack the {@link ItemStack} to set
+     * @return the instance from the layout
      */
     @NotNull InventoryLayout update(int index, @Nullable ItemStack stack);
 
@@ -283,15 +298,19 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**
      * Removes a slot from the layout by a specific index.
+     *
      * @param index the index to remove the slot
+     * @return the instance from the layout
      */
     @NotNull InventoryLayout remove(int index);
 
     /**
      * Removes a list of slots from the layout.
+     *
      * @param indices the array which contains the indices to remove
+     * @return the instance from the layout
      */
-    default @NotNull InventoryLayout remove(int @NotNull... indices) {
+    default @NotNull InventoryLayout remove(int @NotNull ... indices) {
         for (int i = 0; i < indices.length; i++) {
             remove(indices[i]);
         }
@@ -303,7 +322,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      *
      * @return the underlying array
      */
-    @NotNull ISlot [] getContents();
+    @NotNull ISlot[] getContents();
 
     /**
      * Returns the size from the layout.

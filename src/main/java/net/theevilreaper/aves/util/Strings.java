@@ -1,6 +1,5 @@
 package net.theevilreaper.aves.util;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +13,6 @@ import java.util.StringJoiner;
  * @version 1.0.0
  * @since 1.2.0
  */
-@ApiStatus.NonExtendable
 public final class Strings {
 
     private static final String INT_FORMAT = "%02d";
@@ -54,8 +52,9 @@ public final class Strings {
     /**
      * Convert a time value into the given format from the {@link TimeFormat} entry.
      *
-     * @param time The time who should be converted
-     * @return The converted time
+     * @param timeFormat the format, which should be used for the conversion
+     * @param time       the time who should be converted
+     * @return the converted time
      */
     @Contract(pure = true)
     public static @NotNull String getTimeString(@NotNull TimeFormat timeFormat, int time) {

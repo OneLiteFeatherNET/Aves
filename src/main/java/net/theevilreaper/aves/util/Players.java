@@ -16,7 +16,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.server.play.SetCooldownPacket;
 import net.minestom.server.utils.validate.Check;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -37,7 +36,6 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ApiStatus.NonExtendable
 public final class Players {
 
     private static final Logger PLAYER_LOGGER = LoggerFactory.getLogger(Players.class);
@@ -90,9 +88,11 @@ public final class Players {
     }
 
     /**
-     * Drops a certain amount of items to a given location.
+     * Drops a certain number of items to a given location.
      *
-     * @param content The items stored in an array
+     * @param instance the {@link Instance} where the items should be dropped
+     * @param pos      the position where the items should be dropped
+     * @param content  the items stored in an array
      */
     public static void dropItemStacks(@NotNull Instance instance, @NotNull Pos pos, @NotNull ItemStack @NotNull ... content) {
         Check.argCondition(content.length == 0, "The array can not be null or empty");

@@ -1,7 +1,6 @@
 package net.theevilreaper.aves.util;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -11,26 +10,27 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Taken from <a href="https://github.com/Minestom/Arena/blob/master/src/main/java/net/minestom/arena/utils/ConcurrentUtils.java">...</a>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
  **/
-@ApiStatus.NonExtendable
 public final class Futures {
 
-    private Futures() {}
+    private Futures() {
+    }
 
     /**
      * Used to add timeout for CompletableFutures
      *
-     * @param future the future which has to complete
+     * @param future  the future which has to complete
      * @param timeout duration to wait for the future to complete
-     * @param action Action to run after the future completes or the timeout is reached.<br>
-     *               Parameter means:
-     *               <ul>
-     *               <li><b>true</b> - the timeout is reached</li>
-     *               <li><b>false</b> - future completed before timeout</li>
-     *               </ul>
+     * @param action  Action to run after the future completes or the timeout is reached.<br>
+     *                Parameter means:
+     *                <ul>
+     *                <li><b>true</b> - the timeout is reached</li>
+     *                <li><b>false</b> - future completed before timeout</li>
+     *                </ul>
      * @return the new CompletionStage
      */
     public static CompletableFuture<Void> thenRunOrTimeout(@NotNull CompletableFuture<?> future, @NotNull Duration timeout, BooleanConsumer action) {
@@ -43,6 +43,7 @@ public final class Futures {
     /**
      * Create a future from a CountDownLatch
      *
+     * @param countDownLatch the countdown latch to wait for
      * @return a future that completes when the countdown reaches zero
      */
     public static @NotNull CompletableFuture<Void> futureFromCountdown(@NotNull CountDownLatch countDownLatch) {

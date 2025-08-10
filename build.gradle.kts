@@ -7,13 +7,15 @@ plugins {
 }
 
 group = "net.theevilreaper"
-version = "1.11.0"
+version = "1.11.1"
 description = "Aves"
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+    withJavadocJar()
+    withSourcesJar()
 }
 
 configurations.all {
