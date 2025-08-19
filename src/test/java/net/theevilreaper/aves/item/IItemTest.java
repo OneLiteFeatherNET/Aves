@@ -21,12 +21,12 @@ class IItemTest {
     void testNonTranslatedItemWithMaterial() {
         var item = Item.of(Material.AIR);
         assertNotSame(IItem.AIR, item);
-        assertNotSame(ItemStack.AIR, item.get());
+        assertSame(ItemStack.AIR, item.get());
     }
 
     @Test
     void testNonTranslatedItemWithBuilder() {
         var item = Item.of(ItemStack.builder(Material.AIR));
-        assertNotSame(ItemStack.AIR, item.get());
+        assertSame(ItemStack.AIR, item.get());
     }
 }
