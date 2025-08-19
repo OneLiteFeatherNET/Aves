@@ -33,7 +33,7 @@ public class BaseMap {
 
     /**
      * Creates a new reference from the {@link BaseMap}.
-     * It requires all values which are needed to create a map.
+     * It requires all values that are needed to create a map.
      *
      * @param name     the name from the map
      * @param builders the builders from the map
@@ -83,7 +83,7 @@ public class BaseMap {
     }
 
     /**
-     * Returns a hash value from some data which are provided by the object.
+     * Returns a hash value from some data that are provided by the object.
      * In general, the hash relies on the unique data.
      * For the basic implementation that is only the name of the map.
      *
