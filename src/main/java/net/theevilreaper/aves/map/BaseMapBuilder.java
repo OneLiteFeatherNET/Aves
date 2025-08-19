@@ -1,7 +1,6 @@
 package net.theevilreaper.aves.map;
 
 import net.minestom.server.coordinate.Pos;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +16,6 @@ import java.util.List;
  * @version 1.0.0
  * @since 1.9.0
  */
-@ApiStatus.Experimental
 public class BaseMapBuilder {
 
     protected final List<String> builders;
@@ -89,7 +87,7 @@ public class BaseMapBuilder {
      * @param spawn the position where the map will spawn
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public @NotNull BaseMapBuilder spawn(@NotNull Pos spawn) {
+    public @NotNull BaseMapBuilder spawn(@Nullable Pos spawn) {
         this.spawn = spawn;
         return this;
     }
