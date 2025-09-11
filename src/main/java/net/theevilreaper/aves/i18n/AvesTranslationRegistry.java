@@ -22,8 +22,10 @@ import java.util.Objects;
 /**
  * A translation registry that uses MiniMessage to translate components.
  * Without the usage of the class the translation with MiniMessage would not be possible.
+ *
  * @see TranslationRegistry
  */
+@Deprecated(forRemoval = true, since = "Please use TranslationStore.messageFormat(Key) instead")
 public final class AvesTranslationRegistry implements TranslationRegistry {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
@@ -31,6 +33,7 @@ public final class AvesTranslationRegistry implements TranslationRegistry {
 
     /**
      * Creates a new instance of the translation registry.
+     *
      * @param backedRegistry the registry which should be used for the translation
      */
     public AvesTranslationRegistry(@NotNull TranslationRegistry backedRegistry) {
@@ -39,6 +42,7 @@ public final class AvesTranslationRegistry implements TranslationRegistry {
 
     /**
      * Checks if the registry contains the given key.
+     *
      * @param key the key to check
      * @return true if the key is present in the registry
      */
@@ -54,6 +58,7 @@ public final class AvesTranslationRegistry implements TranslationRegistry {
 
     /**
      * Returns the name of the registry as {@link Key}.
+     *
      * @return the given name from the registry
      */
     @Override
@@ -63,7 +68,8 @@ public final class AvesTranslationRegistry implements TranslationRegistry {
 
     /**
      * The method doesn't do anything in this implementation.
-     * @param key a translation key
+     *
+     * @param key    a translation key
      * @param locale a locale
      * @return null
      */
@@ -74,8 +80,9 @@ public final class AvesTranslationRegistry implements TranslationRegistry {
 
     /**
      * Translates the given component with the provided locale.
+     *
      * @param component the component to translate
-     * @param locale the locale to use
+     * @param locale    the locale to use
      * @return the translated component
      */
     @Override
@@ -102,6 +109,7 @@ public final class AvesTranslationRegistry implements TranslationRegistry {
 
     /**
      * Sets the default locale for the registry.
+     *
      * @param locale the locale to use a default
      */
     @Override
@@ -111,7 +119,8 @@ public final class AvesTranslationRegistry implements TranslationRegistry {
 
     /**
      * Registers a new translation in the registry.
-     * @param key the key to register
+     *
+     * @param key    the key to register
      * @param locale the locale to register
      * @param format the format to register
      */
@@ -122,6 +131,7 @@ public final class AvesTranslationRegistry implements TranslationRegistry {
 
     /**
      * Unregisters a translation from the registry.
+     *
      * @param key the key to unregister
      */
     @Override
