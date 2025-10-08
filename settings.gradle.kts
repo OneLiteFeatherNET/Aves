@@ -1,10 +1,5 @@
 rootProject.name = "aves"
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        maven("https://eldonexus.de/repository/maven-public/")
-    }
-}
+
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
