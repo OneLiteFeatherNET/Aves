@@ -2,10 +2,6 @@ name: Publish JAR
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - develop
     tags:
       - '**'
 jobs:
