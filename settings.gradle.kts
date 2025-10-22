@@ -21,7 +21,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("bom", "1.4.5")
+            version("bom", "1.5.0")
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
             library("minestom","net.minestom", "minestom").withoutVersion()
             library("adventure", "net.kyori", "adventure-text-minimessage").withoutVersion()

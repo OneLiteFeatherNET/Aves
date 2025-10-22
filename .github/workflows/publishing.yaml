@@ -2,34 +2,24 @@ name: Publish JAR
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - develop
     tags:
       - '**'
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      ONELITEFEATHER_MAVEN_USERNAME: ${{ secrets.ONELITEFEATHER_MAVEN_USERNAME }}
+      ONELITEFEATHER_MAVEN_PASSWORD: ${{ secrets.ONELITEFEATHER_MAVEN_PASSWORD }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
-
+          java-version: '25'
       - name: Build with Gradle
         run: ./gradlew build
-        env:
-          ONELITEFEATHER_MAVEN_USERNAME: ${{ secrets.ONELITEFEATHER_MAVEN_USERNAME }}
-          ONELITEFEATHER_MAVEN_PASSWORD: ${{ secrets.ONELITEFEATHER_MAVEN_PASSWORD }}
-
       - name: Publish to Maven
         run: ./gradlew publish
-        env:
-          ONELITEFEATHER_MAVEN_USERNAME: ${{ secrets.ONELITEFEATHER_MAVEN_USERNAME }}
-          ONELITEFEATHER_MAVEN_PASSWORD: ${{ secrets.ONELITEFEATHER_MAVEN_PASSWORD }}

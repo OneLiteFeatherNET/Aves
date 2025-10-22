@@ -1,17 +1,16 @@
 plugins {
-    java
     `java-library`
     `maven-publish`
     jacoco
 }
 
 group = "net.theevilreaper"
-version = "1.11.2"
+version = "1.12.0"
 description = "Aves"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
     withJavadocJar()
     withSourcesJar()
@@ -38,7 +37,7 @@ dependencies {
 tasks {
     compileJava {
         options.encoding = "UTF-8"
-        options.release.set(21)
+        options.release.set(25)
     }
 
     jacocoTestReport {
