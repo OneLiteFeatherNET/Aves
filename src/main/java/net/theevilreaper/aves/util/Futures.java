@@ -1,12 +1,12 @@
 package net.theevilreaper.aves.util;
 
-import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Taken from <a href="https://github.com/Minestom/Arena/blob/master/src/main/java/net/minestom/arena/utils/ConcurrentUtils.java">...</a>
@@ -33,7 +33,7 @@ public final class Futures {
      *                </ul>
      * @return the new CompletionStage
      */
-    public static CompletableFuture<Void> thenRunOrTimeout(@NotNull CompletableFuture<?> future, @NotNull Duration timeout, BooleanConsumer action) {
+    public static CompletableFuture<Void> thenRunOrTimeout(@NotNull CompletableFuture<?> future, @NotNull Duration timeout, Consumer<Boolean> action) {
         final CompletableFuture<Boolean> f = new CompletableFuture<>();
         CompletableFuture.delayedExecutor(timeout.toNanos(), TimeUnit.NANOSECONDS).execute(() -> f.complete(true));
         future.thenRun(() -> f.complete(false));
