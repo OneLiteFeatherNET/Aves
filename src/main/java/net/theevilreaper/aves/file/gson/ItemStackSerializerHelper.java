@@ -13,7 +13,6 @@ import net.minestom.server.item.component.EnchantmentList;
 import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.registry.RegistryKey;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +41,7 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
      * @param stack  the stack to serialize
      * @param object the object to serialize the data
      */
-    default void serializeCustomName(@NotNull ItemStack stack, @NotNull JsonObject object) {
+    default void serializeCustomName(ItemStack stack, JsonObject object) {
         if (!stack.has(DataComponents.CUSTOM_NAME)) return;
         final Component itemName = stack.get(DataComponents.CUSTOM_NAME, Component.empty());
         final String displayName = plainText().serialize(itemName);
@@ -55,7 +54,7 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
      * @param stack      the builder to set the custom name
      * @param jsonObject the object to deserialize the data
      */
-    default void serializeLore(@NotNull ItemStack stack, @NotNull JsonObject jsonObject) {
+    default void serializeLore(ItemStack stack, JsonObject jsonObject) {
         if (!stack.has(DataComponents.LORE)) return;
         final List<Component> loreLines = stack.get(DataComponents.LORE);
 
@@ -75,7 +74,7 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
      * @param object  the object to deserialize the data
      * @return the builder with the lore set
      */
-    default @NotNull ItemStack.Builder deserializeLore(@NotNull ItemStack.Builder builder, @NotNull JsonObject object) {
+    default ItemStack.Builder deserializeLore(ItemStack.Builder builder, JsonObject object) {
         if (!object.has(LORE_KEY)) return builder;
 
         JsonArray loreArray = object.getAsJsonArray(LORE_KEY);
@@ -92,7 +91,7 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
      * @param stack  the stack to serialize
      * @param object the object to serialize the data
      */
-    default void serializeEnchantments(@NotNull ItemStack stack, @NotNull JsonObject object) {
+    default void serializeEnchantments(ItemStack stack, JsonObject object) {
         if (!stack.has(DataComponents.ENCHANTMENTS)) return;
         JsonArray enchantsArray = new JsonArray();
         final EnchantmentList enchantmentList = stack.get(DataComponents.ENCHANTMENTS);
@@ -115,7 +114,7 @@ sealed interface ItemStackSerializerHelper permits ItemStackGsonTypeAdapter {
      * @param object  the object to deserialize the data
      * @return the builder with the enchantments set
      */
-    default @NotNull ItemStack.Builder deserializeEnchantments(@NotNull ItemStack.Builder builder, @NotNull JsonObject object) {
+    default ItemStack.Builder deserializeEnchantments(ItemStack.Builder builder, JsonObject object) {
         if (!object.has(ENCHANTMENTS)) return builder;
         JsonArray enchantsArray = object.getAsJsonArray(ENCHANTMENTS);
         Map<RegistryKey<Enchantment>, Integer> enchantments = new HashMap<>();

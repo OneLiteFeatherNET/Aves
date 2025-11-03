@@ -1,7 +1,5 @@
 package net.theevilreaper.aves.util.functional;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
@@ -24,5 +22,5 @@ public interface PathFilter<T> {
      * @param stream the stream of map paths to filter
      * @return a list of filtered {@link T} objects
      */
-    @NotNull List<T> filter(@NotNull Stream<Path> stream);
+    List<T> filter(Stream<Path> stream);
 }

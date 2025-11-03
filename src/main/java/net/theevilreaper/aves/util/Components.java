@@ -9,7 +9,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.text.DecimalFormat;
@@ -52,12 +51,12 @@ public final class Components {
      * @return the progressbar as a {@link Component}
      */
     @Contract(pure = true)
-    public static @NotNull Component getProgressBar(int current,
+    public static Component getProgressBar(int current,
                                                     int max,
                                                     int totalBars,
-                                                    @NotNull String symbol,
-                                                    @NotNull TextColor completedColor,
-                                                    @NotNull TextColor notCompletedColor) {
+                                                    String symbol,
+                                                    TextColor completedColor,
+                                                    TextColor notCompletedColor) {
         float percent = (float) current / max;
         int progressBars = (int) (totalBars * percent);
         String completedCharAsString = symbol.repeat(progressBars);
@@ -74,9 +73,9 @@ public final class Components {
      * @return the converted health as string
      */
     @Contract(value = "_, _, _ -> new ", pure = true)
-    public static @NotNull Component getHealthString(double paramHealth,
-                                                     @NotNull TextColor remainingHearth,
-                                                     @NotNull TextColor goneHearth) {
+    public static Component getHealthString(double paramHealth,
+                                                     TextColor remainingHearth,
+                                                     TextColor goneHearth) {
         int health = (int) Math.round(paramHealth);
         health /= 2;
         int healthAway = 10 - health;
@@ -97,7 +96,7 @@ public final class Components {
      * @return the converted health as string
      */
     @Contract(value = "_ -> new", pure = true)
-    public static @NotNull Component getHealthString(double paramHealth) {
+    public static Component getHealthString(double paramHealth) {
         return getHealthString(paramHealth, FILLED_HEART, EMPTY_HEARTS);
     }
 
@@ -110,7 +109,7 @@ public final class Components {
      * @return the textual representation mapped as {@link Component}
      */
     @Contract(value = "_ -> new", pure = true)
-    public static <T extends Point> @NotNull Component convertPoint(@NotNull T pos) {
+    public static <T extends Point> Component convertPoint(T pos) {
         return convert(pos, JoinConfiguration.arrayLike());
     }
 
@@ -123,7 +122,7 @@ public final class Components {
      * @return the textual representation mapped as {@link Component}
      */
     @Contract(value = "_, _ -> new", pure = true)
-    public static <T extends Point> @NotNull Component convertPoint(@NotNull T pos, @NotNull JoinConfiguration joinConfiguration) {
+    public static <T extends Point> Component convertPoint(T pos, JoinConfiguration joinConfiguration) {
         return convert(pos, joinConfiguration);
     }
 
@@ -136,7 +135,7 @@ public final class Components {
      * @return the textual representation mapped as {@link Component}
      */
     @Contract(value = "_, _ -> new", pure = true)
-    public static <T extends Point> @NotNull Component convertPoint(@NotNull T pos, @NotNull JoinConfiguration.Builder configurationBuilder) {
+    public static <T extends Point> Component convertPoint(T pos, JoinConfiguration.Builder configurationBuilder) {
         return convert(pos, configurationBuilder.build());
     }
 
@@ -149,7 +148,7 @@ public final class Components {
      * @return the textual representation mapped as {@link Component}
      */
     @Contract(value = "_, _ -> new", pure = true)
-    private static <T extends Point> @NotNull Component convert(@NotNull T point, @NotNull JoinConfiguration joinConfiguration) {
+    private static <T extends Point> Component convert(T point, JoinConfiguration joinConfiguration) {
         final boolean isPos = point instanceof Pos;
         Component[] data = new Component[isPos ? 5 : 3];
         data[0] = Component.text("x:").append(Component.space()).append(Component.text(point.blockX()));
@@ -175,10 +174,10 @@ public final class Components {
      * @return the list of components
      */
     @Contract(value = "_, _, _-> new", pure = true)
-    public static <T extends Point> @NotNull @UnmodifiableView List<@NotNull Component> pointToLore(
-            @NotNull MiniMessage miniMessage,
-            @NotNull T point,
-            @NotNull DecimalFormat format
+    public static <T extends Point> @UnmodifiableView List<Component> pointToLore(
+            MiniMessage miniMessage,
+            T point,
+            DecimalFormat format
     ) {
         final List<Component> loreComponents = new ArrayList<>();
         loreComponents.add(miniMessage.deserialize("<!i><gray>X: <white>" + format.format(point.x())));
@@ -201,10 +200,10 @@ public final class Components {
      * @return the list of components
      */
     @Contract(value = "_, _, _ -> new", pure = true)
-    public static <T extends Point> @NotNull List<@NotNull Component> pointToLore(
-            @NotNull T point,
-            @NotNull DecimalFormat format,
-            @NotNull List<Component> partArguments
+    public static <T extends Point> List<Component> pointToLore(
+            T point,
+            DecimalFormat format,
+            List<Component> partArguments
     ) {
         final int maxSize = point instanceof Pos ? 5 : 3;
         if (partArguments.size() != maxSize) {

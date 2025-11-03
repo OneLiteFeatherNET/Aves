@@ -40,7 +40,7 @@ public final class Players {
 
     private static final Logger PLAYER_LOGGER = LoggerFactory.getLogger(Players.class);
     private static Duration itemDuration = Duration.ofMillis(3);
-    private static ItemPlacer placer;
+    private static @Nullable ItemPlacer placer;
 
     private Players() {
     }
@@ -50,7 +50,7 @@ public final class Players {
      *
      * @param duration the duration to set
      */
-    public static void setItemDuration(@NotNull Duration duration) {
+    public static void setItemDuration(Duration duration) {
         itemDuration = duration;
     }
 
@@ -59,7 +59,7 @@ public final class Players {
      *
      * @param itemPlacer the new instance to set
      */
-    public static void setItemPlacer(@NotNull ItemPlacer itemPlacer) {
+    public static void setItemPlacer(ItemPlacer itemPlacer) {
         placer = itemPlacer;
     }
 
@@ -73,7 +73,7 @@ public final class Players {
      * @param stay     the time how long the title stays
      * @param fadeOut  the time to fade out
      */
-    public static void showTitle(@NotNull Player player, @NotNull Component title, @NotNull Component subTitle, int fadeIn, int stay, int fadeOut) {
+    public static void showTitle(Player player, Component title, Component subTitle, int fadeIn, int stay, int fadeOut) {
         player.showTitle(Title.title(title, subTitle, Title.Times.times(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut))));
     }
 
@@ -82,7 +82,7 @@ public final class Players {
      *
      * @param player The player from which the inventory should be dropped
      */
-    public static void dropPlayerInventory(@NotNull Player player) {
+    public static void dropPlayerInventory(Player player) {
         Check.argCondition(player.getInstance() == null, "The instance from the player can't be null");
         dropItemStacks(player.getInstance(), player.getPosition(), player.getInventory().getItemStacks());
     }
@@ -94,7 +94,7 @@ public final class Players {
      * @param pos      the position where the items should be dropped
      * @param content  the items stored in an array
      */
-    public static void dropItemStacks(@NotNull Instance instance, @NotNull Pos pos, @NotNull ItemStack @NotNull ... content) {
+    public static void dropItemStacks(Instance instance, Pos pos, ItemStack ... content) {
         Check.argCondition(content.length == 0, "The array can not be null or empty");
         for (int i = 0; i < content.length; i++) {
             if (content[i] == null) continue;
@@ -138,7 +138,7 @@ public final class Players {
      * @param locale       The {@link Locale} for {@link TranslatedItem}
      * @param shiftedSlots An array with contains shifted layout only for the hotbar
      */
-    public static void updateHotBar(@NotNull Player player, @NotNull IItem[] hotBarItems, @Nullable Locale locale, int... shiftedSlots) {
+    public static void updateHotBar(Player player, IItem[] hotBarItems, @Nullable Locale locale, int... shiftedSlots) {
         Check.argCondition(hotBarItems.length > InventoryConstants.INVENTORY_WIDTH, "The array length for the items is greater than " + InventoryConstants.INVENTORY_WIDTH);
         Check.argCondition(shiftedSlots.length > hotBarItems.length, "The length from shiftedSlots has not the same length with the underlying array");
         if (placer == null) {
@@ -156,7 +156,7 @@ public final class Players {
      * @param armorItems The array with the items for the armor area
      * @param locale     The {@link Locale} for {@link TranslatedItem}
      */
-    public static void updateArmorItems(@NotNull Player player, @NotNull IItem[] armorItems, @Nullable Locale locale) {
+    public static void updateArmorItems(Player player, IItem[] armorItems, @Nullable Locale locale) {
         if (placer == null) {
             placer = ItemPlacer.FALLBACK;
             PLAYER_LOGGER.info("Set `ItemPlacer Interface` to fallback implementation");
@@ -172,7 +172,7 @@ public final class Players {
      * @param locale       the locale if the case need some
      * @param shiftedSlots an array which contains shifted slots
      */
-    private static void setItems(@NotNull Player player, @NotNull IItem[] items, Locale locale, int... shiftedSlots) {
+    private static void setItems(Player player, IItem[] items, Locale locale, int... shiftedSlots) {
         for (int i = 0; i < items.length; i++) {
             var wrappedItem = items[i];
             if (wrappedItem == null) continue;
@@ -187,7 +187,7 @@ public final class Players {
      * @param players A list which contains some player objects
      * @return a random player
      */
-    public static Optional<Player> getRandomPlayer(@NotNull List<Player> players) {
+    public static Optional<Player> getRandomPlayer(List<Player> players) {
         if (players.isEmpty()) return Optional.empty();
         return Optional.of(players.get(ThreadLocalRandom.current().nextInt(players.size())));
     }
@@ -199,7 +199,7 @@ public final class Players {
      * @param itemStack the involved {@link ItemStack}
      * @param ticks     how long the cooldown is
      */
-    public static void sendCooldown(@NotNull Player player, @NotNull ItemStack itemStack, int ticks) {
+    public static void sendCooldown(Player player, ItemStack itemStack, int ticks) {
         sendCooldown(player, itemStack.material(), ticks);
     }
 
@@ -210,7 +210,7 @@ public final class Players {
      * @param material the {@link Material} to get the id from it2
      * @param ticks    how long the cooldown is
      */
-    public static void sendCooldown(@NotNull Player player, @NotNull Material material, int ticks) {
+    public static void sendCooldown(Player player, Material material, int ticks) {
         player.sendPacket(new SetCooldownPacket(material.name(), ticks));
     }
 }
