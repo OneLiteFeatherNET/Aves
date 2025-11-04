@@ -1,6 +1,5 @@
 package net.theevilreaper.aves.file;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ public interface FileHandler {
      * @param object The object to save
      * @param <T>    A generic type for the object value
      */
-    <T> void save(@NotNull Path path, @NotNull T object);
+    <T> void save(Path path, T object);
 
     /**
      * Load a given file and parse to the give class.
@@ -47,5 +46,5 @@ public interface FileHandler {
      * @param <T>   is generic type for the object value
      * @return a {@link Optional} with the object instance
      */
-    <T> Optional<T> load(@NotNull Path path, @NotNull Class<T> clazz);
+    <T> Optional<T> load(Path path, Class<T> clazz);
 }

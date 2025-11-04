@@ -1,10 +1,8 @@
 package net.theevilreaper.aves.util;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
- * The enum contains all formats which are supported by the {@link Strings#getTimeString(TimeFormat, int)} method.
- * Each enum entry contains a default format which contains the format for the timestamp zero.
+ * The enum contains all formats that are supported by the {@link Strings#getTimeString(TimeFormat, int)} method.
+ * Each enum entry contains a default format which contains the format for timestamp zero.
  *
  * @author theEvilReaper
  * @version 1.0.0
@@ -28,7 +26,7 @@ public enum TimeFormat {
      *
      * @param defaultFormat the format to set
      */
-    TimeFormat(@NotNull String defaultFormat) {
+    TimeFormat(String defaultFormat) {
         this.defaultFormat = defaultFormat;
     }
 
@@ -37,7 +35,7 @@ public enum TimeFormat {
      *
      * @return the given format
      */
-    public @NotNull String getDefaultFormat() {
+    public String getDefaultFormat() {
         return defaultFormat;
     }
 }

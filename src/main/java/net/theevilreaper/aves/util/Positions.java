@@ -3,7 +3,6 @@ package net.theevilreaper.aves.util;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Includes some helpful methods for the {@link Pos} and {@link net.minestom.server.coordinate.Vec} from minestom.
@@ -35,7 +34,7 @@ public final class Positions {
      * @return the centered pos
      */
     @Contract(pure = true)
-    public static @NotNull Pos centerPos3D(@NotNull Pos pos) {
+    public static Pos centerPos3D(Pos pos) {
         return pos.add(0.5, 0.5, 0.5);
     }
 
@@ -46,7 +45,7 @@ public final class Positions {
      * @return the centered pos
      */
     @Contract(pure = true)
-    public static @NotNull Pos centerPos2D(@NotNull Pos pos) {
+    public static Pos centerPos2D(Pos pos) {
         return pos.add(0.5, 0, 0.5);
     }
 
@@ -56,7 +55,7 @@ public final class Positions {
      * @param pos The position to calculate the length from
      * @return the squared length of the position
      */
-    public static double lengthSquaredPos(@NotNull Point pos) {
+    public static double lengthSquaredPos(Point pos) {
         return Math.pow(pos.x(), 2) + Math.pow(pos.y(), 2) + Math.pow(pos.z(), 2);
     }
 }

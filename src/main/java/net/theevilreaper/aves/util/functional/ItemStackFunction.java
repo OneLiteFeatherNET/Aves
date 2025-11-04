@@ -1,7 +1,6 @@
 package net.theevilreaper.aves.util.functional;
 
 import net.minestom.server.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -43,7 +42,7 @@ public interface ItemStackFunction<R> {
      * operation followed by the {@code after} operation
      * @throws NullPointerException if {@code after} is null
      */
-    default ItemStackFunction<R> andThen(@NotNull ItemStackFunction<R> after) {
+    default ItemStackFunction<R> andThen(ItemStackFunction<R> after) {
         return itemStack -> {
             this.apply(itemStack);
             return after.apply(itemStack);
