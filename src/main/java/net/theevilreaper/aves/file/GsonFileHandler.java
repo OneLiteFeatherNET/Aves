@@ -3,7 +3,6 @@ package net.theevilreaper.aves.file;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.minestom.server.utils.validate.Check;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +32,7 @@ public final class GsonFileHandler implements FileHandler {
      * Creates a new instance from the file handler.
      * @param gson the gson instance to deserialize or serialize data
      */
-    public GsonFileHandler(@NotNull Gson gson) {
+    public GsonFileHandler(Gson gson) {
         this.gson = gson;
     }
 
@@ -44,7 +43,7 @@ public final class GsonFileHandler implements FileHandler {
      * @param <T> A generic type for the object value
      */
     @Override
-    public <T> void save(@NotNull Path path, @NotNull T object) {
+    public <T> void save(Path path, T object) {
         Check.argCondition(Files.isDirectory(path), "Unable to save a directory. Please check the used path");
         try (var outputStream = Files.newBufferedWriter(path, UTF_8)) {
             if (!Files.exists(path)) {
@@ -65,7 +64,7 @@ public final class GsonFileHandler implements FileHandler {
      * @return a {@link Optional} with the object instance
      */
     @Override
-    public <T> Optional<T> load(@NotNull Path path, @NotNull Class<T> clazz) {
+    public <T> Optional<T> load(Path path, Class<T> clazz) {
         Check.argCondition(Files.isDirectory(path), "Unable to load a directory. Please check the used path");
         if (!Files.exists(path)) {
             return Optional.empty();

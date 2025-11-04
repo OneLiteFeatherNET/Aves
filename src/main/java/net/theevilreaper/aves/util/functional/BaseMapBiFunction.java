@@ -45,7 +45,7 @@ public interface BaseMapBiFunction<G extends BaseMap, U, R> {
      * applies the {@code after} function
      * @throws NullPointerException if {@code after} is null
      */
-    default <T> BaseMapBiFunction<G, U, T> andThen(Function<? super R, ? extends T> after) {
+    default <T> BaseMapBiFunction<G, U, T> andThen(@Nullable Function<? super R, ? extends T> after) {
         if (after == null) {
             throw new NullPointerException("After function must not be null");
         }

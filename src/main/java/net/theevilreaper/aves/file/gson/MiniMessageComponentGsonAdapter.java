@@ -6,7 +6,6 @@ import com.google.gson.stream.JsonWriter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -36,15 +35,12 @@ public class MiniMessageComponentGsonAdapter extends TypeAdapter<Component> {
      * @return the new instance of the {@link MiniMessageComponentGsonAdapter}
      */
     @Contract(value = " -> new", pure = true)
-    public static @NotNull MiniMessageComponentGsonAdapter create() {
+    public static MiniMessageComponentGsonAdapter create() {
         return new MiniMessageComponentGsonAdapter();
     }
 
     @Override
     public void write(JsonWriter out, Component value) throws IOException {
-        if (value == null) {
-            return;
-        }
         out.beginObject();
         out.name("minimessage").value(MiniMessage.miniMessage().serialize(value));
         out.endObject();

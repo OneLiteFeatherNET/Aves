@@ -10,7 +10,6 @@ import com.google.gson.JsonSerializer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 
@@ -27,7 +26,7 @@ public class PositionGsonAdapter implements JsonSerializer<Point>, JsonDeseriali
     private static final String PITCH = "pitch";
 
     @Override
-    public Point deserialize(@NotNull JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public Point deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject object = json.getAsJsonObject();
         double x = object.get("x").getAsDouble();
         double y = object.get("y").getAsDouble();
@@ -43,7 +42,7 @@ public class PositionGsonAdapter implements JsonSerializer<Point>, JsonDeseriali
     }
 
     @Override
-    public JsonElement serialize(@NotNull Point src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(Point src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject object = new JsonObject();
         object.addProperty("x", src.x());
         object.addProperty("y", src.y());

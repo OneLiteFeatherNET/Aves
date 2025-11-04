@@ -5,7 +5,7 @@ import net.theevilreaper.aves.item.TranslatedItem;
 import net.minestom.server.entity.EquipmentSlot;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -49,7 +49,7 @@ public interface ItemPlacer {
      * @param item   the itemStack itself
      * @param locale the locale for the itemStack, if the itemStack is a {@link TranslatedItem} it will be translated to the given locale
      */
-    default void setItem(@NotNull Player player, int slotID, @NotNull IItem item, Locale locale) {
+    default void setItem(Player player, int slotID, IItem item, Locale locale) {
         this.setItem(player, slotID, item, locale, false);
     }
 
@@ -62,5 +62,5 @@ public interface ItemPlacer {
      * @param locale the locale for the itemStack, if the itemStack is a {@link TranslatedItem} it will be translated to the given locale
      * @param armor  if the item is an armor item or not
      */
-    void setItem(@NotNull Player player, int slotID, @NotNull IItem item, Locale locale, boolean armor);
+    void setItem(Player player, int slotID, IItem item, @Nullable Locale locale, boolean armor);
 }

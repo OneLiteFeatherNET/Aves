@@ -5,7 +5,6 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
@@ -24,7 +23,7 @@ public final class Broadcaster {
      * @param component The message to send
      */
     @ApiStatus.Experimental
-    public static void broadcast(@NotNull Component component) {
+    public static void broadcast(Component component) {
         broadcast(MinecraftServer.getConnectionManager().getOnlinePlayers(), component);
     }
 
@@ -34,7 +33,7 @@ public final class Broadcaster {
      * @param message The message to send
      */
     @ApiStatus.Experimental
-    public static void broadcast(@NotNull Instance instance, @NotNull Component message) {
+    public static void broadcast(Instance instance, Component message) {
         broadcast(instance.getPlayers(), message);
     }
 
@@ -44,7 +43,7 @@ public final class Broadcaster {
      * @param message The message to send
      */
     @ApiStatus.Experimental
-    public static void broadcast(@NotNull Collection<Player> players, @NotNull Component message) {
+    public static void broadcast(Collection<Player> players, Component message) {
         if (players.isEmpty()) return;
 
         for (Player player : players) {
