@@ -47,7 +47,7 @@ public interface ItemStackBiFunction<U, R> {
      * applies the {@code after} function
      * @throws NullPointerException if {@code after} is null
      */
-    default <T> ItemStackBiFunction<U, T> andThen(@NotNull Function<? super R, ? extends T> after) {
+    default <T> ItemStackBiFunction<U, T> andThen(Function<? super R, ? extends T> after) {
         return (ItemStack itemStack, U u) -> after.apply(apply(itemStack, u));
     }
 }

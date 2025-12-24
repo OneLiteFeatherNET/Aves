@@ -1,7 +1,6 @@
 package net.theevilreaper.aves.util.functional;
 
 import net.minestom.server.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -23,7 +22,7 @@ public interface PlayerConsumer {
      *
      * @param player the input argument
      */
-    void accept(@NotNull Player player);
+    void accept(Player player);
 
     /**
      * Returns a composed {@code PlayerConsumer} that performs, in sequence, this
@@ -36,7 +35,7 @@ public interface PlayerConsumer {
      * operation followed by the {@code after} operation
      * @throws NullPointerException if {@code after} is null
      */
-    default PlayerConsumer andThen(@NotNull PlayerConsumer after) {
+    default PlayerConsumer andThen(PlayerConsumer after) {
         return (Player player) -> {
             accept(player);
             after.accept(player);

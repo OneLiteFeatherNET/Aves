@@ -1,7 +1,6 @@
 package net.theevilreaper.aves.util.exception;
 
 import net.theevilreaper.aves.util.functional.ThrowingFunction;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The exception will be thrown by the {@link ThrowingFunction}.
@@ -15,7 +14,7 @@ public class ThrowingException extends RuntimeException {
      * Creates a new instance from the exception with a given message.
      * @param message the message for the exception
      */
-    public ThrowingException(@NotNull String message) {
+    public ThrowingException(String message) {
         super(message);
     }
 

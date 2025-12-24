@@ -1,7 +1,5 @@
 package net.theevilreaper.aves.util;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -33,7 +31,7 @@ public final class Futures {
      *                </ul>
      * @return the new CompletionStage
      */
-    public static CompletableFuture<Void> thenRunOrTimeout(@NotNull CompletableFuture<?> future, @NotNull Duration timeout, Consumer<Boolean> action) {
+    public static CompletableFuture<Void> thenRunOrTimeout(CompletableFuture<?> future, Duration timeout, Consumer<Boolean> action) {
         final CompletableFuture<Boolean> f = new CompletableFuture<>();
         CompletableFuture.delayedExecutor(timeout.toNanos(), TimeUnit.NANOSECONDS).execute(() -> f.complete(true));
         future.thenRun(() -> f.complete(false));
@@ -46,7 +44,7 @@ public final class Futures {
      * @param countDownLatch the countdown latch to wait for
      * @return a future that completes when the countdown reaches zero
      */
-    public static @NotNull CompletableFuture<Void> futureFromCountdown(@NotNull CountDownLatch countDownLatch) {
+    public static CompletableFuture<Void> futureFromCountdown(CountDownLatch countDownLatch) {
         final CompletableFuture<Void> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {

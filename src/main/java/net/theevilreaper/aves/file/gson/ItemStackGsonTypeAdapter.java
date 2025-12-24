@@ -14,7 +14,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.CustomModelData;
 import net.minestom.server.item.component.TooltipDisplay;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 
@@ -30,7 +29,7 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
     private static final String CUSTOM_MODEL_DATA = "customModelData";
 
     @Override
-    public JsonElement serialize(@NotNull ItemStack itemStack, Type type, JsonSerializationContext context) {
+    public JsonElement serialize(ItemStack itemStack, Type type, JsonSerializationContext context) {
         JsonObject object = new JsonObject();
         object.addProperty(MATERIAL, itemStack.material().name());
         object.addProperty("amount", itemStack.amount());
@@ -60,7 +59,7 @@ public non-sealed class ItemStackGsonTypeAdapter implements JsonSerializer<ItemS
     }
 
     @Override
-    public ItemStack deserialize(@NotNull JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+    public ItemStack deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject object = jsonElement.getAsJsonObject();
 
         Material material = Material.STONE;

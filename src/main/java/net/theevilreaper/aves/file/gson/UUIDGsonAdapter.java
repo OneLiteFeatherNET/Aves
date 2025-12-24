@@ -3,7 +3,6 @@ package net.theevilreaper.aves.file.gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ public final class UUIDGsonAdapter extends TypeAdapter<UUID> {
      * @throws IOException if an error occurs during the writing process
      */
     @Override
-    public void write(@NotNull JsonWriter jsonWriter, @Nullable UUID uuid) throws IOException {
+    public void write(JsonWriter jsonWriter, @Nullable UUID uuid) throws IOException {
         if (uuid == null) return;
         jsonWriter.beginObject();
         jsonWriter.name("mostSigBits").value(uuid.getMostSignificantBits());
@@ -44,7 +43,7 @@ public final class UUIDGsonAdapter extends TypeAdapter<UUID> {
      * @throws IOException if an error occurs during the reading process
      */
     @Override
-    public @NotNull UUID read(@NotNull JsonReader jsonReader) throws IOException {
+    public UUID read(JsonReader jsonReader) throws IOException {
         jsonReader.beginObject();
         if (!jsonReader.nextName().equals("mostSigBits")) {
             throw new IOException("Expected mostSigBits");

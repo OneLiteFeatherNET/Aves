@@ -1,7 +1,6 @@
 package net.theevilreaper.aves.util;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.StringJoiner;
 
@@ -33,7 +32,7 @@ public final class Strings {
      * @return The centered text
      */
     @Contract(value = "_, _ -> new", pure = true)
-    public static @NotNull String centerText(@NotNull String text, int lineLength) {
+    public static String centerText(String text, int lineLength) {
         text = text.trim();
         if (text.isEmpty()) {
             throw new IllegalArgumentException("The text can not be empty");
@@ -57,7 +56,7 @@ public final class Strings {
      * @return the converted time
      */
     @Contract(pure = true)
-    public static @NotNull String getTimeString(@NotNull TimeFormat timeFormat, int time) {
+    public static String getTimeString(TimeFormat timeFormat, int time) {
         if (time <= 0) {
             return timeFormat.getDefaultFormat();
         }

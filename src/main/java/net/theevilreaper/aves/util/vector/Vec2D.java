@@ -4,7 +4,6 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.utils.MathUtils;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The {@link Vec2D} class represents a vector in a two-dimensional space with x and y coordinates.
@@ -26,7 +25,7 @@ public record Vec2D(double x, double y) {
      *
      * @param pos The input pos
      */
-    public Vec2D(@NotNull Pos pos) {
+    public Vec2D(Pos pos) {
         this(pos.blockX(), pos.blockZ());
     }
 
@@ -35,7 +34,7 @@ public record Vec2D(double x, double y) {
      *
      * @param vec The input vec
      */
-    public Vec2D(@NotNull Vec vec) {
+    public Vec2D(Vec vec) {
         this(vec.blockX(), vec.blockZ());
     }
 
@@ -47,7 +46,7 @@ public record Vec2D(double x, double y) {
      * @return result vector
      */
     @Contract("_, _ -> new")
-    public @NotNull Vec2D add(double x, double y) {
+    public Vec2D add(double x, double y) {
         return new Vec2D(this.x + x, this.y + y);
     }
 
@@ -58,7 +57,7 @@ public record Vec2D(double x, double y) {
      * @return result vector
      */
     @Contract("_ -> new")
-    public @NotNull Vec2D add(@NotNull Vec2D vector) {
+    public Vec2D add(Vec2D vector) {
         return new Vec2D(this.x + vector.x, this.y + vector.y);
     }
 
@@ -70,7 +69,7 @@ public record Vec2D(double x, double y) {
      * @return result vector
      */
     @Contract("_, _ -> new")
-    public @NotNull Vec2D sub(double x, double y) {
+    public Vec2D sub(double x, double y) {
         return new Vec2D(this.x - x, this.y - y);
     }
 
@@ -81,7 +80,7 @@ public record Vec2D(double x, double y) {
      * @return result vector
      */
     @Contract("_ -> new")
-    public @NotNull Vec2D sub(@NotNull Vec2D vector) {
+    public Vec2D sub(Vec2D vector) {
         return new Vec2D(this.x - vector.x, this.y - vector.y);
     }
 
@@ -91,7 +90,7 @@ public record Vec2D(double x, double y) {
      * @return result vector
      */
     @Contract(" -> new")
-    public @NotNull Vec2D neg() {
+    public Vec2D neg() {
         return new Vec2D(-x, -y);
     }
 
@@ -102,7 +101,7 @@ public record Vec2D(double x, double y) {
      * @return result vector
      */
     @Contract("_ -> new")
-    public @NotNull Vec2D scalarMul(int multiplier) {
+    public Vec2D scalarMul(int multiplier) {
         return new Vec2D(this.x * multiplier, this.y * multiplier);
     }
 
