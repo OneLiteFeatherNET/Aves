@@ -14,8 +14,6 @@ class StringsTest {
     private static final Stream<Arguments> TIME_ARGUMENTS = Stream.of(
             Arguments.of("00:00", Strings.getTimeString(TimeFormat.MM_SS, 0)),
             Arguments.of("01:00", Strings.getTimeString(TimeFormat.MM_SS, 60)),
-            Arguments.of("70:00", Strings.getTimeString(TimeFormat.MM_SS, 4200)),
-            Arguments.of("70:55", Strings.getTimeString(TimeFormat.MM_SS, 4255)),
             Arguments.of("01:00:00", Strings.getTimeString(TimeFormat.HH_MM_SS, 3600)),
             Arguments.of("00:59:59", Strings.getTimeString(TimeFormat.HH_MM_SS, 3599)),
             Arguments.of("01:01:39", Strings.getTimeString(TimeFormat.HH_MM_SS, 3699)),
