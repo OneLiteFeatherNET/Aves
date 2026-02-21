@@ -1,7 +1,6 @@
 package net.theevilreaper.aves.util.functional;
 
 import net.minestom.server.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
