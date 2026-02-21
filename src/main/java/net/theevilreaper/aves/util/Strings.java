@@ -2,7 +2,8 @@ package net.theevilreaper.aves.util;
 
 import org.jetbrains.annotations.Contract;
 
-import java.util.StringJoiner;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * The class contains some useful methods for string manipulation.
@@ -14,8 +15,11 @@ import java.util.StringJoiner;
  */
 public final class Strings {
 
-    private static final String INT_FORMAT = "%02d";
-    private static final int TIME_DIVIDER = 60;
+    private static final DateTimeFormatter HH_MM_SS =
+            DateTimeFormatter.ofPattern("HH:mm:ss");
+
+    private static final DateTimeFormatter MM_SS =
+            DateTimeFormatter.ofPattern("mm:ss");
 
     public static final String SPACE = " ";
     public static final String UTF_8_HEART = "\u2665";
@@ -55,24 +59,22 @@ public final class Strings {
      * @param time       the time who should be converted
      * @return the converted time
      */
-    @Contract(pure = true)
+    @Contract(pure = true, value = "_, _ -> new")
     public static String getTimeString(TimeFormat timeFormat, int time) {
         if (time <= 0) {
             return timeFormat.getDefaultFormat();
         }
 
-        int minutes = time / TIME_DIVIDER;
-        int seconds = time % TIME_DIVIDER;
+        int seconds = time % 60;
+        int totalMinutes = time / 60;
+        int minutes = totalMinutes % 60;
+        int hours = totalMinutes / 60;
 
-        StringJoiner stringJoiner = new StringJoiner(":");
+        LocalTime localTime = LocalTime.of(hours, minutes, seconds);
 
-        if (timeFormat == TimeFormat.HH_MM_SS) {
-            int hours = minutes / TIME_DIVIDER;
-            minutes = minutes % TIME_DIVIDER;
-            stringJoiner.add(String.format(INT_FORMAT, hours));
-        }
-        stringJoiner.add(String.format(INT_FORMAT, minutes));
-        stringJoiner.add(String.format(INT_FORMAT, seconds));
-        return stringJoiner.toString();
+        return switch (timeFormat) {
+            case HH_MM_SS -> localTime.format(HH_MM_SS);
+            case MM_SS -> localTime.format(MM_SS);
+        };
     }
 }
