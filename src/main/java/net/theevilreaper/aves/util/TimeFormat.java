@@ -13,29 +13,18 @@ public enum TimeFormat {
     /**
      * Indicates a format which contains minutes and seconds.
      */
-    MM_SS("00:00"),
+    MM_SS,
     /**
      * Indicates a format which contains hours, minutes and seconds.
      */
-    HH_MM_SS("00:00:00");
-    
-    private final String defaultFormat;
+    HH_MM_SS;
 
     /**
-     * Creates a new entry from the {@link TimeFormat} with the given format.
+     * Returns the default format for the given enum entry.
      *
-     * @param defaultFormat the format to set
-     */
-    TimeFormat(String defaultFormat) {
-        this.defaultFormat = defaultFormat;
-    }
-
-    /**
-     * Returns the default format from the specific format.
-     *
-     * @return the given format
+     * @return the default format
      */
     public String getDefaultFormat() {
-        return defaultFormat;
+        return this == HH_MM_SS ? "00:00:00" : "00:00";
     }
 }
