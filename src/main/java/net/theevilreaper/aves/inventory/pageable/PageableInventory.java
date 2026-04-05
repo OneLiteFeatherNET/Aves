@@ -1,6 +1,6 @@
 package net.theevilreaper.aves.inventory.pageable;
 
-import net.theevilreaper.aves.inventory.InventoryLayout;
+import net.theevilreaper.aves.inventory.layout.InventoryLayout;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
