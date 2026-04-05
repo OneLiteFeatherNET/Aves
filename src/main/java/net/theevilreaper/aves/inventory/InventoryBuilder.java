@@ -199,7 +199,6 @@ public abstract class InventoryBuilder {
      */
     protected void updateInventory(@NotNull Inventory inventory, Locale locale, boolean applyLayout){
         if (!applyLayout) return;
-        LOGGER.info("updateInventory called from:", new Exception("stacktrace"));
         if (this.inventoryLayout == null) {
             throw new IllegalStateException("Can't update content because the layout is null");
         }
@@ -238,7 +237,6 @@ public abstract class InventoryBuilder {
      */
     protected void retrieveDataLayout() {
         if (this.dataLayoutFunction == null) return;
-        LOGGER.info("retrieveDataLayout called from:", new Exception("stacktrace"));
         synchronized (this) {
             MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
                 try {
