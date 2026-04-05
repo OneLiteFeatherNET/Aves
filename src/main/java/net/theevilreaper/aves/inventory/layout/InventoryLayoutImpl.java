@@ -4,7 +4,6 @@ import net.theevilreaper.aves.inventory.InventorySlot;
 import net.theevilreaper.aves.inventory.function.ApplyLayoutFunction;
 import net.theevilreaper.aves.inventory.function.DefaultApplyLayoutFunction;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
-import net.theevilreaper.aves.inventory.slot.EmptySlot;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.theevilreaper.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.inventory.InventoryType;
@@ -34,7 +33,6 @@ public final class InventoryLayoutImpl implements InventoryLayout {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InventoryLayoutImpl.class);
 
-    private static final EmptySlot EMPTY_SLOT = new EmptySlot();
     private static final String INDEX_ERROR = "The given slot index is out of range";
     private final ISlot[] contents;
 
@@ -154,7 +152,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     @Override
     public InventoryLayoutImpl clear(int slot) {
         Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
-        contents[slot] = EMPTY_SLOT;
+        contents[slot] = BLANK_SLOT;
         return this;
     }
 
@@ -197,7 +195,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     public InventoryLayout remove(int index) {
         Check.argCondition(index < 0 || index > this.contents.length,
                 "The given index does not fit into the array (0, " + this.contents.length + ")");
-        this.contents[index] = EMPTY_SLOT;
+        this.contents[index] = BLANK_SLOT;
         return this;
     }
 
