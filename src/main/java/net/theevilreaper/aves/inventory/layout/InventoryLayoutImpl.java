@@ -1,5 +1,6 @@
-package net.theevilreaper.aves.inventory;
+package net.theevilreaper.aves.inventory.layout;
 
+import net.theevilreaper.aves.inventory.InventorySlot;
 import net.theevilreaper.aves.inventory.function.ApplyLayoutFunction;
 import net.theevilreaper.aves.inventory.function.DefaultApplyLayoutFunction;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
@@ -9,10 +10,9 @@ import net.theevilreaper.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.validate.Check;
-import net.theevilreaper.aves.inventory.util.InventoryConstants;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
@@ -25,24 +25,29 @@ import static net.theevilreaper.aves.inventory.util.InventoryConstants.BLANK_SLO
  * Represents a layout which contains all items for an inventory.
  *
  * @author Patrick Zdarsky / Rxcki
- * @version 1.0.2
+ * @version 1.0.3
  * @since 1.0.12
  */
 @SuppressWarnings("java:S3776")
 @ApiStatus.Internal
 public final class InventoryLayoutImpl implements InventoryLayout {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InventoryLayoutImpl.class);
+
+    private static final EmptySlot EMPTY_SLOT = new EmptySlot();
     private static final String INDEX_ERROR = "The given slot index is out of range";
-    private ApplyLayoutFunction applyLayoutFunction;
     private final ISlot[] contents;
+
+    private ApplyLayoutFunction applyLayoutFunction;
 
     /**
      * Creates a new instance from the {@link InventoryLayoutImpl}.
      *
      * @param type the given size for the layout
      */
-    InventoryLayoutImpl(@NotNull InventoryType type) {
+    InventoryLayoutImpl(InventoryType type) {
         this.contents = new ISlot[type.getSize()];
+        Arrays.fill(this.contents, BLANK_SLOT);
         this.applyLayoutFunction = new DefaultApplyLayoutFunction(this.contents);
     }
 
@@ -51,15 +56,14 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      *
      * @param layout the layout to copy
      */
-    InventoryLayoutImpl(@NotNull InventoryLayoutImpl layout) {
+    InventoryLayoutImpl(InventoryLayoutImpl layout) {
         this.contents = new ISlot[layout.getContents().length];
         for (int i = 0; i < layout.getContents().length; i++) {
-            var slotEntry = layout.getContents()[i];
+            ISlot slotEntry = layout.getContents()[i];
             switch (slotEntry) {
                 case InventorySlot inventorySlot -> this.contents[i] = InventorySlot.of(inventorySlot);
                 case TranslatedSlot translatedSlot -> this.contents[i] = TranslatedSlot.of(translatedSlot);
-                case EmptySlot emptySlot -> this.contents[i] = emptySlot;
-                default -> LoggerFactory.getLogger("Aves").info("Found a slot which can not be converted");
+                default -> LOGGER.info("Slot: " + slotEntry + "is unknown and can't be converted");
             }
         }
         this.applyLayoutFunction = layout.getApplyLayoutFunction();
@@ -71,116 +75,114 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      * @param applyLayoutFunction the new implementation to set
      */
     @Override
-    public void setApplyLayoutFunction(@NotNull ApplyLayoutFunction applyLayoutFunction) {
+    public void setApplyLayoutFunction(ApplyLayoutFunction applyLayoutFunction) {
         this.applyLayoutFunction = applyLayoutFunction;
     }
 
     /**
      * Applies a given {@link ItemStack} array to the layout.
      *
-     * @param itemStacks the array which should be applied
+     * @param itemStacks the array that should be applied
      */
     @Override
     public void applyLayout(ItemStack[] itemStacks) {
         this.applyLayoutFunction.applyLayout(itemStacks, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void applyLayout(ItemStack[] itemStacks, Locale locale) {
+    public void applyLayout(ItemStack[] itemStacks, @Nullable Locale locale) {
         this.applyLayoutFunction.applyLayout(itemStacks, locale);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public @NotNull InventoryLayoutImpl setItem(int slot, ItemStack.@NotNull Builder itemBuilder, @Nullable InventoryClick clickEvent) {
+    public InventoryLayoutImpl setItem(int slot, ItemStack.Builder itemBuilder, @Nullable InventoryClick clickEvent) {
         Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
         this.contents[slot] = new InventorySlot(itemBuilder, clickEvent);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public @NotNull InventoryLayoutImpl setItem(int slot, @NotNull ItemStack itemStack, InventoryClick clickEvent) {
+    public InventoryLayoutImpl setItem(int slot, ItemStack itemStack, @Nullable InventoryClick clickEvent) {
         Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
         this.contents[slot] = new InventorySlot(itemStack, clickEvent);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public @NotNull InventoryLayoutImpl setItem(int slot, ISlot iSlot, InventoryClick clickEvent) {
+    public InventoryLayoutImpl setItem(int slot, ISlot iSlot, InventoryClick clickEvent) {
         Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
         iSlot.setClick(clickEvent);
         contents[slot] = iSlot;
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public @NotNull InventoryLayoutImpl setItem(int slot, @NotNull ISlot slotItem) {
+    public InventoryLayoutImpl setItem(int slot, ISlot slotItem) {
         Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
         contents[slot] = slotItem;
         return this;
     }
 
     /**
-     * Blanks a single slot in the layout.
-     *
-     * @param slot The slot to blank
+     * {@inheritDoc}
      */
     @Override
-    public @NotNull InventoryLayoutImpl blank(int slot) {
+    public InventoryLayoutImpl blank(int slot) {
         Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
         this.contents[slot] = BLANK_SLOT;
         return this;
     }
 
     /**
-     * Removes the slot object at a given index.
-     *
-     * @param slot The index to remove the slot
+     * {@inheritDoc}
      */
     @Override
-    public @NotNull InventoryLayoutImpl clear(int slot) {
+    public InventoryLayoutImpl clear(int slot) {
         Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
-        contents[slot] = null;
+        contents[slot] = EMPTY_SLOT;
         return this;
     }
 
     /**
-     * Updates the given listener from a slot.
-     * If the listener is null the {@link InventoryConstants#CANCEL_CLICK} will set to the slot
-     *
-     * @param index    The index to get the slot to update
-     * @param listener The listener to set
+     * {@inheritDoc}
      */
     @Override
-    public @NotNull InventoryLayoutImpl update(int index, @Nullable InventoryClick listener) {
+    public InventoryLayoutImpl update(int index, @Nullable InventoryClick listener) {
         Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
         contents[index].setClick(listener == null ? CANCEL_CLICK : listener);
         return this;
     }
 
     /**
-     * Updates the given ItemStack from a slot.
-     * If the listener is null the {@link InventoryConstants#CANCEL_CLICK} will set to the slot
-     *
-     * @param index The index to get the slot to update
-     * @param stack The {@link ItemStack} to set
+     * {@inheritDoc}
      */
     @Override
-    public @NotNull InventoryLayoutImpl update(int index, @Nullable ItemStack stack) {
+    public InventoryLayoutImpl update(int index, @Nullable ItemStack stack) {
         Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
         contents[index].setItemStack(stack);
         return this;
     }
 
     /**
-     * Updates an {@link ISlot} at a given index with a new {@link ItemStack}.
-     *
-     * @param index the slot index
-     * @param stack the new stack tot set
-     * @param click the click listener for the slot
-     * @return the instance from the layout
+     * {@inheritDoc}
      */
     @Override
-    public @NotNull InventoryLayoutImpl update(int index, @NotNull ItemStack stack, @Nullable InventoryClick click) {
+    public InventoryLayoutImpl update(int index, ItemStack stack, @Nullable InventoryClick click) {
         Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
         var slot = contents[index];
         slot.setItemStack(stack);
@@ -189,23 +191,13 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     }
 
     /**
-     * Returns a slot from the content array by a specific index.
-     *
-     * @param index The index to get the slot
-     * @return The fetched slot otherwise null
+     * {@inheritDoc}
      */
     @Override
-    public @Nullable ISlot getSlot(int index) {
+    public InventoryLayout remove(int index) {
         Check.argCondition(index < 0 || index > this.contents.length,
                 "The given index does not fit into the array (0, " + this.contents.length + ")");
-        return this.contents[index];
-    }
-
-    @Override
-    public @NotNull InventoryLayout remove(int index) {
-        Check.argCondition(index < 0 || index > this.contents.length,
-                "The given index does not fit into the array (0, " + this.contents.length + ")");
-        this.contents[index] = null;
+        this.contents[index] = EMPTY_SLOT;
         return this;
     }
 
@@ -215,17 +207,15 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      * @return the underlying array
      */
     @Override
-    public @NotNull ISlot[] getContents() {
+    public ISlot[] getContents() {
         return contents;
     }
 
     /**
-     * Returns the given {@link ApplyLayoutFunction} instance.
-     *
-     * @return the underlying instance from the interface
+     * {@inheritDoc}
      */
     @Override
-    public @NotNull ApplyLayoutFunction getApplyLayoutFunction() {
+    public ApplyLayoutFunction getApplyLayoutFunction() {
         return applyLayoutFunction;
     }
 
@@ -235,7 +225,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      * @return the textual representation
      */
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return "InventoryLayout{" + "contents=" + Arrays.toString(contents) + '}';
     }
 
