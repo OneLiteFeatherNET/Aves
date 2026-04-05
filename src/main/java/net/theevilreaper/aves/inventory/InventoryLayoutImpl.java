@@ -240,7 +240,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     }
 
     /**
-     * Checks if two layout are equals.
+     * Checks if two layouts are equals.
      *
      * @param o the object to check
      * @return True when they are equal otherwise false
