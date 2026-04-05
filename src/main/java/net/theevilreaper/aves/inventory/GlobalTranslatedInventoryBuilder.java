@@ -92,7 +92,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
     @Override
     protected void applyDataLayout() {
         if (getDataLayout() == null) return;
-        LOGGER.info("Applying data layout");
+        LOGGER.debug("Applying data layout");
         synchronized (this) {
             for (var entry : inventoryTranslatedObjectCache.entrySet()) {
                 var contents = entry.getValue().getItemStacks();

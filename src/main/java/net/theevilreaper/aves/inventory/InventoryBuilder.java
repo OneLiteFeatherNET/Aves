@@ -163,9 +163,9 @@ public abstract class InventoryBuilder {
     public void invalidateDataLayout() {
         if (isOpen()) {
             retrieveDataLayout();
-            LOGGER.info("DataLayout invalidated on open inv, requested data...");
+            LOGGER.debug("DataLayout invalidated on open inv, requested data...");
         } else {
-            LOGGER.info("DataLayout invalidated on closed inv");
+            LOGGER.debug("DataLayout invalidated on closed inv");
             dataLayoutValid = false;
         }
     }
@@ -208,7 +208,7 @@ public abstract class InventoryBuilder {
         inventory.clear();
         this.inventoryLayout.applyLayout(contents, locale);
         this.setItemsInternal(inventory, contents);
-        LOGGER.info("UpdateInventory applied the InventoryLayout!");
+        LOGGER.debug("UpdateInventory applied the InventoryLayout!");
         this.inventoryLayoutValid = true;
 
         synchronized (this) {
