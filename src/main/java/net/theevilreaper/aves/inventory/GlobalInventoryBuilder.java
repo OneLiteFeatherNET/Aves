@@ -89,7 +89,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
     protected void applyDataLayout() {
         if (getDataLayout() == null) return;
         synchronized (this) {
-            LOGGER.info("Applying data layouts");
+            LOGGER.debug("Applying data layouts");
             ItemStack[] contents = inventory.getItemStacks();
             getDataLayout().applyLayout(contents, null);
             for (int i = 0; i < contents.length; i++) {
