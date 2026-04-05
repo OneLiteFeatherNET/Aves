@@ -1,4 +1,4 @@
-package net.theevilreaper.aves.inventory;
+package net.theevilreaper.aves.inventory.layout;
 
 import net.theevilreaper.aves.inventory.function.ApplyLayoutFunction;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
@@ -9,7 +9,6 @@ import net.minestom.server.utils.validate.Check;
 import net.theevilreaper.aves.inventory.util.InventoryConstants;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -17,7 +16,7 @@ import java.util.Locale;
 import static net.theevilreaper.aves.inventory.util.InventoryConstants.CANCEL_CLICK;
 
 /**
- * The {@link InventoryLayout} contains a bunch of method to set or update the layout of an inventory.
+ * The {@link InventoryLayout} contains a bunch of methods to set or update the layout of an inventory.
  *
  * @author theEvilReaper
  * @version 1.2.0
@@ -33,7 +32,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @return the created reference
      */
     @Contract(value = "_ -> new", pure = true)
-    static @NotNull InventoryLayout fromType(@NotNull InventoryType type) {
+    static InventoryLayout fromType(InventoryType type) {
         return new InventoryLayoutImpl(type);
     }
 
@@ -44,7 +43,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @return the copied reference
      */
     @Contract(value = "_ -> new", pure = true)
-    static @NotNull InventoryLayout of(@NotNull InventoryLayout layout) {
+    static InventoryLayout of(InventoryLayout layout) {
         return new InventoryLayoutImpl((InventoryLayoutImpl) layout);
     }
 
@@ -53,22 +52,22 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      *
      * @param applyLayoutFunction the new implementation to set
      */
-    void setApplyLayoutFunction(@NotNull ApplyLayoutFunction applyLayoutFunction);
+    void setApplyLayoutFunction(ApplyLayoutFunction applyLayoutFunction);
 
     /**
      * Applies an array of  {@link ItemStack} to the layout.
      *
-     * @param itemStacks the array which should be applied
+     * @param itemStacks the array that should be applied
      */
     void applyLayout(ItemStack[] itemStacks);
 
     /**
      * Applies an array of {@link ItemStack} to the layout with a given locale.
      *
-     * @param itemStacks the array which should be applied
+     * @param itemStacks the array that should be applied
      * @param locale     the locale to apply
      */
-    void applyLayout(ItemStack[] itemStacks, Locale locale);
+    void applyLayout(ItemStack[] itemStacks, @Nullable Locale locale);
 
     /**
      * Set's a single item to one slot with a given listener.
@@ -78,8 +77,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param clickEvent  the event logic for the slot (can be null)
      * @return the layout reference
      */
-    @NotNull
-    default InventoryLayout setItem(int slot, @NotNull ItemStack.Builder itemBuilder, @Nullable InventoryClick clickEvent) {
+    default InventoryLayout setItem(int slot, ItemStack.Builder itemBuilder, @Nullable InventoryClick clickEvent) {
         this.setItem(slot, itemBuilder.build(), clickEvent);
         return this;
     }
@@ -92,7 +90,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param clickEvent the event logic for the slot (can be null)
      * @return the layout reference
      */
-    @NotNull InventoryLayout setItem(int slot, @NotNull ItemStack itemStack, @Nullable InventoryClick clickEvent);
+    InventoryLayout setItem(int slot, ItemStack itemStack, @Nullable InventoryClick clickEvent);
 
     /**
      * Set's a single item to one slot with a given listener.
@@ -102,7 +100,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param clickEvent the event logic for the slot (can be null)
      * @return the layout reference
      */
-    @NotNull InventoryLayout setItem(int slot, ISlot iSlot, InventoryClick clickEvent);
+    InventoryLayout setItem(int slot, ISlot iSlot, InventoryClick clickEvent);
 
     /**
      * Set's a single item to a slot without a listener.
@@ -111,7 +109,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param itemStack the {@link ItemStack} for the slot
      * @return the layout reference
      */
-    default @NotNull InventoryLayout setItem(int slot, ItemStack itemStack) {
+    default InventoryLayout setItem(int slot, ItemStack itemStack) {
         return this.setItem(slot, itemStack, CANCEL_CLICK);
     }
 
@@ -122,7 +120,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param itemBuilder the builder reference which contains the information about the {@link ItemStack}
      * @return the layout reference
      */
-    default @NotNull InventoryLayout setItem(int slot, @NotNull ItemStack.Builder itemBuilder) {
+    default InventoryLayout setItem(int slot, ItemStack.Builder itemBuilder) {
         return this.setItem(slot, itemBuilder.build());
     }
 
@@ -133,7 +131,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param slotItem the slot reference
      * @return the instance from the layout
      */
-    @NotNull InventoryLayout setItem(int slot, @NotNull ISlot slotItem);
+    InventoryLayout setItem(int slot, ISlot slotItem);
 
     /**
      * Set's a single {@link ItemStack} to each slot which is provided by the array.
@@ -142,8 +140,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param stack the {@link ItemStack} which should be set into each slot index
      * @return the instance from the layout
      */
-    @NotNull
-    default InventoryLayout setItems(int[] array, @NotNull ItemStack stack) {
+    default InventoryLayout setItems(int[] array, ItemStack stack) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], stack);
         }
@@ -159,7 +156,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param clickEvent the listener for the slot
      * @return the instance from the layout
      */
-    default @NotNull InventoryLayout setItems(int[] array, @NotNull ItemStack stack, @Nullable InventoryClick clickEvent) {
+    default InventoryLayout setItems(int[] array, ItemStack stack, @Nullable InventoryClick clickEvent) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], stack, clickEvent);
         }
@@ -174,7 +171,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param clickEvent  the listener for the slot
      * @return the instance from the layout
      */
-    default @NotNull InventoryLayout setItems(int[] array, @NotNull ItemStack.Builder itemBuilder, @Nullable InventoryClick clickEvent) {
+    default InventoryLayout setItems(int[] array, ItemStack.Builder itemBuilder, @Nullable InventoryClick clickEvent) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], itemBuilder, clickEvent);
         }
@@ -188,7 +185,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param itemBuilder the builder reference which contains the information about the {@link ItemStack}
      * @return the instance from the layout
      */
-    default @NotNull InventoryLayout setItems(int[] array, ItemStack.Builder itemBuilder) {
+    default InventoryLayout setItems(int[] array, ItemStack.Builder itemBuilder) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], itemBuilder);
         }
@@ -202,7 +199,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param slot  the {@link ISlot} which should be set into each slot index
      * @return the instance from the layout
      */
-    default @NotNull InventoryLayout setItems(int[] array, @NotNull ISlot slot) {
+    default InventoryLayout setItems(int[] array, ISlot slot) {
         for (int i = 0; i < array.length; i++) {
             setItem(array[i], slot);
         }
@@ -215,7 +212,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param slot the slot to blank
      * @return the instance from the layout
      */
-    @NotNull InventoryLayout blank(int slot);
+    InventoryLayout blank(int slot);
 
     /**
      * Marks an all-given slot with a fake slot object.
@@ -223,7 +220,6 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param slots the slots to mark
      * @return the instance from the layout
      */
-    @NotNull
     default InventoryLayout blank(int... slots) {
         for (int i = 0; i < slots.length; i++) {
             this.blank(slots[i]);
@@ -237,7 +233,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param slot The index to remove the slot
      * @return the instance from the layout
      */
-    @NotNull InventoryLayout clear(int slot);
+    InventoryLayout clear(int slot);
 
     /**
      * Removes all slot object that stands in the given array.
@@ -245,7 +241,6 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param slots The array which contains all slots to remove
      * @return the instance from the layout
      */
-    @NotNull
     default InventoryLayout clear(int... slots) {
         for (int i = 0; i < slots.length; i++) {
             this.clear(slots[i]);
@@ -261,7 +256,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param listener the listener to set
      * @return the instance from the layout
      */
-    @NotNull InventoryLayout update(int index, @Nullable InventoryClick listener);
+    InventoryLayout update(int index, @Nullable InventoryClick listener);
 
     /**
      * Updates the given ItemStack from a slot.
@@ -271,17 +266,17 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param stack the {@link ItemStack} to set
      * @return the instance from the layout
      */
-    @NotNull InventoryLayout update(int index, @Nullable ItemStack stack);
+    InventoryLayout update(int index, @Nullable ItemStack stack);
 
     /**
      * Updates an {@link ISlot} at a given index with a new {@link ItemStack}.
      *
      * @param index the slot index
      * @param stack the new stack tot set
-     * @param click the click listener for the slot
+     * @param click click listener for the slot
      * @return the instance from the layout
      */
-    @NotNull InventoryLayout update(int index, @NotNull ItemStack stack, @Nullable InventoryClick click);
+    InventoryLayout update(int index, ItemStack stack, @Nullable InventoryClick click);
 
     /**
      * Returns a slot from the content array by a specific index.
@@ -289,8 +284,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param index the index to get the slot
      * @return the fetched slot otherwise null
      */
-    @Nullable
-    default ISlot getSlot(int index) {
+    default @Nullable ISlot getSlot(int index) {
         Check.argCondition(index < 0 || index > getContents().length,
                 "The given index does not fit into the array (0, " + getContents().length + ")");
         return getContents()[index];
@@ -302,7 +296,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param index the index to remove the slot
      * @return the instance from the layout
      */
-    @NotNull InventoryLayout remove(int index);
+    InventoryLayout remove(int index);
 
     /**
      * Removes a list of slots from the layout.
@@ -310,7 +304,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @param indices the array which contains the indices to remove
      * @return the instance from the layout
      */
-    default @NotNull InventoryLayout remove(int @NotNull ... indices) {
+    default InventoryLayout remove(int ... indices) {
         for (int i = 0; i < indices.length; i++) {
             remove(indices[i]);
         }
@@ -322,7 +316,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      *
      * @return the underlying array
      */
-    @NotNull ISlot[] getContents();
+    ISlot[] getContents();
 
     /**
      * Returns the size from the layout.
@@ -338,5 +332,5 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      *
      * @return the underlying instance from the interface
      */
-    @NotNull ApplyLayoutFunction getApplyLayoutFunction();
+    ApplyLayoutFunction getApplyLayoutFunction();
 }
