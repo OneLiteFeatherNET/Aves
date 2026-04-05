@@ -10,7 +10,6 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.inventory.click.Click;
 import net.minestom.server.inventory.click.ClickType;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.Material;
 import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.function.CloseFunction;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
@@ -69,7 +68,7 @@ public abstract class InventoryBuilder {
                 clickedSlot = this.dataLayout.getSlot(slot);
             }
 
-            if ((clickedSlot == null || clickedSlot instanceof EmptySlot) && this.inventoryLayout != null) {
+            if (clickedSlot == null && this.inventoryLayout != null) {
                 clickedSlot = this.inventoryLayout.getSlot(slot);
             }
 
@@ -105,7 +104,7 @@ public abstract class InventoryBuilder {
     /**
      * Set a new reference to the data layout
      *
-     * @param dataLayout The {@link InventoryLayoutImpl} to set
+     * @param dataLayout The {@link InventoryLayout} to set
      */
     public void setDataLayoutFunction(ThrowingFunction<InventoryLayout, InventoryLayout> dataLayout) {
         this.dataLayoutFunction = dataLayout;
@@ -194,31 +193,27 @@ public abstract class InventoryBuilder {
     /**
      * Updates the given inventory with the content.
      *
-     * @param inventory   the inventory which should receive the update
+     * @param inventory   the inventory that should receive the update
      * @param locale      the locale for the inventory
      * @param applyLayout if the layout should be applied
      */
-    protected void updateInventory(
-            @NotNull Inventory inventory,
-            Locale locale,
-            boolean applyLayout
-    ) {
+    protected void updateInventory(@NotNull Inventory inventory, Locale locale, boolean applyLayout){
+        if (!applyLayout) return;
         if (this.inventoryLayout == null) {
             throw new IllegalStateException("Can't update content because the layout is null");
         }
 
         // Design
-        if (applyLayout) {
-            var contents = inventory.getItemStacks();
-            inventory.clear();
-            getLayout().applyLayout(contents, locale);
-            this.setItemsInternal(inventory, contents);
-            LOGGER.info("UpdateInventory applied the InventoryLayout!");
-            this.inventoryLayoutValid = true;
-        }
+        ItemStack[] contents = inventory.getItemStacks();
+        inventory.clear();
+        this.inventoryLayout.applyLayout(contents, locale);
+        this.setItemsInternal(inventory, contents);
+        LOGGER.info("UpdateInventory applied the InventoryLayout!");
+        this.inventoryLayoutValid = true;
 
         // Values
-        synchronized (this) {
+        //TODO: Test this if this code can be removed from this part
+       /* synchronized (this) {
             if (!dataLayoutValid) {
                 retrieveDataLayout();
             } else {
@@ -228,7 +223,7 @@ public abstract class InventoryBuilder {
                     this.setItemsInternal(inventory, contents);
                 }
             }
-        }
+        }*/
     }
 
     /**
@@ -240,13 +235,13 @@ public abstract class InventoryBuilder {
     private void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
         for (int i = 0; i < contents.length; i++) {
             var contentSlot = contents[i];
-            if (contentSlot == null || contentSlot.material() == Material.AIR) continue;
+            if (contentSlot == null || contentSlot.isAir()) continue;
             inventory.setItemStack(i, contentSlot);
         }
     }
 
     /**
-     * Executes the logic to retrieve the {@link InventoryLayoutImpl} which comes from the {@link ThrowingFunction}.
+     * Executes the logic to retrieve the {@link InventoryLayout} which comes from the {@link ThrowingFunction}.
      */
     protected void retrieveDataLayout() {
         synchronized (this) {
@@ -325,7 +320,7 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Set a new instance of the {@link InventoryLayoutImpl} to the builder
+     * Set a new instance of the {@link InventoryLayout} to the builder
      *
      * @param inventoryLayoutImpl The layout to set
      * @return the current instance of the builder
