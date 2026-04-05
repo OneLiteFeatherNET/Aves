@@ -1,6 +1,5 @@
 package net.theevilreaper.aves.inventory;
 
-import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
@@ -11,7 +10,7 @@ import java.util.Locale;
 
 /**
  * The {@link GlobalInventoryBuilder} builds an inventory which can be used in a global context.
- * That means that the inventory is related to all player's on the server and not bound to a single player.
+ * That means that the inventory is related to all players on the server and not bound to a single player.
  *
  * @author Patrick Zdarsky / Rxcki
  * @version 1.0.0
@@ -32,7 +31,6 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
     public GlobalInventoryBuilder(@NotNull Component title, @NotNull InventoryType type) {
         super(type);
         this.titleComponent = title;
-        this.holder = new InventoryHolderImpl(this);
     }
 
     /**
