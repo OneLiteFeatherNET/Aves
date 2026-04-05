@@ -15,6 +15,7 @@ import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.function.CloseFunction;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
 import net.theevilreaper.aves.inventory.function.OpenFunction;
+import net.theevilreaper.aves.inventory.layout.InventoryLayout;
 import net.theevilreaper.aves.inventory.slot.EmptySlot;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.theevilreaper.aves.inventory.util.InventoryConstants;
@@ -335,7 +336,7 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Returns the underlying {@link InventoryLayoutImpl}.
+     * Returns the underlying {@link InventoryLayout}.
      *
      * @return the given layout
      */
@@ -344,7 +345,7 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Get underlying data {@link InventoryLayoutImpl}.
+     * Get underlying data {@link InventoryLayout}.
      *
      * @return the given layout
      */

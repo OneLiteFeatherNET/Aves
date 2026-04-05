@@ -1,6 +1,9 @@
 package net.theevilreaper.aves.inventory;
 
+import net.minestom.testing.extension.MicrotusExtension;
 import net.theevilreaper.aves.inventory.function.DefaultApplyLayoutFunction;
+import net.theevilreaper.aves.inventory.layout.InventoryLayout;
+import net.theevilreaper.aves.inventory.slot.EmptySlot;
 import net.theevilreaper.aves.inventory.slot.TranslatedSlot;
 import net.theevilreaper.aves.inventory.util.LayoutCalculator;
 import net.theevilreaper.aves.item.TranslatedItem;
@@ -8,6 +11,7 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 
 import java.util.Arrays;
@@ -16,11 +20,12 @@ import java.util.Locale;
 import static net.theevilreaper.aves.inventory.util.InventoryConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MicrotusExtension.class)
 class InventoryLayoutTest {
 
     @Test
     void testCopyConstructor() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         layout.setItem(0, new TranslatedSlot(TranslatedItem.of(Material.ITEM_FRAME)));
         layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ALLIUM).build());
         var copiedLayout = InventoryLayout.of(layout);
@@ -30,7 +35,7 @@ class InventoryLayoutTest {
 
     @Test
     void testSetApplyFunction() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         var newFunction = new DefaultApplyLayoutFunction(layout.getContents());
 
         layout.setApplyLayoutFunction(newFunction);
@@ -40,7 +45,7 @@ class InventoryLayoutTest {
 
     @Test
     void testApplyMethods() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_2_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_2_ROW);
         layout.setItem(0, ItemStack.builder(Material.BLACK_STAINED_GLASS).build());
         var itemStacks = new ItemStack[InventoryType.CHEST_1_ROW.getSize()];
 
@@ -58,7 +63,7 @@ class InventoryLayoutTest {
 
     @Test
     void testSetItemMethods() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_2_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_2_ROW);
 
         layout.setItem(0, new InventorySlot(ItemStack.builder(Material.BLACK_STAINED_GLASS)));
         layout.setItem(1, ItemStack.of(Material.PAPER));
@@ -73,7 +78,7 @@ class InventoryLayoutTest {
 
     @Test
     void testSetItemsMethods() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_5_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_5_ROW);
         layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ENDER_CHEST), CANCEL_CLICK);
         layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), ItemStack.of(Material.ACACIA_SLAB), CANCEL_CLICK);
         layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_3_ROW), ItemStack.builder(Material.ALLIUM));
@@ -92,7 +97,7 @@ class InventoryLayoutTest {
 
     @Test
     void testNonClickItemMethods() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_2_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_2_ROW);
 
         layout.setItem(0, new InventorySlot(ItemStack.builder(Material.BLACK_STAINED_GLASS)));
         layout.setItem(1, ItemStack.builder(Material.DIAMOND).build());
@@ -104,7 +109,7 @@ class InventoryLayoutTest {
 
     @Test
     void testSetNonItemsMethods() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_4_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_4_ROW);
         layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_1_ROW), ItemStack.builder(Material.ENDER_CHEST));
         layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), ItemStack.of(Material.PAPER));
         layout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_3_ROW), ItemStack.builder(Material.ALLIUM));
@@ -118,7 +123,7 @@ class InventoryLayoutTest {
 
     @Test
     void testBlankSlotMethods() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_2_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_2_ROW);
 
         layout.blank(0);
         layout.blank(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW));
@@ -129,19 +134,19 @@ class InventoryLayoutTest {
 
     @Test
     void testClearSlotMethods() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_2_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_2_ROW);
 
         layout.setItems(LayoutCalculator.repeat(0, InventoryType.CHEST_2_ROW.getSize() - 1), ItemStack.of(Material.PAPER));
         layout.clear(0);
         layout.clear(LayoutCalculator.repeat(5, 10));
 
-        assertNull(layout.getSlot(0));
+        assertInstanceOf(EmptySlot.class, layout.getSlot(0));
         assertNotNull(layout.getSlot(11));
     }
 
     @Test
     void testUpdateSlotMethods() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_2_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_2_ROW);
         layout.setItem(1, ItemStack.of(Material.PAPER));
 
         layout.update(1, CANCEL_CLICK);
@@ -155,14 +160,14 @@ class InventoryLayoutTest {
 
     @Test
     void failGetSlot() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         assertThrowsExactly(IllegalArgumentException.class, () -> layout.getSlot(-1));
         assertThrowsExactly(IllegalArgumentException.class, () -> layout.getSlot(12));
     }
 
     @Test
     void failItemSet() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
 
         catchError(IllegalArgumentException.class, () -> layout.setItem(-1, ItemStack.builder(Material.ALLIUM)));
         catchError(IllegalArgumentException.class, () -> layout.setItem(100, ItemStack.builder(Material.ALLIUM)));
@@ -186,7 +191,7 @@ class InventoryLayoutTest {
 
     @Test
     void testFailBlankAndClearMethod() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
 
         catchError(IllegalArgumentException.class, () -> layout.blank(-1));
         catchError(IllegalArgumentException.class, () -> layout.blank(100));
@@ -197,7 +202,7 @@ class InventoryLayoutTest {
 
     @Test
     void testUpdateMethods() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
 
         catchError(IllegalArgumentException.class, () -> layout.update(-1, CANCEL_CLICK));
         catchError(IllegalArgumentException.class, () -> layout.update(100, CANCEL_CLICK));
@@ -208,40 +213,40 @@ class InventoryLayoutTest {
 
     @Test
     void testGetContents() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         assertNotNull(layout.getContents());
     }
 
     @Test
     void testGetSize() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         assertNotSame(InventoryType.CHEST_6_ROW.getSize(), layout.getSize());
     }
 
     @Test
     void testGetApplyFunction() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         assertNotNull(layout.getApplyLayoutFunction());
     }
 
     @Test
     void testToString() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
-        assertTrue(layout.toString().contains("null"));
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
+        assertFalse(layout.toString().contains("null"));
     }
 
     @Test
     void testEqualsMethod() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
-        var anotherLayout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
+        var anotherLayout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
 
         assertEquals(layout, anotherLayout);
-        assertNotEquals(layout, new InventoryLayoutImpl(InventoryType.CARTOGRAPHY));
+        assertNotEquals(layout, InventoryLayout.fromType(InventoryType.CARTOGRAPHY));
     }
 
     @Test
     void testHashCode() {
-        var layout = new InventoryLayoutImpl(InventoryType.CHEST_1_ROW);
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         assertNotSame(1231, layout.hashCode());
     }
 
