@@ -3,7 +3,6 @@ package net.theevilreaper.aves.inventory.holder;
 import net.theevilreaper.aves.inventory.InventoryBuilder;
 import net.minestom.server.inventory.Inventory;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * This class is the implementation for the {@link InventoryHolder} interface.
@@ -12,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param inventoryBuilder the {@link InventoryBuilder} which is bound to the holder
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.0.1
  * @since 1.2.0
  */
-public record InventoryHolderImpl(@NotNull InventoryBuilder inventoryBuilder) implements InventoryHolder {
+public record InventoryHolderImpl(InventoryBuilder inventoryBuilder) implements InventoryHolder {
 
     /**
      * Returns the {@link Inventory} which is bound a holder reference.
@@ -23,7 +22,7 @@ public record InventoryHolderImpl(@NotNull InventoryBuilder inventoryBuilder) im
      * @return the given {@link Inventory}
      */
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
         return inventoryBuilder.getInventory();
     }
 }
