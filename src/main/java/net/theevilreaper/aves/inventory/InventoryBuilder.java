@@ -31,7 +31,7 @@ import java.util.function.Consumer;
  * The {@link InventoryBuilder} is the base class which contains the necessary methods to create different context implementations for an inventory.
  *
  * @author Patrick Zdarsky / Rxcki
- * @version 1.3.0
+ * @version 1.3.1
  * @since 1.0.12
  */
 @SuppressWarnings("java:S3252")
@@ -94,11 +94,7 @@ public abstract class InventoryBuilder {
             @NotNull ItemStack stack,
             @NotNull Consumer<ClickHolder> result
     ) {
-        if (slot == null) {
-            result.accept(ClickHolder.noClick());
-            return;
-        }
-        if (slot instanceof EmptySlot) {
+        if (slot == null || slot instanceof EmptySlot) {
             result.accept(ClickHolder.noClick());
             return;
         }
@@ -238,13 +234,13 @@ public abstract class InventoryBuilder {
      * Set's the given array with the {@link ItemStack}'s into an inventory.
      *
      * @param inventory the inventory for the items
-     * @param contents  the array itself which contains all items
+     * @param contents  the array itself that contains all items
      */
     private void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
         for (int i = 0; i < contents.length; i++) {
             var contentSlot = contents[i];
             if (contentSlot == null || contentSlot.material() == Material.AIR) continue;
-            inventory.setItemStack(i, contents[i]);
+            inventory.setItemStack(i, contentSlot);
         }
     }
 
