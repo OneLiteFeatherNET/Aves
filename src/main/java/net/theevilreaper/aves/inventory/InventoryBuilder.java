@@ -39,14 +39,16 @@ public abstract class InventoryBuilder {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(InventoryBuilder.class);
     protected final InventoryType type;
-    private InventoryLayout inventoryLayout;
-    private InventoryLayout dataLayout;
-    protected boolean inventoryLayoutValid = true;
-    protected boolean dataLayoutValid = false;
+    protected volatile boolean inventoryLayoutValid = true;
+    protected volatile boolean dataLayoutValid = false;
+    protected volatile boolean dataLayoutPending = false;
     protected OpenFunction openFunction;
     protected CloseFunction closeFunction;
     protected ThrowingFunction<InventoryLayout, InventoryLayout> dataLayoutFunction;
     protected InventoryClick inventoryClick;
+
+    private InventoryLayout inventoryLayout;
+    private InventoryLayout dataLayout;
 
     /**
      * Creates a new instance from the inventory builder with the given size.
@@ -237,13 +239,17 @@ public abstract class InventoryBuilder {
      */
     protected void retrieveDataLayout() {
         if (this.dataLayoutFunction == null) return;
+        if (dataLayoutPending) return;
         synchronized (this) {
+            this.dataLayoutPending = true;
             MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
                 try {
                     this.dataLayout = this.dataLayoutFunction.acceptThrows(this.dataLayout);
                     applyDataLayout();
                 } catch (Exception exception) {
                     MinecraftServer.getExceptionManager().handleException(exception);
+                } finally {
+                    this.dataLayoutPending = false;
                 }
             });
         }
