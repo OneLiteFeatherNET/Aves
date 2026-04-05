@@ -83,18 +83,18 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
     }
 
     /**
-     * Applies the data layout to the inventory, if the specific layout is set.
+     * Applies the data layout to the inventory if the specific layout is set.
      */
     @Override
     protected void applyDataLayout() {
+        if (getDataLayout() == null) return;
         synchronized (this) {
-            if (getDataLayout() == null) return;
             LOGGER.info("Applying data layouts");
             ItemStack[] contents = inventory.getItemStacks();
             getDataLayout().applyLayout(contents, null);
             for (int i = 0; i < contents.length; i++) {
                 ItemStack stack = contents[i];
-                if (stack != null && !stack.isAir()) {
+                if (!stack.isAir()) {
                     this.inventory.setItemStack(i, stack);
                 } else {
                     this.inventory.setItemStack(i, ItemStack.AIR);
