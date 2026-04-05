@@ -94,10 +94,8 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
             getDataLayout().applyLayout(contents, null);
             for (int i = 0; i < contents.length; i++) {
                 ItemStack stack = contents[i];
-                if (!stack.isAir()) {
+                if (stack != null && !stack.isAir()) {
                     this.inventory.setItemStack(i, stack);
-                } else {
-                    this.inventory.setItemStack(i, ItemStack.AIR);
                 }
             }
             this.dataLayoutValid = true;
