@@ -68,7 +68,7 @@ public abstract class InventoryBuilder {
                 clickedSlot = this.dataLayout.getSlot(slot);
             }
 
-            if (clickedSlot == null && this.inventoryLayout != null) {
+            if ((clickedSlot == null || clickedSlot instanceof EmptySlot) && this.inventoryLayout != null) {
                 clickedSlot = this.inventoryLayout.getSlot(slot);
             }
 
@@ -199,6 +199,7 @@ public abstract class InventoryBuilder {
      */
     protected void updateInventory(@NotNull Inventory inventory, Locale locale, boolean applyLayout){
         if (!applyLayout) return;
+        LOGGER.info("updateInventory called from:", new Exception("stacktrace"));
         if (this.inventoryLayout == null) {
             throw new IllegalStateException("Can't update content because the layout is null");
         }
@@ -211,19 +212,11 @@ public abstract class InventoryBuilder {
         LOGGER.info("UpdateInventory applied the InventoryLayout!");
         this.inventoryLayoutValid = true;
 
-        // Values
-        //TODO: Test this if this code can be removed from this part
-       /* synchronized (this) {
+        synchronized (this) {
             if (!dataLayoutValid) {
                 retrieveDataLayout();
-            } else {
-                if (getDataLayout() != null) {
-                    var contents = inventory.getItemStacks();
-                    getDataLayout().applyLayout(contents, locale);
-                    this.setItemsInternal(inventory, contents);
-                }
             }
-        }*/
+        }
     }
 
     /**
@@ -244,8 +237,9 @@ public abstract class InventoryBuilder {
      * Executes the logic to retrieve the {@link InventoryLayout} which comes from the {@link ThrowingFunction}.
      */
     protected void retrieveDataLayout() {
+        if (this.dataLayoutFunction == null) return;
+        LOGGER.info("retrieveDataLayout called from:", new Exception("stacktrace"));
         synchronized (this) {
-            if (this.dataLayoutFunction == null) return;
             MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
                 try {
                     this.dataLayout = this.dataLayoutFunction.acceptThrows(this.dataLayout);
