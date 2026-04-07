@@ -10,11 +10,11 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.inventory.click.Click;
 import net.minestom.server.inventory.click.ClickType;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.Material;
 import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.function.CloseFunction;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
 import net.theevilreaper.aves.inventory.function.OpenFunction;
+import net.theevilreaper.aves.inventory.layout.InventoryLayout;
 import net.theevilreaper.aves.inventory.slot.EmptySlot;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.theevilreaper.aves.inventory.util.InventoryConstants;
@@ -31,7 +31,7 @@ import java.util.function.Consumer;
  * The {@link InventoryBuilder} is the base class which contains the necessary methods to create different context implementations for an inventory.
  *
  * @author Patrick Zdarsky / Rxcki
- * @version 1.3.0
+ * @version 1.3.1
  * @since 1.0.12
  */
 @SuppressWarnings("java:S3252")
@@ -39,14 +39,16 @@ public abstract class InventoryBuilder {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(InventoryBuilder.class);
     protected final InventoryType type;
-    private InventoryLayout inventoryLayout;
-    private InventoryLayout dataLayout;
-    protected boolean inventoryLayoutValid = true;
-    protected boolean dataLayoutValid = false;
+    protected volatile boolean inventoryLayoutValid = true;
+    protected volatile boolean dataLayoutValid = false;
+    protected volatile boolean dataLayoutPending = false;
     protected OpenFunction openFunction;
     protected CloseFunction closeFunction;
     protected ThrowingFunction<InventoryLayout, InventoryLayout> dataLayoutFunction;
     protected InventoryClick inventoryClick;
+
+    private InventoryLayout inventoryLayout;
+    private InventoryLayout dataLayout;
 
     /**
      * Creates a new instance from the inventory builder with the given size.
@@ -94,11 +96,7 @@ public abstract class InventoryBuilder {
             @NotNull ItemStack stack,
             @NotNull Consumer<ClickHolder> result
     ) {
-        if (slot == null) {
-            result.accept(ClickHolder.noClick());
-            return;
-        }
-        if (slot instanceof EmptySlot) {
+        if (slot == null || slot instanceof EmptySlot) {
             result.accept(ClickHolder.noClick());
             return;
         }
@@ -108,7 +106,7 @@ public abstract class InventoryBuilder {
     /**
      * Set a new reference to the data layout
      *
-     * @param dataLayout The {@link InventoryLayoutImpl} to set
+     * @param dataLayout The {@link InventoryLayout} to set
      */
     public void setDataLayoutFunction(ThrowingFunction<InventoryLayout, InventoryLayout> dataLayout) {
         this.dataLayoutFunction = dataLayout;
@@ -167,9 +165,9 @@ public abstract class InventoryBuilder {
     public void invalidateDataLayout() {
         if (isOpen()) {
             retrieveDataLayout();
-            LOGGER.info("DataLayout invalidated on open inv, requested data...");
+            LOGGER.debug("DataLayout invalidated on open inv, requested data...");
         } else {
-            LOGGER.info("DataLayout invalidated on closed inv");
+            LOGGER.debug("DataLayout invalidated on closed inv");
             dataLayoutValid = false;
         }
     }
@@ -197,39 +195,27 @@ public abstract class InventoryBuilder {
     /**
      * Updates the given inventory with the content.
      *
-     * @param inventory   the inventory which should receive the update
+     * @param inventory   the inventory that should receive the update
      * @param locale      the locale for the inventory
      * @param applyLayout if the layout should be applied
      */
-    protected void updateInventory(
-            @NotNull Inventory inventory,
-            Locale locale,
-            boolean applyLayout
-    ) {
+    protected void updateInventory(@NotNull Inventory inventory, Locale locale, boolean applyLayout){
+        if (!applyLayout) return;
         if (this.inventoryLayout == null) {
             throw new IllegalStateException("Can't update content because the layout is null");
         }
 
         // Design
-        if (applyLayout) {
-            var contents = inventory.getItemStacks();
-            inventory.clear();
-            getLayout().applyLayout(contents, locale);
-            this.setItemsInternal(inventory, contents);
-            LOGGER.info("UpdateInventory applied the InventoryLayout!");
-            this.inventoryLayoutValid = true;
-        }
+        ItemStack[] contents = inventory.getItemStacks();
+        inventory.clear();
+        this.inventoryLayout.applyLayout(contents, locale);
+        this.setItemsInternal(inventory, contents);
+        LOGGER.debug("UpdateInventory applied the InventoryLayout!");
+        this.inventoryLayoutValid = true;
 
-        // Values
         synchronized (this) {
             if (!dataLayoutValid) {
                 retrieveDataLayout();
-            } else {
-                if (getDataLayout() != null) {
-                    var contents = inventory.getItemStacks();
-                    getDataLayout().applyLayout(contents, locale);
-                    this.setItemsInternal(inventory, contents);
-                }
             }
         }
     }
@@ -238,28 +224,32 @@ public abstract class InventoryBuilder {
      * Set's the given array with the {@link ItemStack}'s into an inventory.
      *
      * @param inventory the inventory for the items
-     * @param contents  the array itself which contains all items
+     * @param contents  the array itself that contains all items
      */
     private void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
         for (int i = 0; i < contents.length; i++) {
             var contentSlot = contents[i];
-            if (contentSlot == null || contentSlot.material() == Material.AIR) continue;
-            inventory.setItemStack(i, contents[i]);
+            if (contentSlot == null || contentSlot.isAir()) continue;
+            inventory.setItemStack(i, contentSlot);
         }
     }
 
     /**
-     * Executes the logic to retrieve the {@link InventoryLayoutImpl} which comes from the {@link ThrowingFunction}.
+     * Executes the logic to retrieve the {@link InventoryLayout} which comes from the {@link ThrowingFunction}.
      */
     protected void retrieveDataLayout() {
+        if (this.dataLayoutFunction == null) return;
+        if (dataLayoutPending) return;
         synchronized (this) {
-            if (this.dataLayoutFunction == null) return;
+            this.dataLayoutPending = true;
             MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
                 try {
                     this.dataLayout = this.dataLayoutFunction.acceptThrows(this.dataLayout);
                     applyDataLayout();
                 } catch (Exception exception) {
                     MinecraftServer.getExceptionManager().handleException(exception);
+                } finally {
+                    this.dataLayoutPending = false;
                 }
             });
         }
@@ -328,7 +318,7 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Set a new instance of the {@link InventoryLayoutImpl} to the builder
+     * Set a new instance of the {@link InventoryLayout} to the builder
      *
      * @param inventoryLayoutImpl The layout to set
      * @return the current instance of the builder
@@ -339,7 +329,7 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Returns the underlying {@link InventoryLayoutImpl}.
+     * Returns the underlying {@link InventoryLayout}.
      *
      * @return the given layout
      */
@@ -348,7 +338,7 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Get underlying data {@link InventoryLayoutImpl}.
+     * Get underlying data {@link InventoryLayout}.
      *
      * @return the given layout
      */

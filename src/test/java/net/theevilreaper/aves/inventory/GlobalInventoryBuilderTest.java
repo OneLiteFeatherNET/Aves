@@ -2,6 +2,7 @@ package net.theevilreaper.aves.inventory;
 
 import net.minestom.server.instance.Instance;
 import net.theevilreaper.aves.inventory.exception.ListenerStateException;
+import net.theevilreaper.aves.inventory.layout.InventoryLayout;
 import net.theevilreaper.aves.inventory.util.LayoutCalculator;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
@@ -24,8 +25,8 @@ class GlobalInventoryBuilderTest {
         var instance = env.createFlatInstance();
         var player = env.createPlayer(instance, Pos.ZERO);
         var builder = new GlobalInventoryBuilder(Component.text("Test"), InventoryType.CHEST_2_ROW);
-        var layout = new InventoryLayoutImpl(builder.getType());
-        var dataLayout = new InventoryLayoutImpl(builder.getType());
+        var layout = InventoryLayout.fromType(builder.getType());
+        var dataLayout = InventoryLayout.fromType(builder.getType());
 
         dataLayout.setItems(LayoutCalculator.fillRow(InventoryType.CHEST_2_ROW), ItemStack.builder(Material.DIAMOND));
 
