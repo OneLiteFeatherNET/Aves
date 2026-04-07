@@ -137,9 +137,9 @@ sealed interface InventoryListenerHandler permits BaseInventoryBuilderImpl {
             if (event.getInventory() instanceof CustomInventory customInventory && customInventory.getHolder() == holder) {
                 Consumer<ClickHolder> result = click -> {
                     switch (click) {
-                        case ClickHolder.CancelClick ignored1 -> event.setCancelled(true);
+                        case ClickHolder.CancelClick _ -> event.setCancelled(true);
                         case ClickHolder.MinestomClick(@NotNull Click minestomClick) -> event.setClick(minestomClick);
-                        case ClickHolder.NOPClick ignored -> {
+                        case ClickHolder.NOPClick _ -> {
                             // No operation
                         }
                     }

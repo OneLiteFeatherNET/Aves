@@ -42,11 +42,11 @@ public abstract non-sealed class BaseInventoryBuilderImpl extends InventoryBuild
     @Override
     public void register() {
         this.checkListenerState(this.openListener, this.closeListener, this.clickListener);
-        if (this.openFunction == null) {
+        if (this.openFunction != null) {
             this.openListener = registerOpen(this, holder);
         }
 
-        if (this.closeFunction == null) {
+        if (this.closeFunction != null) {
             this.closeListener = registerClose(this, holder);
         }
 
