@@ -22,7 +22,7 @@ public final class TestMapProvider extends AbstractMapProvider {
      */
     public TestMapProvider(@NotNull Path path, @NotNull FileHandler fileHandler, @NotNull PathFilter<MapEntry> mapFilter) {
         super(fileHandler, mapFilter);
-        this.mapEntries = loadMapEntries(path);
+        this.loadMapEntries(path);
     }
 
     public void loadMap(@NotNull MapEntry mapFile) {

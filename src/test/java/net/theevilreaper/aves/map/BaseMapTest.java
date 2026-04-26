@@ -18,101 +18,55 @@ class BaseMapTest {
 
     @BeforeAll
     void init() {
-        this.builders = new String[]{"theEvilReaper, Tresson", "SeelenRetterin"};
+        this.builders = new String[]{"theEvilReaper", "Tresson"};
+
         this.firstMap = new BaseMap("Test", null);
-        this.secondMap = new BaseMap("Test", new Pos(120, 51, 23), builders[0], builders[1]);
+        this.secondMap = new BaseMap(
+                "Test",
+                new Pos(120, 51, 23),
+                builders
+        );
     }
 
     @Test
-    void testOtherConstructor() {
-        var baseMap = new BaseMap("Test", Pos.ZERO);
-        assertSame("Test", baseMap.getName());
-        assertSame(Pos.ZERO, baseMap.getSpawn());
+    void testName() {
+        assertEquals("Test", firstMap.name());
     }
 
     @Test
-    void testMapIsSame() {
-        assertNotSame(this.firstMap, this.secondMap);
+    void testSpawnNullable() {
+        assertNull(firstMap.spawn());
+        assertNotNull(secondMap.spawn());
     }
 
     @Test
-    void testHasSpawn() {
-        assertNotNull(this.secondMap.getSpawn());
+    void testDifferentInstances() {
+        assertNotEquals(firstMap, secondMap);
     }
 
     @Test
-    void testOriginPos() {
-        assertFalse(this.secondMap.getSpawn() != null && this.secondMap.getSpawn().samePoint(Pos.ZERO));
+    void testSpawnValue() {
+        assertEquals(new Pos(120, 51, 23), secondMap.spawn());
     }
 
     @Test
-    void testEmptyName() {
-        var exception = assertThrows(IllegalArgumentException.class, () -> this.firstMap.setName(""));
-        assertEquals("The name can not be null or empty", exception.getMessage());
-    }
-
-    @Test
-    void testEmptyNameWithStringWhichContainsSpace() {
-        assertThrowsExactly(IllegalArgumentException.class, () -> this.firstMap.setName(" "), "The name can not be empty");
-    }
-
-    @Test
-    void testNameSetForMaps() {
-        this.firstMap.setName("Granskoda");
-        assertSame("Granskoda", this.firstMap.getName());
-    }
-
-    @Test
-    void testEmptyNameConstructor() {
-        var exception = assertThrows(IllegalArgumentException.class, () -> new BaseMap("", null));
-        assertEquals("The name can not be null or empty", exception.getMessage());
-    }
-
-    @Test
-    void testSetBuilders() {
-        var mapBuilders = new String[]{"theEvilReaper, SeelenRetterin"};
-        assertFalse(Arrays.equals(this.secondMap.getBuilders(), mapBuilders));
-    }
-
-    @Test
-    void testBuilder() {
-        this.firstMap.setBuilders(this.builders);
-        assertArrayEquals(this.firstMap.getBuilders(), this.builders);
-    }
-
-    @Test
-    void testNoSpawn() {
-        assertFalse(this.firstMap.hasSpawn());
-        assertNull(this.firstMap.getSpawn());
-    }
-
-    @Test
-    void testSetSpawn() {
-        this.secondMap.setSpawn(new Pos(1, 2, 3));
-        assertNotNull(this.secondMap.getSpawn());
+    void testBuildersStored() {
+        assertArrayEquals(builders, secondMap.builders());
     }
 
     @Test
     void testGetSpawnOrDefault() {
-        BaseMap baseMap = new BaseMap("Test", null);
-        assertNull(baseMap.getSpawn());
+        BaseMap map = new BaseMap("Test", null);
 
-        Pos defaultPos = new Pos(1, 2, 3);
-        assertEquals(defaultPos, baseMap.getSpawnOrDefault(defaultPos));
+        Pos fallback = new Pos(1, 2, 3);
+        assertEquals(fallback, map.getSpawnOrDefault(fallback));
     }
 
     @Test
-    void testEquals() {
-        assertNotSame(1203, this.firstMap.hashCode());
-    }
+    void testEqualsDifferentName() {
+        BaseMap a = new BaseMap("A", null);
+        BaseMap b = new BaseMap("B", null);
 
-    @Test
-    void testEqualsWithSameObject() {
-        assertEquals(this.firstMap, this.firstMap);
-    }
-
-    @Test
-    void testEqualsWithNull() {
-        assertNotEquals(null, this.firstMap);
+        assertNotEquals(a, b);
     }
 }
