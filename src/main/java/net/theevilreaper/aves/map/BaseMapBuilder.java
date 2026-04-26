@@ -99,7 +99,7 @@ public class BaseMapBuilder {
      * @return a new instance of {@link BaseMap}
      */
     public BaseMap build() {
-        Check.argCondition(this.name != null, "Name cannot be null");
+        Check.argCondition(this.name == null, "Name cannot be null");
         return new BaseMap(name, spawn, builders.toArray(new String[0]));
     }
 
