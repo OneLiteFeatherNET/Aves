@@ -8,6 +8,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class BaseMapBuilderTest {
 
     @Test
+    void testMissingName() {
+        assertThrowsExactly(IllegalArgumentException.class, () -> BaseMap.builder().build());
+    }
+
+    @Test
     void testMapCreationViaBuilder() {
         BaseMapBuilder builder = BaseMap.builder();
 
