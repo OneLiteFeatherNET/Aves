@@ -5,7 +5,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.theevilreaper.aves.map.BaseMap;
 import net.theevilreaper.aves.map.MapEntry;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -20,7 +19,7 @@ import java.util.function.Supplier;
  * This behavior is handled by another class.
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.6.0
  */
 public interface MapProvider {
@@ -36,7 +35,7 @@ public interface MapProvider {
      * @param path    the path where the map data should be saved
      * @param baseMap the map data which should be saved
      */
-    void saveMap(@NotNull Path path, @NotNull BaseMap baseMap);
+    void saveMap(Path path, BaseMap baseMap);
 
     /**
      * Teleports a {@link Player} to the current active spawn position of the {@link Instance}.
@@ -44,7 +43,7 @@ public interface MapProvider {
      * @param player      the player which should be teleported
      * @param instanceSet if the instance should be set to the current active instance
      */
-    void teleportToSpawn(@NotNull Player player, boolean instanceSet);
+    void teleportToSpawn(Player player, boolean instanceSet);
 
     /**
      * Returns a {@link List} which contains all available maps as {@link MapEntry} objects.
@@ -52,12 +51,12 @@ public interface MapProvider {
      * @return the given list of maps
      */
     @UnmodifiableView
-    @NotNull List<MapEntry> getEntries();
+    List<MapEntry> getEntries();
 
     /**
      * Returns the current active {@link Instance} which is used for the game.
      *
      * @return the current active instance
      */
-    @NotNull Supplier<@Nullable Instance> getActiveInstance();
+    Supplier<@Nullable Instance> getActiveInstance();
 }
