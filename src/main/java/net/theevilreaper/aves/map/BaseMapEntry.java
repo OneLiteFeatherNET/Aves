@@ -1,6 +1,5 @@
 package net.theevilreaper.aves.map;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,7 @@ import java.nio.file.Path;
  * It will store the root directory of the map and the map file name.
  *
  * @since 1.6.0
- * @version 1.1.0
+ * @version 1.2.0
  * @author theEvilReaper
  */
 public final class BaseMapEntry implements MapEntry {
@@ -23,7 +22,7 @@ public final class BaseMapEntry implements MapEntry {
 
     private final String mapFileNaming;
     private final Path directory;
-    private Path mapFilePath;
+    private @Nullable Path mapFilePath;
 
     /**
      * Creates a new instance of the map entry.
@@ -31,7 +30,7 @@ public final class BaseMapEntry implements MapEntry {
      * @param directory the root directory of the map
      * @param mapFileNaming the name of the map file
      */
-    BaseMapEntry(@NotNull Path directory, @NotNull String mapFileNaming) {
+    BaseMapEntry(Path directory, String mapFileNaming) {
         if (!Files.isDirectory(directory)) {
             throw new IllegalArgumentException("The given path must be a directory");
         }
@@ -83,7 +82,7 @@ public final class BaseMapEntry implements MapEntry {
      * @return the root directory
      */
     @Override
-    public @NotNull Path getDirectoryRoot() {
+    public Path getDirectoryRoot() {
         return this.directory;
     }
 

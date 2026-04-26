@@ -13,16 +13,16 @@ import java.nio.file.Path;
  * When the creation doesn't receive the specific file ending a default one is used to avoid issues
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.6.0
  */
 public sealed interface MapEntry permits BaseMapEntry {
 
     /**
-     * The default file name which is used to store the map data.
+     * The default file name that is used to store the map data.
      * This file is used when no specific file name is given.
      */
-    @NotNull String MAP_FILE = "map.json";
+    String MAP_FILE = "map.json";
 
     /**
      * Creates a new MapEntry from the given path.
@@ -32,7 +32,7 @@ public sealed interface MapEntry permits BaseMapEntry {
      * @return the created reference
      */
     @Contract(pure = true, value = "_ -> new")
-    static @NotNull MapEntry of(@NotNull Path directoryRoot) {
+    static MapEntry of(Path directoryRoot) {
         return new BaseMapEntry(directoryRoot, MAP_FILE);
     }
 
@@ -44,7 +44,7 @@ public sealed interface MapEntry permits BaseMapEntry {
      * @return the created reference
      */
     @Contract(pure = true, value = "_, _ -> new")
-    static @NotNull MapEntry of(@NotNull Path directoryRoot, @NotNull String mapFileNaming) {
+    static MapEntry of(Path directoryRoot, String mapFileNaming) {
         return new BaseMapEntry(directoryRoot, mapFileNaming);
     }
 
@@ -72,7 +72,7 @@ public sealed interface MapEntry permits BaseMapEntry {
      *
      * @return the given path reference
      */
-    @NotNull Path getDirectoryRoot();
+    Path getDirectoryRoot();
 
     /**
      * Returns the path to the file which stores information about a map.
