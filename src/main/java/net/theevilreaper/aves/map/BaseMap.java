@@ -41,42 +41,6 @@ public record BaseMap(String name, @Nullable Pos spawn, @Nullable String... buil
     }
 
     /**
-     * Overrides the equal the method from the object class.
-     *
-     * @param o the object to compare
-     * @return true if the given object is the same otherwise false
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BaseMap baseMap = (BaseMap) o;
-        return name.equals(baseMap.name);
-    }
-
-    /**
-     * Returns a hash value from some data that are provided by the object.
-     * In general, the hash relies on the unique data.
-     * For the basic implementation that is only the name of the map.
-     *
-     * @return a created hash code
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    /**
-     * Returns the builders.
-     *
-     * @return the builders of the map
-     */
-    @Override
-    public @Nullable String[] builders() {
-        return builders;
-    }
-
-    /**
      * Returns the spawn location or the default spawn location if the spawn is null.
      *
      * @param defaultSpawn the default spawn location
