@@ -3,6 +3,7 @@ package net.theevilreaper.aves.map.provider;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.anvil.AnvilLoader;
 import net.theevilreaper.aves.map.BaseMap;
 import net.theevilreaper.aves.map.MapEntry;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +17,7 @@ import java.util.function.Supplier;
 /**
  * The {@link MapProvider} interface is responsible for managing the available maps.
  * It will load all maps data from the given path and store them.
- * It would not load the map itself over a {@link net.minestom.server.instance.anvil.AnvilLoader} instance.
+ * It would not load the map itself over a {@link AnvilLoader} instance.
  * This behavior is handled by another class.
  *
  * @author theEvilReaper
@@ -26,7 +27,7 @@ import java.util.function.Supplier;
 public interface MapProvider {
 
     /**
-     * A static fallback position which can be used if no spawn position is set.
+     * A static fallback position that can be used if no spawn position is set.
      */
     Pos FALLBACK_POS = new Pos(0, 100, 0);
 
@@ -34,14 +35,25 @@ public interface MapProvider {
      * Saves the given data from a {@link BaseMap} to the given path.
      *
      * @param path    the path where the map data should be saved
-     * @param baseMap the map data which should be saved
+     * @param baseMap the map data that should be saved
      */
     void saveMap(@NotNull Path path, @NotNull BaseMap baseMap);
 
     /**
      * Teleports a {@link Player} to the current active spawn position of the {@link Instance}.
+     * This method will not set the instance to the current active instance.
+     * If you want to set the instance to the current active instance, use {@link #teleportToSpawn(Player, boolean)}.
      *
-     * @param player      the player which should be teleported
+     * @param player the player that should be teleported
+     */
+    default void teleportToSpawn(@NotNull Player player) {
+        teleportToSpawn(player, false);
+    }
+
+    /**
+     * Teleports a {@link Player} to the current active spawn position of the {@link Instance}.
+     *
+     * @param player      the player that should be teleported
      * @param instanceSet if the instance should be set to the current active instance
      */
     void teleportToSpawn(@NotNull Player player, boolean instanceSet);
