@@ -114,7 +114,7 @@ class MapProviderIntegrationTest {
 
         assertEquals(Pos.ZERO, player.getPosition());
 
-        mapProvider.teleportToSpawn(player, false);
+        mapProvider.teleportToSpawn(player);
 
         assertNotEquals(Pos.ZERO, player.getPosition());
 
