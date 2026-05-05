@@ -41,10 +41,10 @@ public interface MapProvider {
 
     /**
      * Teleports a {@link Player} to the current active spawn position of the {@link Instance}.
-     * This method will not set the instance to the current active instance.
-     * If you want to set the instance to the current active instance, use {@link #teleportToSpawn(Player, boolean)}.
+     * This method does not change the player's instance.
+     * To also set the instance, use {@link #teleportToSpawn(Player, boolean)}.
      *
-     * @param player the player that should be teleported
+     * @param player to teleport
      */
     default void teleportToSpawn(@NotNull Player player) {
         teleportToSpawn(player, false);
