@@ -1,13 +1,13 @@
 package net.theevilreaper.aves.inventory;
 
 import net.kyori.adventure.text.Component;
+import net.minestom.server.item.ItemStack;
 import net.theevilreaper.aves.i18n.TextData;
 import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
-import net.minestom.server.item.Material;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,18 +91,18 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     @Override
     protected void applyDataLayout() {
+        if (getDataLayout() == null) return;
+        LOGGER.debug("Applying data layout");
         synchronized (this) {
-            if (getDataLayout() != null) {
-                LOGGER.info("Applying data layout");
-                for (var entry : inventoryTranslatedObjectCache.entrySet()) {
-                    var contents = entry.getValue().getItemStacks();
-                    getDataLayout().applyLayout(contents, entry.getKey());
-                    for (int i = 0; i < contents.length; i++) {
-                        if (contents[i].material() == Material.AIR) continue;
-                        entry.getValue().setItemStack(i, contents[i]);
-                        entry.getValue().update();
-                    }
+            for (var entry : inventoryTranslatedObjectCache.entrySet()) {
+                var contents = entry.getValue().getItemStacks();
+                getDataLayout().applyLayout(contents, entry.getKey());
+                for (int i = 0; i < contents.length; i++) {
+                    ItemStack stack = contents[i];
+                    if (stack.isAir()) continue;
+                    entry.getValue().setItemStack(i, stack);
                 }
+                entry.getValue().update();
             }
         }
     }

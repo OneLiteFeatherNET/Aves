@@ -15,6 +15,7 @@ import net.minestom.testing.Env;
 import net.minestom.testing.TestConnection;
 import net.minestom.testing.extension.MicrotusExtension;
 import net.theevilreaper.aves.inventory.click.ClickHolder;
+import net.theevilreaper.aves.inventory.layout.InventoryLayout;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

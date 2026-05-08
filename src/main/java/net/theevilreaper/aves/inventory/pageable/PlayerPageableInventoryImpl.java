@@ -1,9 +1,9 @@
 package net.theevilreaper.aves.inventory.pageable;
 
-import net.theevilreaper.aves.inventory.InventoryLayout;
 import net.theevilreaper.aves.inventory.PersonalInventoryBuilder;
 import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
+import net.theevilreaper.aves.inventory.layout.InventoryLayout;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.theevilreaper.aves.item.IItem;
 import net.kyori.adventure.text.Component;
@@ -26,7 +26,7 @@ import static net.theevilreaper.aves.inventory.util.InventoryConstants.BLANK_SLO
  *
  * @author Joltra
  * @author theEvilReaper
- * @version 1.1.0
+ * @version 1.1.1
  * @since 1.2.0
  */
 @ApiStatus.Experimental
@@ -87,23 +87,20 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
 
         this.oldBackSlot = backSlot == null ? BLANK_SLOT : ISlot.of(backSlot);
 
-        this.forwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
-
         ISlot givenForwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
         this.forwardSlot = givenForwardSlot == null ? BLANK_SLOT : ISlot.of(givenForwardSlot);
 
-        this.forwardClick = (clickPlayer, slot, click, stack, result) -> {
+        this.forwardClick = (_, _, _, _, result) -> {
             this.update(PageAction.FORWARD);
             result.accept(ClickHolder.cancelClick());
         };
 
-        this.backwardsClick = (clickPlayer, slot, click,  stack,result) -> {
+        this.backwardsClick = (_, _, _,  _,result) -> {
             this.update(PageAction.BACKWARDS);
             result.accept(ClickHolder.cancelClick());
         };
 
         this.builder.setDataLayoutFunction(inventoryLayout -> dataLayout);
-        this.dataLayout.blank(slotRange);
         this.initItems();
         this.builder.invalidateDataLayout();
         this.builder.register();
@@ -118,7 +115,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * If the given action os {@link PageAction#REFRESH} it updates the items on the current page.
      * The {@link PageAction#BACKWARDS} and {@link PageAction#FORWARD} updates the page boundaries and also updates the item content.
      *
-     * @param pageAction the action which should be triggered
+     * @param pageAction the action that should be triggered
      */
     public void update(@NotNull PageAction pageAction) {
         switch (pageAction) {
@@ -151,7 +148,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     }
 
     /**
-     * This method updates all items which are currently displayed at the page.
+     * This method updates all items that are currently displayed at the page.
      */
     private void updatePage() {
         this.updateItems();
