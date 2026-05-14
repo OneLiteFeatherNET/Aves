@@ -1,6 +1,7 @@
 package net.theevilreaper.aves.map;
 
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,14 +14,14 @@ import java.util.List;
  * If you want to create a custom map, you can extend this class and implement the required methods.
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.9.0
  */
 public class BaseMapBuilder {
 
     protected final List<String> builders;
-    protected String name;
-    protected Pos spawn;
+    protected @Nullable String name;
+    protected @Nullable Pos spawn;
 
     /**
      * Constructs a new {@link BaseMapBuilder} instance with an empty list of builders.
@@ -35,16 +36,16 @@ public class BaseMapBuilder {
      *
      * @param baseMap the base map to copy properties from
      */
-    protected BaseMapBuilder(@NotNull BaseMap baseMap) {
-        this.name = baseMap.getName();
-        this.spawn = baseMap.getSpawn();
-        if (baseMap.getBuilders() == null) {
+    protected BaseMapBuilder(BaseMap baseMap) {
+        this.name = baseMap.name();
+        this.spawn = baseMap.spawn();
+        if (baseMap.builders() == null) {
             this.builders = new ArrayList<>();
         } else {
             // Copy the builders from the base map to the new list
             // This ensures that we do not modify the original list in the base map
             // and allows us to add new builders if needed.
-            this.builders = new ArrayList<>(List.of(baseMap.getBuilders()));
+            this.builders = new ArrayList<>(List.of(baseMap.builders()));
         }
     }
 
@@ -54,7 +55,7 @@ public class BaseMapBuilder {
      * @param name the name of the map
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public @NotNull BaseMapBuilder name(@NotNull String name) {
+    public BaseMapBuilder name(String name) {
         this.name = name;
         return this;
     }
@@ -65,7 +66,7 @@ public class BaseMapBuilder {
      * @param builder the name of the builder to be added
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public @NotNull BaseMapBuilder builder(@NotNull String builder) {
+    public BaseMapBuilder builder(String builder) {
         this.builders.add(builder);
         return this;
     }
@@ -76,7 +77,7 @@ public class BaseMapBuilder {
      * @param builders the names of the builders to be added
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public @NotNull BaseMapBuilder builders(@NotNull String... builders) {
+    public BaseMapBuilder builders(String... builders) {
         this.builders.addAll(List.of(builders));
         return this;
     }
@@ -87,7 +88,7 @@ public class BaseMapBuilder {
      * @param spawn the position where the map will spawn
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public @NotNull BaseMapBuilder spawn(@Nullable Pos spawn) {
+    public BaseMapBuilder spawn(@Nullable Pos spawn) {
         this.spawn = spawn;
         return this;
     }
@@ -97,7 +98,8 @@ public class BaseMapBuilder {
      *
      * @return a new instance of {@link BaseMap}
      */
-    public @NotNull BaseMap build() {
+    public BaseMap build() {
+        Check.argCondition(this.name == null, "Name cannot be null");
         return new BaseMap(name, spawn, builders.toArray(new String[0]));
     }
 
@@ -124,7 +126,7 @@ public class BaseMapBuilder {
      *
      * @return a list of builder names
      */
-    public @NotNull List<String> getBuilders() {
+    public List<String> getBuilders() {
         return builders;
     }
 }

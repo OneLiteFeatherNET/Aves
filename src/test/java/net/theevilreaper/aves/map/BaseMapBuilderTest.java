@@ -8,6 +8,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class BaseMapBuilderTest {
 
     @Test
+    void testMissingName() {
+        assertThrowsExactly(IllegalArgumentException.class, () -> BaseMap.builder().build());
+    }
+
+    @Test
     void testMapCreationViaBuilder() {
         BaseMapBuilder builder = BaseMap.builder();
 
@@ -21,9 +26,9 @@ class BaseMapBuilderTest {
 
         assertNotNull(map);
 
-        assertEquals("TestMap", map.getName());
-        assertArrayEquals(new String[]{"Author1", "Author2"}, map.getBuilders());
-        assertEquals(new Pos(0, 64, 0), map.getSpawn());
+        assertEquals("TestMap", map.name());
+        assertArrayEquals(new String[]{"Author1", "Author2"}, map.builders());
+        assertEquals(new Pos(0, 64, 0), map.spawn());
     }
 
     @Test
@@ -47,10 +52,10 @@ class BaseMapBuilderTest {
         BaseMap updatedMap = builder1.build();
 
         assertNotNull(updatedMap);
-        assertEquals("TestMap", updatedMap.getName());
-        assertArrayEquals(new String[]{"Author1", "Author2"}, updatedMap.getBuilders());
-        assertEquals(new Pos(1, 65, 1), updatedMap.getSpawn());
-        assertNotEquals(map.getSpawn(), updatedMap.getSpawn());
+        assertEquals("TestMap", updatedMap.name());
+        assertArrayEquals(new String[]{"Author1", "Author2"}, updatedMap.builders());
+        assertEquals(new Pos(1, 65, 1), updatedMap.spawn());
+        assertNotEquals(map.spawn(), updatedMap.spawn());
     }
 
     @Test

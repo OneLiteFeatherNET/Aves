@@ -10,7 +10,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.anvil.AnvilLoader;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.slf4j.Logger;
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
  * </p>
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.6.0
  */
 public abstract class AbstractMapProvider implements MapProvider {
@@ -42,12 +41,11 @@ public abstract class AbstractMapProvider implements MapProvider {
     private static final Logger MAP_LOGGER = LoggerFactory.getLogger(AbstractMapProvider.class);
 
     private final PathFilter<MapEntry> mapFilter;
+    protected final FileHandler fileHandler;
+    protected final List<MapEntry> mapEntries;
 
-    protected FileHandler fileHandler;
-    protected List<MapEntry> mapEntries;
-
-    protected BaseMap activeMap;
-    protected InstanceContainer activeInstance;
+    protected @Nullable BaseMap activeMap;
+    protected @Nullable InstanceContainer activeInstance;
 
     /**
      * Constructs a BaseMapProvider with the specified FileHandler.
@@ -55,9 +53,10 @@ public abstract class AbstractMapProvider implements MapProvider {
      * @param fileHandler the {@link FileHandler} used to load and save maps
      * @param mapFilter   the filtering logic for the map entries
      */
-    protected AbstractMapProvider(@NotNull FileHandler fileHandler, @NotNull PathFilter<MapEntry> mapFilter) {
+    protected AbstractMapProvider(FileHandler fileHandler, PathFilter<MapEntry> mapFilter) {
         this.fileHandler = fileHandler;
         this.mapFilter = mapFilter;
+        this.mapEntries = new ArrayList<>();
     }
 
     /**
@@ -67,7 +66,7 @@ public abstract class AbstractMapProvider implements MapProvider {
      * @param instance the instance to be registered; must not be null
      * @param mapEntry the map entry representing the world data; must not be null
      */
-    protected void registerInstance(@NotNull InstanceContainer instance, @NotNull MapEntry mapEntry) {
+    protected void registerInstance(InstanceContainer instance, MapEntry mapEntry) {
         instance.setChunkLoader(new AnvilLoader(mapEntry.getDirectoryRoot()));
         instance.enableAutoChunkLoad(true);
         instance.setTimeRate(0);
@@ -80,38 +79,78 @@ public abstract class AbstractMapProvider implements MapProvider {
      * Handles IO exceptions gracefully by logging and reporting to the server exception manager.
      *
      * @param path the root directory containing map folders; must not be null
-     * @return a list of map entries found in the directory, possibly empty but never null
      */
-    protected @NotNull List<MapEntry> loadMapEntries(@NotNull Path path) {
-        List<MapEntry> givenMaps = new ArrayList<>();
+    protected void loadMapEntries(Path path) {
+        if (!this.mapEntries.isEmpty()) {
+            this.mapEntries.clear();
+        }
+
         try (Stream<Path> stream = Files.list(path)) {
-            givenMaps.addAll(this.mapFilter.filter(stream.filter(Files::isDirectory)));
+            this.mapEntries.addAll(
+                    this.mapFilter.filter(
+                            stream.filter(Files::isDirectory)
+                    )
+            );
         } catch (IOException exception) {
             MinecraftServer.getExceptionManager().handleException(exception);
             MAP_LOGGER.error("Unable to load maps from path {}", path, exception);
         }
-        return givenMaps;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void teleportToSpawn(@NotNull Player player, boolean instanceSet) {
-        Pos pos = this.activeMap.getSpawnOrDefault(FALLBACK_POS);
+    public void teleportToSpawn(Player player, boolean instanceSet) {
+        Pos pos = activeMap().getSpawnOrDefault(FALLBACK_POS);
+
         if (!instanceSet) {
             player.teleport(pos);
             return;
         }
-        player.setInstance(this.activeInstance, pos);
-    }
 
+        player.setInstance(activeInstance(), pos);
+    }
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public @UnmodifiableView @NotNull List<MapEntry> getEntries() {
-        if (this.mapEntries == null) return Collections.emptyList();
+    public @UnmodifiableView List<MapEntry> getEntries() {
         return Collections.unmodifiableList(this.mapEntries);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public @NotNull Supplier<@Nullable Instance> getActiveInstance() {
+    public Supplier<@Nullable Instance> getActiveInstance() {
         return () -> this.activeInstance;
+    }
+
+    /**
+     * Returns the currently active map.
+     *
+     * @return the active map
+     * @throws IllegalStateException if no active map is set
+     */
+    protected BaseMap activeMap() {
+        if (activeMap == null) {
+            throw new IllegalStateException("Active map has not been initialized yet");
+        }
+        return activeMap;
+    }
+
+    /**
+     * Returns the currently active instance.
+     *
+     * @return the active instance
+     * @throws IllegalStateException if no active instance is set
+     */
+    protected InstanceContainer activeInstance() {
+        if (activeInstance == null) {
+            throw new IllegalStateException("Active instance has not been initialized yet");
+        }
+        return activeInstance;
     }
 }
 
