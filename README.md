@@ -41,3 +41,9 @@ dependencies {
 > [!CAUTION]
 > The usage of this project is **only** for internal purposes.
 > It is **not** intended for public use and should **not** be published to public repositories.
+
+### Support
+
+We develop these projects in our free time.
+
+If you find them useful and would like to support us, you can do so via [OpenCollective](https://opencollective.com/onelitefeather)
