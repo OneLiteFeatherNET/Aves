@@ -4,7 +4,7 @@ import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  * The {@link BaseMap} defines a basic structure for a map which can be used in a game context or similar.
@@ -13,10 +13,10 @@ import java.util.Objects;
  * It should be extended to add more values and methods to the map structure.
  *
  * @author theEvilReaper
- * @version 1.1.0
+ * @version 1.1.1
  * @since 1.0.0
  */
-public record BaseMap(String name, @Nullable Pos spawn, @Nullable String... builders) {
+public record BaseMap(String name, @Nullable Pos spawn, @Nullable List<String> builders) {
 
     /**
      * Creates a new instance of the {@link BaseMapBuilder} to build a new map.
