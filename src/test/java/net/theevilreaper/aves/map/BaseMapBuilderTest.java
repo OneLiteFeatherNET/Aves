@@ -3,14 +3,11 @@ package net.theevilreaper.aves.map;
 import net.minestom.server.coordinate.Pos;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BaseMapBuilderTest {
-
-    @Test
-    void testMissingName() {
-        assertThrowsExactly(IllegalArgumentException.class, () -> BaseMap.builder().build());
-    }
 
     @Test
     void testMapCreationViaBuilder() {
@@ -27,7 +24,7 @@ class BaseMapBuilderTest {
         assertNotNull(map);
 
         assertEquals("TestMap", map.name());
-        assertArrayEquals(new String[]{"Author1", "Author2"}, map.builders());
+        assertEquals(List.of("Author1", "Author2"), map.builders());
         assertEquals(new Pos(0, 64, 0), map.spawn());
     }
 
@@ -53,7 +50,7 @@ class BaseMapBuilderTest {
 
         assertNotNull(updatedMap);
         assertEquals("TestMap", updatedMap.name());
-        assertArrayEquals(new String[]{"Author1", "Author2"}, updatedMap.builders());
+        assertEquals(List.of("Author1", "Author2"), updatedMap.builders());
         assertEquals(new Pos(1, 65, 1), updatedMap.spawn());
         assertNotEquals(map.spawn(), updatedMap.spawn());
     }
@@ -75,5 +72,13 @@ class BaseMapBuilderTest {
         builder.spawn(new Pos(0, 64, 0));
         assertNotNull(builder.getSpawn());
         assertEquals(new Pos(0, 64, 0), builder.getSpawn());
+    }
+
+    @Test
+    void testBaseMapReset() {
+        BaseMapBuilder builder = BaseMap.builder().name("TestMap");
+        assertEquals("TestMap", builder.getName());
+        builder.name(null);
+        assertEquals("Map", builder.getName());
     }
 }

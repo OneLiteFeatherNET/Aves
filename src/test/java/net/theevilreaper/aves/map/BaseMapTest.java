@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,13 +15,13 @@ class BaseMapTest {
 
     private BaseMap firstMap;
     private BaseMap secondMap;
-    private String[] builders;
+    private List<String> builders;
 
     @BeforeAll
     void init() {
-        this.builders = new String[]{"theEvilReaper", "Tresson"};
+        this.builders = List.of("theEvilReaper", "Tresson");
 
-        this.firstMap = new BaseMap("Test", null);
+        this.firstMap = new BaseMap("Test", null, null);
         this.secondMap = new BaseMap(
                 "Test",
                 new Pos(120, 51, 23),
@@ -51,12 +52,12 @@ class BaseMapTest {
 
     @Test
     void testBuildersStored() {
-        assertArrayEquals(builders, secondMap.builders());
+        assertEquals(builders, secondMap.builders());
     }
 
     @Test
     void testGetSpawnOrDefault() {
-        BaseMap map = new BaseMap("Test", null);
+        BaseMap map = new BaseMap("Test", null, null);
 
         Pos fallback = new Pos(1, 2, 3);
         assertEquals(fallback, map.getSpawnOrDefault(fallback));
@@ -64,8 +65,8 @@ class BaseMapTest {
 
     @Test
     void testEqualsDifferentName() {
-        BaseMap a = new BaseMap("A", null);
-        BaseMap b = new BaseMap("B", null);
+        BaseMap a = new BaseMap("A", null, null);
+        BaseMap b = new BaseMap("B", null, null);
 
         assertNotEquals(a, b);
     }

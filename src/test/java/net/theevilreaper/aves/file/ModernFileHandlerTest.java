@@ -13,6 +13,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,7 +47,7 @@ class ModernFileHandlerTest {
     @Test
     void testGsonFileHandlerWrite() {
         var path = tempDir.toPath().resolve(testMap);
-        var baseMap = new BaseMap("TestMap", null, "Builder1", "Builder2");
+        var baseMap = new BaseMap("TestMap", null, List.of("Builder1", "Builder2"));
         fileHandler.save(path, baseMap, TypeToken.get(BaseMap.class));
         assertTrue(Files.exists(path));
     }
@@ -62,7 +63,7 @@ class ModernFileHandlerTest {
         var map = optional.get();
 
         assertEquals("TestMap", map.name());
-        assertArrayEquals(new String[]{"Builder1", "Builder2"}, map.builders());
+        assertEquals(List.of("Builder1", "Builder2"), map.builders());
     }
 
     @Order(5)
@@ -76,10 +77,11 @@ class ModernFileHandlerTest {
     @Test
     void testInvalidPathSave() {
         var path = tempDir.toPath();
-        var baseMap = new BaseMap("TestMap", null);
+        var baseMap = new BaseMap("TestMap", null, null);
+        var typeToken = TypeToken.get(BaseMap.class);
         var exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> fileHandler.save(path, baseMap, TypeToken.get(BaseMap.class))
+                () -> fileHandler.save(path, baseMap, typeToken)
         );
         assertEquals(IllegalArgumentException.class, exception.getClass());
         assertEquals("Unable to save a directory. Please check the used path", exception.getMessage());
@@ -89,9 +91,10 @@ class ModernFileHandlerTest {
     @Test
     void testInvalidPathLoad() {
         var path = tempDir.toPath();
+        var typeToken = TypeToken.get(BaseMap.class);
         var exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> fileHandler.load(path, TypeToken.get(BaseMap.class))
+                () -> fileHandler.load(path, typeToken)
         );
         assertEquals(IllegalArgumentException.class, exception.getClass());
         assertEquals("Unable to load a directory. Please check the used path", exception.getMessage());
