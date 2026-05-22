@@ -45,7 +45,7 @@ public interface MapProvider {
      *
      * @param player to teleport
      */
-    default void teleportToSpawn(@NotNull Player player) {
+    default void teleportToSpawn(Player player) {
         teleportToSpawn(player, false);
     }
 
