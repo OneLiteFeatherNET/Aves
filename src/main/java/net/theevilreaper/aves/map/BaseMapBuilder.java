@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The {@link BaseMapBuilder} class is a builder implementation for creating instances of {@link net.theevilreaper.aves.map.BaseMap}.
@@ -14,13 +15,15 @@ import java.util.List;
  * If you want to create a custom map, you can extend this class and implement the required methods.
  *
  * @author theEvilReaper
- * @version 1.1.0
+ * @version 1.1.1
  * @since 1.9.0
  */
 public class BaseMapBuilder {
 
+    private static final String DEFAULT_NAME = "Map";
+
     protected final List<String> builders;
-    protected @Nullable String name;
+    protected String name = DEFAULT_NAME;
     protected @Nullable Pos spawn;
 
     /**
@@ -39,14 +42,9 @@ public class BaseMapBuilder {
     protected BaseMapBuilder(BaseMap baseMap) {
         this.name = baseMap.name();
         this.spawn = baseMap.spawn();
-        if (baseMap.builders() == null) {
-            this.builders = new ArrayList<>();
-        } else {
-            // Copy the builders from the base map to the new list
-            // This ensures that we do not modify the original list in the base map
-            // and allows us to add new builders if needed.
-            this.builders = new ArrayList<>(List.of(baseMap.builders()));
-        }
+        this.builders = baseMap.builders() != null
+                ? new ArrayList<>(baseMap.builders())
+                : new ArrayList<>();
     }
 
     /**
@@ -55,8 +53,8 @@ public class BaseMapBuilder {
      * @param name the name of the map
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public BaseMapBuilder name(String name) {
-        this.name = name;
+    public BaseMapBuilder name(@Nullable String name) {
+        this.name = Objects.requireNonNullElse(name, DEFAULT_NAME);
         return this;
     }
 
@@ -99,8 +97,7 @@ public class BaseMapBuilder {
      * @return a new instance of {@link BaseMap}
      */
     public BaseMap build() {
-        Check.argCondition(this.name == null, "Name cannot be null");
-        return new BaseMap(name, spawn, builders.toArray(new String[0]));
+        return new BaseMap(this.name, this.spawn, this.builders);
     }
 
     /**
@@ -117,7 +114,7 @@ public class BaseMapBuilder {
      *
      * @return the name of the map, or null if not set
      */
-    public @Nullable String getName() {
+    public String getName() {
         return name;
     }
 
