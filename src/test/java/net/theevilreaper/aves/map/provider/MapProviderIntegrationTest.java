@@ -15,10 +15,8 @@ import net.minestom.testing.Env;
 import net.minestom.testing.extension.MicrotusExtension;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -28,11 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MicrotusExtension.class)
 class MapProviderIntegrationTest {
@@ -47,6 +41,7 @@ class MapProviderIntegrationTest {
     static void init() throws URISyntaxException {
         URL resourceUrl = MapProviderIntegrationTest.class.getClassLoader().getResource("map");
         rootPath = Paths.get(resourceUrl.toURI());
+
         PositionGsonAdapter positionGsonAdapter = new PositionGsonAdapter();
         fileHandler = new GsonFileHandler(
                 new GsonBuilder()
@@ -65,20 +60,14 @@ class MapProviderIntegrationTest {
     @BeforeEach
     void setUp() {
         this.mapProvider = new TestMapProvider(rootPath, fileHandler, pathFilter);
+
         assertNotNull(mapProvider);
         assertInstanceOf(MapProvider.class, mapProvider);
         assertInstanceOf(AbstractMapProvider.class, mapProvider);
-        assertFalse(mapProvider.getEntries().isEmpty());
-        assertEquals(
-                1,
-                mapProvider.getEntries().size(),
-                "At provider instance creation, the map entries should be 1"
-        );
-    }
 
-    @AfterEach
-    void tearDown() {
-        mapProvider = null;
+        assertFalse(mapProvider.getEntries().isEmpty());
+        assertEquals(1, mapProvider.getEntries().size(),
+                "At provider instance creation, the map entries should be 1");
     }
 
     @AfterAll
@@ -87,11 +76,11 @@ class MapProviderIntegrationTest {
         pathFilter = null;
     }
 
-    @Disabled("Disabled due to long execution time")
     @Test
     void testMapHandlingLogic(@NotNull Env env) {
         InstanceContainer instance = (InstanceContainer) env.createFlatInstance();
         Player player = env.createPlayer(instance);
+
         assertNotNull(instance);
 
         MapEntry mapEntry = mapProvider.getEntries().getFirst();
@@ -99,7 +88,10 @@ class MapProviderIntegrationTest {
 
         ((TestMapProvider) mapProvider).loadMap(mapEntry);
 
-        assertNotNull(mapProvider.getActiveInstance());
+        assertNotNull(
+                mapProvider.getActiveInstance().get(),
+                "Active instance should be initialized after loadMap"
+        );
 
         mapProvider.teleportToSpawn(player, true);
 
@@ -107,11 +99,7 @@ class MapProviderIntegrationTest {
             env.tick();
         }
 
-        // assertNotEquals(instance.getUuid(), player.getInstance().getUuid());
-        // assertNotEquals(Pos.ZERO, player.getPosition());
-
         player.teleport(Pos.ZERO);
-
         assertEquals(Pos.ZERO, player.getPosition());
 
         mapProvider.teleportToSpawn(player);
@@ -122,4 +110,3 @@ class MapProviderIntegrationTest {
         env.destroyInstance(mapProvider.getActiveInstance().get(), true);
     }
 }
-

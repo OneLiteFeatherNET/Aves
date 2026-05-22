@@ -3,6 +3,8 @@ package net.theevilreaper.aves.map;
 import net.minestom.server.coordinate.Pos;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BaseMapBuilderTest {
@@ -21,9 +23,9 @@ class BaseMapBuilderTest {
 
         assertNotNull(map);
 
-        assertEquals("TestMap", map.getName());
-        assertArrayEquals(new String[]{"Author1", "Author2"}, map.getBuilders());
-        assertEquals(new Pos(0, 64, 0), map.getSpawn());
+        assertEquals("TestMap", map.name());
+        assertEquals(List.of("Author1", "Author2"), map.builders());
+        assertEquals(new Pos(0, 64, 0), map.spawn());
     }
 
     @Test
@@ -47,10 +49,10 @@ class BaseMapBuilderTest {
         BaseMap updatedMap = builder1.build();
 
         assertNotNull(updatedMap);
-        assertEquals("TestMap", updatedMap.getName());
-        assertArrayEquals(new String[]{"Author1", "Author2"}, updatedMap.getBuilders());
-        assertEquals(new Pos(1, 65, 1), updatedMap.getSpawn());
-        assertNotEquals(map.getSpawn(), updatedMap.getSpawn());
+        assertEquals("TestMap", updatedMap.name());
+        assertEquals(List.of("Author1", "Author2"), updatedMap.builders());
+        assertEquals(new Pos(1, 65, 1), updatedMap.spawn());
+        assertNotEquals(map.spawn(), updatedMap.spawn());
     }
 
     @Test
@@ -70,5 +72,13 @@ class BaseMapBuilderTest {
         builder.spawn(new Pos(0, 64, 0));
         assertNotNull(builder.getSpawn());
         assertEquals(new Pos(0, 64, 0), builder.getSpawn());
+    }
+
+    @Test
+    void testBaseMapReset() {
+        BaseMapBuilder builder = BaseMap.builder().name("TestMap");
+        assertEquals("TestMap", builder.getName());
+        builder.name(null);
+        assertEquals("Map", builder.getName());
     }
 }

@@ -1,11 +1,13 @@
 package net.theevilreaper.aves.map;
 
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The {@link BaseMapBuilder} class is a builder implementation for creating instances of {@link net.theevilreaper.aves.map.BaseMap}.
@@ -13,14 +15,16 @@ import java.util.List;
  * If you want to create a custom map, you can extend this class and implement the required methods.
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.1.1
  * @since 1.9.0
  */
 public class BaseMapBuilder {
 
+    private static final String DEFAULT_NAME = "Map";
+
     protected final List<String> builders;
-    protected String name;
-    protected Pos spawn;
+    protected String name = DEFAULT_NAME;
+    protected @Nullable Pos spawn;
 
     /**
      * Constructs a new {@link BaseMapBuilder} instance with an empty list of builders.
@@ -35,17 +39,12 @@ public class BaseMapBuilder {
      *
      * @param baseMap the base map to copy properties from
      */
-    protected BaseMapBuilder(@NotNull BaseMap baseMap) {
-        this.name = baseMap.getName();
-        this.spawn = baseMap.getSpawn();
-        if (baseMap.getBuilders() == null) {
-            this.builders = new ArrayList<>();
-        } else {
-            // Copy the builders from the base map to the new list
-            // This ensures that we do not modify the original list in the base map
-            // and allows us to add new builders if needed.
-            this.builders = new ArrayList<>(List.of(baseMap.getBuilders()));
-        }
+    protected BaseMapBuilder(BaseMap baseMap) {
+        this.name = baseMap.name();
+        this.spawn = baseMap.spawn();
+        this.builders = baseMap.builders() != null
+                ? new ArrayList<>(baseMap.builders())
+                : new ArrayList<>();
     }
 
     /**
@@ -54,8 +53,8 @@ public class BaseMapBuilder {
      * @param name the name of the map
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public @NotNull BaseMapBuilder name(@NotNull String name) {
-        this.name = name;
+    public BaseMapBuilder name(@Nullable String name) {
+        this.name = Objects.requireNonNullElse(name, DEFAULT_NAME);
         return this;
     }
 
@@ -65,7 +64,7 @@ public class BaseMapBuilder {
      * @param builder the name of the builder to be added
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public @NotNull BaseMapBuilder builder(@NotNull String builder) {
+    public BaseMapBuilder builder(String builder) {
         this.builders.add(builder);
         return this;
     }
@@ -76,7 +75,7 @@ public class BaseMapBuilder {
      * @param builders the names of the builders to be added
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public @NotNull BaseMapBuilder builders(@NotNull String... builders) {
+    public BaseMapBuilder builders(String... builders) {
         this.builders.addAll(List.of(builders));
         return this;
     }
@@ -87,7 +86,7 @@ public class BaseMapBuilder {
      * @param spawn the position where the map will spawn
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
-    public @NotNull BaseMapBuilder spawn(@Nullable Pos spawn) {
+    public BaseMapBuilder spawn(@Nullable Pos spawn) {
         this.spawn = spawn;
         return this;
     }
@@ -97,8 +96,8 @@ public class BaseMapBuilder {
      *
      * @return a new instance of {@link BaseMap}
      */
-    public @NotNull BaseMap build() {
-        return new BaseMap(name, spawn, builders.toArray(new String[0]));
+    public BaseMap build() {
+        return new BaseMap(this.name, this.spawn, this.builders);
     }
 
     /**
@@ -115,7 +114,7 @@ public class BaseMapBuilder {
      *
      * @return the name of the map, or null if not set
      */
-    public @Nullable String getName() {
+    public String getName() {
         return name;
     }
 
@@ -124,7 +123,7 @@ public class BaseMapBuilder {
      *
      * @return a list of builder names
      */
-    public @NotNull List<String> getBuilders() {
+    public List<String> getBuilders() {
         return builders;
     }
 }

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,8 +42,7 @@ class FileHandlerTest {
     @Test
     void testGsonFileHandlerWrite() {
         var path = tempDir.toPath().resolve(testMap);
-        var baseMap = new BaseMap("TestMap", null);
-        baseMap.setBuilders("Builder1", "Builder2");
+        var baseMap = new BaseMap("TestMap", null, List.of("Builder1", "Builder2"));
         fileHandler.save(path, baseMap);
         assertTrue(Files.exists(path));
     }
@@ -57,8 +57,8 @@ class FileHandlerTest {
 
         var map = optional.get();
 
-        assertEquals("TestMap", map.getName());
-        assertArrayEquals(new String[]{"Builder1", "Builder2"}, map.getBuilders());
+        assertEquals("TestMap", map.name());
+        assertEquals(List.of("Builder1", "Builder2"), map.builders());
     }
 
     @Order(5)
