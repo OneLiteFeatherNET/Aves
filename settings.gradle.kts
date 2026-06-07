@@ -21,8 +21,12 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("bom", "1.6.4")
+            version("bom", "1.6.7")
+            version("slf4j", "2.0.18")
+
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
+
+            library("slf4j.api", "org.slf4j", "slf4j-api").versionRef("slf4j")
             library("minestom","net.minestom", "minestom").withoutVersion()
             library("adventure", "net.kyori", "adventure-text-minimessage").withoutVersion()
             library("cyano", "net.onelitefeather", "cyano").withoutVersion()

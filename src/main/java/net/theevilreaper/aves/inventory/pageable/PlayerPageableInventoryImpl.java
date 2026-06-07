@@ -294,7 +294,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      */
     @Override
     public void unregister() {
-        Set<Player> viewers = this.builder.getInventory().getViewers();
+        Set<? extends Player> viewers = this.builder.getInventory().getViewers();
         //Check if the inventory contains viewer and when close the inventories for the viewers to prevent issue
         if (!viewers.isEmpty()) {
             viewers.forEach(Player::closeInventory);
