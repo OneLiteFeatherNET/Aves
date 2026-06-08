@@ -68,14 +68,29 @@ public class BaseMap {
         return spawn != null ? spawn : defaultSpawn;
     }
 
+    /**
+     * Returns the name of the map.
+     *
+     * @return the given name
+     */
     public String name() {
         return name;
     }
 
+    /**
+     * Returns the spawn location of the map.
+     *
+     * @return the spawn location, or null if not set
+     */
     public @Nullable Pos spawn() {
         return spawn;
     }
 
+    /**
+     * Returns the list of builders associated with the map.
+     *
+     * @return the list of builders, or null if not set
+     */
     public @Nullable List<String> builders() {
         return builders;
     }
