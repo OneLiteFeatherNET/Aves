@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.map.provider;
 
+import net.minestom.server.registry.RegistryKey;
 import net.theevilreaper.aves.file.FileHandler;
 import net.theevilreaper.aves.map.BaseMap;
 import net.theevilreaper.aves.map.MapEntry;
@@ -69,7 +70,10 @@ public abstract class AbstractMapProvider implements MapProvider {
     protected void registerInstance(InstanceContainer instance, MapEntry mapEntry) {
         instance.setChunkLoader(new AnvilLoader(mapEntry.getDirectoryRoot()));
         instance.enableAutoChunkLoad(true);
-        instance.setTimeRate(0);
+        var defaultClock = instance.defaultClock();
+        if (defaultClock != null) {
+            defaultClock.rate(0f);
+        }
         MinecraftServer.getInstanceManager().registerInstance(instance);
     }
 
