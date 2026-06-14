@@ -106,7 +106,7 @@ class ItemStackGsonTypeAdapterTest {
     }
 
     @Test
-    void testItemWithLoreWrite() {
+    void testItemWithLoreWrite(Env env) {
         ItemStack stack = ItemStack.builder(Material.LIGHT)
                 .lore(List.of(Component.text("Test1"), Component.text("Test2"))).build();
         String json = gson.toJson(stack, ItemStack.class);
