@@ -15,7 +15,7 @@
       ],
       "datasourceTemplate": "maven",
       "depNameTemplate": "net.theevilreaper:aves",
-      "registryUrlTemplates": [
+      "registryUrls": [
         "https://repo.onelitefeather.dev/onelitefeather"
       ]
     }
