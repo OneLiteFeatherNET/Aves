@@ -14,7 +14,12 @@
         "implementation\\(\"net\\.theevilreaper:aves:(?<currentValue>.*?)\""
       ],
       "datasourceTemplate": "maven",
-      "depNameTemplate": "net.theevilreaper:aves",
+      "depNameTemplate": "net.theevilreaper:aves"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["net.theevilreaper:aves"],
       "registryUrls": [
         "https://repo.onelitefeather.dev/onelitefeather"
       ]
