@@ -2,8 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>OneLiteFeatherNET/renovate:default(OneLiteFeatherNET/aves-maintainers)",
-    "github>OneLiteFeatherNET/renovate:minestom",
-    ":semanticCommitsDisabled"
+    "github>OneLiteFeatherNET/renovate:minestom"
   ],
   "customManagers": [
     {
@@ -15,7 +14,10 @@
         "implementation\\(\"net\\.theevilreaper:aves:(?<currentValue>.*?)\""
       ],
       "datasourceTemplate": "maven",
-      "depNameTemplate": "net.theevilreaper:aves"
+      "depNameTemplate": "net.theevilreaper:aves",
+      "registryUrlTemplates": [
+        "https://repo.onelitefeather.dev/onelitefeather"
+      ]
     }
   ]
 }
