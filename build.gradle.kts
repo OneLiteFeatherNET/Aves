@@ -23,10 +23,10 @@ configurations.all {
 dependencies {
     implementation(platform(libs.mycelium.bom))
     implementation(libs.slf4j.api)
+
     compileOnly(libs.adventure)
     compileOnly(libs.minestom)
 
-    testImplementation(platform(libs.mycelium.bom))
     testImplementation(libs.adventure)
     testImplementation(libs.minestom)
     testImplementation(libs.cyano)
