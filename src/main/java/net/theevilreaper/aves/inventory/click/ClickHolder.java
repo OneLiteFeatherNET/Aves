@@ -1,7 +1,6 @@
 package net.theevilreaper.aves.inventory.click;
 
 import net.minestom.server.inventory.click.Click;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The {@link ClickHolder} interface represents a holder for click actions in the Aves inventory system.
@@ -9,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  * This allows for flexible handling of click actions within the inventory system.
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.0.1
  * @since 1.9.0
  */
 public sealed interface ClickHolder permits ClickHolder.MinestomClick, ClickHolder.CancelClick, ClickHolder.NOPClick {
@@ -19,7 +18,7 @@ public sealed interface ClickHolder permits ClickHolder.MinestomClick, ClickHold
      *
      * @return the no-click reference
      */
-    static @NotNull ClickHolder noClick() {
+    static ClickHolder noClick() {
         return InternalClickRegistry.NOP_CLICK;
     }
 
@@ -28,7 +27,7 @@ public sealed interface ClickHolder permits ClickHolder.MinestomClick, ClickHold
      *
      * @return the cancel-click reference
      */
-    static @NotNull ClickHolder cancelClick() {
+    static ClickHolder cancelClick() {
         return InternalClickRegistry.CANCEL_CLICK;
     }
 
@@ -38,7 +37,7 @@ public sealed interface ClickHolder permits ClickHolder.MinestomClick, ClickHold
      * @param click the click to wrap
      * @return the wrapped click holder
      */
-    static @NotNull ClickHolder of(@NotNull Click click) {
+    static ClickHolder of(Click click) {
         return new MinestomClick(click);
     }
 
@@ -50,7 +49,7 @@ public sealed interface ClickHolder permits ClickHolder.MinestomClick, ClickHold
      * @version 1.0.0
      * @since 1.9.0
      */
-    record MinestomClick(@NotNull Click click) implements ClickHolder {
+    record MinestomClick(Click click) implements ClickHolder {
     }
 
     /**

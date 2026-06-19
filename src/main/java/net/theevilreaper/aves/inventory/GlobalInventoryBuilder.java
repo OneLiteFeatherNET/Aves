@@ -1,18 +1,16 @@
 package net.theevilreaper.aves.inventory;
 
-import net.theevilreaper.aves.inventory.holder.InventoryHolderImpl;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
 /**
  * The {@link GlobalInventoryBuilder} builds an inventory which can be used in a global context.
- * That means that the inventory is related to all player's on the server and not bound to a single player.
+ * That means that the inventory is related to all players on the server and not bound to a single player.
  *
  * @author Patrick Zdarsky / Rxcki
  * @version 1.0.0
@@ -33,7 +31,6 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
     public GlobalInventoryBuilder(@NotNull Component title, @NotNull InventoryType type) {
         super(type);
         this.titleComponent = title;
-        this.holder = new InventoryHolderImpl(this);
     }
 
     /**
@@ -86,22 +83,20 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
     }
 
     /**
-     * Applies the data layout to the inventory, if the specific layout is set.
+     * Applies the data layout to the inventory if the specific layout is set.
      */
     @Override
     protected void applyDataLayout() {
+        if (getDataLayout() == null) return;
         synchronized (this) {
-            if (getDataLayout() == null) return;
-            LOGGER.info("Applying data layouts");
+            LOGGER.debug("Applying data layouts");
             ItemStack[] contents = inventory.getItemStacks();
             getDataLayout().applyLayout(contents, null);
             for (int i = 0; i < contents.length; i++) {
-                if (contents[i] == null) {
-                    this.inventory.setItemStack(i, ItemStack.AIR);
-                    continue;
+                ItemStack stack = contents[i];
+                if (stack != null && !stack.isAir()) {
+                    this.inventory.setItemStack(i, stack);
                 }
-                if (contents[i].material() == Material.AIR) continue;
-                this.inventory.setItemStack(i, contents[i]);
             }
             this.dataLayoutValid = true;
             updateViewer(inventory);

@@ -1,13 +1,11 @@
 package net.theevilreaper.aves.inventory.exception;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * The {@link ListenerStateException} is a custom exception which is thrown when a listener is in an invalid state.
  * Its former used in the in inventory listener handling to indicate that the listener is not in a valid state to process an event.
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.0.1
  * @since 1.0.12
  */
 public final class ListenerStateException extends IllegalStateException {
@@ -17,7 +15,7 @@ public final class ListenerStateException extends IllegalStateException {
      *
      * @param message the message for the exception
      */
-    public ListenerStateException(@NotNull String message) {
+    public ListenerStateException(String message) {
         super(message);
     }
 
@@ -27,7 +25,7 @@ public final class ListenerStateException extends IllegalStateException {
      * @param message the message for the exception
      * @param cause   the cause of the exception
      */
-    public ListenerStateException(@NotNull String message, @NotNull Throwable cause) {
+    public ListenerStateException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -36,7 +34,7 @@ public final class ListenerStateException extends IllegalStateException {
      *
      * @param cause the cause of the exception
      */
-    public ListenerStateException(@NotNull Throwable cause) {
+    public ListenerStateException(Throwable cause) {
         super(cause);
     }
 }

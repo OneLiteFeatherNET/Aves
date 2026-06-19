@@ -3,7 +3,6 @@ package net.theevilreaper.aves.inventory.util;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -13,7 +12,7 @@ import static net.theevilreaper.aves.inventory.util.InventoryConstants.*;
  * Contains some useful methods to calculate some layouts for an inventory.
  *
  * @author Patrick Zdarsky / Rxcki
- * @version 1.0.1
+ * @version 1.0.2
  * @since 1.0.0
  */
 public final class LayoutCalculator {
@@ -30,7 +29,7 @@ public final class LayoutCalculator {
      * @param toSlot   The id from the end slot
      * @return an array which contains the slot numbers
      */
-    public static int @NotNull [] repeat(int fromSlot, int toSlot) {
+    public static int[] repeat(int fromSlot, int toSlot) {
         Check.argCondition(fromSlot > toSlot, "fromSlot cannot be higher that toSlot!");
         var arr = new int[toSlot - fromSlot];
         for (int i = 0; i < arr.length; i++) {
@@ -47,7 +46,7 @@ public final class LayoutCalculator {
      * @return a new array with the given slots
      */
     @Contract(pure = true)
-    public static int @NotNull [] from(int... slots) {
+    public static int[] from(int... slots) {
         return Arrays.copyOfRange(slots, 0, slots.length);
     }
 
@@ -58,7 +57,7 @@ public final class LayoutCalculator {
      * @param lastCornerSlot  The last corner slot
      * @return an array which contains the slot numbers
      */
-    public static int @NotNull [] quad(int firstCornerSlot, int lastCornerSlot) {
+    public static int[] quad(int firstCornerSlot, int lastCornerSlot) {
         var x1 = firstCornerSlot % INVENTORY_WIDTH;
         var y1 = Math.floor(firstCornerSlot / (double) INVENTORY_WIDTH);
 
@@ -90,7 +89,7 @@ public final class LayoutCalculator {
      * @param lastCornerSlot  The last corner slot
      * @return an array which contains the slot numbers
      */
-    public static int @NotNull [] frame(int firstCornerSlot, int lastCornerSlot) {
+    public static int[] frame(int firstCornerSlot, int lastCornerSlot) {
         Check.argCondition(firstCornerSlot == lastCornerSlot, "The values can't be the smae");
         var x1 = firstCornerSlot % INVENTORY_WIDTH;
         var y1 = Math.floor(firstCornerSlot / (double) INVENTORY_WIDTH);
@@ -122,7 +121,7 @@ public final class LayoutCalculator {
      * @param type The {@link InventoryType} to get the maximum slot value of a row
      * @return an array which contains the slot numbers
      */
-    public static int @NotNull [] fillRow(@NotNull InventoryType type) {
+    public static int[] fillRow(InventoryType type) {
         return repeat(type.getSize() - INVENTORY_WIDTH, type.getSize());
     }
 
@@ -133,7 +132,7 @@ public final class LayoutCalculator {
      * @param column The column to start
      * @return an array which contains the slot numbers
      */
-    public static int @NotNull [] fillColumn(@NotNull InventoryType type, int column) {
+    public static int[] fillColumn(InventoryType type, int column) {
         Check.argCondition(column < 0 || column > INVENTORY_WIDTH - 1, "Column cant be less than 0 or more than 8");
         var arr = new int[getRowCount(type)];
         for (int i = 0; i < arr.length; i++) {
@@ -148,7 +147,7 @@ public final class LayoutCalculator {
      * @param type The type to define the row count
      * @return Returns the determined row count
      */
-    public static int getRowCount(@NotNull InventoryType type) {
+    public static int getRowCount(InventoryType type) {
         if (!isChestInventory(type)) return 1;
         return type.getSize() / INVENTORY_WIDTH;
     }
@@ -159,7 +158,7 @@ public final class LayoutCalculator {
      * @param type The typ to check
      * @return True if the type is a chest otherwise false
      */
-    public static boolean isChestInventory(@NotNull InventoryType type) {
+    public static boolean isChestInventory(InventoryType type) {
         return type.name().startsWith(CHEST_INVENTORY);
     }
 }
