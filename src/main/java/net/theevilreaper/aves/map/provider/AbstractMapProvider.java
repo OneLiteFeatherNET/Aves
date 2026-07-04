@@ -1,6 +1,7 @@
 package net.theevilreaper.aves.map.provider;
 
 import net.minestom.server.registry.RegistryKey;
+import net.minestom.server.world.DimensionType;
 import net.theevilreaper.aves.file.FileHandler;
 import net.theevilreaper.aves.map.BaseMap;
 import net.theevilreaper.aves.map.MapEntry;
@@ -34,7 +35,7 @@ import java.util.stream.Stream;
  * </p>
  *
  * @author theEvilReaper
- * @version 1.1.0
+ * @version 1.2.0
  * @since 1.6.0
  */
 public abstract class AbstractMapProvider implements MapProvider {
@@ -64,11 +65,23 @@ public abstract class AbstractMapProvider implements MapProvider {
      * Registers the specified map entry as an active instance in the server.
      * Sets up chunk loading and time rate, and registers the instance with the server manager.
      *
-     * @param instance the instance to be registered; must not be null
-     * @param mapEntry the map entry representing the world data; must not be null
+     * @param instance to be registered
+     * @param mapEntry  representing the folder that contains the map files
      */
     protected void registerInstance(InstanceContainer instance, MapEntry mapEntry) {
-        instance.setChunkLoader(new AnvilLoader(mapEntry.getDirectoryRoot()));
+        this.registerInstance(instance, mapEntry, DimensionType.OVERWORLD);
+    }
+
+    /**
+     * Registers the specified map entry as an active instance in the server.
+     * Sets up chunk loading and time rate, and registers the instance with the server manager.
+     *
+     * @param instance     to be registered
+     * @param mapEntry     representing the folder that contains the map files
+     * @param dimensionKey the dimension type key for the instance
+     */
+    protected void registerInstance(InstanceContainer instance, MapEntry mapEntry, RegistryKey<DimensionType> dimensionKey) {
+        instance.setChunkLoader(new AnvilLoader(mapEntry.getDirectoryRoot(), dimensionKey.key()));
         instance.enableAutoChunkLoad(true);
         var defaultClock = instance.defaultClock();
         if (defaultClock != null) {
@@ -85,9 +98,7 @@ public abstract class AbstractMapProvider implements MapProvider {
      * @param path the root directory containing map folders; must not be null
      */
     protected void loadMapEntries(Path path) {
-        if (!this.mapEntries.isEmpty()) {
-            this.mapEntries.clear();
-        }
+        this.mapEntries.clear();
 
         try (Stream<Path> stream = Files.list(path)) {
             this.mapEntries.addAll(
@@ -115,6 +126,7 @@ public abstract class AbstractMapProvider implements MapProvider {
 
         player.setInstance(activeInstance(), pos);
     }
+
     /**
      * {@inheritDoc}
      */
