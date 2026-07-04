@@ -35,6 +35,7 @@ class BaseMapBuilderTest {
         builder.name("TestMap")
                 .builders("Author1")
                 .spawn(new Pos(0, 64, 0));
+        assertFalse(builder.isDefaultName());
         BaseMap map = builder.build();
 
         assertNotNull(map);

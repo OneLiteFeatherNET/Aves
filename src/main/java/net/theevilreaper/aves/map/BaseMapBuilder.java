@@ -2,8 +2,10 @@ package net.theevilreaper.aves.map;
 
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,7 +15,7 @@ import java.util.Objects;
  * If you want to create a custom map, you can extend this class and implement the required methods.
  *
  * @author theEvilReaper
- * @version 1.1.2
+ * @version 1.2.0
  * @since 1.9.0
  */
 public class BaseMapBuilder {
@@ -63,18 +65,32 @@ public class BaseMapBuilder {
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
     public BaseMapBuilder builder(String builder) {
-        this.builders.add(builder);
+        if (!this.builders.contains(builder)) {
+            this.builders.add(builder);
+        }
         return this;
     }
 
     /**
-     * Adds multiple builders to the map.
+     * Adds multiple builders to the map, skipping any that are already present.
      *
      * @param builders the names of the builders to be added
      * @return the current instance of {@link BaseMapBuilder} for method chaining
      */
     public BaseMapBuilder builders(String... builders) {
-        this.builders.addAll(List.of(builders));
+        for (String builder : builders) {
+            builder(builder);
+        }
+        return this;
+    }
+
+    /**
+     * Clears all previously added builders.
+     *
+     * @return the current instance of {@link BaseMapBuilder} for method chaining
+     */
+    public BaseMapBuilder clearBuilders() {
+        this.builders.clear();
         return this;
     }
 
@@ -96,6 +112,15 @@ public class BaseMapBuilder {
      */
     public BaseMap build() {
         return new BaseMap(this.name, this.spawn, this.builders);
+    }
+
+    /**
+     * Checks whether the current name is still the default name.
+     *
+     * @return {@code true} if no custom name has been set, {@code false} otherwise
+     */
+    public boolean isDefaultName() {
+        return DEFAULT_NAME.equals(this.name);
     }
 
     /**
@@ -121,7 +146,8 @@ public class BaseMapBuilder {
      *
      * @return a list of builder names
      */
+    @UnmodifiableView
     public List<String> getBuilders() {
-        return builders;
+        return Collections.unmodifiableList(builders);
     }
 }
