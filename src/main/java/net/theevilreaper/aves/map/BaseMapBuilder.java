@@ -1,8 +1,6 @@
 package net.theevilreaper.aves.map;
 
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.utils.validate.Check;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -15,12 +13,12 @@ import java.util.Objects;
  * If you want to create a custom map, you can extend this class and implement the required methods.
  *
  * @author theEvilReaper
- * @version 1.1.1
+ * @version 1.1.2
  * @since 1.9.0
  */
 public class BaseMapBuilder {
 
-    private static final String DEFAULT_NAME = "Map";
+    public static final String DEFAULT_NAME = "Map";
 
     protected final List<String> builders;
     protected String name = DEFAULT_NAME;
