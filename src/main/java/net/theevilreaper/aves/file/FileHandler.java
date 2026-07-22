@@ -9,13 +9,13 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 /**
- * The class represents the base logic to load or save json files.
+ * Interface representing the base logic to load or save JSON files.
  *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.0.0
- * * @deprecated This interface is deprecated since version 1.9.0 and will be removed in a future release. Use {@link ModernFileHandler} instead.
- **/
+ * @deprecated Deprecated since version 1.9.0 and will be removed in a future release. Use {@link ModernFileHandler} instead.
+ */
 @Deprecated(since = "1.9.0", forRemoval = true)
 public interface FileHandler {
 
@@ -28,6 +28,16 @@ public interface FileHandler {
      * The default charset used for reading and writing files.
      */
     Charset UTF_8 = StandardCharsets.UTF_8;
+
+    /**
+     * Prepares a target file path for saving by validating it is not a directory and ensuring parent directories exist.
+     *
+     * @param path target path
+     * @return true if the file does not exist yet, false otherwise
+     */
+    default boolean prepareSavePath(Path path) {
+        return FileHandlerUtil.prepareSavePath(path, LOGGER);
+    }
 
     /**
      * Saves a given object into a file.
