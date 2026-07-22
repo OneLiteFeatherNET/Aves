@@ -187,6 +187,13 @@ class InventoryLayoutTest {
 
         catchError(IllegalArgumentException.class, () -> layout.setItem(-1, slot));
         catchError(IllegalArgumentException.class, () -> layout.setItem(100, slot));
+
+        int exactSize = layout.getSize();
+        catchError(IllegalArgumentException.class, () -> layout.setItem(exactSize, ItemStack.of(Material.PAPER)));
+        catchError(IllegalArgumentException.class, () -> layout.setItem(exactSize, slot));
+        catchError(IllegalArgumentException.class, () -> layout.blank(exactSize));
+        catchError(IllegalArgumentException.class, () -> layout.clear(exactSize));
+        catchError(IllegalArgumentException.class, () -> layout.remove(exactSize));
     }
 
     @Test

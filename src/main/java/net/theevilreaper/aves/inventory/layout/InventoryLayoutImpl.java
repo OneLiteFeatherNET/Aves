@@ -100,7 +100,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayoutImpl setItem(int slot, ItemStack.Builder itemBuilder, @Nullable InventoryClick clickEvent) {
-        Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
+        Check.argCondition(slot < 0 || slot >= contents.length, INDEX_ERROR);
         this.contents[slot] = new InventorySlot(itemBuilder, clickEvent);
         return this;
     }
@@ -110,7 +110,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayoutImpl setItem(int slot, ItemStack itemStack, @Nullable InventoryClick clickEvent) {
-        Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
+        Check.argCondition(slot < 0 || slot >= contents.length, INDEX_ERROR);
         this.contents[slot] = new InventorySlot(itemStack, clickEvent);
         return this;
     }
@@ -120,7 +120,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayoutImpl setItem(int slot, ISlot iSlot, InventoryClick clickEvent) {
-        Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
+        Check.argCondition(slot < 0 || slot >= contents.length, INDEX_ERROR);
         iSlot.setClick(clickEvent);
         contents[slot] = iSlot;
         return this;
@@ -131,7 +131,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayoutImpl setItem(int slot, ISlot slotItem) {
-        Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
+        Check.argCondition(slot < 0 || slot >= contents.length, INDEX_ERROR);
         contents[slot] = slotItem;
         return this;
     }
@@ -141,7 +141,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayoutImpl blank(int slot) {
-        Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
+        Check.argCondition(slot < 0 || slot >= contents.length, INDEX_ERROR);
         this.contents[slot] = BLANK_SLOT;
         return this;
     }
@@ -151,7 +151,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayoutImpl clear(int slot) {
-        Check.argCondition(slot < 0 || slot > contents.length, INDEX_ERROR);
+        Check.argCondition(slot < 0 || slot >= contents.length, INDEX_ERROR);
         contents[slot] = BLANK_SLOT;
         return this;
     }
@@ -161,7 +161,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayoutImpl update(int index, @Nullable InventoryClick listener) {
-        Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
+        Check.argCondition(index < 0 || index >= contents.length, INDEX_ERROR);
         contents[index].setClick(listener == null ? CANCEL_CLICK : listener);
         return this;
     }
@@ -171,7 +171,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayoutImpl update(int index, @Nullable ItemStack stack) {
-        Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
+        Check.argCondition(index < 0 || index >= contents.length, INDEX_ERROR);
         contents[index].setItemStack(stack);
         return this;
     }
@@ -181,7 +181,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayoutImpl update(int index, ItemStack stack, @Nullable InventoryClick click) {
-        Check.argCondition(index < 0 || index > contents.length, INDEX_ERROR);
+        Check.argCondition(index < 0 || index >= contents.length, INDEX_ERROR);
         var slot = contents[index];
         slot.setItemStack(stack);
         slot.setClick(click == null ? CANCEL_CLICK : click);
@@ -193,7 +193,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     @Override
     public InventoryLayout remove(int index) {
-        Check.argCondition(index < 0 || index > this.contents.length,
+        Check.argCondition(index < 0 || index >= this.contents.length,
                 "The given index does not fit into the array (0, " + this.contents.length + ")");
         this.contents[index] = BLANK_SLOT;
         return this;
