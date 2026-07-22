@@ -13,8 +13,8 @@ import java.util.Arrays;
  * Use {@link #apply(Player)} to write the layout into a player's inventory.
  *
  * @author theEvilReaper
- * @version 1.14.0
- * @since 0.1.0
+ * @version 1.1.0
+ * @since 1.14.0
  */
 public final class HotBarLayout {
 
@@ -65,6 +65,19 @@ public final class HotBarLayout {
      * @param player the player whose hotbar is updated
      */
     public void apply(Player player) {
+        apply(player, false);
+    }
+
+    /**
+     * Writes this layout into the player's inventory (slots 0–8).
+     *
+     * @param player         the player whose hotbar is updated
+     * @param clearInventory whether to clear the player's entire inventory before applying
+     */
+    public void apply(Player player, boolean clearInventory) {
+        if (clearInventory) {
+            player.getInventory().clear();
+        }
         for (int i = 0; i < items.length; i++) {
             player.getInventory().setItemStack(i, items[i]);
         }
