@@ -4,18 +4,19 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import org.jetbrains.annotations.Contract;
 
-import java.security.SecureRandom;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * The class contains some useful method to work with vectors.
+ * Utility class providing mathematical vector operations and generation functions
+ * tailored for Minecraft server development using Minestom's {@link Vec} and {@link Pos}.
+ * All random vector computations leverage non-blocking, thread-safe {@link ThreadLocalRandom} instances
+ * for high-throughput performance across server tick workers.
  *
  * @author theEvilReaper
- * @version 1.0.1
+ * @version 1.1.0
  * @since 1.0.0
  */
 public final class Vectors {
-
-    private static final SecureRandom random = new SecureRandom();
 
     private Vectors() {
     }
@@ -25,8 +26,8 @@ public final class Vectors {
      *
      * @return a new vector with random values
      */
-    @Contract(pure = true)
     public static Vec getRandomVector() {
+        var random = ThreadLocalRandom.current();
         double x = random.nextDouble() * 2.0D - 1.0D;
         double y = random.nextDouble() * 2.0D - 1.0D;
         double z = random.nextDouble() * 2.0D - 1.0D;
@@ -51,9 +52,8 @@ public final class Vectors {
      *
      * @return a new vector with random values
      */
-    @Contract(pure = true)
     public static Vec getRandomCircleVector() {
-        double rnd = random.nextDouble() * 2.0D * Math.PI;
+        double rnd = ThreadLocalRandom.current().nextDouble() * 2.0D * Math.PI;
         double x = Math.cos(rnd);
         double z = Math.sin(rnd);
         return new Vec(x, 0.0D, z);
@@ -63,10 +63,11 @@ public final class Vectors {
      * Calculates the angle between a 2D vector and the positive x-axis in a Cartesian coordinate system.
      * The angle is measured in radians and ranges from -π to π radians.
      *
-     * @param vector the  vector for which to calculate the angle
+     * @param vector the vector for which to calculate the angle
      * @return the angle between the vector and the positive x-axis in radians
      */
+    @Contract(pure = true)
     public static double angleToXAxis(Vec vector) {
-        return Math.atan2(vector.x(), vector.y());
+        return Math.atan2(vector.y(), vector.x());
     }
 }
