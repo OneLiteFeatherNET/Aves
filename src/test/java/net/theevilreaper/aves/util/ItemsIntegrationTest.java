@@ -31,6 +31,24 @@ class ItemsIntegrationTest {
     }
 
     @Test
+    void testFreeSpaceWithNonStandardMaxStackSize(@NotNull Env env) {
+        Instance instance = env.createFlatInstance();
+        Player player = env.createPlayer(instance);
+
+        // Slot 0 has 10 Ender Pearls (max stack size 16 -> remaining space in slot 0 is 6)
+        player.getInventory().setItemStack(0, ItemStack.of(Material.ENDER_PEARL, 10));
+
+        // Slot 1 has 1 Diamond Sword (max stack size 1 -> remaining space in slot 1 is 0)
+        player.getInventory().setItemStack(1, ItemStack.of(Material.DIAMOND_SWORD, 1));
+
+        // Remaining empty slots have (size - 2) * 64 space
+        int expectedFreeSpace = ((player.getInventory().getSize() - 2) * Items.MAX_STACK_SIZE) + (16 - 10) + (1 - 1);
+        assertEquals(expectedFreeSpace, Items.getFreeSpace(player));
+
+        env.destroyInstance(instance, true);
+    }
+
+    @Test
     void testGetItemAmountFrom(@NotNull Env env) {
         Instance instance = env.createFlatInstance();
         Player player = env.createPlayer(instance);

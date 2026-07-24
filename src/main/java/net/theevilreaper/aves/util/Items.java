@@ -4,50 +4,62 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
 
 /**
- * The class contains some methods to work with {@link ItemStack}.
+ * Utility class providing helper methods to work with {@link ItemStack} and player inventories.
+ *
  * @author theEvilReaper
+ * @version 1.2.0
  * @since 1.0.6
- * @version 1.0.0
  */
 public final class Items {
 
     public static final int MAX_STACK_SIZE = 64;
 
-    private Items() {}
+    private Items() {
+    }
 
     /**
-     * Returns the number of a specific item that is in a player's inventory
-     * @param player The player to be appointed by
-     * @param item The item to check
-     * @return The amount of the given item but returns with zero when the item does not occur in the inventory
+     * Returns the number of a specific item in a player's inventory.
+     * <p>
+     * Item similarity is checked via {@link ItemStack#isSimilar(ItemStack)}.
+     *
+     * @param player whose inventory to inspect
+     * @param item   to count
+     * @return the total amount of matching items found, or 0 if none exist
      */
     public static int getAmountFromItem(Player player, ItemStack item) {
         int amount = 0;
-        if (player.getInventory().getItemStacks().length != 0) {
-            for (int i = 0; i < player.getInventory().getItemStacks().length; i++) {
-                if (player.getInventory().getItemStacks()[i].isSimilar(item)) {
-                    amount += player.getInventory().getItemStacks()[i].amount();
-                }
+        ItemStack[] itemStacks = player.getInventory().getItemStacks();
+        for (ItemStack currentStack : itemStacks) {
+            if (currentStack.isSimilar(item)) {
+                amount += currentStack.amount();
             }
         }
         return amount;
     }
 
     /**
-     * Returns the remaining free space in the inventory of a given player.
-     * @param player The player from which the remaining place should be determined
-     * @return The amount of free space
+     * Returns the remaining free space in a player's inventory.
+     * <p>
+     * Empty slots count as having 64 free slots. Non-empty slots calculate free space based on
+     * the item's specific {@link ItemStack#maxStackSize()}.
+     *
+     * @param player whose inventory capacity to determine
+     * @return the total remaining item space available across all slots
      */
     public static int getFreeSpace(Player player) {
         int spaceCount = 0;
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            var currentStack = player.getInventory().getItemStacks()[i];
-            if (currentStack.material() == ItemStack.AIR.material()) {
+        ItemStack[] itemStacks = player.getInventory().getItemStacks();
+        int inventorySize = player.getInventory().getSize();
+
+        for (int i = 0; i < inventorySize && i < itemStacks.length; i++) {
+            ItemStack currentStack = itemStacks[i];
+            if (currentStack.isAir()) {
                 spaceCount += MAX_STACK_SIZE;
                 continue;
             }
 
-            spaceCount += MAX_STACK_SIZE - currentStack.amount();
+            int maxStackSize = currentStack.maxStackSize();
+            spaceCount += Math.max(0, maxStackSize - currentStack.amount());
         }
         return spaceCount;
     }
