@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests the conversion between the palette container of a section and the palette
  * representation of the codec. A fake resolver keeps the tests free of a Minestom server.
  *
- * @author theEvilReaper
+ * @author TheMeinerLP
  * @version 1.0.0
  * @since 1.16.0
  */

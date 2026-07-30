@@ -33,3 +33,6 @@ bin/
 # OS-spezifisch
 .DS_Store
 Thumbs.db
+
+# Serena (MCP code navigation)
+.serena/

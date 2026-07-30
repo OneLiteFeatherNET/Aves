@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
  * being validated against real worlds.
  * </p>
  *
- * @author theEvilReaper
+ * @author TheMeinerLP
  * @version 1.0.0
  * @since 1.16.0
  */

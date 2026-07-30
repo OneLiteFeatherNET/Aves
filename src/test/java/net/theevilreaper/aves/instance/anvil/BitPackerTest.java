@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Tests the bit packing which converts palette indices into the packed long array
  * representation used by the Anvil format and back.
  *
- * @author theEvilReaper
+ * @author TheMeinerLP
  * @version 1.0.0
  * @since 1.16.0
  */

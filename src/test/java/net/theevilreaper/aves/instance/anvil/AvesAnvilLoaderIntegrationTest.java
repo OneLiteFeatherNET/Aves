@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests the chunk loader against a running Minestom environment. The tests cover the round trip
  * of a chunk through the region file which is the behaviour the loader exists for.
  *
- * @author theEvilReaper
+ * @author TheMeinerLP
  * @version 1.0.0
  * @since 1.16.0
  */
@@ -125,6 +125,76 @@ class AvesAnvilLoaderIntegrationTest {
             Block restored = blockAt(loaded, 3, 45, 3);
             assertEquals(Block.OAK_SIGN.key(), restored.key());
             assertEquals("kept", restored.nbtOrEmpty().getString("aves_marker"));
+        }
+    }
+
+    @Test
+    void testBlockEntitiesAreStoredWithAbsoluteCoordinates(Env env) throws IOException {
+        // The format stores the position of a block entity in world coordinates. Writing chunk
+        // local ones still round trips through this loader, but the file would not be readable
+        // by the game or by any other tool.
+        Instance instance = env.createEmptyInstance(loader());
+        Chunk chunk = instance.loadChunk(2, 3).join();
+        Block sign = Block.OAK_SIGN.withNbt(net.kyori.adventure.nbt.CompoundBinaryTag.builder()
+                .putString("aves_marker", "kept")
+                .build());
+        place(chunk, 5, 45, 7, sign);
+
+        try (AvesAnvilLoader writer = loader()) {
+            writer.saveChunk(chunk);
+        }
+
+        net.kyori.adventure.nbt.CompoundBinaryTag data = readStoredChunk(2, 3);
+        net.kyori.adventure.nbt.ListBinaryTag entities =
+                data.getList("block_entities", net.kyori.adventure.nbt.BinaryTagTypes.COMPOUND);
+
+        assertEquals(1, entities.size());
+        net.kyori.adventure.nbt.CompoundBinaryTag entity = entities.getCompound(0);
+        assertEquals(2 * 16 + 5, entity.getInt("x"));
+        assertEquals(45, entity.getInt("y"));
+        assertEquals(3 * 16 + 7, entity.getInt("z"));
+    }
+
+    @Test
+    void testABlockEntityInAFarChunkIsRestoredAtItsPosition(Env env) throws IOException {
+        Instance instance = env.createEmptyInstance(loader());
+        Chunk chunk = instance.loadChunk(5, 9).join();
+        Block sign = Block.OAK_SIGN.withNbt(net.kyori.adventure.nbt.CompoundBinaryTag.builder()
+                .putString("aves_marker", "far")
+                .build());
+        place(chunk, 1, 44, 2, sign);
+
+        try (AvesAnvilLoader writer = loader()) {
+            writer.saveChunk(chunk);
+        }
+
+        try (AvesAnvilLoader reader = loader()) {
+            Chunk loaded = reader.loadChunk(instance, 5, 9);
+
+            assertNotNull(loaded);
+            assertEquals("far", blockAt(loaded, 1, 44, 2).nbtOrEmpty().getString("aves_marker"));
+        }
+    }
+
+    /**
+     * Reads the stored chunk data straight from the region file without using the loader.
+     *
+     * @param chunkX the absolute chunk x coordinate
+     * @param chunkZ the absolute chunk z coordinate
+     * @return the stored chunk data
+     * @throws IOException if the chunk cannot be read
+     */
+    private net.kyori.adventure.nbt.CompoundBinaryTag readStoredChunk(int chunkX, int chunkZ) throws IOException {
+        Path region = this.worldRoot.resolve("dimensions/minecraft/overworld/region")
+                .resolve("r." + (chunkX >> 5) + "." + (chunkZ >> 5) + ".mca");
+
+        try (RegionFile file = RegionFile.open(region)) {
+            RegionFile.RawChunk raw = file.readRaw(chunkX, chunkZ);
+            assertNotNull(raw);
+            return net.kyori.adventure.nbt.BinaryTagIO.unlimitedReader().read(
+                    new java.io.ByteArrayInputStream(raw.decompress()),
+                    net.kyori.adventure.nbt.BinaryTagIO.Compression.NONE
+            );
         }
     }
 
@@ -245,6 +315,44 @@ class AvesAnvilLoaderIntegrationTest {
 
             assertNotNull(failure);
             assertEquals(1, reader.diagnostics().errors());
+        }
+    }
+
+    @Test
+    void testTheAmountOfOpenRegionFilesStaysBounded(Env env) throws IOException {
+        // Chunks are unloaded without telling the loader which of its region files became unused,
+        // so the loader has to bound the amount of open files itself instead of counting users.
+        Instance instance = env.createEmptyInstance(loader());
+
+        try (AvesAnvilLoader loader = new AvesAnvilLoader(this.worldRoot, OVERWORLD, 2)) {
+            for (int region = 0; region < 5; region++) {
+                Chunk chunk = instance.loadChunk(region * 32, 0).join();
+                place(chunk, 0, 40, 0, Block.STONE);
+                loader.saveChunk(chunk);
+            }
+
+            assertTrue(loader.openRegionCount() <= 2, "expected at most two open region files but found " + loader.openRegionCount());
+        }
+    }
+
+    @Test
+    void testAChunkStaysReadableAfterItsRegionFileWasEvicted(Env env) throws IOException {
+        Instance instance = env.createEmptyInstance(loader());
+
+        try (AvesAnvilLoader loader = new AvesAnvilLoader(this.worldRoot, OVERWORLD, 1)) {
+            Chunk first = instance.loadChunk(0, 0).join();
+            place(first, 0, 40, 0, Block.STONE);
+            loader.saveChunk(first);
+
+            Chunk second = instance.loadChunk(64, 0).join();
+            place(second, 0, 40, 0, Block.DIRT);
+            loader.saveChunk(second);
+
+            // The first region file was evicted by now and has to be reopened transparently.
+            Chunk reloaded = loader.loadChunk(instance, 0, 0);
+
+            assertNotNull(reloaded);
+            assertEquals(Block.STONE, blockAt(reloaded, 0, 40, 0));
         }
     }
 

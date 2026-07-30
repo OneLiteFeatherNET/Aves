@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  * being validated against real worlds.
  * </p>
  *
- * @author theEvilReaper
+ * @author TheMeinerLP
  * @version 1.0.0
  * @since 1.16.0
  */
@@ -99,7 +99,7 @@ public final class BiomePaletteResolver implements PaletteEntryResolver {
      *
      * @param registry   the registry which holds the known biomes
      * @param fallbackId the id of the biome which replaces an unknown one
-     * @author theEvilReaper
+     * @author TheMeinerLP
      * @version 1.0.0
      * @since 1.16.0
      */

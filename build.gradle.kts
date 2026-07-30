@@ -56,6 +56,10 @@ tasks {
     test {
         finalizedBy(rootProject.tasks.jacocoTestReport)
         useJUnitPlatform()
+        // The chunk loader tests allocate payloads of about one mebibyte to cover the external
+        // chunk file path. Without an explicit heap the worker can die while other build tasks
+        // run in parallel, which surfaces as an EOFException instead of a test failure.
+        maxHeapSize = "1g"
         jvmArgs("-Dminestom.inside-test=true")
         testLogging {
             events("passed", "skipped", "failed")

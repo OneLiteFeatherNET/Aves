@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * being validated against real worlds.
  * </p>
  *
- * @author theEvilReaper
+ * @author TheMeinerLP
  * @version 1.0.0
  * @since 1.16.0
  */
@@ -421,7 +421,7 @@ public final class RegionFile implements AutoCloseable {
      *
      * @param compression the compression scheme of the payload
      * @param payload     the payload as it is stored on disk
-     * @author theEvilReaper
+     * @author TheMeinerLP
      * @version 1.0.0
      * @since 1.16.0
      */

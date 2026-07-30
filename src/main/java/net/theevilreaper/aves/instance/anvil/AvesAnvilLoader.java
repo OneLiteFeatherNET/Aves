@@ -59,7 +59,7 @@ import java.util.concurrent.Semaphore;
  * being validated against real worlds.
  * </p>
  *
- * @author theEvilReaper
+ * @author TheMeinerLP
  * @version 1.0.0
  * @since 1.16.0
  */
@@ -82,6 +82,12 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     private static final int BLOCK_ENTRIES = 16 * 16 * 16;
     private static final int BIOME_ENTRIES = 4 * 4 * 4;
 
+    /**
+     * The amount of region files a loader keeps open by default.
+     */
+    public static final int DEFAULT_OPEN_REGION_LIMIT = 64;
+
+    private final int openRegionLimit;
     private final Path regionDirectory;
     private final String dimensionLabel;
     private final AnvilDiagnostics diagnostics;
@@ -100,6 +106,28 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
      * @param dimension the key of the dimension the loader reads and writes
      */
     public AvesAnvilLoader(Path worldRoot, Key dimension) {
+        this(worldRoot, dimension, DEFAULT_OPEN_REGION_LIMIT);
+    }
+
+    /**
+     * Creates a new loader which keeps at most the given amount of region files open.
+     * <p>
+     * The loader cannot tell which of its region files became unused, because it also receives
+     * unload calls for chunks it never loaded. It therefore bounds the amount of open files
+     * instead of counting their users. An evicted file is reopened transparently on the next
+     * access.
+     * </p>
+     *
+     * @param worldRoot       the root directory of the world
+     * @param dimension       the key of the dimension the loader reads and writes
+     * @param openRegionLimit the amount of region files the loader keeps open
+     * @throws IllegalArgumentException if the limit is not positive
+     */
+    public AvesAnvilLoader(Path worldRoot, Key dimension, int openRegionLimit) {
+        if (openRegionLimit <= 0) {
+            throw new IllegalArgumentException("The amount of open region files must be positive but was " + openRegionLimit);
+        }
+        this.openRegionLimit = openRegionLimit;
         this.regionDirectory = resolveRegionDirectory(worldRoot, dimension);
         this.dimensionLabel = dimension.asString();
         this.diagnostics = new AnvilDiagnostics();
@@ -280,8 +308,10 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     /**
      * {@inheritDoc}
      * <p>
-     * The loader keeps its region files open until it is closed because it also receives unload
-     * calls for chunks it never loaded, which makes a reference count unreliable.
+     * The call releases no resources on purpose. A loader also receives unload calls for chunks it
+     * never loaded, so counting the users of a region file would close files which are still in
+     * use. The amount of open files is bounded by the configured limit instead, which releases
+     * handles without depending on unload calls being accurate.
      * </p>
      */
     @Override
@@ -386,12 +416,52 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
         RegionFile opened = RegionFile.open(path);
         RegionFile previous = this.regions.putIfAbsent(index, opened);
 
-        if (previous == null) {
-            LOGGER.debug("Opened the region file region={} dim={}", path, this.dimensionLabel);
-            return opened;
+        if (previous != null) {
+            opened.close();
+            return previous;
         }
-        opened.close();
-        return previous;
+
+        LOGGER.debug("Opened the region file region={} dim={}", path, this.dimensionLabel);
+        evictRegions(index);
+        return opened;
+    }
+
+    /**
+     * Closes region files until the configured limit is met again.
+     * The file which was just opened is never evicted so the caller keeps a usable handle.
+     *
+     * @param keep the index of the region file which must stay open
+     */
+    private void evictRegions(long keep) {
+        for (Map.Entry<Long, RegionFile> entry : this.regions.entrySet()) {
+            if (this.regions.size() <= this.openRegionLimit) {
+                return;
+            }
+            if (entry.getKey() == keep || !this.regions.remove(entry.getKey(), entry.getValue())) {
+                continue;
+            }
+
+            try {
+                entry.getValue().flush();
+                entry.getValue().close();
+                LOGGER.debug("Closed the region file region={} dim={} to stay below the open file limit",
+                        entry.getValue().path(), this.dimensionLabel);
+            } catch (IOException exception) {
+                this.diagnostics.countError();
+                LOGGER.error("Failed to close the region file region={} dim={}",
+                        entry.getValue().path(), this.dimensionLabel, exception);
+            }
+        }
+    }
+
+    /**
+     * Returns the amount of region files the loader currently keeps open.
+     *
+     * @return the amount of open region files
+     */
+    @Contract(pure = true)
+    public int openRegionCount() {
+        return this.regions.size();
     }
 
     /**
@@ -474,7 +544,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
      * @param biomes     the converted biome palette or null if the section carries none
      * @param skyLight   the stored sky light or null if the section carries none
      * @param blockLight the stored block light or null if the section carries none
-     * @author theEvilReaper
+     * @author TheMeinerLP
      * @version 1.0.0
      * @since 1.16.0
      */
@@ -560,9 +630,10 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
 
         for (int index = 0; index < entities.size(); index++) {
             CompoundBinaryTag entity = entities.getCompound(index);
-            int x = NbtReads.integer(entity, "x");
+            // The stored position is a world coordinate and has to be mapped back into the chunk.
+            int x = NbtReads.integer(entity, "x") & (Chunk.CHUNK_SIZE_X - 1);
             int y = NbtReads.integer(entity, "y");
-            int z = NbtReads.integer(entity, "z");
+            int z = NbtReads.integer(entity, "z") & (Chunk.CHUNK_SIZE_Z - 1);
 
             Block block = chunk.getBlock(x, y, z);
             CompoundBinaryTag.Builder tags = CompoundBinaryTag.builder();
@@ -665,7 +736,12 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
                     if (hasHandler) {
                         entity.putString("id", block.handler().getKey().asString());
                     }
-                    target.add(entity.putInt("x", x).putInt("y", y).putInt("z", z).build());
+                    // The format stores the position in world coordinates, not in chunk local ones.
+                    target.add(entity
+                            .putInt("x", chunk.getChunkX() * Chunk.CHUNK_SIZE_X + x)
+                            .putInt("y", y)
+                            .putInt("z", chunk.getChunkZ() * Chunk.CHUNK_SIZE_Z + z)
+                            .build());
                 }
             }
         }

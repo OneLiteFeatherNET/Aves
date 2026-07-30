@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Contract;
  * API may still change while that loader is being validated against real worlds.
  * </p>
  *
- * @author theEvilReaper
+ * @author TheMeinerLP
  * @version 1.0.0
  * @since 1.16.0
  */
