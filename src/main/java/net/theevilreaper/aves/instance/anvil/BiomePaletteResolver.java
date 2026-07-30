@@ -9,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.Supplier;
+
 /**
  * The {@link BiomePaletteResolver} class translates between the biome entries of the Anvil format
  * and the biome ids of the server registry.
@@ -18,9 +20,9 @@ import org.slf4j.LoggerFactory;
  * diagnostics.
  * </p>
  * <p>
- * The registry is resolved when the resolver is created instead of in a static initializer. A
- * static lookup would require a running server before the class is touched for the first time
- * which makes the surrounding code hard to test.
+ * The registry is resolved on the first use instead of in a static initializer or in the
+ * constructor. Both would require a running server before the class is touched for the first time,
+ * which prevents a loader from being created while the server is still starting.
  * </p>
  *
  * @author theEvilReaper
@@ -34,8 +36,9 @@ public final class BiomePaletteResolver implements PaletteEntryResolver {
     private static final String NAME_KEY = "Name";
 
     private final AnvilDiagnostics diagnostics;
-    private final DynamicRegistry<Biome> registry;
-    private final int fallbackId;
+    private final Supplier<DynamicRegistry<Biome>> registrySupplier;
+
+    private volatile @Nullable Registries resolved;
 
     /**
      * Creates a new resolver which uses the biome registry of the running server.
@@ -43,19 +46,57 @@ public final class BiomePaletteResolver implements PaletteEntryResolver {
      * @param diagnostics the diagnostics which throttle the reports
      */
     public BiomePaletteResolver(AnvilDiagnostics diagnostics) {
-        this(diagnostics, MinecraftServer.getBiomeRegistry());
+        this(diagnostics, MinecraftServer::getBiomeRegistry);
     }
 
     /**
-     * Creates a new resolver which uses the given registry.
+     * Creates a new resolver which uses the registry the given supplier provides.
+     * <p>
+     * The registry is resolved on the first use instead of in the constructor. A loader is often
+     * created while the server is still starting and reading the registry too early would fail
+     * before the loader ever touches a chunk.
+     * </p>
      *
-     * @param diagnostics the diagnostics which throttle the reports
-     * @param registry    the registry which holds the known biomes
+     * @param diagnostics      the diagnostics which throttle the reports
+     * @param registrySupplier the supplier which provides the registry of the known biomes
      */
-    public BiomePaletteResolver(AnvilDiagnostics diagnostics, DynamicRegistry<Biome> registry) {
+    public BiomePaletteResolver(AnvilDiagnostics diagnostics, Supplier<DynamicRegistry<Biome>> registrySupplier) {
         this.diagnostics = diagnostics;
-        this.registry = registry;
-        this.fallbackId = registry.getId(Biome.PLAINS);
+        this.registrySupplier = registrySupplier;
+    }
+
+    /**
+     * Returns the registry of this resolver and resolves it on the first call.
+     *
+     * @return the registry and the id of the fallback biome
+     */
+    private Registries registries() {
+        Registries current = this.resolved;
+
+        if (current != null) {
+            return current;
+        }
+
+        synchronized (this) {
+            if (this.resolved == null) {
+                DynamicRegistry<Biome> registry = this.registrySupplier.get();
+                this.resolved = new Registries(registry, registry.getId(Biome.PLAINS));
+            }
+            return this.resolved;
+        }
+    }
+
+    /**
+     * The {@link Registries} record holds the resolved registry together with the id of the biome
+     * which replaces an unknown one.
+     *
+     * @param registry   the registry which holds the known biomes
+     * @param fallbackId the id of the biome which replaces an unknown one
+     * @author theEvilReaper
+     * @version 1.0.0
+     * @since 1.16.0
+     */
+    private record Registries(DynamicRegistry<Biome> registry, int fallbackId) {
     }
 
     /**
@@ -63,7 +104,8 @@ public final class BiomePaletteResolver implements PaletteEntryResolver {
      */
     @Override
     public int toId(String name, @Nullable CompoundBinaryTag properties) {
-        int id = this.registry.getId(RegistryKey.unsafeOf(name));
+        Registries registries = registries();
+        int id = registries.registry().getId(RegistryKey.unsafeOf(name));
 
         if (id != -1) {
             return id;
@@ -71,7 +113,7 @@ public final class BiomePaletteResolver implements PaletteEntryResolver {
         if (this.diagnostics.reportUnknownBiome(name)) {
             LOGGER.warn("The biome '{}' is unknown and is replaced with plains, further chunks with it are not reported", name);
         }
-        return this.fallbackId;
+        return registries.fallbackId();
     }
 
     /**
@@ -79,7 +121,7 @@ public final class BiomePaletteResolver implements PaletteEntryResolver {
      */
     @Override
     public CompoundBinaryTag toEntry(int id) {
-        RegistryKey<Biome> key = this.registry.getKey(id);
+        RegistryKey<Biome> key = registries().registry().getKey(id);
         String name = key == null ? Biome.PLAINS.key().asString() : key.key().asString();
         return CompoundBinaryTag.builder().putString(NAME_KEY, name).build();
     }

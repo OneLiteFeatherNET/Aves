@@ -35,12 +35,19 @@ import java.util.stream.Stream;
  * </p>
  *
  * @author theEvilReaper
- * @version 1.2.0
+ * @version 1.3.0
  * @since 1.6.0
  */
 public abstract class AbstractMapProvider implements MapProvider {
 
     private static final Logger MAP_LOGGER = LoggerFactory.getLogger(AbstractMapProvider.class);
+
+    /**
+     * The factory which is used when a provider does not choose a chunk loader itself.
+     * It keeps the loader which Minestom ships with so existing providers behave as before.
+     */
+    private static final ChunkLoaderFactory DEFAULT_CHUNK_LOADER_FACTORY =
+            (mapEntry, dimension) -> new AnvilLoader(mapEntry.getDirectoryRoot(), dimension);
 
     private final PathFilter<MapEntry> mapFilter;
     protected final FileHandler fileHandler;
@@ -81,7 +88,29 @@ public abstract class AbstractMapProvider implements MapProvider {
      * @param dimensionKey the dimension type key for the instance
      */
     protected void registerInstance(InstanceContainer instance, MapEntry mapEntry, RegistryKey<DimensionType> dimensionKey) {
-        instance.setChunkLoader(new AnvilLoader(mapEntry.getDirectoryRoot(), dimensionKey.key()));
+        this.registerInstance(instance, mapEntry, dimensionKey, DEFAULT_CHUNK_LOADER_FACTORY);
+    }
+
+    /**
+     * Registers the specified map entry as an active instance in the server.
+     * Sets up chunk loading and time rate, and registers the instance with the server manager.
+     * <p>
+     * The chunk loader is created by the given factory which allows a provider to replace the
+     * default loader, for example with {@link ChunkLoaderFactory#anvil()}.
+     * </p>
+     *
+     * @param instance     to be registered
+     * @param mapEntry     representing the folder that contains the map files
+     * @param dimensionKey the dimension type key for the instance
+     * @param loaderFactory the factory which creates the chunk loader of the instance
+     */
+    protected void registerInstance(
+            InstanceContainer instance,
+            MapEntry mapEntry,
+            RegistryKey<DimensionType> dimensionKey,
+            ChunkLoaderFactory loaderFactory
+    ) {
+        instance.setChunkLoader(loaderFactory.create(mapEntry, dimensionKey.key()));
         instance.enableAutoChunkLoad(true);
         var defaultClock = instance.defaultClock();
         if (defaultClock != null) {
