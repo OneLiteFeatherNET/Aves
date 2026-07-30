@@ -25,9 +25,13 @@ dependencies {
     implementation(libs.slf4j.api)
 
     compileOnly(libs.adventure)
+    compileOnly(libs.adventure.nbt)
+    compileOnly(libs.annotations)
     compileOnly(libs.minestom)
 
     testImplementation(libs.adventure)
+    testImplementation(libs.adventure.nbt)
+    testImplementation(libs.annotations)
     testImplementation(libs.minestom)
     testImplementation(libs.cyano)
     testImplementation(libs.junit.jupiter)

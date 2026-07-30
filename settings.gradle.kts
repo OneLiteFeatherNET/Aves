@@ -23,12 +23,15 @@ dependencyResolutionManagement {
         create("libs") {
             version("bom", "1.7.2")
             version("slf4j", "2.0.18")
+            version("annotations", "26.1.0")
 
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
 
             library("slf4j.api", "org.slf4j", "slf4j-api").versionRef("slf4j")
+            library("annotations", "org.jetbrains", "annotations").versionRef("annotations")
             library("minestom","net.minestom", "minestom").withoutVersion()
             library("adventure", "net.kyori", "adventure-text-minimessage").withoutVersion()
+            library("adventure.nbt", "net.kyori", "adventure-nbt").withoutVersion()
             library("cyano", "net.onelitefeather", "cyano").withoutVersion()
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").withoutVersion()
             library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").withoutVersion()
