@@ -319,6 +319,95 @@ class AvesAnvilLoaderIntegrationTest {
     }
 
     @Test
+    void testABlockHandlerSurvivesTheRoundTrip(Env env) throws IOException {
+        Instance instance = env.createEmptyInstance(loader());
+        Chunk chunk = instance.loadChunk(0, 0).join();
+        net.minestom.server.instance.block.BlockHandler handler =
+                net.minestom.server.MinecraftServer.getBlockManager().getHandlerOrDummy("minecraft:sign");
+        place(chunk, 6, 46, 6, Block.OAK_SIGN.withHandler(handler));
+
+        try (AvesAnvilLoader writer = loader()) {
+            writer.saveChunk(chunk);
+        }
+
+        try (AvesAnvilLoader reader = loader()) {
+            Chunk loaded = reader.loadChunk(instance, 0, 0);
+
+            assertNotNull(loaded);
+            Block restored = blockAt(loaded, 6, 46, 6);
+            assertNotNull(restored.handler(), "the block handler must be restored");
+            assertEquals("minecraft:sign", restored.handler().getKey().asString());
+        }
+    }
+
+    @Test
+    void testTheHandlerIdIsNotKeptAsBlockNbt(Env env) throws IOException {
+        Instance instance = env.createEmptyInstance(loader());
+        Chunk chunk = instance.loadChunk(0, 0).join();
+        net.minestom.server.instance.block.BlockHandler handler =
+                net.minestom.server.MinecraftServer.getBlockManager().getHandlerOrDummy("minecraft:sign");
+        place(chunk, 7, 46, 7, Block.OAK_SIGN.withHandler(handler));
+
+        try (AvesAnvilLoader writer = loader()) {
+            writer.saveChunk(chunk);
+        }
+
+        try (AvesAnvilLoader reader = loader()) {
+            Chunk loaded = reader.loadChunk(instance, 0, 0);
+
+            assertNotNull(loaded);
+            // The position and the handler id belong to the file format, not to the block itself.
+            assertEquals("", blockAt(loaded, 7, 46, 7).nbtOrEmpty().getString("id"));
+        }
+    }
+
+    @Test
+    void testUnloadingEveryChunkOfARegionClosesItsFile(Env env) throws IOException {
+        Instance instance = env.createEmptyInstance(loader());
+
+        try (AvesAnvilLoader loader = loader()) {
+            Chunk first = instance.loadChunk(0, 0).join();
+            Chunk second = instance.loadChunk(1, 0).join();
+            place(first, 0, 40, 0, Block.STONE);
+            place(second, 0, 40, 0, Block.STONE);
+            loader.saveChunk(first);
+            loader.saveChunk(second);
+
+            Chunk loadedFirst = loader.loadChunk(instance, 0, 0);
+            Chunk loadedSecond = loader.loadChunk(instance, 1, 0);
+            assertNotNull(loadedFirst);
+            assertNotNull(loadedSecond);
+            assertEquals(1, loader.openRegionCount());
+
+            loader.unloadChunk(loadedFirst);
+            assertEquals(1, loader.openRegionCount(), "the file is still used by the second chunk");
+
+            loader.unloadChunk(loadedSecond);
+            assertEquals(0, loader.openRegionCount(), "the last chunk of the region was unloaded");
+        }
+    }
+
+    @Test
+    void testAnUnloadedChunkCanBeLoadedAgain(Env env) throws IOException {
+        Instance instance = env.createEmptyInstance(loader());
+
+        try (AvesAnvilLoader loader = loader()) {
+            Chunk chunk = instance.loadChunk(0, 0).join();
+            place(chunk, 0, 40, 0, Block.STONE);
+            loader.saveChunk(chunk);
+
+            Chunk loaded = loader.loadChunk(instance, 0, 0);
+            assertNotNull(loaded);
+            loader.unloadChunk(loaded);
+
+            Chunk again = loader.loadChunk(instance, 0, 0);
+
+            assertNotNull(again);
+            assertEquals(Block.STONE, blockAt(again, 0, 40, 0));
+        }
+    }
+
+    @Test
     void testTheAmountOfOpenRegionFilesStaysBounded(Env env) throws IOException {
         // Chunks are unloaded without telling the loader which of its region files became unused,
         // so the loader has to bound the amount of open files itself instead of counting users.

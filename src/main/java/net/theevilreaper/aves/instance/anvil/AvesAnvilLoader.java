@@ -7,6 +7,7 @@ import net.kyori.adventure.nbt.BinaryTagTypes;
 import net.kyori.adventure.nbt.ByteArrayBinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
+import net.kyori.adventure.nbt.StringBinaryTag;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.CoordConversion;
 import net.minestom.server.instance.Chunk;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -94,6 +96,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     private final PaletteEntryResolver blockResolver;
     private final PaletteEntryResolver biomeResolver;
     private final Map<Long, RegionFile> regions;
+    private final Map<Long, Set<Long>> trackedChunks;
     private final Semaphore saveLimit;
     private final int dataVersion;
 
@@ -112,10 +115,10 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     /**
      * Creates a new loader which keeps at most the given amount of region files open.
      * <p>
-     * The loader cannot tell which of its region files became unused, because it also receives
-     * unload calls for chunks it never loaded. It therefore bounds the amount of open files
-     * instead of counting their users. An evicted file is reopened transparently on the next
-     * access.
+     * A region file is normally closed as soon as every chunk this loader took from it has been
+     * unloaded. The limit is the second line of defence for the case that unload calls never
+     * arrive, for example because chunks stay loaded for the whole lifetime of the server. An
+     * evicted file is reopened transparently on the next access.
      * </p>
      *
      * @param worldRoot       the root directory of the world
@@ -134,6 +137,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
         this.blockResolver = new BlockPaletteResolver(this.diagnostics);
         this.biomeResolver = new BiomePaletteResolver(this.diagnostics);
         this.regions = new ConcurrentHashMap<>();
+        this.trackedChunks = new ConcurrentHashMap<>();
         this.saveLimit = new Semaphore(Math.max(Runtime.getRuntime().availableProcessors(), 2));
         this.dataVersion = MinecraftServer.DATA_VERSION;
 
@@ -204,6 +208,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
             } finally {
                 chunk.unlockWriteLock();
             }
+            trackChunk(chunkX, chunkZ);
             this.diagnostics.countChunkLoaded();
             return chunk;
         } catch (IOException | RuntimeException exception) {
@@ -308,15 +313,81 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     /**
      * {@inheritDoc}
      * <p>
-     * The call releases no resources on purpose. A loader also receives unload calls for chunks it
-     * never loaded, so counting the users of a region file would close files which are still in
-     * use. The amount of open files is bounded by the configured limit instead, which releases
-     * handles without depending on unload calls being accurate.
+     * The region file of the chunk is closed once every chunk this loader took from it has been
+     * unloaded. Only chunks this loader handled itself are tracked, because a loader also receives
+     * unload calls for chunks it never loaded. An unload call for such a chunk is ignored instead
+     * of closing a file which is still in use.
      * </p>
      */
     @Override
     public void unloadChunk(Chunk chunk) {
-        LOGGER.trace("Unloading the chunk chunk=[{},{}] dim={}", chunk.getChunkX(), chunk.getChunkZ(), this.dimensionLabel);
+        int chunkX = chunk.getChunkX();
+        int chunkZ = chunk.getChunkZ();
+        long index = regionIndex(chunkX, chunkZ);
+        Set<Long> chunks = this.trackedChunks.get(index);
+
+        if (chunks == null || !chunks.remove(CoordConversion.chunkIndex(chunkX, chunkZ))) {
+            return;
+        }
+
+        LOGGER.trace("Unloading the chunk chunk=[{},{}] dim={}", chunkX, chunkZ, this.dimensionLabel);
+
+        if (!chunks.isEmpty()) {
+            return;
+        }
+        // The removal has to be conditional, another thread may have registered a chunk since the
+        // emptiness check above.
+        if (this.trackedChunks.remove(index, chunks)) {
+            closeRegion(index);
+        }
+    }
+
+    /**
+     * Closes the region file with the given index if it is still open.
+     *
+     * @param index the index of the region file
+     */
+    private void closeRegion(long index) {
+        RegionFile region = this.regions.remove(index);
+
+        if (region == null) {
+            return;
+        }
+
+        try {
+            region.flush();
+            region.close();
+            LOGGER.debug("Closed the region file region={} dim={} after its last chunk was unloaded",
+                    region.path(), this.dimensionLabel);
+        } catch (IOException exception) {
+            this.diagnostics.countError();
+            LOGGER.error("Failed to close the region file region={} dim={}", region.path(), this.dimensionLabel, exception);
+        }
+    }
+
+    /**
+     * Records that this loader handled the given chunk so its region file can be released once
+     * every chunk of that file has been unloaded again.
+     *
+     * @param chunkX the absolute chunk x coordinate
+     * @param chunkZ the absolute chunk z coordinate
+     */
+    private void trackChunk(int chunkX, int chunkZ) {
+        this.trackedChunks
+                .computeIfAbsent(regionIndex(chunkX, chunkZ), ignored -> ConcurrentHashMap.newKeySet())
+                .add(CoordConversion.chunkIndex(chunkX, chunkZ));
+    }
+
+    /**
+     * Calculates the index of the region file which holds the given chunk.
+     *
+     * @param chunkX the absolute chunk x coordinate
+     * @param chunkZ the absolute chunk z coordinate
+     * @return the index of the region file
+     */
+    @Contract(pure = true)
+    private static long regionIndex(int chunkX, int chunkZ) {
+        return CoordConversion.regionIndex(RegionConstants.chunkToRegion(chunkX), RegionConstants.chunkToRegion(chunkZ));
     }
 
     /**
@@ -352,6 +423,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
             }
         }
         this.regions.clear();
+        this.trackedChunks.clear();
         logSummary();
 
         if (failure != null) {
@@ -644,6 +716,12 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
                 if (!"x".equals(key) && !"y".equals(key) && !"z".equals(key) && !"id".equals(key) && !"keepPacked".equals(key)) {
                     tags.put(key, entry.getValue());
                 }
+            }
+
+            // The id names the block handler. Without resolving it the handler of every block
+            // entity would be lost even though it is written back on the next save.
+            if (entity.get("id") instanceof StringBinaryTag id) {
+                block = block.withHandler(MinecraftServer.getBlockManager().getHandlerOrDummy(id.value()));
             }
 
             CompoundBinaryTag nbt = tags.build();

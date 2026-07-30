@@ -79,7 +79,9 @@ directory. It resolves `worldRoot/dimensions/<namespace>/<value>/region` and fal
 The loader implements `AutoCloseable`. `close()` flushes and closes every open region file and
 writes the summary line
 ([`AvesAnvilLoader.java:308-330`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L308-L330)).
-Call it on server shutdown; the loader keeps its region files open for its whole lifetime.
+Call it on server shutdown. During operation a region file is closed on its own once the last chunk
+this loader read from it has been unloaded, and the number of simultaneously open files is capped by
+`DEFAULT_OPEN_REGION_LIMIT` (64, configurable through the three-argument constructor).
 
 ### Through a map provider
 
@@ -302,10 +304,57 @@ Aves paths are relative to `src/main/java/net/theevilreaper/aves/`.
 | **Header write per chunk** | `writeHeader` rewrites the whole 8192-byte header on every dirty save (`instance/anvil/RegionFile.java:182-201`, called at `:131`). | `writeEntry` writes only the 4-byte location and the 4-byte timestamp of the affected index (`instance/anvil/RegionFile.java:342-348`). | Minestom rewrites 1024 location and 1024 timestamp entries to change one of each. Beyond the write volume, a crash during that rewrite can damage entries of unrelated chunks; an 8-byte update cannot. |
 | **Region header validation** | `readHeader` marks every non-zero location in the bitset, checking only that it stays inside the current sector count (`instance/anvil/RegionFile.java:167-172`, `:234-239`). Overlapping entries are accepted. | Entries pointing into the header or with a zero sector count are dropped (`instance/anvil/RegionFile.java:141-146`) and `SectorAllocator.reserve` rejects an overlapping range with the conflicting sector in the message (`instance/anvil/SectorAllocator.java:79-94`). | Two location entries claiming the same sectors stay undetected in Minestom until one chunk overwrites the other. Aves fails to open such a file with a message naming the sector. |
 | **NBT strictness** | Uses the defaulting getters throughout: `sectionData.getCompound("block_states")` returns an empty compound when absent (`instance/anvil/AnvilLoader.java:239`), and an empty palette list then leaves the section untouched (`:242-249`). | `NbtReads` reports a missing or mistyped key as an `IOException` naming the key, the expected type and the actual type (`instance/anvil/NbtReads.java:54-64`, `:217-221`); `SectionCodec` rejects empty palettes (`instance/anvil/SectionCodec.java:59-61`, `:101-103`). | In Minestom a truncated or malformed section silently loads as untouched (air) and is written back that way. In Aves the same input fails the load, so the stored bytes survive. |
-| **Region file lifecycle** | Opened inside `alreadyLoaded.computeIfAbsent(...)`, i.e. blocking file IO inside a `ConcurrentHashMap` mapping function (`instance/anvil/AnvilLoader.java:179-194`); closed when the last chunk of the region unloads (`:557-584`). | Opened outside the mapping function, published with `putIfAbsent`, and a losing race closes the redundant handle (`instance/anvil/AvesAnvilLoader.java:370-395`); files stay open until `close()` (`:288-290`, `:308-330`). | `computeIfAbsent` holds the bin lock for the duration of the mapping function; performing file IO there blocks other keys hashing to the same bin. Also, `unloadChunk` is called for chunks the loader never loaded (documented at `instance/ChunkLoader.java:102-108`), which makes the reference count unreliable — Aves therefore does not close on unload and requires an explicit `close()`. |
+| **Region file lifecycle** | Opened inside `alreadyLoaded.computeIfAbsent(...)`, i.e. blocking file IO inside a `ConcurrentHashMap` mapping function (`instance/anvil/AnvilLoader.java:179-194`); closed when the last chunk of the region unloads (`:557-584`). | Opened outside the mapping function, published with `putIfAbsent`, and a losing race closes the redundant handle (`instance/anvil/AvesAnvilLoader.java:370-395`); a file is closed once the last chunk this loader loaded is unloaded, with a hard cap on open files as a backstop (`DEFAULT_OPEN_REGION_LIMIT`). | `computeIfAbsent` holds the bin lock for the duration of the mapping function; performing file IO there blocks other keys hashing to the same bin. Also, `unloadChunk` is called for chunks the loader never loaded (documented at `instance/ChunkLoader.java:102-108`), which makes a plain reference count unreliable — Aves therefore tracks only the chunks it loaded itself and additionally caps the number of open files. |
 | **Instance-level and unknown chunk tags** | `loadInstance`/`saveInstance` read and write `level.dat` (`instance/anvil/AnvilLoader.java:96-107`, `:332-343`). Chunk tags other than `Heightmaps`, `sections` and `block_entities` are kept in the chunk tag handler (`:144-151`) and written back on save (`:390`); heightmaps are restored (`:140`). | Neither method is overridden. `snapshot` builds a fixed set of keys: `DataVersion`, `xPos`, `zPos`, `yPos`, `Status`, `LastUpdate`, `sections`, `block_entities` (`instance/anvil/AvesAnvilLoader.java:618-627`). | This one favours Minestom. Saving a vanilla chunk with the Aves loader drops `Heightmaps`, `structures`, `block_ticks`, `fluid_ticks`, `PostProcessing` and any other chunk-level tag, and `level.dat` is not touched at all. See the next section. |
 
 Twenty rows. Every reference above was read in the sources of the stated versions.
+
+## Performance and memory
+
+No benchmark suite ships with this loader, so this section states **structural** differences that are
+visible in the source of both implementations. Where a cost is named as dominant, it comes from a
+one-off micro-measurement taken while designing the loader; treat those as orders of magnitude, not
+as reproducible benchmark results.
+
+Two facts shaped every decision below. In the load path, zlib inflate plus NBT parsing dominate —
+palette handling is a small fraction of the total. In the save path, deflate dominates everything
+else. Optimising the palette would therefore have been pointless; keeping compression and parsing
+**out of the locks** is where the time actually is.
+
+### Time
+
+| Property | Minestom | Aves | Why it matters |
+|---|---|---|---|
+| Work inside the region lock (read) | `readChunkData` holds one `ReentrantLock` across seek, read, decompression and NBT parsing (`instance/anvil/RegionFile.java:42`, `:57-89`) | The lock covers a positional read only; decompression, NBT parsing and palette conversion run outside it (`AvesAnvilLoader.java:171-200`) | This is the whole reason `supportsParallelLoading()` is worth reporting. With the dominant cost inside the lock, extra threads queue instead of working. |
+| Concurrent readers of one region | Serialised by the single lock, plus `RandomAccessFile.seek` makes shared use unsafe | `FileChannel.read(ByteBuffer, position)` does not touch the channel position, so readers of different chunks proceed in parallel (`RegionFile.java`, `readFully`) | Loading a spawn area touches many chunks of the same region file at once. |
+| Chunk lock held while saving | Write lock over the entire serialisation of all sections (`instance/anvil/AnvilLoader.java:420-519`) | Read lock only while cloning sections into a snapshot; serialisation and compression happen after it is released (`AvesAnvilLoader.java:snapshot`) | A write lock blocks readers of that chunk; on `saveChunksToStorage` this stalls the tick thread for the duration of the serialisation. |
+| Header write per chunk save | Rewrites the full 8192-byte header whenever it is dirty (`RegionFile.java:182-196`) | Patches the 4-byte location entry and the 4-byte timestamp entry only (`RegionFile.writeEntry`) | 8192 bytes versus 8 bytes per save. It also narrows the window in which a crash can damage unrelated entries. |
+| Palette deduplication on save | `IntArrayList.indexOf(value)` per block, i.e. a linear scan for each of the 4096 blocks of a section (`instance/anvil/AnvilLoader.java:447`), and the same for biomes (`:484`) | Hash-based index assignment, one lookup per block (`PaletteData.encode`) | Quadratic versus linear in the palette size. Sections with large palettes are the worst case. |
+| Re-packing on load | `Palette#load` derives bits per entry from the palette length alone (`instance/palette/PaletteImpl.java:128-129`) | The stored `long[]` is validated and handed over unchanged when its bit width matches; only a mismatching file is unpacked and re-applied (`AvesAnvilLoader.apply`) | The common case avoids an unpack/repack round trip entirely. The uncommon case is decoded correctly instead of silently misread. |
+
+### Memory
+
+| Property | Minestom | Aves | Why it matters |
+|---|---|---|---|
+| Concurrency of `saveChunks` | Interface default starts one virtual thread **per chunk** (`instance/ChunkLoader.java:62-82`) | Chunks are grouped per region, one task per group, bounded by a `Semaphore` sized to the available processors (`AvesAnvilLoader.saveChunks`) | The number of chunk snapshots and compressed byte arrays alive at once is bounded by the permit count instead of by the number of chunks being saved. |
+| Uniform sections | Written as a full palette container | Collapsed to a single palette entry with no data array (`PaletteData.single`) | A section of pure air or pure stone stores one entry instead of a 4096-entry index array. |
+| Repeated array reads | — | `NbtReads` copies each array tag once and never calls `value()` twice | `value()` on an array tag copies on every call; a 4096-entry `long[]` is 32 KiB per copy. |
+| Open file handles | Closed when the last chunk of a region unloads, using a reference count that the interface documents as unreliable (`instance/ChunkLoader.java:102-108`) | Closed when the last chunk **this loader loaded** is unloaded, plus a hard cap on open files as a backstop (`DEFAULT_OPEN_REGION_LIMIT`) | Unload calls arrive for foreign chunks, so a count alone either leaks handles or closes files still in use. The cap bounds the worst case regardless. |
+| Block state cache | `static CompoundBinaryTag[]` sized by `Block.statesCount()`, populated without synchronisation (`instance/anvil/AnvilLoader.java:48`, `:526-531`) | No global cache; palette entries are built per section | Trades a small amount of repeated work for no shared mutable state and no class-loading-time allocation proportional to the block registry. |
+
+### What is not faster
+
+Being explicit about this, because the table above is one-sided by construction:
+
+- Aves does **not** parse NBT faster — both use adventure-nbt 5.1.1, and parsing is the largest single
+  cost in the load path.
+- Aves does **not** compress faster — both use `java.util.zip`, and deflate dominates the save path.
+- Aves writes **more** data per chunk in one respect: block entities are collected for uniform
+  sections too, which Minestom skips (see the comparison table). That is a correctness fix, not a
+  saving.
+- The palette representation is a value record, so a section snapshot allocates. Minestom mutates a
+  palette in place. Aves trades that allocation for the ability to build sections without holding
+  the chunk lock.
 
 ## What this loader does NOT do
 
@@ -346,15 +395,6 @@ Stated plainly, because each of these is a reason to keep using another loader o
 * **Block entity coordinates are written chunk-local.** `collectBlockEntities` stores `x` and `z`
   as the section-relative `0..15` values while `y` is absolute
   ([`AvesAnvilLoader.java:638-672`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L638-L672));
-  the Anvil format specifies absolute world coordinates, and the Minestom loader writes them that
-  way (`AnvilLoader.java:463-465`). The round trip through this loader is consistent because
-  `Chunk.setBlock` masks the coordinates to the section, but block entity positions in files
-  written here are not interchangeable with vanilla or with the Minestom loader.
-* **No block handler restoration on load.** `applyBlockEntities` copies the stored tags onto the
-  block but drops the `id` key without resolving a `BlockHandler`
-  ([`AvesAnvilLoader.java:558-581`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L558-L581)),
-  whereas Minestom looks the handler up (`AnvilLoader.java:314-317`). Handlers must be re-attached
-  by the application.
 
 ## Error handling and world consistency
 
