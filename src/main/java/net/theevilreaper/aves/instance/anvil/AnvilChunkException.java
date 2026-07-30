@@ -1,5 +1,8 @@
 package net.theevilreaper.aves.instance.anvil;
 
+import org.jetbrains.annotations.ApiStatus;
+
+
 /**
  * The {@link AnvilChunkException} is thrown when a chunk which exists on disk cannot be read.
  * <p>
@@ -8,10 +11,16 @@ package net.theevilreaper.aves.instance.anvil;
  * read failure would silently destroy the very data it failed to read.
  * </p>
  *
+ * <p>
+ * This type is experimental. The Anvil loader is new and its API may still change while it is
+ * being validated against real worlds.
+ * </p>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 public class AnvilChunkException extends RuntimeException {
 
     /**

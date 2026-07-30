@@ -12,6 +12,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.anvil.AnvilLoader;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.slf4j.Logger;
@@ -104,6 +105,7 @@ public abstract class AbstractMapProvider implements MapProvider {
      * @param dimensionKey the dimension type key for the instance
      * @param loaderFactory the factory which creates the chunk loader of the instance
      */
+    @ApiStatus.Experimental
     protected void registerInstance(
             InstanceContainer instance,
             MapEntry mapEntry,

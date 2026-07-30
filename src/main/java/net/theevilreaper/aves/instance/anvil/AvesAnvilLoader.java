@@ -15,6 +15,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Section;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.instance.palette.Palette;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -53,10 +54,16 @@ import java.util.concurrent.Semaphore;
  * save, so a read failure has to stay visible.
  * </p>
  *
+ * <p>
+ * This type is experimental. The Anvil loader is new and its API may still change while it is
+ * being validated against real worlds.
+ * </p>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AvesAnvilLoader.class);

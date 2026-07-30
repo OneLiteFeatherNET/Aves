@@ -4,6 +4,7 @@ import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.StringBinaryTag;
 import net.minestom.server.instance.block.Block;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,16 @@ import java.util.Map;
  * the diagnostics so the problem stays visible without flooding the log.
  * </p>
  *
+ * <p>
+ * This type is experimental. The Anvil loader is new and its API may still change while it is
+ * being validated against real worlds.
+ * </p>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 public final class BlockPaletteResolver implements PaletteEntryResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BlockPaletteResolver.class);

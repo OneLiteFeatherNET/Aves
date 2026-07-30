@@ -1,6 +1,7 @@
 package net.theevilreaper.aves.instance.anvil;
 
 import net.kyori.adventure.nbt.CompoundBinaryTag;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -13,10 +14,16 @@ import org.jetbrains.annotations.Nullable;
  * verified without starting one.
  * </p>
  *
+ * <p>
+ * This type is experimental. The Anvil loader is new and its API may still change while it is
+ * being validated against real worlds.
+ * </p>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 public interface PaletteEntryResolver {
 
     /**

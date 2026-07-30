@@ -9,6 +9,7 @@ import net.kyori.adventure.nbt.ListBinaryTag;
 import net.kyori.adventure.nbt.LongArrayBinaryTag;
 import net.kyori.adventure.nbt.NumberBinaryTag;
 import net.kyori.adventure.nbt.StringBinaryTag;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,10 +28,16 @@ import java.io.IOException;
  * one entry early which would drop the last entry of every packed block or biome array.
  * </p>
  *
+ * <p>
+ * This type is experimental. The Anvil loader is new and its API may still change while it is
+ * being validated against real worlds.
+ * </p>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 public final class NbtReads {
 
     private NbtReads() {

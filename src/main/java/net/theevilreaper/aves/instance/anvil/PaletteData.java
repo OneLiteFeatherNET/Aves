@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.instance.anvil;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,10 +26,16 @@ import java.util.Map;
  * @param packed       the packed palette indices or null if the section holds a single value
  * @param bitsPerEntry the amount of bits a single index occupies
  * @param entryCount   the amount of entries the section holds
+ * <p>
+ * This type is experimental. The Anvil loader is new and its API may still change while it is
+ * being validated against real worlds.
+ * </p>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 public record PaletteData(int[] palette, long @Nullable [] packed, int bitsPerEntry, int entryCount) {
 
     /**

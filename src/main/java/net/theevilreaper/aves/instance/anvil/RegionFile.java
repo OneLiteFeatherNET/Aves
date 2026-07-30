@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.instance.anvil;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,10 +27,16 @@ import java.util.concurrent.locks.ReentrantLock;
  * location entry can address is moved into a separate file next to the region file.
  * </p>
  *
+ * <p>
+ * This type is experimental. The Anvil loader is new and its API may still change while it is
+ * being validated against real worlds.
+ * </p>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 public final class RegionFile implements AutoCloseable {
 
     private final Path path;

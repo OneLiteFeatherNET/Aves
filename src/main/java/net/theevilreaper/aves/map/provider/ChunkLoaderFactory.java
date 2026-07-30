@@ -4,6 +4,7 @@ import net.kyori.adventure.key.Key;
 import net.minestom.server.instance.ChunkLoader;
 import net.theevilreaper.aves.instance.anvil.AvesAnvilLoader;
 import net.theevilreaper.aves.map.MapEntry;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -14,11 +15,16 @@ import org.jetbrains.annotations.Contract;
  * implementation. Existing code keeps the loader of Minestom while new code can opt into the
  * loader of Aves without any change to the provider itself.
  * </p>
+ * <p>
+ * This type is experimental. It is introduced together with the Anvil loader of Aves and its
+ * API may still change while that loader is being validated against real worlds.
+ * </p>
  *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 @FunctionalInterface
 public interface ChunkLoaderFactory {
 

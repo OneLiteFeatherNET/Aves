@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.instance.anvil;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -11,10 +12,16 @@ import org.jetbrains.annotations.Contract;
  * contains pure functions so the encoding can be verified without any file or server access.
  * </p>
  *
+ * <p>
+ * This type is experimental. The Anvil loader is new and its API may still change while it is
+ * being validated against real worlds.
+ * </p>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 public final class BitPacker {
 
     private static final int BITS_PER_LONG = Long.SIZE;

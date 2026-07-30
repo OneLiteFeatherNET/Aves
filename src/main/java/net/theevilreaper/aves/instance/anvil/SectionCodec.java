@@ -1,5 +1,7 @@
 package net.theevilreaper.aves.instance.anvil;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.BinaryTagTypes;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -21,10 +23,16 @@ import java.io.IOException;
  * The class is stateless so it can be used from every thread that loads or saves a chunk.
  * </p>
  *
+ * <p>
+ * This type is experimental. The Anvil loader is new and its API may still change while it is
+ * being validated against real worlds.
+ * </p>
+ *
  * @author theEvilReaper
  * @version 1.0.0
  * @since 1.16.0
  */
+@ApiStatus.Experimental
 public final class SectionCodec {
 
     private static final String PALETTE_KEY = "palette";
