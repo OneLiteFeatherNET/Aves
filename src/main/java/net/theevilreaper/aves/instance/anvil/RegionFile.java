@@ -7,7 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -44,6 +46,14 @@ import java.util.concurrent.locks.ReentrantLock;
  * inside the same critical section. Only the payload bytes of such a chunk are written outside of
  * it, into a staging file which is moved into place while the lock is held.
  * </p>
+ * <p>
+ * The external file is the one place where the lock free reads meet a name in the file system
+ * instead of a range inside the region file, and a name is not a POSIX concept. A reader opens the
+ * external file while a writer may replace or remove it, which POSIX allows without any further
+ * thought but Windows does not. Every operation on such a file therefore goes through
+ * {@link #placeExternal(Path, Path)} and {@link #removeExternal(Path)} which keep the name usable
+ * for a writer while a reader still holds a handle on the file behind it.
+ * </p>
  *
  * <p>
  * This type is experimental. The Anvil loader is new and its API may still change while it is
@@ -74,6 +84,27 @@ public final class RegionFile implements AutoCloseable {
      * up a staging file by name.
      */
     private static final String STAGING_SUFFIX = ".mcc.tmp";
+
+    /**
+     * The amount of times an operation on an external chunk file is repeated before it gives up.
+     * <p>
+     * A repetition only happens on a file system which refuses to touch a name while another thread
+     * has the file behind it open. The refusal lasts exactly as long as that handle, and a handle on
+     * an external file only exists for the duration of a single {@link Files#readAllBytes(Path)} in
+     * {@link #readEntry(int, int, int)}. No reader can open a new one while the writer holds the
+     * lock, because the version counter of the entry is odd for that whole time and makes every
+     * reader either spin or wait for the lock. The outstanding handles therefore drain within one
+     * read, and the limit only exists so a file which is held open by something outside of this
+     * process reports a failure instead of blocking a writer forever.
+     * </p>
+     */
+    private static final int EXTERNAL_ATTEMPTS = 100;
+
+    /**
+     * The time in milliseconds a thread waits before it repeats an operation on an external chunk
+     * file.
+     */
+    private static final long EXTERNAL_RETRY_DELAY = 1L;
 
     private final Path path;
     private final Path directory;
@@ -349,7 +380,7 @@ public final class RegionFile implements AutoCloseable {
                 // removed after the entry stopped pointing at it, so a crash between the two steps
                 // can leave an unused file but never a missing one.
                 if (staged != null) {
-                    Files.move(staged, externalPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+                    placeExternal(staged, externalPath);
                 }
 
                 this.locations.set(index, (sectorOffset << 8) | sectorCount);
@@ -357,7 +388,7 @@ public final class RegionFile implements AutoCloseable {
                 writeEntry(index);
 
                 if (staged == null) {
-                    Files.deleteIfExists(externalPath);
+                    removeExternal(externalPath);
                 }
                 if (previous != 0) {
                     this.allocator.free(previous >>> 8, previous & 0xFF);
@@ -370,7 +401,7 @@ public final class RegionFile implements AutoCloseable {
             }
         } finally {
             if (staged != null) {
-                Files.deleteIfExists(staged);
+                retryWhileDenied(() -> Files.deleteIfExists(staged));
             }
         }
     }
@@ -399,7 +430,7 @@ public final class RegionFile implements AutoCloseable {
             this.locations.set(index, 0);
             this.timestamps.set(index, 0);
             writeEntry(index);
-            Files.deleteIfExists(externalPath(chunkX, chunkZ));
+            removeExternal(externalPath(chunkX, chunkZ));
             this.allocator.free(previous >>> 8, previous & 0xFF);
         } finally {
             this.versions.incrementAndGet(index);
@@ -481,6 +512,105 @@ public final class RegionFile implements AutoCloseable {
     @Contract(pure = true)
     private Path externalPath(int chunkX, int chunkZ) {
         return this.directory.resolve("c." + chunkX + "." + chunkZ + ".mcc");
+    }
+
+    /**
+     * Moves the staging file of an oversized chunk onto the external file of that chunk.
+     * <p>
+     * The move replaces a file which a reader may have open at this very moment. POSIX lets a name
+     * be re-pointed at any time and keeps every open handle valid, so the move always succeeds
+     * there. Windows only agrees as long as the readers opened the file in a way which shares the
+     * deletion right, which the NIO file system provider does, and as long as the name itself is not
+     * poisoned. That is why {@link #removeExternal(Path)} exists, and the repetition here covers
+     * what is left: a handle which is still being torn down or a virus scanner which opened the file
+     * behind the back of this process both deny the move for a moment and let it through afterwards.
+     * </p>
+     *
+     * @param staged the staging file which holds the payload of the chunk
+     * @param target the external file of the chunk
+     * @throws IOException if the staging file cannot be moved into place
+     */
+    private void placeExternal(Path staged, Path target) throws IOException {
+        retryWhileDenied(() -> Files.move(staged, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE));
+    }
+
+    /**
+     * Removes the external file of a chunk which no longer needs one.
+     * <p>
+     * The file is renamed onto a private name before it is deleted instead of being deleted where it
+     * lies. A plain deletion looks equivalent and is equivalent under POSIX, where the name is
+     * detached immediately and only the unnamed file lives on until the last reader closed it.
+     * Windows instead keeps the name in the directory and marks the file for deletion, and for as
+     * long as a reader holds it open every attempt to open that name or to move another file onto it
+     * fails with an {@link AccessDeniedException}. A writer which switches the same chunk back to an
+     * external payload right after would therefore be denied its move for as long as any reader is
+     * still busy with the old file, which is precisely the window this class is built to keep open.
+     * Renaming the file away detaches the name at once on both systems, so only the private name is
+     * left in that state and nobody ever asks for it again.
+     * </p>
+     *
+     * @param target the external file of the chunk
+     * @throws IOException if the external file cannot be removed
+     */
+    private void removeExternal(Path target) throws IOException {
+        if (!Files.exists(target)) {
+            return;
+        }
+        Path discarded = Files.createTempFile(this.directory, "c.", STAGING_SUFFIX);
+
+        try {
+            retryWhileDenied(() -> Files.move(target, discarded, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE));
+        } catch (NoSuchFileException _) {
+            // Another writer removed the file between the check above and the move, which is the
+            // outcome this method wants anyway.
+        }
+        retryWhileDenied(() -> Files.deleteIfExists(discarded));
+    }
+
+    /**
+     * Runs the given action and repeats it while the file system denies the access to a name.
+     * <p>
+     * The action is repeated at most {@link #EXTERNAL_ATTEMPTS} times with a pause of
+     * {@link #EXTERNAL_RETRY_DELAY} milliseconds in between. A denial which outlives every attempt
+     * is reported to the caller, and a thread which is interrupted while it waits stops immediately
+     * and reports the denial which made it wait.
+     * </p>
+     *
+     * @param action the action to run
+     * @throws IOException if the action keeps failing or fails for another reason
+     */
+    private static void retryWhileDenied(FileAction action) throws IOException {
+        for (int attempt = 1; ; attempt++) {
+            try {
+                action.run();
+                return;
+            } catch (AccessDeniedException exception) {
+                if (attempt >= EXTERNAL_ATTEMPTS) {
+                    throw exception;
+                }
+
+                try {
+                    Thread.sleep(EXTERNAL_RETRY_DELAY);
+                } catch (InterruptedException interruption) {
+                    Thread.currentThread().interrupt();
+                    throw exception;
+                }
+            }
+        }
+    }
+
+    /**
+     * An operation on a file which may fail with an {@link IOException}.
+     */
+    @FunctionalInterface
+    private interface FileAction {
+
+        /**
+         * Runs the operation.
+         *
+         * @throws IOException if the operation fails
+         */
+        void run() throws IOException;
     }
 
     /**
