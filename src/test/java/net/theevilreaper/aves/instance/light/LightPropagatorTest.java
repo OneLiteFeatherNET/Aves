@@ -249,4 +249,39 @@ class LightPropagatorTest {
         assertEquals(14, light.get(1, 0, 0));
         assertEquals(14, light.get(0, 1, 0));
     }
+
+    @Test
+    void testSourcesOfDifferentBrightnessDoNotOverflowTheQueue() {
+        // A position is queued again every time its level is raised. Dim sources are seeded first
+        // and spread low levels, then a bright source raises the very same positions, so a queue
+        // sized for "each position once" is too small.
+        BlockLightSource graded = new BlockLightSource() {
+
+            @Override
+            public int emission(int stateId) {
+                return stateId == 0 ? 0 : stateId;
+            }
+
+            @Override
+            public boolean blocksFace(int stateId, BlockFace face) {
+                return false;
+            }
+        };
+
+        int[] states = new int[LightNibbles.BLOCK_COUNT];
+
+        // Dim sources across the lower half, one bright source at the very top.
+        for (int y = 0; y < 8; y++) {
+            for (int z = 0; z < LightNibbles.DIMENSION; z++) {
+                for (int x = 0; x < LightNibbles.DIMENSION; x++) {
+                    states[index(x, y, z)] = 1 + ((x + y + z) % 3);
+                }
+            }
+        }
+        states[index(8, 15, 8)] = 15;
+
+        LightNibbles light = new LightPropagator().propagate(SectionOpacity.of(states, graded));
+
+        assertEquals(15, light.get(8, 15, 8));
+    }
 }

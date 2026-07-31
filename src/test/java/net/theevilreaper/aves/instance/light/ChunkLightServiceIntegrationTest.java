@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -216,6 +217,54 @@ class ChunkLightServiceIntegrationTest {
         assertEquals(14, this.service.blockLightAt(east, 0, 40, 8),
                 "the first block of the neighbouring chunk has to be lit");
         assertEquals(13, this.service.blockLightAt(east, 1, 40, 8));
+    }
+
+    @Test
+    void testLightReachesTheChunkBehindTheNeighbour(Env env) {
+        Instance instance = env.createEmptyInstance();
+        Chunk origin = instance.loadChunk(0, 0).join();
+        Chunk east = instance.loadChunk(1, 0).join();
+        Chunk south = instance.loadChunk(0, 1).join();
+        Chunk diagonal = instance.loadChunk(1, 1).join();
+        // The lamp sits in the corner of its chunk, so its light leaves through two borders and
+        // has to travel through one of the neighbours to arrive in the chunk behind them.
+        place(origin, 15, 40, 15, Block.GLOWSTONE);
+
+        this.service.calculateWithNeighbours(instance, 0, 0);
+
+        assertEquals(14, this.service.blockLightAt(east, 0, 40, 15));
+        assertEquals(14, this.service.blockLightAt(south, 15, 40, 0));
+        assertEquals(13, this.service.blockLightAt(diagonal, 0, 40, 0),
+                "the light has to continue through a neighbour into the chunk behind it");
+    }
+
+    @Test
+    void testARepeatedExchangeKeepsTheSameResult(Env env) {
+        Instance instance = env.createEmptyInstance();
+        Chunk origin = instance.loadChunk(0, 0).join();
+        Chunk diagonal = instance.loadChunk(1, 1).join();
+        instance.loadChunk(1, 0).join();
+        instance.loadChunk(0, 1).join();
+        place(origin, 15, 40, 15, Block.GLOWSTONE);
+
+        this.service.calculateWithNeighbours(instance, 0, 0);
+        int first = this.service.blockLightAt(diagonal, 0, 40, 0);
+        this.service.calculateWithNeighbours(instance, 0, 0);
+
+        assertEquals(first, this.service.blockLightAt(diagonal, 0, 40, 0),
+                "a settled exchange must not drift when it is repeated");
+    }
+
+    @Test
+    void testTheExchangeNeverLoadsAMissingNeighbour(Env env) {
+        Instance instance = env.createEmptyInstance();
+        Chunk origin = instance.loadChunk(0, 0).join();
+        place(origin, 15, 40, 15, Block.GLOWSTONE);
+
+        this.service.calculateWithNeighbours(instance, 0, 0);
+
+        assertNull(instance.getChunk(1, 0), "a missing neighbour must not be loaded");
+        assertNull(instance.getChunk(1, 1), "a missing diagonal neighbour must not be loaded either");
     }
 
     @Test

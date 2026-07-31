@@ -195,4 +195,41 @@ class ChunkLightStateTest {
         assertEquals(15, state.get(8, 0, 8));
         assertEquals(15, state.get(8, 31, 8));
     }
+
+    @Test
+    void testAnUpdateWithManyGradedSourcesDoesNotOverflowTheQueue() {
+        // Same hazard as in the propagators: a position enters the addition queue again whenever a
+        // brighter source raises it, so a queue sized for one entry per position is too small.
+        BlockLightSource graded = new BlockLightSource() {
+
+            @Override
+            public int emission(int stateId) {
+                return stateId == 0 ? 0 : stateId;
+            }
+
+            @Override
+            public boolean blocksFace(int stateId, BlockFace face) {
+                return false;
+            }
+        };
+
+        List<int[]> sections = airChunk(2);
+
+        for (int y = 0; y < LightNibbles.DIMENSION; y++) {
+            for (int z = 0; z < LightNibbles.DIMENSION; z++) {
+                for (int x = 0; x < LightNibbles.DIMENSION; x++) {
+                    sections.get(0)[index(x, y, z)] = 1 + ((x + y + z) % 3);
+                }
+            }
+        }
+
+        List<SectionOpacity> tables = sections.stream().map(states -> SectionOpacity.of(states, graded)).toList();
+        ChunkLightState state = ChunkLightState.blockLight(tables);
+
+        sections.get(1)[index(8, 8, 8)] = 15;
+        List<SectionOpacity> updated = sections.stream().map(states -> SectionOpacity.of(states, graded)).toList();
+        state.update(updated, 8, 24, 8);
+
+        assertEquals(15, state.get(8, 24, 8));
+    }
 }

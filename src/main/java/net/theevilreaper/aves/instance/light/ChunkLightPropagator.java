@@ -14,8 +14,8 @@ import java.util.List;
  * </p>
  * <p>
  * The search is the same breadth-first pass {@link LightPropagator} performs, extended by the
- * vertical axis. Since a level drops by exactly one per block, every position is still reached with
- * its final level on the first visit.
+ * vertical axis. A position is visited again whenever a brighter source raises its level, so the
+ * queue can hold more entries than the column has positions and grows when it runs full.
  * </p>
  * <p>
  * An instance keeps its buffers for the largest column it has seen and reuses them, so repeated
@@ -137,10 +137,27 @@ public final class ChunkLightPropagator {
                     continue;
                 }
                 this.levels[neighbourIndex] = (byte) next;
+                ensureRoom(tail);
                 this.queue[tail++] = neighbourIndex;
             }
         }
         return collect(sections.size());
+    }
+
+    /**
+     * Makes room for one more entry in the queue.
+     * <p>
+     * A position is queued again every time its level is raised, which happens when a brighter
+     * source reaches a position a dimmer one had already lit. The amount of entries is therefore
+     * not bounded by the amount of positions, and the queue has to be able to grow.
+     * </p>
+     *
+     * @param tail the amount of entries the queue currently holds
+     */
+    private void ensureRoom(int tail) {
+        if (tail == this.queue.length) {
+            this.queue = java.util.Arrays.copyOf(this.queue, this.queue.length * 2);
+        }
     }
 
     /**
@@ -182,6 +199,7 @@ public final class ChunkLightPropagator {
                     }
                     int index = index(x, y, z);
                     this.levels[index] = (byte) emission;
+                    ensureRoom(tail);
                     this.queue[tail++] = index;
                 }
             }
@@ -212,6 +230,7 @@ public final class ChunkLightPropagator {
                     }
                     int index = index(x, y, z);
                     this.levels[index] = LightNibbles.MAX_LEVEL;
+                    ensureRoom(tail);
                     this.queue[tail++] = index;
                 }
             }

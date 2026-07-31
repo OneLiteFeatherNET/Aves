@@ -53,8 +53,8 @@ Seven types, each with one responsibility. Only the two on the right know Minest
 | `LightPropagator` | The breadth-first propagation, with reusable buffers. |
 | `ChunkLightPropagator` | The same search across all sections of a chunk, so light crosses their borders. |
 | `MinestomBlockLightSource` | Answers `BlockLightSource` from the block registry. |
-| `ChunkLightState` | Keeps a calculated result and updates it incrementally, including the retraction pass. |
-| `ChunkLightService` | Reads a chunk, runs the propagation, writes the result back. |
+| `ChunkLightState` | Keeps a calculated result and updates it incrementally, including the retraction pass and the sky heightmap. |
+| `ChunkLightService` | Reads a chunk, runs the propagation, settles the borders against the neighbours, writes the result back. |
 
 `BlockLightSource` exists for the same reason `PaletteEntryResolver` does in the Anvil package: it
 keeps the registry out of the algorithm, so the propagation is verified with a handful of fake
@@ -194,6 +194,21 @@ Lighting a chunk on its own ends its light at the border, which shows up as a st
 every sixteen blocks. This method exchanges the border levels with every already loaded neighbour in
 both directions. Neighbours that are not loaded are skipped rather than forced to load.
 
+One round of that exchange is not enough. A source in the corner of a chunk sends light through two
+borders, and the light that entered a neighbour has to leave it again on another side to arrive in
+the chunk diagonally behind it. The exchange therefore repeats over the whole area — the chunk and
+the eight positions around it — until no chunk of it raises a level any more:
+
+| Property | How it is reached |
+| --- | --- |
+| Terminates | An injection only ever raises a level, and a level is capped at fifteen, so the repetition walks towards a fixed point. |
+| Same result every time | The area is a fixed-size array walked in a fixed order, not a map. Since every step only raises levels, the fixed point does not depend on the order either. |
+| Reads a chunk once | The opacity tables of every participating chunk are built once, before the first round, and reused by all of them. |
+| Cannot loop forever | The amount of rounds is capped at sixteen, which is one more than the highest level that can exist. Hitting the cap is reported through `LOGGER.warn` instead of being accepted silently. |
+
+A radius of one chunk is enough because a level of fifteen cannot survive sixteen blocks of travel,
+so nothing the middle chunk emits can reach a second ring.
+
 ### Incremental updates
 
 `ChunkLightService#calculate` always recomputes the whole chunk. For a single block change that is
@@ -217,6 +232,28 @@ those back in.
 `ChunkLightStateTest#testTheIncrementalResultMatchesAFullRecalculation` asserts that the incremental
 result is identical to a full recalculation, block for block.
 
+#### Sky light updates
+
+Sky light has an origin no block holds: it falls in from above. An update can therefore not tell
+from the levels alone which positions lost their origin and which gained one, and a state that holds
+sky light keeps a heightmap for that reason — the highest position that stops the sky, per column.
+
+A block change moves exactly one column of that heightmap, and the difference between the old and
+the new height names the positions whose origin changed:
+
+| Change | Effect on the column |
+| --- | --- |
+| A block is placed above the current height | Everything between the old and the new height falls out of the open sky and gives its level back. What is left is refilled from the sides, which is why a single pillar leaves a level of fourteen below it rather than darkness. |
+| The highest blocking block is removed | The column opens down to the next block below, and every position in between receives the full level again and spreads it. |
+| The change is below the height | The height stays where it is. The changed position is retracted and refilled from its neighbours, exactly as a block light update works. |
+
+Only the changed column is walked again, so an update no longer re-seeds all two hundred and fifty
+six columns of the chunk.
+
+`SkyLightUpdateTest` asserts the result against a full recalculation block for block, for both
+directions, for a change that is not in the highest blocking position, and for a seeded sequence of
+random changes that verifies the equality after every single one of them.
+
 ### When to call what
 
 | Situation | Method |
@@ -230,13 +267,9 @@ result is identical to a full recalculation, block for block.
 - **No `Light` implementation.** The engine deliberately does not implement
   `net.minestom.server.instance.light.Light`. It writes its result through `set` instead, which
   avoids depending on the internal calculation methods of that interface.
-- **Border exchange is one round deep.** `calculateWithNeighbours` exchanges light with the direct
-  neighbours of a chunk. Light that would travel through a neighbour into the chunk behind it needs
-  another round; a fully converged result over a large area requires repeating the exchange until
-  nothing changes.
-- **Sky light is not incremental across the height limit.** `ChunkLightState#update` re-seeds the
-  open columns on every update rather than tracking a heightmap, so a sky light update costs more
-  than a block light update.
+- **The exchange covers one ring of chunks.** `calculateWithNeighbours` settles the chunk and the
+  eight positions around it. That is enough for the light of the middle chunk, but the outer chunks
+  of the area are not settled against their own neighbours outside of it.
 - **`Section.clone()` discards foreign light.** Should an adapter be built later, note that
   `Section.clone()` calls `Light.sky()` / `Light.block()` outright, so any custom implementation is
   silently replaced on copy. `LightingChunk.copy()` would have to be overridden.

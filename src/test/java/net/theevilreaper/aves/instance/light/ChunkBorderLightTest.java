@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -195,6 +196,22 @@ class ChunkBorderLightTest {
             int expected = Math.max(0, 14 - x);
             assertEquals(expected, eastState.get(x, 8, 8), "mismatch at x " + x);
         }
+    }
+
+    @Test
+    void testAnInjectionReportsWhetherItRaisedALevel() {
+        List<int[]> west = airChunk(1);
+        west.get(0)[index(15, 8, 8)] = LAMP;
+        ChunkLightState westState = ChunkLightState.blockLight(tables(west));
+
+        List<int[]> east = airChunk(1);
+        List<SectionOpacity> eastTables = tables(east);
+        ChunkLightState eastState = ChunkLightState.blockLight(eastTables);
+
+        assertTrue(eastState.injectBorder(eastTables, BlockFace.WEST, westState.border(BlockFace.EAST)),
+                "the first injection raises the levels behind the border");
+        assertFalse(eastState.injectBorder(eastTables, BlockFace.WEST, westState.border(BlockFace.EAST)),
+                "repeating the very same injection changes nothing");
     }
 
     @Test

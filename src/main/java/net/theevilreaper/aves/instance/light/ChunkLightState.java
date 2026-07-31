@@ -18,6 +18,14 @@ import java.util.List;
  * the second spreads those back in.
  * </p>
  * <p>
+ * Sky light needs one more piece of state for the same reason. Its origin is not a block but the
+ * open sky above a column, so an update cannot tell from the levels alone which positions lost
+ * their origin and which gained one. A state which holds sky light therefore keeps the height at
+ * which every column stops the sky and compares it against the height the column has after the
+ * change. Only that one column can move, which is what keeps an update small instead of re-seeding
+ * all two hundred and fifty six columns of the chunk.
+ * </p>
+ * <p>
  * Instances are not thread safe. Keep one per chunk and use it from one thread at a time.
  * </p>
  * <p>
@@ -34,14 +42,25 @@ public final class ChunkLightState {
     private static final BlockFace[] FACES = BlockFace.values();
     private static final int MASK = LightNibbles.DIMENSION - 1;
 
+    /**
+     * The heightmap of a state which holds block light. Block light never reads it.
+     */
+    private static final int[] NO_HEIGHTMAP = new int[0];
+
+    /**
+     * The height of a column which nothing stops the sky in.
+     */
+    private static final int OPEN_COLUMN = -1;
+
     private final byte[] levels;
     private final int sectionCount;
     private final int height;
     private final boolean sky;
+    private final int[] skyTop;
 
     private final int[] removalQueue;
     private final byte[] removalLevels;
-    private final int[] additionQueue;
+    private int[] additionQueue;
 
     /**
      * Creates a new state from the given levels.
@@ -49,15 +68,35 @@ public final class ChunkLightState {
      * @param levels       the level of every block of the column
      * @param sectionCount the amount of sections the chunk holds
      * @param sky          whether the state holds sky light
+     * @param skyTop       the highest position which stops the sky per column
      */
-    private ChunkLightState(byte[] levels, int sectionCount, boolean sky) {
+    private ChunkLightState(byte[] levels, int sectionCount, boolean sky, int[] skyTop) {
         this.levels = levels;
         this.sectionCount = sectionCount;
         this.height = sectionCount * LightNibbles.DIMENSION;
         this.sky = sky;
+        this.skyTop = skyTop;
         this.removalQueue = new int[levels.length];
         this.removalLevels = new byte[levels.length];
         this.additionQueue = new int[levels.length];
+    }
+
+
+    /**
+     * Makes room for one more entry in the addition queue.
+     * <p>
+     * A position enters the queue again whenever a brighter source raises it, and the retraction can
+     * reach the same position from several sides. The amount of entries is therefore not bounded by
+     * the amount of positions, so the queue has to be able to grow rather than rely on that
+     * assumption.
+     * </p>
+     *
+     * @param tail the amount of entries the queue currently holds
+     */
+    private void ensureRoom(int tail) {
+        if (tail == this.additionQueue.length) {
+            this.additionQueue = java.util.Arrays.copyOf(this.additionQueue, this.additionQueue.length * 2);
+        }
     }
 
     /**
@@ -104,7 +143,50 @@ public final class ChunkLightState {
                 }
             }
         }
-        return new ChunkLightState(levels, sectionCount, sky);
+        return new ChunkLightState(levels, sectionCount, sky, sky ? skyTopOf(sections) : NO_HEIGHTMAP);
+    }
+
+    /**
+     * Determines for every column of the chunk where the sky stops.
+     *
+     * @param sections the light properties of every section of the chunk
+     * @return the highest position which stops the sky per column
+     */
+    @Contract(pure = true)
+    private static int[] skyTopOf(List<SectionOpacity> sections) {
+        int height = sections.size() * LightNibbles.DIMENSION;
+        int[] skyTop = new int[LightNibbles.DIMENSION * LightNibbles.DIMENSION];
+
+        for (int z = 0; z < LightNibbles.DIMENSION; z++) {
+            for (int x = 0; x < LightNibbles.DIMENSION; x++) {
+                skyTop[column(x, z)] = columnTop(sections, height, x, z);
+            }
+        }
+        return skyTop;
+    }
+
+    /**
+     * Determines where the sky stops in a single column.
+     * <p>
+     * The walk starts at the top of the chunk and ends at the first block which light cannot enter
+     * from above, exactly as the initial sky propagation walks a column. Everything above that
+     * block sees the open sky, everything below it does not.
+     * </p>
+     *
+     * @param sections the light properties of every section of the chunk
+     * @param height   the amount of blocks the column spans vertically
+     * @param x        the x coordinate inside the chunk
+     * @param z        the z coordinate inside the chunk
+     * @return the highest position which stops the sky, or a negative value for an open column
+     */
+    @Contract(pure = true)
+    private static int columnTop(List<SectionOpacity> sections, int height, int x, int z) {
+        for (int y = height - 1; y >= 0; y--) {
+            if (blocksFace(sections, x, y, z, BlockFace.TOP)) {
+                return y;
+            }
+        }
+        return OPEN_COLUMN;
     }
 
     /**
@@ -129,31 +211,138 @@ public final class ChunkLightState {
      * @param z        the z coordinate inside the chunk
      */
     public void update(List<SectionOpacity> sections, int x, int y, int z) {
-        int start = index(x, y, z);
-        int additions = retract(sections, start);
+        if (this.sky) {
+            updateSky(sections, x, y, z);
+            return;
+        }
+
+        int additions = retract(seedRemoval(0, index(x, y, z)));
         additions = seedEmission(sections, additions);
         spread(sections, additions);
     }
 
     /**
-     * Retracts every level which originated from the changed position.
+     * Updates the sky light after the block at the given position changed.
+     * <p>
+     * Only the column of the changed block can stop the sky at another height than before, so only
+     * that column is walked again. The difference between the old and the new height names exactly
+     * the positions which changed their origin: the ones that fell out of the open sky have to give
+     * their level back, the ones that fell into it receive the full level.
+     * </p>
+     * <p>
+     * The changed position itself is retracted in either case, because it carries the light of the
+     * block that is gone. Its neighbours are handed to the second pass afterwards, since a position
+     * which just turned transparent holds no light of its own that a retraction could follow and
+     * has to be filled from the outside instead.
+     * </p>
+     *
+     * @param sections the light properties of every section, reflecting the change
+     * @param x        the x coordinate inside the chunk
+     * @param y        the y coordinate inside the column
+     * @param z        the z coordinate inside the chunk
+     */
+    private void updateSky(List<SectionOpacity> sections, int x, int y, int z) {
+        int column = column(x, z);
+        int previousTop = this.skyTop[column];
+        int currentTop = columnTop(sections, this.height, x, z);
+        this.skyTop[column] = currentTop;
+
+        int removals = seedRemoval(0, index(x, y, z));
+
+        for (int lost = previousTop + 1; lost <= currentTop; lost++) {
+            if (lost != y) {
+                removals = seedRemoval(removals, index(x, lost, z));
+            }
+        }
+
+        int additions = retract(removals);
+
+        for (int opened = currentTop + 1; opened <= previousTop; opened++) {
+            additions = seedSky(additions, index(x, opened, z));
+        }
+
+        // A position above both heights kept its open sky and only lost its level to the retraction.
+        if (y > currentTop && y > previousTop) {
+            additions = seedSky(additions, index(x, y, z));
+        }
+        spread(sections, seedNeighbours(additions, x, y, z));
+    }
+
+    /**
+     * Clears the level of a position and hands it to the retraction.
+     *
+     * @param queued the amount of positions which are already queued for the retraction
+     * @param index  the index of the position to retract
+     * @return the amount of queued positions
+     */
+    private int seedRemoval(int queued, int index) {
+        this.removalQueue[queued] = index;
+        this.removalLevels[queued] = this.levels[index];
+        this.levels[index] = 0;
+        return queued + 1;
+    }
+
+    /**
+     * Gives a position which sees the open sky its full level and hands it to the second pass.
+     *
+     * @param queued the amount of positions which are already queued for the second pass
+     * @param index  the index of the position which sees the sky
+     * @return the amount of queued positions
+     */
+    private int seedSky(int queued, int index) {
+        this.levels[index] = LightNibbles.MAX_LEVEL;
+        this.additionQueue[queued] = index;
+        return queued + 1;
+    }
+
+    /**
+     * Hands every neighbour of the changed position which still carries light to the second pass.
+     *
+     * @param queued the amount of positions which are already queued for the second pass
+     * @param x      the x coordinate inside the chunk
+     * @param y      the y coordinate inside the column
+     * @param z      the z coordinate inside the chunk
+     * @return the amount of queued positions
+     */
+    private int seedNeighbours(int queued, int x, int y, int z) {
+        int tail = queued;
+
+        for (BlockFace face : FACES) {
+            int neighbourX = x + face.offsetX();
+            int neighbourY = y + face.offsetY();
+            int neighbourZ = z + face.offsetZ();
+
+            if (isOutside(neighbourX, neighbourY, neighbourZ)) {
+                continue;
+            }
+
+            int neighbourIndex = index(neighbourX, neighbourY, neighbourZ);
+
+            if (this.levels[neighbourIndex] <= 1) {
+                continue;
+            }
+            ensureRoom(tail);
+                this.additionQueue[tail++] = neighbourIndex;
+        }
+        return tail;
+    }
+
+    /**
+     * Retracts every level which originated from the already cleared positions.
      * <p>
      * A neighbour which is darker than the level being removed can only have received its light
      * from it, so it is cleared as well. A neighbour which is as bright or brighter has another
-     * origin and becomes a starting point for the second pass instead.
+     * origin and becomes a starting point for the second pass instead. Every position the caller
+     * seeded is cleared before the walk begins, so a seed never mistakes another seed for a source
+     * that is still valid.
      * </p>
      *
-     * @param sections the light properties of every section
-     * @param start    the index of the changed position
+     * @param seeded the amount of positions the caller handed to the retraction
      * @return the amount of positions which were queued for the second pass
      */
-    private int retract(List<SectionOpacity> sections, int start) {
-        int removalTail = 0;
+    private int retract(int seeded) {
+        int removalTail = seeded;
         int additionTail = 0;
-
-        this.removalQueue[removalTail] = start;
-        this.removalLevels[removalTail++] = this.levels[start];
-        this.levels[start] = 0;
 
         for (int head = 0; head < removalTail; head++) {
             int index = this.removalQueue[head];
@@ -188,6 +377,7 @@ public final class ChunkLightState {
                     this.levels[neighbourIndex] = 0;
                     continue;
                 }
+                ensureRoom(additionTail);
                 this.additionQueue[additionTail++] = neighbourIndex;
             }
         }
@@ -196,8 +386,10 @@ public final class ChunkLightState {
 
     /**
      * Adds every position which produces light on its own to the second pass.
-     * For sky light the open columns are seeded instead, because its origin is the sky and not a
-     * block.
+     * <p>
+     * A block which turns transparent holds no light a retraction could follow, so the sources of
+     * the chunk are offered again and refill the position that opened up.
+     * </p>
      *
      * @param sections the light properties of every section
      * @param queued   the amount of positions which are already queued
@@ -205,25 +397,6 @@ public final class ChunkLightState {
      */
     private int seedEmission(List<SectionOpacity> sections, int queued) {
         int tail = queued;
-
-        if (this.sky) {
-            for (int z = 0; z < LightNibbles.DIMENSION; z++) {
-                for (int x = 0; x < LightNibbles.DIMENSION; x++) {
-                    for (int y = this.height - 1; y >= 0; y--) {
-                        if (blocksFace(sections, x, y, z, BlockFace.TOP)) {
-                            break;
-                        }
-                        int index = index(x, y, z);
-
-                        if (this.levels[index] < LightNibbles.MAX_LEVEL) {
-                            this.levels[index] = LightNibbles.MAX_LEVEL;
-                        }
-                        this.additionQueue[tail++] = index;
-                    }
-                }
-            }
-            return tail;
-        }
 
         for (int y = 0; y < this.height; y++) {
             SectionOpacity section = sections.get(y >> 4);
@@ -245,7 +418,8 @@ public final class ChunkLightState {
                     if (this.levels[index] < emission) {
                         this.levels[index] = (byte) emission;
                     }
-                    this.additionQueue[tail++] = index;
+                    ensureRoom(tail);
+                this.additionQueue[tail++] = index;
                 }
             }
         }
@@ -292,6 +466,7 @@ public final class ChunkLightState {
                     continue;
                 }
                 this.levels[neighbourIndex] = (byte) next;
+                ensureRoom(tail);
                 this.additionQueue[tail++] = neighbourIndex;
             }
         }
@@ -330,12 +505,19 @@ public final class ChunkLightState {
      * calculated together.
      * </p>
      *
+     * <p>
+     * The answer tells the caller whether the injection raised anything at all. An exchange over
+     * several chunks repeats until every one of them reports that nothing changed, which is the
+     * point at which the light of the whole area is settled.
+     * </p>
+     *
      * @param sections the light properties of every section of this chunk
      * @param face     the border the light enters through
      * @param border   the levels along the matching border of the neighbour
+     * @return true if at least one level of this chunk was raised, otherwise false
      * @throws IllegalArgumentException if the face is not horizontal or the border has the wrong size
      */
-    public void injectBorder(List<SectionOpacity> sections, BlockFace face, byte[] border) {
+    public boolean injectBorder(List<SectionOpacity> sections, BlockFace face, byte[] border) {
         checkHorizontal(face);
 
         if (border.length != this.height * LightNibbles.DIMENSION) {
@@ -365,10 +547,12 @@ public final class ChunkLightState {
                     continue;
                 }
                 this.levels[index] = (byte) incoming;
+                ensureRoom(tail);
                 this.additionQueue[tail++] = index;
             }
         }
         spread(sections, tail);
+        return tail > 0;
     }
 
     /**
@@ -474,5 +658,17 @@ public final class ChunkLightState {
      */
     private static int index(int x, int y, int z) {
         return (y << 8) | (z << 4) | x;
+    }
+
+    /**
+     * Calculates the index of a column of the chunk.
+     *
+     * @param x the x coordinate inside the chunk
+     * @param z the z coordinate inside the chunk
+     * @return the index of the column
+     */
+    @Contract(pure = true)
+    private static int column(int x, int z) {
+        return (z << 4) | x;
     }
 }

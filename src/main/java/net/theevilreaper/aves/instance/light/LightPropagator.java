@@ -7,10 +7,9 @@ import java.util.Arrays;
 /**
  * The {@link LightPropagator} class spreads the light of every emitting block through a section.
  * <p>
- * The propagation is a breadth-first search. Because a light level never exceeds
- * {@link LightNibbles#MAX_LEVEL} and drops by one per block, visiting the positions in the order
- * they are queued reaches every block with its final level on the first visit, so no position has
- * to be revisited.
+ * The propagation is a breadth-first search. A position is queued again whenever a brighter source
+ * raises its level, which happens when sources of different brightness reach the same area. The
+ * queue therefore holds more entries than the section has positions and grows when it runs full.
  * </p>
  * <p>
  * An instance keeps its working buffers and reuses them across runs, which is what makes repeated
@@ -33,7 +32,7 @@ public final class LightPropagator {
     private static final int MASK = LightNibbles.DIMENSION - 1;
 
     private final byte[] levels;
-    private final int[] queue;
+    private int[] queue;
 
     /**
      * Creates a new propagator with its own working buffers.
@@ -41,6 +40,22 @@ public final class LightPropagator {
     public LightPropagator() {
         this.levels = new byte[LightNibbles.BLOCK_COUNT];
         this.queue = new int[LightNibbles.BLOCK_COUNT];
+    }
+
+    /**
+     * Makes room for one more entry in the queue.
+     * <p>
+     * A position is queued again every time its level is raised, which happens when a brighter
+     * source reaches a position a dimmer one had already lit. The amount of entries is therefore
+     * not bounded by the amount of positions, and the queue has to be able to grow.
+     * </p>
+     *
+     * @param tail the amount of entries the queue currently holds
+     */
+    private void ensureRoom(int tail) {
+        if (tail == this.queue.length) {
+            this.queue = java.util.Arrays.copyOf(this.queue, this.queue.length * 2);
+        }
     }
 
     /**
@@ -92,6 +107,7 @@ public final class LightPropagator {
                     continue;
                 }
                 this.levels[neighbourIndex] = (byte) next;
+                ensureRoom(tail);
                 this.queue[tail++] = neighbourIndex;
             }
         }
@@ -117,6 +133,7 @@ public final class LightPropagator {
                     }
                     int index = index(x, y, z);
                     this.levels[index] = (byte) emission;
+                    ensureRoom(tail);
                     this.queue[tail++] = index;
                 }
             }
