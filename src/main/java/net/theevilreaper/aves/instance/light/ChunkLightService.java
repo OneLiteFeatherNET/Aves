@@ -33,6 +33,21 @@ import java.util.List;
  * does not recompute what was just calculated.
  * </p>
  * <p>
+ * A single instance may be used by as many threads as one likes. The service holds nothing beyond
+ * the source it was built with, which only answers questions about a block and never changes, so
+ * every call brings its own working state and two calls cannot reach each other. That matters more
+ * here than elsewhere: a server lights the chunks around its players in parallel and keeps one
+ * service for the whole instance, and because {@code set} clears the update flag, a result which two
+ * threads had corrupted would never be recomputed. The world would simply carry wrong light.
+ * </p>
+ * <p>
+ * The working state of a call is the propagator, which keeps buffers and is therefore built per
+ * call rather than kept in a field. Its buffers are the entire cost of that choice, and an
+ * allocation per chunk is far cheaper than either handing every thread its own service or letting
+ * the threads take turns on a shared one, which would give up exactly the parallelism this service
+ * exists to allow.
+ * </p>
+ * <p>
  * This type is experimental. The light engine is new and its API may still change.
  * </p>
  *
@@ -67,7 +82,6 @@ public final class ChunkLightService {
     private static final int MAX_EXCHANGE_ROUNDS = 16;
 
     private final BlockLightSource source;
-    private final ChunkLightPropagator propagator;
 
     /**
      * Creates a service which reads the block properties from the registry of the server.
@@ -83,7 +97,6 @@ public final class ChunkLightService {
      */
     public ChunkLightService(BlockLightSource source) {
         this.source = source;
-        this.propagator = new ChunkLightPropagator();
     }
 
     /**
@@ -97,7 +110,7 @@ public final class ChunkLightService {
      * @param chunk the chunk to light
      */
     public void calculate(Chunk chunk) {
-        apply(chunk, this.propagator.propagate(opacityOf(chunk)), false);
+        apply(chunk, new ChunkLightPropagator().propagate(opacityOf(chunk)), false);
     }
 
     /**
@@ -150,7 +163,7 @@ public final class ChunkLightService {
      */
     public void calculateSky(Chunk chunk) {
         List<SectionOpacity> opacity = opacityOf(chunk);
-        List<LightNibbles> light = this.propagator.propagateSky(opacity);
+        List<LightNibbles> light = new ChunkLightPropagator().propagateSky(opacity);
         apply(chunk, light, true);
     }
 

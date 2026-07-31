@@ -35,6 +35,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  * contract that is worth protecting is the one this class asserts, namely that an independent
  * instance per thread produces the same result as a single threaded run.
  * </p>
+ * <p>
+ * {@link ChunkLightService} is the other side of that split and does promise to serve many threads
+ * at once, which it can only do by giving every call its own propagator.
+ * {@link ChunkLightServiceConcurrencyTest} holds it to that promise.
+ * </p>
  *
  * @author TheMeinerLP
  * @version 1.0.0
