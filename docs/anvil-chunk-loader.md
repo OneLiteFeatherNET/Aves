@@ -536,6 +536,49 @@ Three things this measurement says, including the ones that do not flatter Aves:
   stable; the mechanism behind the magnitude has not been investigated. Do not quote the factor as if
   it were understood.
 
+The same measurement as a picture. On one thread the two loaders sit on top of each other; from two
+threads onwards one of them stays roughly where it was and the other leaves the chart.
+
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#56B4E9, #E69F00"}}}}%%
+xychart-beta
+    title "Reading one region file: Aves (flat, along the bottom) against Minestom (climbing)"
+    x-axis "Threads reading from the same region file" [1, 2, 4, 8]
+    y-axis "Microseconds per read, lower is better" 0 --> 320000
+    line [1089, 1174, 1370, 2282]
+    line [1045, 103437, 302704, 297075]
+```
+
+`xychart-beta` cannot draw a legend, so it has to be said instead: the line running along the bottom
+is **Aves** (blue in every chart of this document), the one climbing away from it is **Minestom**
+(orange). Aves is not actually flat there. It only looks flat because the scale has to reach 300 000
+to fit the other line at all. Its own shape is the next chart, and it is the same four numbers.
+
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#56B4E9, #E69F00"}}}}%%
+xychart-beta
+    title "The same four Aves numbers, on a scale that fits them"
+    x-axis "Threads reading from the same region file" [1, 2, 4, 8]
+    y-axis "Microseconds per read, lower is better" 0 --> 2500
+    line [1089, 1174, 1370, 2282]
+```
+
+**Why the first chart looks like that.** Picture a shop with a single till. Minestom's region file
+has one lock per file, and it holds that lock not only while it fetches the bytes from disk, but also
+while it unpacks them and reads the structure inside them — and the unpacking and the reading are
+nearly all of the work. So one customer occupies the till for the entire purchase, and everybody else
+stands in the queue. Adding threads adds people to the queue; it does not add tills. Aves holds the
+lock only for fetching the bytes and does the unpacking and reading outside it, so several threads
+are served at the same time. That is also why the second chart still rises rather than staying level:
+those threads do share one disk, and going from one to eight of them costs a factor of 2.1 — but they
+spend that time working, not waiting.
+
+Two things the charts are not allowed to imply. First, a drawn line is a mean without its spread, and
+at two threads the Minestom measurement is 103 437 ± 856 306 µs/op — an uncertainty eight times the
+value itself. That point says "sometimes catastrophic", not "this is what it costs"; the four-thread
+control run with two forks is the trustworthy one. Second, standing in a queue does not explain how
+high the line goes, as the third bullet above says.
+
 ### Measured: saving a chunk
 
 `ChunkSaveComparisonBenchmark` runs the whole save path of both loaders over the same chunk, varying
@@ -554,6 +597,36 @@ java -jar build/libs/aves-*-jmh.jar "ChunkSaveComparisonBenchmark.(aves|minestom
 | 64 | 5 555 ± 305 µs/op | 6 435 ± 421 µs/op |
 | 256 | 11 427 ± 980 µs/op | 12 095 ± 1 326 µs/op |
 | 1 024 | 41 361 ± 4 082 µs/op | 47 273 ± 3 964 µs/op |
+
+Here the two lines lie almost on top of each other — and that, rather than a gap, is the finding.
+
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#56B4E9, #E69F00"}}}}%%
+xychart-beta
+    title "Saving one chunk: Aves (blue) against Minestom (orange)"
+    x-axis "Different block states in one section" [1, 16, 64, 256, 1024]
+    y-axis "Microseconds per save, lower is better" 0 --> 50000
+    line [968, 3826, 5555, 11427, 41361]
+    line [918, 3959, 6435, 12095, 47273]
+```
+
+No legend again: at the right-hand end the lower of the two lines is Aves (blue) and the upper one is
+Minestom (orange). Towards the left they are hard to tell apart, and at the very first point Minestom
+is the lower of the two.
+
+**Why so little happens here.** Saving a chunk is mostly one single job: squeezing the data small
+before it is written. Both loaders hand that job to the same library at the same setting, so most of
+the time is identical by construction. What differs is how each of them writes down the list of block
+types a section contains. Minestom searches the list it has built so far once for every single block;
+Aves keeps a lookup table and asks it directly — the difference between paging through a book for a
+word and going to its index. That really is cheaper, and the more different block types a section
+holds the more often it matters, which is why the two lines part towards the right. But it is a small
+part of a large job, and no arrangement of it changes what the squeezing costs.
+
+**What the chart must not be read as saying.** Its lines are means, and every point also carries a
+spread that a line chart cannot draw. At most of the points that spread is wider than the gap you can
+see, so the chart shows a difference the measurement does not establish. The paragraph below names
+the two points that survive it.
 
 This is a far smaller effect than the read path, and it deserves to be read conservatively. At one
 distinct state Minestom is ahead. At 64 and 1 024 states Aves is ahead by 1.16× and 1.14×, and those

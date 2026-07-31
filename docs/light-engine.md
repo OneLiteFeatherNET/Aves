@@ -112,6 +112,163 @@ block, because a propagation must not lose a whole section over one unknown stat
 `testTheFaceOrderMatchesTheOneOfTheServer` fails if Minestom ever reorders its enum, which would
 otherwise silently shift every occlusion answer to the wrong face.
 
+## Compared with the light engine Minestom ships with
+
+`LightEngineComparisonBenchmark` runs both engines over the same section, from a block palette to a
+finished light array of 2048 bytes. It lives in `net.minestom.server.instance.light` because the two
+methods that make up the built-in path — `BlockLight.buildInternalQueue` and `LightCompute.compute` —
+are package-private, which is the only way to measure the original instead of a copy of it. Neither
+side gets to skip its preparation: the built-in path builds its seed queue, and the Aves path builds
+its opacity table through the real block registry rather than a stand-in.
+
+**The two engines produce the same light.** Across 54 scenarios the results are byte-identical: zero
+differing cells, maximum level difference 0. Nothing in this section is a statement about
+correctness — correctness is equal, not better. Everything below is about time.
+
+```
+java -jar build/libs/aves-*-jmh.jar "LightEngineComparisonBenchmark.(aves|minestom)" -f 1 -wi 3 -i 5
+```
+
+Measured on a machine that was **not idle**, one section per operation, `score ± error`, lower is
+better.
+
+| Light sources | Solid blocks | Aves | Minestom |
+| ---: | ---: | ---: | ---: |
+| 1 | 0 % | 77.1 ± 9.4 µs/op | 52.7 ± 1.7 µs/op |
+| 8 | 0 % | 128.6 ± 19.1 µs/op | 117.2 ± 2.7 µs/op |
+| 64 | 0 % | 139.9 ± 19.0 µs/op | 125.7 ± 9.1 µs/op |
+| 1 | 30 % | 63.5 ± 5.5 µs/op | 61.5 ± 1.5 µs/op |
+| 8 | 30 % | 148.4 ± 10.2 µs/op | 203.3 ± 14.7 µs/op |
+| 64 | 30 % | 156.9 ± 11.1 µs/op | 206.2 ± 15.4 µs/op |
+
+### A section without solid blocks: Minestom is ahead
+
+In a section where nothing blocks the light, Aves is the slower of the two at every measured point.
+
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#56B4E9, #E69F00"}}}}%%
+xychart-beta
+    title "No solid blocks: Aves (blue, upper) against Minestom (orange, lower)"
+    x-axis "Light sources in the section" [1, 8, 64]
+    y-axis "Microseconds per section, lower is better" 0 --> 220
+    line [77.1, 128.6, 139.9]
+    line [52.7, 117.2, 125.7]
+```
+
+`xychart-beta` draws no legend, so: the first line, the upper one, is **Aves** (blue); the lower one
+is **Minestom** (orange). The scale runs to 220 although nothing here comes close to it, so that this
+chart and the next one can be held against each other.
+
+**Why.** Before Aves computes anything, it goes through the section once and notes down for every
+block whether light passes through it. Writing that note costs time before a single ray has moved. In
+a section with nothing in it, the search finishes almost immediately and hardly ever consults the
+note — so the preparation was paid for and barely used. Minestom, which asks the block registry only
+at the moment it actually needs an answer, is finished sooner.
+
+**How firm that is.** Only the leftmost point, with one light source, has spreads that do not overlap
+(77.1 ± 9.4 against 52.7 ± 1.7). At 8 and at 64 sources the error bars do overlap, so the gap the
+chart draws there is not established by this measurement. What is established is the direction: Aves
+is behind at all three points and ahead at none of them.
+
+### A section with solid blocks: Aves is ahead from eight light sources on
+
+Once 30 % of the blocks are solid, the picture turns around — but not yet at the single-source point.
+
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#56B4E9, #E69F00"}}}}%%
+xychart-beta
+    title "30 percent solid blocks: Aves (blue) against Minestom (orange)"
+    x-axis "Light sources in the section" [1, 8, 64]
+    y-axis "Microseconds per section, lower is better" 0 --> 220
+    line [63.5, 148.4, 156.9]
+    line [61.5, 203.3, 206.2]
+```
+
+Same order and the same colours as before: the first line is **Aves** (blue), the second **Minestom**
+(orange). With one light source the two start out together; from eight onwards the Minestom line sits
+clearly above.
+
+**Why.** Now the note earns its keep. Solid blocks are exactly what a spreading light keeps running
+into, and every time it does, the same question comes up again: does light get through here? Aves
+reads the answer off the note it wrote at the start — one position in an array. Minestom asks the
+registry again each time. The more often the question is asked, the more the one-off cost of writing
+the note is worth; and how often it is asked is set by how many light sources are spreading and how
+much they run into.
+
+That is the whole shape of the result, and it is why there is a turning point rather than a winner:
+
+```mermaid
+flowchart TB
+    AV["Aves<br/>pays once up front: one registry lookup per<br/>distinct block state of the section<br/>then one array read per question"]
+    MI["Minestom<br/>pays nothing up front<br/>then one registry lookup per question"]
+    Q{"How many times does the search ask<br/>'does light pass through here?'"}
+    AV --> Q
+    MI --> Q
+    Q -->|"few times: nearly empty section,<br/>the search runs out quickly"| L["the up-front cost is never earned back<br/>Minestom is ahead"]
+    Q -->|"many times: solid blocks everywhere,<br/>every step runs into one"| W["the cheap answers add up<br/>Aves is ahead"]
+```
+
+**How firm that is.** At 8 and at 64 sources the spreads do not overlap — 148.4 ± 10.2 against
+203.3 ± 14.7, and 156.9 ± 11.1 against 206.2 ± 15.4. At one source, 63.5 ± 5.5 against 61.5 ± 1.5,
+the two are indistinguishable; the lines touching at the left edge of the chart is the honest picture
+of that point, not a drawing artefact.
+
+### Minestom is the steadier of the two
+
+Beside the question of who is faster there is the question of how repeatable each answer is, and
+there Minestom wins across the board. Its spreads in the table above run from ± 1.5 to ± 15.4; those
+of Aves run from ± 5.5 to ± 19.1, and at both 0 % points with more than one source the Aves error is
+larger than the entire difference being discussed. On the same not-idle machine, in the same run, the
+built-in engine gives the more repeatable number. A single measurement of this engine is therefore
+worth less than a single measurement of that one.
+
+### On concurrency there is nothing to win here
+
+The Anvil comparison in [`anvil-chunk-loader.md`](anvil-chunk-loader.md) turns on a lock that is held
+across expensive work. It would be convenient to claim the same thing on the light side, and it is
+not true. Minestom's light path is already built for several threads: `LightCompute` is purely static
+and allocates its buffer per call, `BlockLight` keeps its buffers per section, and `LightingChunk`
+already uses an `Executors.newWorkStealingPool()`. Nothing in there serialises work that could be
+running in parallel, so there is no contention to remove.
+
+### How the light reaches the chunk
+
+This is the one argument for this engine that does not depend on a measurement, and it is the
+strongest one. Minestom computes light **only** inside `LightingChunk` (`LightingChunk extends
+DynamicChunk`). Use any other chunk implementation and no light is computed at all. Aves computes
+outside the chunk and hands the finished array over through `Light#set`, which every chunk accepts.
+
+```mermaid
+flowchart TB
+    subgraph mine["Minestom: the light lives inside one chunk class"]
+        direction TB
+        M1["LightingChunk<br/>(extends DynamicChunk)"] --> M2["computes its own light internally"]
+        M2 --> M3["sections are lit"]
+        M4["any other Chunk implementation"] --> M5["no light at all"]
+    end
+    subgraph aves["Aves: the light is computed outside and handed in"]
+        direction TB
+        A1["any Chunk — LightingChunk,<br/>DynamicChunk, your own"] --> A2["ChunkLightService reads the block states"]
+        A2 --> A3["propagation runs outside the chunk,<br/>knowing nothing about Minestom"]
+        A3 --> A4["Light#set(byte[]) per section"]
+        A4 --> A5["sections are lit"]
+    end
+```
+
+The same property has a second consequence: because the propagation references no Minestom class at
+all, it can be tested against a handful of fake blocks without a running server. Only the adapter
+that answers from the real registry needs one.
+
+### When to use Minestom's engine instead
+
+Plainly, because the numbers above say it: if you already use `LightingChunk` and your sections are
+mostly empty, the built-in engine is the better choice. It is faster on that shape of data, its
+timings are steadier, it is already wired into the server and it costs no extra code. This engine is
+worth reaching for where the built-in one cannot be used at all — any chunk that is not a
+`LightingChunk`, which includes the chunk type an `InstanceContainer` uses unless it is told
+otherwise — or where sections carry a real share of solid blocks together with more than one light
+source.
+
 ## Usage
 
 ```java
@@ -228,6 +385,24 @@ stored in every block around it, and spreading again would keep that glow foreve
 therefore runs two passes. The first retracts every level that originated from the changed position
 and collects the still valid levels it meets at the edge of the retracted area; the second spreads
 those back in.
+
+Which way an update goes, drawn out:
+
+```mermaid
+flowchart TB
+    C["a block changed at x, y, z"] --> K{"is the position<br/>brighter or darker than before?"}
+    K -->|brighter| S["one pass: spread outwards.<br/>Levels only ever rise, so nothing<br/>has to be taken back"]
+    K -->|darker| R1["pass 1: retract.<br/>Walk outwards and clear every level<br/>that came from this position"]
+    R1 --> R2["at the edge of the cleared area,<br/>collect the levels that came<br/>from somewhere else"]
+    R2 --> R3["pass 2: spread those collected<br/>levels back in"]
+    S --> D["result is identical to<br/>a full recalculation"]
+    R3 --> D
+```
+
+The second pass is not a correction of the first. The light of every *other* source in the
+neighbourhood is legitimate and was cleared along with the rest simply because it stood in the way;
+collecting it at the edge and letting it back in is what puts it back. Skipping the retraction
+instead and only spreading again would leave the removed source's glow in place for good.
 
 `ChunkLightStateTest#testTheIncrementalResultMatchesAFullRecalculation` asserts that the incremental
 result is identical to a full recalculation, block for block.
