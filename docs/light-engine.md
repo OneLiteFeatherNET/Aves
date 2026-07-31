@@ -7,10 +7,9 @@ Minestom, which is what makes it testable without a running server.
 > **Experimental.** Every public type of `net.theevilreaper.aves.instance.light` is annotated
 > `@ApiStatus.Experimental`. The API may still change.
 
-> **Scope.** This package computes the light of one section from the blocks it holds. It does not
-> replace Minestom's light system: it does not implement `net.minestom.server.instance.light.Light`,
-> does not propagate across section or chunk borders, and does not compute sky light. See
-> [Limits](#limits).
+> **Scope.** This package computes the **block light** of a chunk and writes it into that chunk. It
+> works with any chunk of any loader. It does not compute sky light and does not propagate across
+> chunk borders. See [Limits](#limits).
 
 ## When this is worth using
 
@@ -28,16 +27,22 @@ chunk is dominated by NBT parsing and zlib inflation instead.
 
 ## Design
 
-Four types, each with one responsibility.
+Seven types, each with one responsibility. Only the two on the right know Minestom exists.
 
 ```
-  int[] stateIds ──► SectionOpacity ──► LightPropagator ──► LightNibbles
-                          ▲
-                          │ resolves each distinct state once
-                     BlockLightSource
-                          ▲
-                          │ implemented by
-                  MinestomBlockLightSource   ◄── the only Minestom dependency
+                      ┌─ engine, no Minestom ─────────────┐   ┌─ adapter ──────────────┐
+                      │                                   │   │                        │
+  Chunk ──────────────┼──► int[] stateIds                 │   │  ChunkLightService     │
+                      │         │                         │   │        │               │
+                      │         ▼                         │   │        │ uses          │
+                      │   SectionOpacity ◄── BlockLightSource ◄── MinestomBlockLight-  │
+                      │         │            (one lookup   │   │        Source          │
+                      │         ▼             per state)   │   │                        │
+                      │   ChunkLightPropagator             │   │  writes back through   │
+                      │         │  (crosses section        │   │  Light#set(byte[])     │
+                      │         ▼   borders)               │   │                        │
+                      │   List<LightNibbles> ──────────────┼───┼──►  Chunk sections     │
+                      └───────────────────────────────────┘   └────────────────────────┘
 ```
 
 | Type | Responsibility |
@@ -46,7 +51,9 @@ Four types, each with one responsibility.
 | `BlockLightSource` | Abstraction over "how bright is this block and which faces does it block". |
 | `SectionOpacity` | Precomputed table of those properties for one section. |
 | `LightPropagator` | The breadth-first propagation, with reusable buffers. |
+| `ChunkLightPropagator` | The same search across all sections of a chunk, so light crosses their borders. |
 | `MinestomBlockLightSource` | Answers `BlockLightSource` from the block registry. |
+| `ChunkLightService` | Reads a chunk, runs the propagation, writes the result back. |
 
 `BlockLightSource` exists for the same reason `PaletteEntryResolver` does in the Anvil package: it
 keeps the registry out of the algorithm, so the propagation is verified with a handful of fake
@@ -134,18 +141,57 @@ BlockLightSource fake = new BlockLightSource() {
 };
 ```
 
+## Using it with a chunk loader or an instance
+
+`ChunkLightService` is the entry point. It reads the block states of a chunk, propagates, and hands
+the result to the sections through `Light#set(byte[])`:
+
+```java
+import net.theevilreaper.aves.instance.light.ChunkLightService;
+
+ChunkLightService lighting = new ChunkLightService();   // one per worker thread
+
+Chunk chunk = instance.loadChunk(0, 0).join();
+lighting.calculate(chunk);
+
+int level = lighting.blockLightAt(chunk, 8, 40, 8);
+```
+
+This works with **any** chunk, regardless of which loader produced it — the Anvil loader of Aves,
+the one Minestom ships with, or a generated chunk. A test covers the round trip through
+`AvesAnvilLoader` explicitly.
+
+Two properties make this the stable way in:
+
+- `Light#set(byte[])` is not marked internal, unlike `calculateInternal` / `calculateExternal`. The
+  service therefore does not implement the `Light` interface and cannot break when the signatures of
+  those internal methods change.
+- `set` clears the update flag of the section, so the server does not recompute what was just
+  written.
+
+Locking follows the same three-stage split the Anvil loader uses: block states are read under the
+read lock, the propagation runs with **no** lock held, and only the transfer of the result takes the
+write lock.
+
+### When to call it
+
+After loading a chunk that carries no stored light, after generating one, or after a block change
+that affects light. `calculate` performs a **full** recalculation of the chunk, which is why
+removing a light source correctly retracts its light — but also why it is not suited to being called
+on every single block placement of a busy server.
+
 ## Limits
 
-- **No `Light` implementation.** The package does not implement
-  `net.minestom.server.instance.light.Light`, so it is not plugged into a chunk yet. That interface
-  is not sealed and an adapter is possible, but `calculateInternal` / `calculateExternal` are
-  `@ApiStatus.Internal` and may change between Minestom versions.
-- **No cross-section propagation.** Light stops at the section border. Real world lighting requires
-  propagating into the six neighbouring sections and back.
+- **No `Light` implementation.** The engine deliberately does not implement
+  `net.minestom.server.instance.light.Light`. It writes its result through `set` instead, which
+  avoids depending on the internal calculation methods of that interface.
+- **No propagation across chunk borders.** Light crosses section borders inside a chunk, but a
+  source near the edge of a chunk does not light the neighbouring chunk. Handling that requires
+  loading the neighbours and a second pass over the borders.
 - **No sky light.** Sky light needs a heightmap and a downward seeding pass, neither of which exists
   here.
-- **No decrease pass.** Removing a light source requires retracting the light it had spread, which
-  is the hardest part of an incremental light engine and is not implemented.
+- **No incremental update.** `calculate` always recomputes the whole chunk. That handles a removed
+  light source correctly, but an incremental engine would only revisit the affected region.
 - **`Section.clone()` discards foreign light.** Should an adapter be built later, note that
   `Section.clone()` calls `Light.sky()` / `Light.block()` outright, so any custom implementation is
   silently replaced on copy. `LightingChunk.copy()` would have to be overridden.
