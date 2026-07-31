@@ -337,17 +337,235 @@ Aves paths are relative to `src/main/java/net/theevilreaper/aves/`.
 
 Twenty rows. Every reference above was read in the sources of the stated versions.
 
+## Which of those rows carry the argument
+
+The table is flat by construction — every row gets one line, whether it changes what a server does
+or tidies a log message. Sorted by consequence they fall into four groups.
+
+**Silent data loss.** The rows that change what ends up on disk: block entities dropped from uniform
+sections, the palette stride derived from the palette length alone, the discarded return value of
+`read`, the length field written four bytes too large. None of these announce themselves — the world
+loads, the chunk looks fine, and the damage surfaces later or in another tool. These are the reason
+the loader exists.
+
+**Failure that destroys the original.** A read error returning `null` means "chunk absent" to
+`InstanceContainer`, which generates a replacement and overwrites the intact-but-unreadable bytes on
+the next save. This one row turns a recoverable problem into an unrecoverable one.
+
+**Concurrency.** Both loaders report `supportsParallelLoading() == true`. Only one of them means it.
+This is the group with the largest measured effect, and the diagrams below are about it.
+
+**Everything else** — logging volume, registry access at class-initialisation time, header write
+volume — is real but bounded. A server survives all of it.
+
+### Why parallel loading is nominal in Minestom
+
+Both loaders do the same work per chunk: read bytes, inflate, parse NBT, decode palettes. The
+difference is which of those steps happens while the region file's lock is held.
+
+```mermaid
+flowchart LR
+    subgraph mine["Minestom · RegionFile.readChunkData"]
+        direction TB
+        M1["seek + read length"]
+        M2["read payload"]
+        M3["inflate"]
+        M4["parse NBT"]
+        M1 --> M2 --> M3 --> M4
+    end
+    subgraph aves["Aves · RegionFile.readRaw + caller"]
+        direction TB
+        A1["positional read"]
+        A2["inflate"]
+        A3["parse NBT"]
+        A4["decode palettes"]
+        A1 --> A2 --> A3 --> A4
+    end
+```
+
+In Minestom all four steps sit inside one `ReentrantLock` held per region file
+(`instance/anvil/RegionFile.java:42`, parse at `:88`). In Aves only the first one touches the file,
+and it needs no mutual exclusion at all: `FileChannel.read(ByteBuffer, position)` does not move the
+channel position, so two readers of different chunks do not interfere. Inflate, parse and palette
+decode run in the caller.
+
+The consequence appears as soon as two threads want chunks from the same region — which is exactly
+what loading a spawn area does, since a region file holds 32×32 chunks:
+
+```mermaid
+sequenceDiagram
+    participant T1 as Thread 1
+    participant T2 as Thread 2
+    participant R as Region file
+    Note over T1,R: Minestom — the lock spans the expensive part
+    T1->>R: acquire lock
+    T1->>R: read bytes, inflate, parse NBT
+    T2->>R: acquire lock — blocked for all of it
+    R-->>T1: release
+    R-->>T2: granted
+    T2->>R: read bytes, inflate, parse NBT
+```
+
+```mermaid
+sequenceDiagram
+    participant T1 as Thread 1
+    participant T2 as Thread 2
+    participant R as Region file
+    Note over T1,R: Aves — only the byte read is ordered
+    T1->>R: positional read
+    T2->>R: positional read, concurrent
+    R-->>T1: bytes
+    R-->>T2: bytes
+    T1->>T1: inflate, parse, decode
+    T2->>T2: inflate, parse, decode
+```
+
+Since inflate and NBT parsing dominate the load path, putting them inside the lock means extra
+threads mostly queue. That is what "nominal parallelism" means here, and the next section measures it.
+
+### Why the save path blocks readers in Minestom
+
+The same question on the write side, with a different answer. Minestom holds the chunk's **write**
+lock across the serialisation of every section — palettes, block entities, biome lookups, packing
+(`instance/anvil/AnvilLoader.java:420-519`). A write lock excludes readers as well as writers, so
+for the whole duration of encoding, nothing else may look at that chunk.
+
+Aves takes the **read** lock, clones the sections, and releases it. Everything after that works on
+copies:
+
+```mermaid
+flowchart TB
+    subgraph mineS["Minestom · saveChunk"]
+        direction TB
+        MW["chunk WRITE lock"]
+        MW --> MS["encode all sections<br/>palettes, block entities, biomes, packing"]
+        MS --> MR["release"]
+        MB["other readers of this chunk: blocked throughout"]
+        MS -.-> MB
+    end
+    subgraph avesS["Aves · saveChunk"]
+        direction TB
+        AR["chunk READ lock"]
+        AR --> AC["clone sections"]
+        AC --> AU["release"]
+        AU --> AE["encode + deflate on the clones<br/>no chunk lock held"]
+        AB["other readers of this chunk: admitted"]
+        AC -.-> AB
+    end
+```
+
+### Why one exception in `saveChunks` hangs the saving thread
+
+`AnvilLoader` does not override `saveChunks`, so the interface default applies: one virtual thread
+per chunk, coordinated by a `Phaser` (`instance/ChunkLoader.java:62-82`). Its `catch` branch
+(`:71-73`) returns without calling `phaser.arriveAndDeregister()`.
+
+```mermaid
+flowchart TB
+    subgraph mineB["Minestom · ChunkLoader.saveChunks default"]
+        direction TB
+        P["phaser.register() per chunk"]
+        P --> TH["one virtual thread per chunk — unbounded"]
+        TH --> OK["success: arriveAndDeregister"]
+        TH --> ERR["exception: caught, NOT deregistered"]
+        OK --> W["arriveAndAwaitAdvance"]
+        ERR --> HANG["party never arrives<br/>saving thread blocks for good"]
+    end
+    subgraph avesB["Aves · saveChunks"]
+        direction TB
+        G["group chunks by region index"]
+        G --> S["one task per region,<br/>bounded by a Semaphore"]
+        S --> C["collect every result in awaitAll"]
+        C --> F["a failure surfaces as a failed future"]
+    end
+```
+
+Two independent problems in one row. The `Phaser` branch is a liveness bug: a single `Throwable`
+escaping `saveChunk` blocks the saving thread permanently. The unbounded thread-per-chunk is a
+memory one: every chunk of a region contends for that region's lock while all snapshots are alive at
+once. Grouping by region removes the contention, and the semaphore bounds the peak.
+
 ## Performance and memory
 
-No benchmark suite ships with this loader, so this section states **structural** differences that are
-visible in the source of both implementations. Where a cost is named as dominant, it comes from a
-one-off micro-measurement taken while designing the loader; treat those as orders of magnitude, not
-as reproducible benchmark results.
+Two kinds of statement appear below. The **structural** differences are visible in the source of both
+implementations and are marked as such. The **measured** ones come from the JMH benchmarks in
+`src/jmh` (see [`benchmarks.md`](benchmarks.md)) and name their setup and their spread. Where a cost
+is called dominant without a benchmark name attached, it comes from a one-off micro-measurement taken
+while designing the loader — treat those as orders of magnitude.
 
 Two facts shaped every decision below. In the load path, zlib inflate plus NBT parsing dominate —
 palette handling is a small fraction of the total. In the save path, deflate dominates everything
 else. Optimising the palette would therefore have been pointless; keeping compression and parsing
 **out of the locks** is where the time actually is.
+
+### Measured: concurrent readers of one region file
+
+`RegionFileComparisonBenchmark` measures the region file of Aves against the one Minestom ships with,
+on the same stored bytes, through the same Adventure writer at the same compression level, from a
+stored chunk to a parsed compound. It lives in `net.minestom.server.instance.anvil` because
+Minestom's `RegionFile` is package-private — the same reason the light comparison lives in Minestom's
+light package. Minestom's `AnvilLoader` itself cannot be reached from a benchmark fork at all: its
+static fields read the biome registry and the block state count, so the class initialiser fails
+before any measurement starts. The region file reads no registry and is measurable directly.
+
+```
+java -jar build/libs/aves-*-jmh.jar "RegionFileComparisonBenchmark.(aves|minestom)Read" \
+     -f 1 -wi 3 -i 5 -t <threads> -p distinctStates=200
+```
+
+| Threads | Aves | Minestom |
+| ---: | ---: | ---: |
+| 1 | 1 089 ± 48 µs/op | 1 045 ± 112 µs/op |
+| 2 | 1 174 ± 71 µs/op | 103 437 ± 856 306 µs/op |
+| 4 | 1 370 ± 200 µs/op | 302 704 ± 674 429 µs/op |
+| 8 | 2 282 ± 248 µs/op | 297 075 ± 593 563 µs/op |
+
+Repeated at four threads with two forks and ten iterations, which tightens the spread considerably:
+Aves **1 325.6 ± 21.1 µs/op** against Minestom **359 690.8 ± 97 498.3 µs/op**, a factor of **271**.
+
+Three things this measurement says, including the ones that do not flatter Aves:
+
+- **On one thread there is no advantage.** Minestom is marginally ahead, well inside the spread. The
+  design pays off under contention and nowhere else.
+- **Aves degrades gently.** From one to eight threads its cost grows by a factor of 2.1, which is
+  what sharing a disk looks like. Minestom does not degrade, it collapses.
+- **The size of the collapse is not fully explained.** Pure serialisation of a 1 045 µs operation
+  across four threads predicts roughly 4 200 µs, not 360 000. The measured effect exceeds that by
+  almost two orders of magnitude, which points at lock convoying or scheduler interaction rather than
+  plain queueing. The direction is reproduced across two independent runs and the magnitude is
+  stable; the mechanism behind the magnitude has not been investigated. Do not quote the factor as if
+  it were understood.
+
+### Measured: saving a chunk
+
+`ChunkSaveComparisonBenchmark` runs the whole save path of both loaders over the same chunk, varying
+how many distinct block states a section holds — the axis on which the palette deduplication differs
+(linear scan per block against a hash lookup). Compression is held identical on both sides, so this
+measures the loaders and not the zlib level.
+
+```
+java -jar build/libs/aves-*-jmh.jar "ChunkSaveComparisonBenchmark.(aves|minestom)Save" -f 1 -wi 3 -i 6
+```
+
+| Distinct states | Aves | Minestom |
+| ---: | ---: | ---: |
+| 1 | 968 ± 52 µs/op | 918 ± 39 µs/op |
+| 16 | 3 826 ± 279 µs/op | 3 959 ± 227 µs/op |
+| 64 | 5 555 ± 305 µs/op | 6 435 ± 421 µs/op |
+| 256 | 11 427 ± 980 µs/op | 12 095 ± 1 326 µs/op |
+| 1 024 | 41 361 ± 4 082 µs/op | 47 273 ± 3 964 µs/op |
+
+This is a far smaller effect than the read path, and it deserves to be read conservatively. At one
+distinct state Minestom is ahead. At 64 and 1 024 states Aves is ahead by 1.16× and 1.14×, and those
+are the only two rows whose spreads do not overlap. The quadratic-versus-linear difference in the
+palette is therefore real but modest at realistic section contents — deflate dominates the save path,
+and no palette algorithm changes that.
+
+The compression **level** is a separate matter and is measured separately in the same benchmark
+(`compressAvesLevel` against `compressMinestomLevel`): at 256 distinct states the level-2 default of
+this loader compresses roughly 2.4× faster than level 6, and 3.1× faster at 1 024. That is a
+configuration choice available to either loader, not a property of this one, and it costs roughly
+3 % in stored bytes.
 
 ### Time
 
@@ -374,6 +592,11 @@ else. Optimising the palette would therefore have been pointless; keeping compre
 
 Being explicit about this, because the table above is one-sided by construction:
 
+- **On a single thread this loader is not faster at all.** Measured on the region file, Minestom
+  comes out marginally ahead — 1 045 ± 112 against 1 089 ± 48 µs/op, which is inside the spread of
+  both. Everything the design buys is bought under contention. A single-threaded workload that reads
+  one chunk at a time gains nothing here and pays for the version counter, the stricter NBT reads and
+  the length validation.
 - Aves does **not** parse NBT faster — both use adventure-nbt 5.1.1, and parsing is the largest single
   cost in the load path.
 - Aves does **not** compress faster — both use `java.util.zip`, and deflate dominates the save path.
