@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -155,11 +156,10 @@ class AvesAnvilLoaderConcurrencyTest {
         // forces the loader to evict another one. A limit which is only respected by a single thread
         // would let the amount of open files grow with the amount of threads, which is exactly the
         // file descriptor leak the limit exists to prevent.
-        // Evicting a file another thread is about to use makes that save fail. The loader reports
-        // such a failure to the exception manager, which the test environment turns into a failed
-        // test, so the handler is replaced for the duration of the concurrent phase. The counters
-        // still have to add up, and the chunks are written again afterwards without concurrency to
-        // prove that nothing was lost for good.
+        // An eviction drops a file from the cache but never closes it under the thread which is
+        // writing to it, so every save has to succeed even though the limit is hit constantly. A
+        // failure would be reported to the exception manager, which the environment turns into a
+        // failed test on its own.
         int regionCount = 8;
         int limit = 2;
         Instance instance = env.createEmptyInstance(loader());
@@ -172,12 +172,8 @@ class AvesAnvilLoaderConcurrencyTest {
         }
 
         CountDownLatch start = new CountDownLatch(1);
-        ExceptionHandler previous = MinecraftServer.getExceptionManager().getExceptionHandler();
 
         try (AvesAnvilLoader loader = new AvesAnvilLoader(this.worldRoot, OVERWORLD, limit)) {
-            MinecraftServer.getExceptionManager().setExceptionHandler(ignored -> {
-            });
-
             try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
                 List<Future<?>> futures = new ArrayList<>(regionCount);
 
@@ -190,25 +186,15 @@ class AvesAnvilLoaderConcurrencyTest {
                 }
                 start.countDown();
                 awaitAll(futures);
-            } finally {
-                MinecraftServer.getExceptionManager().setExceptionHandler(previous);
             }
 
             assertTrue(
                     loader.openRegionCount() <= limit,
                     "the loader has to stay below its limit of " + limit + " files but held " + loader.openRegionCount()
             );
-            assertEquals(
-                    regionCount, loader.diagnostics().chunksSaved() + loader.diagnostics().errors(),
-                    "every save has to be counted either as a success or as an error"
-            );
-
-            // A file which is evicted while its owner is about to use it makes that single save
-            // fail. Repeating the saves without concurrency has to bring every chunk onto the disk.
-            for (Chunk chunk : chunks) {
-                loader.saveChunk(chunk);
-            }
-            assertTrue(loader.openRegionCount() <= limit, "the limit has to hold for the sequential pass as well");
+            assertEquals(0, loader.diagnostics().errors(), "an eviction may not make the save of another thread fail");
+            assertEquals(regionCount, loader.diagnostics().chunksSaved(), "every chunk has to be written");
+            assertTrue(loader.openRegionCount() <= limit, "the limit has to hold after the concurrent pass as well");
         }
 
         try (AvesAnvilLoader reader = loader()) {
@@ -219,6 +205,165 @@ class AvesAnvilLoaderConcurrencyTest {
                 );
             }
         }
+    }
+
+    @Test
+    void testLoadingSurvivesTheEvictionOfItsRegionFile(Env env) throws IOException, InterruptedException, ExecutionException {
+        // Every thread reads from a region file of its own while the limit allows a single open
+        // file, so every load evicts the file another thread is about to read from. The loader owns
+        // that eviction, the file on disk is intact, and a read which fails here loses a chunk the
+        // server would then regenerate over the stored data.
+        int regionCount = 8;
+        int rounds = 60;
+        Instance instance = env.createEmptyInstance(loader());
+        List<Chunk> chunks = storeChunkPerRegion(instance, regionCount);
+        List<Throwable> failures = new CopyOnWriteArrayList<>();
+        CountDownLatch start = new CountDownLatch(1);
+        ExceptionHandler previous = MinecraftServer.getExceptionManager().getExceptionHandler();
+
+        try (AvesAnvilLoader loader = new AvesAnvilLoader(this.worldRoot, OVERWORLD, 1)) {
+            // A failed load reports to the exception manager, which the environment turns into a
+            // failed test before the assertion below could describe what went wrong.
+            MinecraftServer.getExceptionManager().setExceptionHandler(ignored -> {
+            });
+
+            try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+                List<Future<?>> futures = new ArrayList<>(chunks.size());
+
+                for (Chunk chunk : chunks) {
+                    futures.add(executor.submit(() -> {
+                        awaitStart(start);
+                        readRepeatedly(loader, instance, chunk, rounds, failures, false);
+                        return null;
+                    }));
+                }
+                start.countDown();
+                awaitAll(futures);
+            } finally {
+                MinecraftServer.getExceptionManager().setExceptionHandler(previous);
+            }
+        }
+        assertNoFailure(failures, "a load may not fail because another thread evicted its region file");
+    }
+
+    @Test
+    void testLoadingSurvivesTheUnloadOfAnotherChunkOfTheSameRegion(Env env) throws IOException, InterruptedException, ExecutionException {
+        // Every chunk of this test lives in the same region file. A thread which unloads the last
+        // chunk the loader tracks closes that file, and the loader only starts tracking a chunk
+        // after it has been read, so a reader which is still ahead of its own registration loses
+        // the handle it already holds.
+        int chunkCount = 8;
+        int rounds = 60;
+        Instance instance = env.createEmptyInstance(loader());
+        List<Chunk> chunks = new ArrayList<>(chunkCount);
+
+        for (int chunkX = 0; chunkX < chunkCount; chunkX++) {
+            Chunk chunk = instance.loadChunk(chunkX, 0).join();
+            place(chunk, 0, 40, 0, Block.STONE);
+            chunks.add(chunk);
+        }
+
+        try (AvesAnvilLoader writer = loader()) {
+            writer.saveChunks(chunks);
+        }
+
+        List<Throwable> failures = new CopyOnWriteArrayList<>();
+        CountDownLatch start = new CountDownLatch(1);
+        ExceptionHandler previous = MinecraftServer.getExceptionManager().getExceptionHandler();
+
+        try (AvesAnvilLoader loader = loader()) {
+            MinecraftServer.getExceptionManager().setExceptionHandler(ignored -> {
+            });
+
+            try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+                List<Future<?>> futures = new ArrayList<>(chunks.size());
+
+                for (Chunk chunk : chunks) {
+                    futures.add(executor.submit(() -> {
+                        awaitStart(start);
+                        readRepeatedly(loader, instance, chunk, rounds, failures, true);
+                        return null;
+                    }));
+                }
+                start.countDown();
+                awaitAll(futures);
+            } finally {
+                MinecraftServer.getExceptionManager().setExceptionHandler(previous);
+            }
+        }
+        assertNoFailure(failures, "a load may not fail because another thread unloaded a chunk of the same region");
+    }
+
+    /**
+     * Writes a single chunk into every one of the given amount of region files.
+     *
+     * @param instance    the instance which owns the chunks
+     * @param regionCount the amount of region files to fill
+     * @return the written chunks in the order of their region
+     * @throws IOException if a chunk cannot be written
+     */
+    private List<Chunk> storeChunkPerRegion(Instance instance, int regionCount) throws IOException {
+        List<Chunk> chunks = new ArrayList<>(regionCount);
+
+        for (int region = 0; region < regionCount; region++) {
+            Chunk chunk = instance.loadChunk(region * 32, 0).join();
+            place(chunk, 0, 40, 0, Block.STONE);
+            chunks.add(chunk);
+        }
+
+        try (AvesAnvilLoader writer = loader()) {
+            for (Chunk chunk : chunks) {
+                writer.saveChunk(chunk);
+            }
+        }
+        return chunks;
+    }
+
+    /**
+     * Reads the given chunk repeatedly and records every failure instead of throwing it.
+     * The failures are collected so the assertion of the test can describe all of them instead of
+     * being replaced by the first exception a worker throws.
+     *
+     * @param loader   the loader to read through
+     * @param instance the instance which owns the chunk
+     * @param chunk    the chunk to read
+     * @param rounds   the amount of reads to perform
+     * @param failures the list which receives the failures
+     * @param unload   whether the chunk is unloaded again after every read
+     */
+    private static void readRepeatedly(
+            AvesAnvilLoader loader, Instance instance, Chunk chunk, int rounds, List<Throwable> failures, boolean unload
+    ) {
+        for (int round = 0; round < rounds; round++) {
+            try {
+                Chunk loaded = loader.loadChunk(instance, chunk.getChunkX(), chunk.getChunkZ());
+
+                if (loaded == null) {
+                    failures.add(new IllegalStateException(
+                            "the chunk " + chunk.getChunkX() + "/" + chunk.getChunkZ() + " was reported as absent"
+                    ));
+                    continue;
+                }
+                if (unload) {
+                    loader.unloadChunk(loaded);
+                }
+            } catch (Throwable failure) {
+                failures.add(failure);
+            }
+        }
+    }
+
+    /**
+     * Fails the calling test when at least one worker recorded a failure.
+     *
+     * @param failures the recorded failures
+     * @param message  the message which describes the expectation
+     */
+    private static void assertNoFailure(List<Throwable> failures, String message) {
+        if (failures.isEmpty()) {
+            return;
+        }
+        fail(message + " but " + failures.size() + " of them did, the first one was: " + failures.getFirst(), failures.getFirst());
     }
 
     /**

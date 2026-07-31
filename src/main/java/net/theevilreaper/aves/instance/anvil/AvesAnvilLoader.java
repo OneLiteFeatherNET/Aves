@@ -55,6 +55,13 @@ import java.util.concurrent.Semaphore;
  * absent chunk makes the server generate a new one which then overwrites the real data on the next
  * save, so a read failure has to stay visible.
  * </p>
+ * <p>
+ * A region file is never closed while a thread is reading from or writing to it. Every access
+ * registers itself on the handle first, and a handle which is dropped from the cache while it is
+ * still registered is closed by the last thread which leaves it. Dropping and closing are therefore
+ * two separate steps, which is what allows an unload or an eviction to happen at any moment without
+ * failing the work that is already running.
+ * </p>
  *
  * <p>
  * This type is experimental. The Anvil loader is new and its API may still change while it is
@@ -96,7 +103,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     private final AnvilDiagnostics diagnostics;
     private final PaletteEntryResolver blockResolver;
     private final PaletteEntryResolver biomeResolver;
-    private final Map<Long, RegionFile> regions;
+    private final Map<Long, RegionHandle> regions;
     private final Map<Long, Set<Long>> trackedChunks;
     private final Semaphore saveLimit;
     private final int dataVersion;
@@ -168,17 +175,27 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * The region file is registered as in use for the duration of the read, so an unload or an
+     * eviction which happens in parallel cannot close the file this call is reading from.
+     * </p>
      */
     @Override
     public @Nullable Chunk loadChunk(Instance instance, int chunkX, int chunkZ) {
         try {
-            RegionFile region = region(chunkX, chunkZ, false);
+            RegionHandle handle = acquireRegion(chunkX, chunkZ, false);
 
-            if (region == null) {
+            if (handle == null) {
                 return null;
             }
 
-            RegionFile.RawChunk raw = region.readRaw(chunkX, chunkZ);
+            RegionFile.RawChunk raw;
+
+            try {
+                raw = handle.file().readRaw(chunkX, chunkZ);
+            } finally {
+                releaseRegion(handle);
+            }
 
             if (raw == null) {
                 return null;
@@ -340,25 +357,64 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     }
 
     /**
-     * Closes the region file with the given index if it is still open.
+     * Drops the region file with the given index from the cache and closes it.
+     * <p>
+     * A file which is still being read from or written to is only dropped here. The thread which
+     * leaves it last performs the actual close, so an unload cannot break a load which is already
+     * running.
+     * </p>
      *
      * @param index the index of the region file
      */
     private void closeRegion(long index) {
-        RegionFile region = this.regions.remove(index);
+        RegionHandle handle = this.regions.remove(index);
 
-        if (region == null) {
-            return;
+        if (handle != null) {
+            retire(handle, "after its last chunk was unloaded");
         }
+    }
 
+    /**
+     * Closes the given handle unless a thread is still using it.
+     * The handle has to be removed from the cache before this method is called, otherwise a thread
+     * could register itself on a file which is about to be closed.
+     *
+     * @param handle the handle which was dropped from the cache
+     * @param reason the reason which is written into the log line of a successful close
+     */
+    private void retire(RegionHandle handle, String reason) {
+        if (handle.retire()) {
+            closeQuietly(handle, reason);
+        }
+    }
+
+    /**
+     * Closes the file of the given handle and reports a failure instead of propagating it.
+     *
+     * @param handle the handle whose file is closed
+     * @param reason the reason which is written into the log line of a successful close
+     */
+    private void closeQuietly(RegionHandle handle, String reason) {
         try {
-            region.flush();
-            region.close();
-            LOGGER.debug("Closed the region file region={} dim={} after its last chunk was unloaded",
-                    region.path(), this.dimensionLabel);
+            handle.file().flush();
+            handle.file().close();
+            LOGGER.debug("Closed the region file region={} dim={} {}", handle.file().path(), this.dimensionLabel, reason);
         } catch (IOException exception) {
             this.diagnostics.countError();
-            LOGGER.error("Failed to close the region file region={} dim={}", region.path(), this.dimensionLabel, exception);
+            LOGGER.error("Failed to close the region file region={} dim={}", handle.file().path(), this.dimensionLabel, exception);
+        }
+    }
+
+    /**
+     * Releases a handle which was obtained by {@link #acquireRegion(int, int, boolean)}.
+     * The file is closed here when this thread was the last user of a handle which had already been
+     * dropped from the cache.
+     *
+     * @param handle the handle to release
+     */
+    private void releaseRegion(RegionHandle handle) {
+        if (handle.release()) {
+            closeQuietly(handle, "after its last user finished");
         }
     }
 
@@ -399,6 +455,10 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
 
     /**
      * Closes every region file the loader opened and reports a summary of its work.
+     * <p>
+     * A file which a task is still using is dropped from the cache here and closed by that task
+     * when it finishes, so the shutdown cannot break work which is already running.
+     * </p>
      *
      * @throws IOException if a region file cannot be closed
      */
@@ -410,13 +470,24 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
         this.closed = true;
         IOException failure = null;
 
-        for (RegionFile region : this.regions.values()) {
+        for (Long index : List.copyOf(this.regions.keySet())) {
+            RegionHandle handle = this.regions.remove(index);
+
+            if (handle == null) {
+                continue;
+            }
+            if (!handle.retire()) {
+                LOGGER.debug("Leaving the region file region={} dim={} to the task which is still using it",
+                        handle.file().path(), this.dimensionLabel);
+                continue;
+            }
+
             try {
-                region.flush();
-                region.close();
+                handle.file().flush();
+                handle.file().close();
             } catch (IOException exception) {
                 failure = exception;
-                LOGGER.error("Failed to close the region file region={} dim={}", region.path(), this.dimensionLabel, exception);
+                LOGGER.error("Failed to close the region file region={} dim={}", handle.file().path(), this.dimensionLabel, exception);
             }
         }
         this.regions.clear();
@@ -455,10 +526,9 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     /**
      * Writes the given payload into the region file of the chunk.
      * <p>
-     * Another thread can evict the region file between the moment this one obtained the handle and
-     * the moment it writes, which closes a file that is about to be used. The write is therefore
-     * retried with a freshly opened handle instead of losing the chunk. Only the eviction case is
-     * retried; a second failure propagates.
+     * The handle is registered as in use for the duration of the write, so an eviction which
+     * happens in parallel drops the file from the cache without closing it under this thread. The
+     * write therefore needs no retry.
      * </p>
      *
      * @param chunkX  the absolute chunk x coordinate
@@ -467,33 +537,27 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
      * @throws IOException if the chunk cannot be written
      */
     private void writeToRegion(int chunkX, int chunkZ, byte[] payload) throws IOException {
-        for (int attempt = 0; attempt < 2; attempt++) {
-            RegionFile region = region(chunkX, chunkZ, true);
+        RegionHandle handle = acquireRegion(chunkX, chunkZ, true);
 
-            if (region == null) {
-                throw new IOException("The region file for the chunk " + chunkX + "/" + chunkZ + " could not be created");
-            }
+        if (handle == null) {
+            throw new IOException("The region file for the chunk " + chunkX + "/" + chunkZ + " could not be created");
+        }
 
-            try {
-                region.writeRaw(chunkX, chunkZ, ChunkCompression.ZLIB, payload);
-                return;
-            } catch (IOException exception) {
-                // A closed handle is the eviction race and is worth one more attempt. The cache
-                // entry is dropped first so the retry cannot obtain the same closed file again.
-                if (attempt == 1 || !region.isClosed()) {
-                    throw exception;
-                }
-                this.regions.remove(regionIndex(chunkX, chunkZ), region);
-                LOGGER.debug(
-                        "Retrying the save of a chunk whose region file was evicted chunk=[{},{}] dim={}",
-                        chunkX, chunkZ, this.dimensionLabel
-                );
-            }
+        try {
+            handle.file().writeRaw(chunkX, chunkZ, ChunkCompression.ZLIB, payload);
+        } finally {
+            releaseRegion(handle);
         }
     }
 
     /**
-     * Returns the region file which holds the given chunk.
+     * Returns a registered handle for the region file which holds the given chunk.
+     * <p>
+     * The registration is what keeps the file open for the caller. A handle which was dropped from
+     * the cache in the meantime cannot be registered any more, and the loop then opens the file
+     * again instead of handing back a file which is about to be closed. Every returned handle has
+     * to be released through {@link #releaseRegion(RegionHandle)}.
+     * </p>
      * <p>
      * The file is opened outside of the mapping function of the map because opening it performs
      * blocking work. Doing that inside the mapping function blocks a bin of the map for the whole
@@ -503,63 +567,144 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
      * @param chunkX the absolute chunk x coordinate
      * @param chunkZ the absolute chunk z coordinate
      * @param create whether the file should be created when it does not exist yet
-     * @return the region file or null if it does not exist and should not be created
+     * @return the registered handle or null if the file does not exist and should not be created
      * @throws IOException if the file cannot be opened
      */
-    private @Nullable RegionFile region(int chunkX, int chunkZ, boolean create) throws IOException {
+    private @Nullable RegionHandle acquireRegion(int chunkX, int chunkZ, boolean create) throws IOException {
         int regionX = RegionConstants.chunkToRegion(chunkX);
         int regionZ = RegionConstants.chunkToRegion(chunkZ);
         long index = CoordConversion.regionIndex(regionX, regionZ);
-        RegionFile cached = this.regions.get(index);
-
-        if (cached != null) {
-            return cached;
-        }
-
         Path path = this.regionDirectory.resolve("r." + regionX + "." + regionZ + ".mca");
 
-        if (!create && !Files.exists(path)) {
-            return null;
+        while (true) {
+            RegionHandle cached = this.regions.get(index);
+
+            if (cached != null) {
+                if (cached.acquire()) {
+                    return cached;
+                }
+                // The handle was dropped between the lookup and the registration, so it is on its
+                // way out and a new one has to be opened.
+                continue;
+            }
+
+            if (!create && !Files.exists(path)) {
+                return null;
+            }
+
+            RegionHandle opened = new RegionHandle(RegionFile.open(path));
+            RegionHandle previous = this.regions.putIfAbsent(index, opened);
+
+            if (previous != null) {
+                opened.file().close();
+                continue;
+            }
+
+            LOGGER.debug("Opened the region file region={} dim={}", path, this.dimensionLabel);
+
+            if (!opened.acquire()) {
+                continue;
+            }
+            evictRegions(index);
+            return opened;
         }
-
-        RegionFile opened = RegionFile.open(path);
-        RegionFile previous = this.regions.putIfAbsent(index, opened);
-
-        if (previous != null) {
-            opened.close();
-            return previous;
-        }
-
-        LOGGER.debug("Opened the region file region={} dim={}", path, this.dimensionLabel);
-        evictRegions(index);
-        return opened;
     }
 
     /**
-     * Closes region files until the configured limit is met again.
-     * The file which was just opened is never evicted so the caller keeps a usable handle.
+     * Drops region files from the cache until the configured limit is met again.
+     * <p>
+     * The file which was just opened is never dropped so the caller keeps a cached handle. A file
+     * which another thread is still using is only dropped here; that thread closes it when it
+     * finishes, which can keep the loader above its limit for the duration of a single access.
+     * </p>
      *
-     * @param keep the index of the region file which must stay open
+     * @param keep the index of the region file which must stay cached
      */
     private void evictRegions(long keep) {
-        for (Map.Entry<Long, RegionFile> entry : this.regions.entrySet()) {
+        for (Map.Entry<Long, RegionHandle> entry : this.regions.entrySet()) {
             if (this.regions.size() <= this.openRegionLimit) {
                 return;
             }
             if (entry.getKey() == keep || !this.regions.remove(entry.getKey(), entry.getValue())) {
                 continue;
             }
+            retire(entry.getValue(), "to stay below the open file limit");
+        }
+    }
 
-            try {
-                entry.getValue().flush();
-                entry.getValue().close();
-                LOGGER.debug("Closed the region file region={} dim={} to stay below the open file limit",
-                        entry.getValue().path(), this.dimensionLabel);
-            } catch (IOException exception) {
-                this.diagnostics.countError();
-                LOGGER.error("Failed to close the region file region={} dim={}",
-                        entry.getValue().path(), this.dimensionLabel, exception);
+    /**
+     * The {@link RegionHandle} class ties a region file to the amount of threads which are working
+     * with it, which is what allows the file to be dropped from the cache at any moment without
+     * closing it under a thread that is still reading or writing.
+     * <p>
+     * A handle is either usable, which means it can accept further users, or retired, which means it
+     * was dropped from the cache and is closed as soon as its last user leaves. A retired handle
+     * never becomes usable again, so a thread which finds one has to open the file anew.
+     * </p>
+     *
+     * @author TheMeinerLP
+     * @version 1.0.0
+     * @since 1.16.0
+     */
+    private static final class RegionHandle {
+
+        private final RegionFile file;
+
+        private int users;
+        private boolean retired;
+
+        /**
+         * Creates a handle for the given region file.
+         *
+         * @param file the region file the handle guards
+         */
+        private RegionHandle(RegionFile file) {
+            this.file = file;
+        }
+
+        /**
+         * Returns the region file of this handle.
+         *
+         * @return the guarded region file
+         */
+        @Contract(pure = true)
+        private RegionFile file() {
+            return this.file;
+        }
+
+        /**
+         * Registers the calling thread as a user of the region file.
+         *
+         * @return true if the file may be used, false if the handle is already retired
+         */
+        private synchronized boolean acquire() {
+            if (this.retired) {
+                return false;
             }
+            this.users++;
+            return true;
+        }
+
+        /**
+         * Removes the calling thread from the users of the region file.
+         *
+         * @return true if the caller has to close the file because it was the last user of a
+         * retired handle, otherwise false
+         */
+        private synchronized boolean release() {
+            this.users--;
+            return this.retired && this.users == 0;
+        }
+
+        /**
+         * Marks the handle as dropped from the cache so it cannot accept further users.
+         *
+         * @return true if the caller has to close the file because no thread is using it, false if
+         * the last user closes it instead
+         */
+        private synchronized boolean retire() {
+            this.retired = true;
+            return this.users == 0;
         }
     }
 
