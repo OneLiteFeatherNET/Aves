@@ -392,10 +392,6 @@ Stated plainly, because each of these is a reason to keep using another loader o
   vanilla chunk are lost when that chunk is saved. Heightmaps are not restored on load either.
   Use this loader for worlds the server owns, not as an editor for vanilla worlds you intend to
   open in the client again.
-* **Block entity coordinates are written chunk-local.** `collectBlockEntities` stores `x` and `z`
-  as the section-relative `0..15` values while `y` is absolute
-  ([`AvesAnvilLoader.java:638-672`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L638-L672));
-
 ## Error handling and world consistency
 
 The governing rule: **a chunk that exists on disk but cannot be read must not be reported as
