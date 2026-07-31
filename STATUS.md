@@ -1,7 +1,7 @@
 # Status — Anvil chunk loader and light engine
 
 Branch `feat/aves-anvil-chunk-loader` · PR [#91](https://github.com/OneLiteFeatherNET/Aves/pull/91)
-against `develop` · 17 commits · **552 tests** · `clean build` green three times in a row.
+against `develop` · 23 commits · **563 tests** · `clean build` green.
 
 Everything below is experimental and opt-in. `AbstractMapProvider` still uses the loader Minestom
 ships with unless a `ChunkLoaderFactory` is passed explicitly, so no existing consumer changes
@@ -137,6 +137,9 @@ These were explicit calls, not defaults. Changing one means revisiting the work 
 | Light `Light` implementation | **Not built** — results handed over via `Light#set` | Avoids the `@ApiStatus.Internal` calculation methods and the `Section.clone()` trap |
 | Read failure | Throws, never returns `null` | `null` means "absent", so the server regenerates and overwrites real data on the next save |
 | Compression level | 2, not the platform default 6 | 1.83× faster for ~3 % more bytes; compression is 63 % of a save |
+| Reader safety in `RegionFile` | Per-entry seqlock | A `ReadWriteLock` would block every reader of a region for the length of a payload write, which is the one thing this loader gains over Minestom's; deferred free brings the contention back through a shared counter and grows the files |
+| Region handle lifetime | Usage count, not a retry | A retry only narrows the window and has to be repeated at every call site; counting accesses removes the case instead. The cost is that the open-handle cap now bounds the cache rather than the descriptors |
+| Use after `close()` | Throws | Ignoring it loses data during shutdown, and waiting is impossible — Minestom owns the load tasks, so there is nothing to wait on |
 
 ## Where things live
 
@@ -170,6 +173,7 @@ benchmarks before trusting them after a change.
 | [Scaling and comparison](https://claude.ai/code/artifact/38131b5a-42f8-43c6-a843-f845802d78ae) | 1 to 256 sections, and the head-to-head against Minestom |
 | [Optimisation](https://claude.ai/code/artifact/a11c1e46-7310-40ed-84e5-0c4d650cbcc1) | Where save time goes, the compression trade-off, the uniform-section fast paths |
 | [Vanilla · Minestom · Aves](https://claude.ai/code/artifact/9d3b6d0d-ced3-4f0b-b675-6fb1640f262f) | 22 behaviours scored against the format reference |
+| [Concurrency defects](https://claude.ai/code/artifact/9b11a843-8db5-4495-8a95-b0423df28304) | The five races, their failure rates before the fix, and what the fix costs |
 
 ---
 
@@ -177,8 +181,8 @@ benchmarks before trusting them after a change.
 
 | Package | Types | Tests | What it does |
 | --- | ---: | ---: | --- |
-| `instance.anvil` | 14 | 13 classes | Reads and writes Anvil region files, replacing `AnvilLoader` |
-| `instance.light` | 11 | 10 classes | Computes block light and sky light for a chunk |
+| `instance.anvil` | 14 | 14 classes | Reads and writes Anvil region files, replacing `AnvilLoader` |
+| `instance.light` | 11 | 11 classes | Computes block light and sky light for a chunk |
 | `map.provider` | +1 | 1 class | `ChunkLoaderFactory`, the opt-in seam |
 | `src/jmh` | 20 files | — | Benchmarks, in their own source set |
 
@@ -190,8 +194,10 @@ file is guarded. `saveChunks` is grouped per region and bounded by a semaphore r
 one virtual thread per chunk.
 
 Region files use positional `FileChannel` operations, so reads of different chunks proceed in
-parallel. A file is closed once the last chunk this loader read from it is unloaded, with a hard cap
-on open handles as a backstop.
+parallel, and a per-entry seqlock keeps a reader from being handed a sector that was recycled while
+it read. Every access registers itself on the handle; a file leaves the cache when the last chunk
+this loader read from it is unloaded, and is closed by whichever thread finishes with it last. The
+cap on open handles is a backstop on the cache, not on descriptors.
 
 ### Light engine
 
@@ -200,6 +206,11 @@ single block changed. The algorithm has no Minestom dependency — the registry 
 `BlockLightSource`, the same separation the Anvil codec uses for palettes — and results are handed to
 a chunk through `Light#set`, which is the stable part of that interface rather than its internal
 calculation methods.
+
+One `ChunkLightService` serves any number of threads, because it keeps no state between calls. That
+is a property worth stating rather than assuming: the working buffers live in a propagator built per
+call, and handing several threads one propagator is what made the engine produce silently wrong
+light before.
 
 ---
 
@@ -295,6 +306,40 @@ Vanilla defines the Anvil format, so these are gaps in this implementation, not 
 - **The biome registry was resolved eagerly**, which made a loader impossible to construct before
   `MinecraftServer.init`.
 
+### Five races, all of which would have failed silently
+
+Found by taking one known defect and searching the rest of the code for the same shape. The search
+turned up no second instance of that exact shape, but four races of other kinds — which is the
+reason it was worth doing. Numbers below are from the red run of each test; charted
+[here](https://claude.ai/code/artifact/9b11a843-8db5-4495-8a95-b0423df28304).
+
+- **`ChunkLightService` shared its scratch buffers.** It kept a `ChunkLightPropagator` in a field,
+  so two threads sharing one service shared its `levels` and `queue` arrays. A probe found wrong
+  light in ~99 % of concurrent calls. `ChunkLightState` had built one per call all along, which is
+  why `calculateWithNeighbours` was never affected.
+- **`RegionFile` recycled sectors while readers were still in them.** `readRaw` took the location
+  without a lock; a concurrent `writeRaw` freed the old range, which the allocator handed straight
+  back out. Readers observed filler markers where their own payload belonged, sometimes the whole
+  payload from offset 0. Now a per-entry seqlock: an odd counter means "in progress", and after four
+  attempts the reader falls back to the lock so a chunk written in a loop cannot starve it.
+- **`.mcc` files were written and deleted outside the header lock.** 371 `NoSuchFileException` and
+  ~60 half-read files in 54 679 reads. The payload now goes to a staging file and is moved into
+  place with `ATOMIC_MOVE` under the lock, so the bytes stay outside it while the header and the
+  file can never disagree.
+- **Eviction closed a channel under a running reader.** Chunk tracking starts only *after* decoding,
+  so a handle could be closed mid-read: 80 of 480 loads failed with `openRegionLimit = 1`, 15 of 480
+  through the unload path, with `ClosedChannelException` thrown from inside `FileChannelImpl.read`.
+  Handles now carry a usage count; removing from the cache and closing are separate, and the last
+  user closes.
+- **`closed` was set but never read.** `loadChunk`, `saveChunk` and `region()` ignored it, so a load
+  still running at shutdown opened fresh handles into the map `close()` had just cleared — a
+  descriptor leak, and writes into a world already considered closed. They now throw
+  `IllegalStateException`, which is a lifecycle error of the caller rather than a data error.
+
+The reason all five mattered is that none of them announced itself: the light path clears the
+section's update flag, so the server never recomputes what two threads corrupted, and a read failure
+that returns `null` makes Minestom regenerate the chunk and overwrite the real data on the next save.
+
 ### In Minestom, avoided here
 
 Length field written as `5 + N` instead of `1 + N`; `status` in lower case where the game writes
@@ -308,23 +353,7 @@ which makes the server regenerate the chunk and overwrite the real data on the n
 
 Ordered by consequence, not by effort.
 
-### 1. `ChunkLightService` is not thread safe — and looks like it is
-
-It holds a `ChunkLightPropagator` in a field, so two threads sharing one service share its buffers.
-A probe reproduced **wrong light in ~99 % of concurrent calls** plus occasional
-`ArrayIndexOutOfBoundsException`, and the wrong light is written with the update flag cleared, so
-the server never recomputes it. Nothing in the class documentation warns about this; one sentence in
-it actively suggests the opposite.
-
-The fix is about five lines — drop the field, build a propagator per call, which is what
-`calculateWithNeighbours` already does. Explicitly **not** the fix: `ThreadLocal` (costly under
-virtual threads), `volatile` (removes the exceptions and leaves the silent corruption), or
-`synchronized` (serialises exactly the parallelism the type exists for).
-
-The engine is fully parallelisable per chunk today — one propagator per thread gave 0 wrong results
-in 4000 concurrent runs. Only the shared scratch buffer stands in the way.
-
-### 2. Exception hierarchy
+### 1. Exception hierarchy
 
 Design complete in [`docs/research/exception-hierarchy.md`](docs/research/exception-hierarchy.md),
 six types, not implemented. **One open decision:** whether the checked root extends `IOException`.
@@ -332,7 +361,26 @@ Extending it keeps roughly 40 signatures and 14 test assertions untouched; not e
 every existing `catch (IOException)` from silently swallowing the new types. Both arguments hold —
 this needs a call, not more analysis.
 
-### 3. Smaller items
+### 2. `calculateWithNeighbours` is last-writer-wins across chunks
+
+One service may now serve any number of threads, which is what the light fix established. What it
+does **not** establish is two threads lighting *overlapping neighbourhoods*: each reads the block
+states of all nine chunks separately, then both write into the same sections. Neither corrupts
+memory — every write holds the chunk's write lock — but the later writer wins on the basis of a read
+that may already be stale, which shows up as a seam rather than as an error. Whether that happens is
+up to the caller; nothing in the API says so yet.
+
+### 3. Two things that are argued rather than tested
+
+- **Stale header entries.** `locations` and `timestamps` are `AtomicIntegerArray` now, so a reader
+  cannot see a stale `0` and turn a present chunk into a regenerated one. That is ruled out by
+  construction, not by a test — a JMM staleness window cannot be provoked deterministically, because
+  any harness that tries introduces synchronisation edges of its own.
+- **The open-handle limit is no longer a hard cap on descriptors.** It bounds the *cached* files;
+  a handle in use by a thread stays open beyond it for the duration of that access. Deliberate, and
+  documented at the field, but it means the limit is a cache size and not a resource guarantee.
+
+### 4. Smaller items
 
 - Border exchange between chunks settles one ring deep; a fully converged result over a large area
   needs the exchange repeated.
