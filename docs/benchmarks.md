@@ -80,9 +80,27 @@ Verify it for yourself:
 `compileJmhJava` *is* part of `build`, and that is on purpose: a benchmark that no longer compiles
 after a refactoring should break the build like any other source set.
 
-## Why no Minestom
+## Why no Minestom — and the four benchmarks where the answer is different
 
-None of the benchmarks start a server.
+Two kinds of benchmark live here, and the distinction matters when reading a number.
+
+The **library benchmarks** — the large majority — start no server at all. They measure what this
+code contributes, with the registry replaced by a fake.
+
+The **comparison benchmarks** measure this implementation against the one Minestom ships with, and
+there the point *is* to run the original rather than a stand-in. Two of them need a server for it:
+
+| Benchmark | Server | Why |
+| --- | --- | --- |
+| `RegionFileComparisonBenchmark` | no | Minestom's `RegionFile` reads no registry, so it runs in a bare fork. The class sits in `net.minestom.server.instance.anvil` because that type is package-private. |
+| `ChunkSaveComparisonBenchmark` | `MinecraftServer.init()` | Minestom's `AnvilLoader` reads the biome registry and the block state count in **static** fields, so the class initialiser fails before any measurement unless the registries exist. |
+| `LightEngineComparisonBenchmark` | `MinecraftServer.init()` | Measures the original light engine, whose methods are package-private in `net.minestom.server.instance.light`. |
+
+The comparison numbers therefore include what a real registry costs on both sides — which is
+correct, because both sides pay it. They are not comparable with the library benchmarks below, which
+deliberately exclude it.
+
+Everything from here on applies to the library benchmarks.
 
 Both packages already separate their algorithm from the registries of a running server —
 `PaletteEntryResolver` for the codec and `BlockLightSource` for the light engine. The benchmarks
@@ -142,8 +160,39 @@ Both propagators keep their working buffers between runs, so the benchmarks reus
 the whole trial and warm the buffers in `@Setup`. A fresh instance per invocation would measure two
 array allocations instead of the search.
 
-`ChunkLightState` and `ChunkLightService` have no benchmarks. They are the Minestom-facing half of
-the engine and cannot be measured without a running server.
+`ChunkLightState` and `ChunkLightService` have no benchmarks of their own. They are the
+Minestom-facing half of the engine; what they cost is covered by the comparison benchmarks below,
+which do start a server.
+
+### Against the implementations Minestom ships with
+
+These are the ones that answer "is this actually better", and they are the reason the
+[loader](anvil-chunk-loader.md) and [light engine](light-engine.md) documents can state factors
+instead of intentions. Each measures the original, not a reimplementation of it — which is why two
+of them live in Minestom packages, where the measured types are package-private.
+
+| Benchmark | Parameters | What it answers |
+| --- | --- | --- |
+| [`RegionFileComparisonBenchmark`](../src/jmh/java/net/minestom/server/instance/anvil/RegionFileComparisonBenchmark.java) `.avesRead` `.minestomRead` `.avesWrite` `.minestomWrite` | `distinctStates` 8, 200, and the JMH thread count | The central claim of the loader: what the lock granularity is worth. Run it with `-t 1` and the two are level; the difference appears only under contention, which is why the thread count is the parameter that matters here. |
+| [`ChunkSaveComparisonBenchmark`](../src/jmh/java/net/theevilreaper/aves/benchmark/anvil/ChunkSaveComparisonBenchmark.java) `.avesSave` `.minestomSave` `.compressAvesLevel` `.compressMinestomLevel` | `distinctStates` 1, 16, 64, 256, 1024 | Whether the palette handling shows up in a whole chunk save. Both sides run the identical Adventure writer over byte-identical payloads, so the save comparison cannot be won by choosing a cheaper compression level — that variable is measured separately in the two `compress*` methods. |
+| [`LightEngineComparisonBenchmark`](../src/jmh/java/net/minestom/server/instance/light/LightEngineComparisonBenchmark.java) `.aves` `.minestom` | `lightSources` 1, 8, 64 × `occlusionPercent` 0, 30 | Where each light engine wins. Both parameters are needed: the answer flips between them. It also verifies that both produce byte-identical results, so a faster number can never come from computing something else. |
+
+Because two of them start a server, their absolute numbers include registry time and are **not**
+comparable with the library benchmarks above. Compare them only against their own counterpart.
+
+### Scaling beyond the sizes anyone uses
+
+[`ScalingBenchmark`](../src/jmh/java/net/theevilreaper/aves/benchmark/ScalingBenchmark.java) measures
+this library against itself rather than against Minestom, along two axes that the other benchmarks
+sample too coarsely to expose a bend in:
+
+| Method | Parameter | What it answers |
+| --- | --- | --- |
+| `blockLightBySectionCount` `skyLightBySectionCount` | `sectionCount` 1 … 256, fifteen steps | Whether cost per section stays flat as the world grows taller. Block light does across the whole range. Sky light does not: a least-squares fit over the vanilla range (≤ 24 sections) understates the measured cost at 256 sections by about 20 %, while the same method lands within 2 % for block light. |
+| `paletteByDistinctStates` `packingByDistinctStates` | `distinctStates` 1 … 1024 | The same question for the codec as a section fills up. |
+
+Fifteen steps rather than three, because the point of this benchmark is to find where a curve stops
+being straight — and that is exactly what a coarse parameter set hides.
 
 ## Benchmark hygiene
 
