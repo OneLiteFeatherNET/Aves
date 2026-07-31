@@ -182,6 +182,20 @@ public final class AnvilDiagnostics {
      * @return true if the name was added by this call, otherwise false
      */
     private static boolean track(Set<String> names, String name) {
-        return names.size() < MAX_TRACKED_NAMES && names.add(name);
+        // The size check and the insertion cannot be one atomic step on a set, so racing threads
+        // could push it past the cap. A slightly relaxed bound is acceptable here because the cap
+        // exists to protect the heap, not to be an exact quota, but the set is trimmed back so it
+        // cannot drift upwards over time.
+        if (names.size() >= MAX_TRACKED_NAMES) {
+            return false;
+        }
+        if (!names.add(name)) {
+            return false;
+        }
+        if (names.size() > MAX_TRACKED_NAMES) {
+            names.remove(name);
+            return false;
+        }
+        return true;
     }
 }

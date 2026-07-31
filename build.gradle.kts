@@ -2,6 +2,7 @@ plugins {
     `java-library`
     `maven-publish`
     jacoco
+    alias(libs.plugins.jmh)
 }
 
 group = "net.theevilreaper"
@@ -37,12 +38,53 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.platform.launcher)
     testRuntimeOnly(libs.junit.jupiter.engine)
+
+    // The benchmarks live in their own source set (src/jmh/java). Nothing declared here reaches the
+    // main or the test classpath, so the published library never carries a jmh dependency.
+    jmhImplementation(platform(libs.mycelium.bom))
+    jmhImplementation(platform(libs.adventure.bom))
+    jmhImplementation(libs.adventure.nbt)
+    jmhImplementation(libs.annotations)
+    jmhImplementation(libs.jmh.core)
+    // No jmh annotation processor is declared on purpose. The plugin already generates the harness
+    // classes with its bytecode generator, and declaring the processor as well makes both of them
+    // emit the same classes, which leaves the jar with two copies of every benchmark.
+}
+
+jmh {
+    jmhVersion.set(libs.versions.jmh)
+    // The tests of this project need a Minestom server, which a benchmark jar cannot start.
+    includeTests.set(false)
+    resultFormat.set("JSON")
+    resultsFile.set(layout.buildDirectory.file("reports/jmh/results.json"))
+    humanOutputFile.set(layout.buildDirectory.file("reports/jmh/human.txt"))
+
+    // A full run takes the better part of an hour, so a single benchmark has to be reachable
+    // without editing this file.
+    // Usage: ./gradlew jmh -Pjmh.include='BitPackerBenchmark.pack'
+    val include = providers.gradleProperty("jmh.include").orNull
+
+    if (include != null) {
+        includes.set(listOf(include))
+    }
 }
 
 tasks {
     compileJava {
         options.encoding = "UTF-8"
         options.release.set(25)
+    }
+
+    compileJmhJava {
+        options.encoding = "UTF-8"
+    }
+
+    // The benchmarks are compiled by a normal build but never executed by one. A run takes the
+    // better part of an hour and its numbers are far too noisy on a shared runner to gate anything
+    // on, while a benchmark that stopped compiling after a refactoring should fail like any other
+    // source set.
+    check {
+        dependsOn(compileJmhJava)
     }
 
     jacocoTestReport {

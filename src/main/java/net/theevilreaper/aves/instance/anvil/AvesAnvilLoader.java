@@ -237,12 +237,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
             ByteArrayOutputStream target = new ByteArrayOutputStream(64 * 1024);
             TAG_WRITER.writeNamed(Map.entry("", data), target, BinaryTagIO.Compression.NONE);
 
-            RegionFile region = region(chunkX, chunkZ, true);
-
-            if (region == null) {
-                throw new IOException("The region file for the chunk " + chunkX + "/" + chunkZ + " could not be created");
-            }
-            region.writeRaw(chunkX, chunkZ, ChunkCompression.ZLIB, ChunkCompression.ZLIB.compress(target.toByteArray()));
+            writeToRegion(chunkX, chunkZ, ChunkCompression.ZLIB.compress(target.toByteArray()));
             this.diagnostics.countChunkSaved();
         } catch (IOException | RuntimeException exception) {
             this.diagnostics.countError();
@@ -453,6 +448,46 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
                 this.diagnostics.unknownBlockCount(), this.diagnostics.unknownBiomeCount(),
                 this.regionDirectory, this.dimensionLabel
         );
+    }
+
+    /**
+     * Writes the given payload into the region file of the chunk.
+     * <p>
+     * Another thread can evict the region file between the moment this one obtained the handle and
+     * the moment it writes, which closes a file that is about to be used. The write is therefore
+     * retried with a freshly opened handle instead of losing the chunk. Only the eviction case is
+     * retried; a second failure propagates.
+     * </p>
+     *
+     * @param chunkX  the absolute chunk x coordinate
+     * @param chunkZ  the absolute chunk z coordinate
+     * @param payload the compressed payload of the chunk
+     * @throws IOException if the chunk cannot be written
+     */
+    private void writeToRegion(int chunkX, int chunkZ, byte[] payload) throws IOException {
+        for (int attempt = 0; attempt < 2; attempt++) {
+            RegionFile region = region(chunkX, chunkZ, true);
+
+            if (region == null) {
+                throw new IOException("The region file for the chunk " + chunkX + "/" + chunkZ + " could not be created");
+            }
+
+            try {
+                region.writeRaw(chunkX, chunkZ, ChunkCompression.ZLIB, payload);
+                return;
+            } catch (IOException exception) {
+                // A closed handle is the eviction race and is worth one more attempt. The cache
+                // entry is dropped first so the retry cannot obtain the same closed file again.
+                if (attempt == 1 || !region.isClosed()) {
+                    throw exception;
+                }
+                this.regions.remove(regionIndex(chunkX, chunkZ), region);
+                LOGGER.debug(
+                        "Retrying the save of a chunk whose region file was evicted chunk=[{},{}] dim={}",
+                        chunkX, chunkZ, this.dimensionLabel
+                );
+            }
+        }
     }
 
     /**
