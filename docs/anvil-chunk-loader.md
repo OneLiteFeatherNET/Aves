@@ -83,6 +83,22 @@ Call it on server shutdown. During operation a region file is closed on its own 
 this loader read from it has been unloaded, and the number of simultaneously open files is capped by
 `DEFAULT_OPEN_REGION_LIMIT` (64, configurable through the three-argument constructor).
 
+A region file is never closed while a thread is reading from or writing to it. Every access
+registers itself on the cached handle first; an unload, an eviction or `close()` only drops the
+handle from the cache, and the thread that leaves it last performs the actual close. That is why a
+chunk load cannot fail because another thread unloaded a chunk of the same region, and why a save
+needs no retry when the open-file limit evicts its file mid-write. The cap therefore bounds the
+number of *cached* files exactly; the number of open descriptors can exceed it for the duration of
+a single access.
+
+After `close()` the loader refuses further work with an `IllegalStateException` instead of ignoring
+it: `loadChunk`, `saveChunk` and `saveChunks` all throw. Returning `null` from a closed loader would
+report the chunk as absent and make the server generate a replacement over the stored data, and
+ignoring a save would drop chunk data during the very shutdown it belongs to. A task that is already
+past that check and reaches the region cache during the close either finds its handle still valid
+and finishes normally, or is refused the same way — it can never publish a handle that nothing
+closes again.
+
 ### Through a map provider
 
 `AbstractMapProvider` keeps the Minestom loader as the default, so existing providers are
@@ -316,7 +332,7 @@ Aves paths are relative to `src/main/java/net/theevilreaper/aves/`.
 | **Header write per chunk** | `writeHeader` rewrites the whole 8192-byte header on every dirty save (`instance/anvil/RegionFile.java:182-201`, called at `:131`). | `writeEntry` writes only the 4-byte location and the 4-byte timestamp of the affected index (`instance/anvil/RegionFile.java:342-348`). | Minestom rewrites 1024 location and 1024 timestamp entries to change one of each. Beyond the write volume, a crash during that rewrite can damage entries of unrelated chunks; an 8-byte update cannot. |
 | **Region header validation** | `readHeader` marks every non-zero location in the bitset, checking only that it stays inside the current sector count (`instance/anvil/RegionFile.java:167-172`, `:234-239`). Overlapping entries are accepted. | Entries pointing into the header or with a zero sector count are dropped (`instance/anvil/RegionFile.java:141-146`) and `SectorAllocator.reserve` rejects an overlapping range with the conflicting sector in the message (`instance/anvil/SectorAllocator.java:79-94`). | Two location entries claiming the same sectors stay undetected in Minestom until one chunk overwrites the other. Aves fails to open such a file with a message naming the sector. |
 | **NBT strictness** | Uses the defaulting getters throughout: `sectionData.getCompound("block_states")` returns an empty compound when absent (`instance/anvil/AnvilLoader.java:239`), and an empty palette list then leaves the section untouched (`:242-249`). | `NbtReads` reports a missing or mistyped key as an `IOException` naming the key, the expected type and the actual type (`instance/anvil/NbtReads.java:54-64`, `:217-221`); `SectionCodec` rejects empty palettes (`instance/anvil/SectionCodec.java:59-61`, `:101-103`). | In Minestom a truncated or malformed section silently loads as untouched (air) and is written back that way. In Aves the same input fails the load, so the stored bytes survive. |
-| **Region file lifecycle** | Opened inside `alreadyLoaded.computeIfAbsent(...)`, i.e. blocking file IO inside a `ConcurrentHashMap` mapping function (`instance/anvil/AnvilLoader.java:179-194`); closed when the last chunk of the region unloads (`:557-584`). | Opened outside the mapping function, published with `putIfAbsent`, and a losing race closes the redundant handle (`instance/anvil/AvesAnvilLoader.java:370-395`); a file is closed once the last chunk this loader loaded is unloaded, with a hard cap on open files as a backstop (`DEFAULT_OPEN_REGION_LIMIT`). | `computeIfAbsent` holds the bin lock for the duration of the mapping function; performing file IO there blocks other keys hashing to the same bin. Also, `unloadChunk` is called for chunks the loader never loaded (documented at `instance/ChunkLoader.java:102-108`), which makes a plain reference count unreliable — Aves therefore tracks only the chunks it loaded itself and additionally caps the number of open files. |
+| **Region file lifecycle** | Opened inside `alreadyLoaded.computeIfAbsent(...)`, i.e. blocking file IO inside a `ConcurrentHashMap` mapping function (`instance/anvil/AnvilLoader.java:179-194`); closed when the last chunk of the region unloads (`:557-584`). | Opened outside the mapping function, published with `putIfAbsent`, and a losing race closes the redundant handle (`instance/anvil/AvesAnvilLoader.java:370-395`); a file is closed once the last chunk this loader loaded is unloaded, with a hard cap on open files as a backstop (`DEFAULT_OPEN_REGION_LIMIT`); a handle in use is only dropped from the cache and closed by its last user. | `computeIfAbsent` holds the bin lock for the duration of the mapping function; performing file IO there blocks other keys hashing to the same bin. Also, `unloadChunk` is called for chunks the loader never loaded (documented at `instance/ChunkLoader.java:102-108`), which makes a plain reference count unreliable — Aves therefore tracks only the chunks it loaded itself and additionally caps the number of open files. |
 | **Instance-level and unknown chunk tags** | `loadInstance`/`saveInstance` read and write `level.dat` (`instance/anvil/AnvilLoader.java:96-107`, `:332-343`). Chunk tags other than `Heightmaps`, `sections` and `block_entities` are kept in the chunk tag handler (`:144-151`) and written back on save (`:390`); heightmaps are restored (`:140`). | Neither method is overridden. `snapshot` builds a fixed set of keys: `DataVersion`, `xPos`, `zPos`, `yPos`, `Status`, `LastUpdate`, `sections`, `block_entities` (`instance/anvil/AvesAnvilLoader.java:618-627`). | This one favours Minestom. Saving a vanilla chunk with the Aves loader drops `Heightmaps`, `structures`, `block_ticks`, `fluid_ticks`, `PostProcessing` and any other chunk-level tag, and `level.dat` is not touched at all. See the next section. |
 
 Twenty rows. Every reference above was read in the sources of the stated versions.
@@ -351,7 +367,7 @@ else. Optimising the palette would therefore have been pointless; keeping compre
 | Concurrency of `saveChunks` | Interface default starts one virtual thread **per chunk** (`instance/ChunkLoader.java:62-82`) | Chunks are grouped per region, one task per group, bounded by a `Semaphore` sized to the available processors (`AvesAnvilLoader.saveChunks`) | The number of chunk snapshots and compressed byte arrays alive at once is bounded by the permit count instead of by the number of chunks being saved. |
 | Uniform sections | Written as a full palette container | Collapsed to a single palette entry with no data array (`PaletteData.single`) | A section of pure air or pure stone stores one entry instead of a 4096-entry index array. |
 | Repeated array reads | — | `NbtReads` copies each array tag once and never calls `value()` twice | `value()` on an array tag copies on every call; a 4096-entry `long[]` is 32 KiB per copy. |
-| Open file handles | Closed when the last chunk of a region unloads, using a reference count that the interface documents as unreliable (`instance/ChunkLoader.java:102-108`) | Closed when the last chunk **this loader loaded** is unloaded, plus a hard cap on open files as a backstop (`DEFAULT_OPEN_REGION_LIMIT`) | Unload calls arrive for foreign chunks, so a count alone either leaks handles or closes files still in use. The cap bounds the worst case regardless. |
+| Open file handles | Closed when the last chunk of a region unloads, using a reference count that the interface documents as unreliable (`instance/ChunkLoader.java:102-108`) | Closed when the last chunk **this loader loaded** is unloaded, plus a hard cap on open files as a backstop (`DEFAULT_OPEN_REGION_LIMIT`); never closed under a thread that is still reading or writing, and never opened again after `close()` | Unload calls arrive for foreign chunks, so a count alone either leaks handles or closes files still in use. The cap bounds the worst case regardless. |
 | Block state cache | `static CompoundBinaryTag[]` sized by `Block.statesCount()`, populated without synchronisation (`instance/anvil/AnvilLoader.java:48`, `:526-531`) | No global cache; palette entries are built per section | Trades a small amount of repeated work for no shared mutable state and no class-loading-time allocation proportional to the block registry. |
 
 ### What is not faster
@@ -437,7 +453,9 @@ declares no checked exceptions
 and reports to the exception manager
 ([`AvesAnvilLoader.java:214-222`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L214-L222)).
 A failed save has already lost the in-memory state either way; propagating would additionally abort
-the surrounding save of every other chunk. In `saveChunks` a task that fails is reported per group
+the surrounding save of every other chunk. The one exception is a save on a **closed** loader: that
+is a lifecycle error of the caller rather than a broken chunk, so it propagates as an
+`IllegalStateException` and is not counted as a failed chunk. In `saveChunks` a task that fails is reported per group
 in `awaitAll` ([`AvesAnvilLoader.java:711-724`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L711-L724)),
 and the error count surfaces again in the summary written by `close()`.
 

@@ -62,6 +62,11 @@ import java.util.concurrent.Semaphore;
  * two separate steps, which is what allows an unload or an eviction to happen at any moment without
  * failing the work that is already running.
  * </p>
+ * <p>
+ * A loader which was closed refuses further work with an {@link IllegalStateException}. Silently
+ * ignoring a load would report the chunk as absent and make the server overwrite it, and silently
+ * ignoring a save would drop chunk data during the shutdown it belongs to.
+ * </p>
  *
  * <p>
  * This type is experimental. The Anvil loader is new and its API may still change while it is
@@ -179,16 +184,29 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
      * The region file is registered as in use for the duration of the read, so an unload or an
      * eviction which happens in parallel cannot close the file this call is reading from.
      * </p>
+     *
+     * @throws IllegalStateException if the loader was already closed or is closed while the call
+     *                               is looking for the region file
      */
     @Override
     public @Nullable Chunk loadChunk(Instance instance, int chunkX, int chunkZ) {
+        ensureOpen();
+        RegionHandle handle;
+
+        // The acquisition stays outside of the block which reports a failed chunk. It refuses its
+        // work once the loader is closed, and a shutdown which arrives during a load is a lifecycle
+        // event of the caller rather than a chunk which could not be read.
         try {
-            RegionHandle handle = acquireRegion(chunkX, chunkZ, false);
+            handle = acquireRegion(chunkX, chunkZ, false);
+        } catch (IOException exception) {
+            throw failedLoad(chunkX, chunkZ, exception);
+        }
 
-            if (handle == null) {
-                return null;
-            }
+        if (handle == null) {
+            return null;
+        }
 
+        try {
             RegionFile.RawChunk raw;
 
             try {
@@ -231,23 +249,42 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
             this.diagnostics.countChunkLoaded();
             return chunk;
         } catch (IOException | RuntimeException exception) {
-            this.diagnostics.countError();
-            LOGGER.error(
-                    "Failed to load the chunk chunk=[{},{}] region={} dim={}",
-                    chunkX, chunkZ, this.regionDirectory, this.dimensionLabel, exception
-            );
-            MinecraftServer.getExceptionManager().handleException(exception);
-            // Reporting the chunk as absent would make the server generate a replacement which
-            // overwrites the real data on the next save, so the failure has to propagate.
-            throw new AnvilChunkException("The chunk " + chunkX + "/" + chunkZ + " could not be loaded", exception);
+            throw failedLoad(chunkX, chunkZ, exception);
         }
     }
 
     /**
+     * Reports a chunk which could not be read and builds the exception which carries that failure
+     * to the caller.
+     * <p>
+     * Reporting the chunk as absent would make the server generate a replacement which overwrites
+     * the real data on the next save, so the failure has to propagate.
+     * </p>
+     *
+     * @param chunkX    the absolute chunk x coordinate
+     * @param chunkZ    the absolute chunk z coordinate
+     * @param exception the failure which stopped the load
+     * @return the exception the caller has to throw
+     */
+    private AnvilChunkException failedLoad(int chunkX, int chunkZ, Throwable exception) {
+        this.diagnostics.countError();
+        LOGGER.error(
+                "Failed to load the chunk chunk=[{},{}] region={} dim={}",
+                chunkX, chunkZ, this.regionDirectory, this.dimensionLabel, exception
+        );
+        MinecraftServer.getExceptionManager().handleException(exception);
+        return new AnvilChunkException("The chunk " + chunkX + "/" + chunkZ + " could not be loaded", exception);
+    }
+
+    /**
      * {@inheritDoc}
+     *
+     * @throws IllegalStateException if the loader was already closed or is closed while the call
+     *                               is looking for the region file
      */
     @Override
     public void saveChunk(Chunk chunk) {
+        ensureOpen();
         int chunkX = chunk.getChunkX();
         int chunkZ = chunk.getChunkZ();
 
@@ -258,6 +295,10 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
 
             writeToRegion(chunkX, chunkZ, ChunkCompression.ZLIB.compress(target.toByteArray(), this.compressionLevel));
             this.diagnostics.countChunkSaved();
+        } catch (IllegalStateException exception) {
+            // The loader was closed while this save was running. Counting that as a failed chunk
+            // would hide the reason behind a data error, so the refusal reaches the caller as it is.
+            throw exception;
         } catch (IOException | RuntimeException exception) {
             this.diagnostics.countError();
             LOGGER.error(
@@ -275,9 +316,12 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
      * default implementation starts one thread per chunk which lets thousands of them compete for
      * the same region locks while every chunk snapshot is held in memory at the same time.
      * </p>
+     *
+     * @throws IllegalStateException if the loader was already closed
      */
     @Override
     public void saveChunks(Collection<Chunk> chunks) {
+        ensureOpen();
         Map<Long, List<Chunk>> grouped = new HashMap<>();
 
         for (Chunk chunk : chunks) {
@@ -419,6 +463,19 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     }
 
     /**
+     * Verifies that the loader is still usable.
+     *
+     * @throws IllegalStateException if the loader was already closed
+     */
+    private void ensureOpen() {
+        if (this.closed) {
+            throw new IllegalStateException(
+                    "The anvil loader for region=" + this.regionDirectory + " dim=" + this.dimensionLabel + " is closed"
+            );
+        }
+    }
+
+    /**
      * Records that this loader handled the given chunk so its region file can be released once
      * every chunk of that file has been unloaded again.
      *
@@ -456,17 +513,23 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     /**
      * Closes every region file the loader opened and reports a summary of its work.
      * <p>
-     * A file which a task is still using is dropped from the cache here and closed by that task
-     * when it finishes, so the shutdown cannot break work which is already running.
+     * A loader is closed while the tasks of the server are still running, because the loader reports
+     * parallel work as supported and therefore receives one task per chunk. A file which such a task
+     * is still using is dropped from the cache here and closed by that task when it finishes, so no
+     * handle survives the shutdown. Every later call is rejected, which is what stops a task from
+     * opening a file that nobody would close again.
      * </p>
      *
      * @throws IOException if a region file cannot be closed
      */
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         if (this.closed) {
             return;
         }
+        // The flag is raised before the cache is emptied. A thread which publishes a handle reads
+        // the flag after publishing it, so either that thread sees the flag or the loop below sees
+        // the handle, and the file is closed in both cases.
         this.closed = true;
         IOException failure = null;
 
@@ -568,7 +631,8 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
      * @param chunkZ the absolute chunk z coordinate
      * @param create whether the file should be created when it does not exist yet
      * @return the registered handle or null if the file does not exist and should not be created
-     * @throws IOException if the file cannot be opened
+     * @throws IOException           if the file cannot be opened
+     * @throws IllegalStateException if the loader was closed while the file was being opened
      */
     private @Nullable RegionHandle acquireRegion(int chunkX, int chunkZ, boolean create) throws IOException {
         int regionX = RegionConstants.chunkToRegion(chunkX);
@@ -591,6 +655,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
             if (!create && !Files.exists(path)) {
                 return null;
             }
+            ensureOpen();
 
             RegionHandle opened = new RegionHandle(RegionFile.open(path));
             RegionHandle previous = this.regions.putIfAbsent(index, opened);
@@ -598,6 +663,15 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
             if (previous != null) {
                 opened.file().close();
                 continue;
+            }
+            // The loader can be closed between the check above and this publication. The flag is
+            // read after publishing, so whoever of the two threads loses the race still sees the
+            // work of the other one and the file cannot survive as an unclosed handle.
+            if (this.closed) {
+                if (this.regions.remove(index, opened)) {
+                    retire(opened, "because the loader was closed while it was being opened");
+                }
+                ensureOpen();
             }
 
             LOGGER.debug("Opened the region file region={} dim={}", path, this.dimensionLabel);
