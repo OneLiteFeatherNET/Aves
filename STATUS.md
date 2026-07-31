@@ -1,7 +1,7 @@
 # Status — Anvil chunk loader and light engine
 
 Branch `feat/aves-anvil-chunk-loader` · PR [#91](https://github.com/OneLiteFeatherNET/Aves/pull/91)
-against `develop` · 23 commits · **563 tests** · `clean build` green.
+against `develop` · 34 commits · **575 tests** · `clean build` green.
 
 Everything below is experimental and opt-in. `AbstractMapProvider` still uses the loader Minestom
 ships with unless a `ChunkLoaderFactory` is passed explicitly, so no existing consumer changes
@@ -182,10 +182,11 @@ src/main/java/net/theevilreaper/aves/
                       ChunkLightService, MinestomBlockLightSource
   map/provider/       ChunkLoaderFactory  (+ registerInstance overload in AbstractMapProvider)
 
-src/test/java/...     mirrors the above; *ConcurrencyTest are the stress tests
-src/jmh/java/         benchmarks; LightEngineComparisonBenchmark lives in
-                      net.minestom.server.instance.light because the methods it measures
-                      are package-private there
+src/test/java/...     mirrors the above; *ConcurrencyTest are the stress tests,
+                      LightEngineEquivalenceTest pins the byte identity with Minestom
+src/jmh/java/         benchmarks; LightEngineComparisonBenchmark and
+                      LightEngineStageBenchmark live in net.minestom.server.instance.light
+                      because the methods they measure are package-private there
 ```
 
 Reading order for someone new: `RegionFile` (the byte container), then `AvesAnvilLoader`
@@ -198,7 +199,7 @@ benchmarks before trusting them after a change.
 
 | Chart | Shows |
 | --- | --- |
-| [Scaling and comparison](https://claude.ai/code/artifact/38131b5a-42f8-43c6-a843-f845802d78ae) | 1 to 256 sections, and the head-to-head against Minestom |
+| [Scaling and comparison](https://claude.ai/code/artifact/38131b5a-42f8-43c6-a843-f845802d78ae) | 1 to 256 sections, and the head-to-head against Minestom. **The head-to-head half predates `69381af`** and shows the factors from before the opacity table was rewritten |
 | [Optimisation](https://claude.ai/code/artifact/a11c1e46-7310-40ed-84e5-0c4d650cbcc1) | Where save time goes, the compression trade-off, the uniform-section fast paths |
 | [Vanilla · Minestom · Aves](https://claude.ai/code/artifact/9d3b6d0d-ced3-4f0b-b675-6fb1640f262f) | 22 behaviours scored against the format reference |
 | [Concurrency defects](https://claude.ai/code/artifact/9b11a843-8db5-4495-8a95-b0423df28304) | The five races, their failure rates before the fix, and what the fix costs |
@@ -209,10 +210,10 @@ benchmarks before trusting them after a change.
 
 | Package | Types | Tests | What it does |
 | --- | ---: | ---: | --- |
-| `instance.anvil` | 14 | 14 classes | Reads and writes Anvil region files, replacing `AnvilLoader` |
-| `instance.light` | 11 | 11 classes | Computes block light and sky light for a chunk |
+| `instance.anvil` | 14 | 13 classes | Reads and writes Anvil region files, replacing `AnvilLoader` |
+| `instance.light` | 9 | 13 classes | Computes block light and sky light for a chunk |
 | `map.provider` | +1 | 1 class | `ChunkLoaderFactory`, the opt-in seam |
-| `src/jmh` | 20 files | — | Benchmarks, in their own source set |
+| `src/jmh` | 23 files | — | Benchmarks, in their own source set |
 
 ### Anvil loader
 
@@ -245,8 +246,9 @@ light before.
 ## Measured
 
 All figures from one machine that was **not idle**. Ratios are meaningful, absolute microseconds
-carry a wide error. Reproduce with `./gradlew jmhJar` and the benchmark names below — except for
-*Where the time goes in the light path*, which comes from a standalone rebuild and says so there.
+carry a wide error. Reproduce with `./gradlew jmhJar` and the benchmark names below — except for the
+parts of *Where the time goes in the light path* that are still marked as coming from a standalone
+rebuild.
 
 ### Where the time goes when saving a chunk
 
@@ -265,22 +267,55 @@ optimisation target.
 
 ### Against the engine Minestom ships with
 
-`LightEngineComparisonBenchmark`, one section, both engines run to a **byte-identical** result
-(54 scenarios, zero differing cells, maximum level delta 0):
+`LightEngineComparisonBenchmark`, one section, `-f 1 -wi 5 -i 10`, µs/op. Both engines run to a
+**byte-identical** result over all 54 scenarios; since `69381af` that is checked by
+`LightEngineEquivalenceTest` on every build and again by the benchmark before each trial, rather
+than being asserted from a one-off comparison.
 
-| Scenario | Factor |
-| --- | ---: |
-| 1 source, no solid blocks | 0.69× |
-| 8 sources, no solid blocks | 0.92× |
-| 64 sources, no solid blocks | 0.89× |
-| 1 source, 30 % solid | 0.93× |
-| 8 sources, 30 % solid | **1.31×** |
-| 64 sources, 30 % solid | **1.34×** |
+Measured before and after `69381af` in one session on the same machine, with Minestom as the
+control:
 
-Systematic, not noise: an empty section favours Minestom because our opacity table is built
-unconditionally, a section with solid blocks favours us because that table is then read many times.
-The absolute gap in the worst row is 24.4 µs. *Where the time goes in the light path* below traces
-both that gap and the spread around it to one line in `SectionOpacity`.
+| Sources | Solid | Aves before | Aves after | Minestom | Before | After |
+| ---: | ---: | ---: | ---: | ---: | --- | --- |
+| 1 | 0 % | 74.2 ± 1.9 | 44.5 ± 0.6 | 49.4 ± 1.3 | 1.42× slower | 1.11× faster |
+| 1 | 30 % | 61.8 ± 1.6 | 39.3 ± 0.8 | 62.0 ± 2.0 | 1.03× slower | 1.58× faster |
+| 8 | 0 % | 137.7 ± 7.4 | 98.3 ± 2.4 | 121.1 ± 5.5 | 1.18× slower | 1.23× faster |
+| 8 | 30 % | 144.7 ± 1.8 | 119.3 ± 3.5 | 204.2 ± 3.7 | 1.37× faster | 1.71× faster |
+| 64 | 0 % | 135.9 ± 2.8 | 109.2 ± 1.6 | 126.5 ± 5.6 | 1.08× slower | 1.16× faster |
+| 64 | 30 % | 152.7 ± 1.8 | 122.6 ± 1.3 | 206.6 ± 4.2 | 1.37× faster | 1.68× faster |
+
+Aves is now ahead in all six scenarios instead of two, and the lead on solid blocks grew rather than
+being traded for the empty rows. An independent re-run confirms direction and order of magnitude,
+not the third digit. This is a result under the conditions named at the top of this section — one
+section, one machine that was not idle, sources of equal brightness — and not a general statement
+about either engine.
+
+The earlier reading of the pattern was wrong and is worth recording. It said an empty section favours
+Minestom because our opacity table is built unconditionally, and a section with solid blocks favours
+us because the table is then read many times. The table is still built unconditionally; it now costs
+a quarter. The stage breakdown below also shows that **Aves' search was already the faster of the
+two before the change** — 33.9 µs against Minestom's 53.9. The entire deficit came from the
+preparation, never from the algorithm.
+
+### With sources of mixed brightness
+
+`LightEngineComparisonBenchmark` gained an `emissionMix` parameter in `0e8fbb5`. `MIXED` cycles the
+sources through glowstone, lantern, torch, redstone torch and magma block, which the registry gives
+15, 15, 14, 7 and 3; positions are drawn identically to `UNIFORM`, so the levels are the only
+difference. µs/op:
+
+| Sources | Solid | Aves | Minestom |
+| ---: | ---: | ---: | ---: |
+| 8 | 0 % | 118.97 ± 8.89 | 126.54 ± 9.55 |
+| 8 | 30 % | 116.50 ± 7.63 | 201.46 ± 16.83 |
+| 64 | 0 % | 150.42 ± 32.73 | 162.20 ± 3.11 |
+| 64 | 30 % | 149.42 ± 12.64 | 252.26 ± 9.28 |
+
+Mixed brightness costs Aves **about 33 %** against `UNIFORM` — 64 sources at 0 % solid go from 112.7
+to 150.4 µs — and the lead in that row falls from 1.30× to 1.06×. A position is queued more than
+once when sources of different brightness reach it, which is exactly the case a bucket queue is for;
+the research predicts −32 to −36 % there. The benchmark can now see it, which is what the decision
+under *Investigated and deliberately not built* was waiting for.
 
 ### Scaling by world height
 
@@ -297,48 +332,60 @@ known. The cause of the sky-light curve is named below: seeding queues every ope
 
 ### Where the time goes in the light path
 
-**Not JMH, and not the real code.** These figures come from a standalone rebuild of the same call
-structure, run outside the project on Temurin 25, best of seven. The ratios between the variants are
-what carries; the absolute microseconds are coarser than everything else in this section and are not
-directly comparable with the JMH numbers, which put a whole section at 63–157 µs. Read a row as
-"this part is a fifth of the path", not as "this part costs 29.1 µs".
+This section began as a standalone rebuild of the same call structure, run outside the project — not
+JMH and not the real code. The part of it that mattered most has since been measured for real:
+`69381af` added `LightEngineStageBenchmark`, which times the stages of both engines inside the
+project. Where a rebuild estimate has been replaced by a JMH figure that is said below; the rest is
+still the rebuild and still carries only its ratios.
 
-The headline is negative. **No foreign algorithm helps here** — the search is not where the time
-goes, the preparation before it and the collection after it are. What the rebuild found:
+**Measured, `LightEngineStageBenchmark`, 1 source, 0 % solid, µs:**
 
-`SectionOpacity.of` is 20–45 % of the whole path.
-
-| Variant | 0 % solid, 1 source | 30 % solid, 8 sources |
+| Stage | Before `69381af` | After |
 | --- | ---: | ---: |
-| Today: `HashMap<Integer, byte[]>` with `computeIfAbsent` | 29.1 µs | 36.3 µs |
-| Open-addressed `int`→slot map, local, no boxing | 7.2 µs | 6.9 µs |
-| Flat table indexed by the state id | 5.1 µs | 5.0 µs |
+| `opacity` — build the table | 31.33 | **8.07** |
+| `readStates` | 7.70 | 7.23 |
+| `propagate` — the search itself | 33.85 | 31.41 |
+| `collect` | 0.24 | 0.23 |
+| Total | 77.1 | 46.3 |
 
-The spread is now explained rather than suspected. Allocation per call is 74 184 bytes today against
-8 224 bytes with the flat table, and the difference is 4096 × 16 bytes to the byte. The cause is the
-capturing lambda handed to `computeIfAbsent`: it captures the `BlockLightSource`, so a fresh instance
-is created on every loop iteration, and escape analysis does not remove it because `computeIfAbsent`
-is too large to inline. That is 4096 objects per section, roughly 1.8 MB per chunk column. **Both
-anomalies in the Minestom comparison hang on this one code path** — the loss on empty sections and
-the ±19.1 spread against Minestom's ±2.7.
+Allocation while building the table: 74 040 → 8 664 bytes per call.
 
-The rest, ordered by the size of the effect:
+Two things fall out of this. The rebuild's estimate for `SectionOpacity.of` — 29.1 µs against 5–7 µs
+for a table without boxing — was close enough on both ends; the real path lands at 8.07 µs with a
+local linear-probing table over the raw state id. And **the search was never the problem**: at 33.9 µs
+`propagate` was already faster than Minestom's 53.9 µs before any of this. The whole deficit against
+Minestom sat in the preparation.
 
-- **Seeding sky light from a heightmap** instead of queueing every open column cell: 79.3 → 55.1 µs,
-  and 81 000 → 19 000 queued positions. Byte identity against the current seeding was verified over
-  240 randomly generated worlds, zero differing cells. This is what the non-linear sky-light scaling
-  above is made of.
-- **`collect()` as one linear nibble pack** instead of writing position by position through
-  `LightNibbles.set` and cloning afterwards: 9.6 → 1.2 µs in the non-uniform case.
-- **The seed pass is redundant.** `seed` walks all 4096 positions only to find the emitters, which
-  `of` already visits: 3.6 µs, plus 2.0 µs for the second `byte[4096]` that then becomes unnecessary.
-- **Column opacity as one flat `byte[]`** instead of `List.get(y >> 4)` plus a virtual call: −26 % on
-  searching a whole column.
-- **Skipping the direction an entry arrived from**: −7 to −16 %. **Testing the level before the
+The mechanism the rebuild identified was correct. The lambda handed to `computeIfAbsent` captures the
+`BlockLightSource`, so a fresh instance is created on every loop iteration, and escape analysis does
+not remove it because `computeIfAbsent` is too large to inline — 4096 objects per section, roughly
+1.8 MB per chunk column. That is also where the ±19.1 spread against Minestom's ±2.7 came from.
+
+The rest is still **the rebuild: not JMH, not the real code**, run on Temurin 25, best of seven. The
+ratios between variants carry; the absolute microseconds are coarser than everything else in this
+section. Ordered by the size of the effect, with what has since been built marked as such:
+
+- **Done in `69381af`: the opacity table without a per-block allocation.** The rebuild put this at
+  20–45 % of the path; the stage benchmark above is the real figure.
+- **Done in `69381af`: `collect()` as one linear nibble pack** instead of writing position by
+  position through `LightNibbles.set` and cloning afterwards. The rebuild put it at 9.6 → 1.2 µs in
+  the non-uniform case; `LightNibbles.ofLevels` now packs two neighbours at a time and range-checks
+  once at the end.
+- **Open: seeding sky light from a heightmap** instead of queueing every open column cell: 79.3 →
+  55.1 µs, and 81 000 → 19 000 queued positions. Byte identity against the current seeding was
+  verified over 240 randomly generated worlds, zero differing cells. This is what the non-linear
+  sky-light scaling above is made of.
+- **Open, and deliberately so: the seed pass is redundant.** `seed` walks all 4096 positions only to
+  find the emitters, which `of` already visits: 3.6 µs, plus 2.0 µs for the second `byte[4096]` that
+  then becomes unnecessary. Left out of `69381af` because writing the emitters during the table build
+  changes the API of `SectionOpacity` and both propagators for a gain of that size.
+- **Open: column opacity as one flat `byte[]`** instead of `List.get(y >> 4)` plus a virtual call:
+  −26 % on searching a whole column.
+- **Open: skipping the direction an entry arrived from**: −7 to −16 %. **Testing the level before the
   opacity**: −6 %.
 - **A bucket queue (Dial)** is 5–7 % *slower* at equal source brightness and 32–36 % faster at mixed
-  brightness. `LightEngineComparisonBenchmark` places only glowstone, so it never measures the case
-  in which the bucket queue wins.
+  brightness. The benchmark now produces the mixed case — see *With sources of mixed brightness*
+  above, where mixed sources cost about 33 %.
 - **`ChunkLightState` allocates about 980 KB of buffers per instance**, and `calculateWithNeighbours`
   builds nine of them — roughly 28 MB of garbage per call. Derived from the buffer sizes, not
   measured with an allocation profiler.
@@ -350,6 +397,8 @@ The rest, ordered by the size of the effect:
 | zlib level 2 instead of the platform default 6 | 1.83× faster compression, ~3 % larger files |
 | Fast path for uniform sections, palette encode | 27.9 µs → 0.54 µs (**51×**) |
 | Fast path for uniform sections, opacity table | 40.8 µs → 0.54 µs (**76×**), and no arrays allocated |
+| Linear-probing opacity table over the raw state id, no boxing | 31.33 µs → 8.07 µs, 74 040 → 8 664 bytes per call |
+| `LightNibbles.ofLevels` instead of 4096 calls to `set` | `collect` 0.24 µs → 0.23 µs in the stage benchmark; the rebuild had it at 9.6 → 1.2 µs for the non-uniform case |
 
 ---
 
@@ -384,6 +433,13 @@ Vanilla defines the Anvil format, so these are gaps in this implementation, not 
 - **The name cap in `AnvilDiagnostics` was a check-then-act**, so racing threads could exceed it.
 - **The biome registry was resolved eagerly**, which made a loader impossible to construct before
   `MinecraftServer.init`.
+- **The byte identity against Minestom was never checked by anything.** This file and the documents
+  stated "54 scenarios, byte-identical, zero differing cells" as an established fact. It rested on an
+  ad-hoc comparison run once by hand: there was no test, and the benchmark did not verify it either,
+  although the documentation said it did. Two agents found this independently at their own end of the
+  code. `LightEngineEquivalenceTest` now runs the 54 scenarios on every build, and the benchmark
+  checks the 2048 bytes of both engines before each trial. A number cited throughout was hanging on
+  nothing, which is the part worth remembering — not that it turned out to hold.
 
 ### Five races, all of which would have failed silently
 
@@ -418,6 +474,32 @@ reason it was worth doing. Numbers below are from the red run of each test; char
 The reason all five mattered is that none of them announced itself: the light path clears the
 section's update flag, so the server never recomputes what two threads corrupted, and a read failure
 that returns `null` makes Minestom regenerate the chunk and overwrite the real data on the next save.
+
+### A sixth, on Windows only, and older than the five
+
+`RegionFile` wrote and deleted the external `.mcc` file of an oversized chunk in a way that let a
+concurrent reader block it. The external file is the one place where the lock-free reads meet a name
+in the file system rather than a range inside the region file, and a name is not a POSIX concept.
+Under POSIX a deletion detaches the name at once and keeps the unnamed file alive for every open
+handle, so nothing is noticed. Windows leaves the name in the directory and only marks the file
+*delete-pending*: as long as one reader holds it open, every later open of that name and every move
+onto it is denied. An inline writer therefore poisoned the name for the writer that wanted to put a
+new external file there.
+
+Fixed in `78e196c`: the file is renamed onto a private name with `ATOMIC_MOVE` and only then deleted,
+because a rename detaches the name immediately on both systems. What Windows can still deny briefly
+on its own — a handle being torn down, a virus scanner holding the file — is retried for a bounded
+time.
+
+**This one is older than the concurrency fixes of this week.** It was already in the last green
+commit; there simply was no test that exercised it. The loader was therefore broken on Windows as
+soon as an oversized chunk is read while it is being saved. Only the CI runner could show it — on
+Linux it is not reproducible, and the platform semantics are what the fix had to be reasoned from.
+
+That is also why `.github/workflows/build-pr.yml` now uploads the test reports as an artifact when a
+build fails (`bec8b67`). Gradle's console summary names the test class and the exception type, but
+neither the message nor a path nor a stack trace, and on a platform-specific failure that is the
+difference between reading the cause and guessing it.
 
 ### In Minestom, avoided here
 
@@ -480,10 +562,15 @@ deep": not an imprecision, a defect with a known fix.
   needs the exchange repeated. Item 3 is the part of this that is outright wrong today.
 - Sky light updates re-seed open columns rather than tracking a heightmap incrementally. Measured at
   79.3 → 55.1 µs in the rebuild, with byte identity verified over 240 worlds.
-- `SectionOpacity` builds its table unconditionally for non-uniform sections, which is why an empty
-  section with one light source loses to Minestom. The rebuild puts most of that cost in the
-  allocation the lookup causes rather than in the table itself — see *Where the time goes in the
-  light path*.
+- `SectionOpacity` still builds its table unconditionally for non-uniform sections. Since `69381af`
+  that costs 8.07 µs instead of 31.33, and the empty section with one source is no longer the row
+  that loses — but the table is still built whether or not it is read more than once.
+- `seed` walks all 4096 positions a second time only to find the emitters. Writing them during the
+  table build saves about 3.6 µs and one `byte[4096]`, at the price of changing the API of
+  `SectionOpacity` and both propagators. Left open on purpose for that reason.
+- Column opacity is a `List.get(y >> 4)` plus a virtual call rather than one flat `byte[]` (−26 % on
+  a whole column in the rebuild), and the search neither skips the direction an entry arrived from
+  (−7 to −16 %) nor tests the level before the opacity (−6 %).
 
 ---
 
@@ -505,10 +592,12 @@ it is worth it.** Both have to be checked before designing anything, and neither
 
 ### Importing a foreign light algorithm
 
-A later round asked whether an algorithm from another engine would close the gap to Minestom. It
-would not: the gap is not in the search but around it, which is what *Where the time goes in the
-light path* measures and what *Claims about other light engines* refutes one lead at a time. The
-verdicts below exist so that nobody walks the same road again.
+A later round asked whether an algorithm from another engine would close the gap to Minestom that
+existed at the time. None would have: the gap was not in the search but around it, and the stage
+benchmark has since confirmed that — `propagate` was already faster than Minestom's search, and
+closing the gap took a table without allocations, not another algorithm. *Claims about other light
+engines* refutes the individual leads. The verdicts below exist so that nobody walks the same road
+again.
 
 | Subject | Verdict |
 | --- | --- |
@@ -516,7 +605,7 @@ verdicts below exist so that nobody walks the same road again.
 | **Bit-slicing light levels across voxels** | No precedent in any engine. It would be an original design with an unproven benefit. |
 | **Parallelising the BFS of a single chunk** | Not worth it. The work is 50–150 µs; handing it to another thread costs more than it saves. Minestom parallelises across chunks, which is the right granularity. |
 | **Vector API** | Ruled out by packaging rather than by performance — it would force a JVM flag on every consumer. |
-| **A bucket queue (Dial)** | Undecided on purpose. It loses 5–7 % at equal source brightness and wins 32–36 % at mixed brightness, and no benchmark here produces the mixed case. Deciding it needs that benchmark first. |
+| **A bucket queue (Dial)** | No longer undecided for lack of a measurement. It loses 5–7 % at equal source brightness and wins 32–36 % at mixed brightness, and since `0e8fbb5` the benchmark produces the mixed case: mixed sources cost Aves about 33 % and shrink the lead in that row from 1.30× to 1.06×. The prerequisite is met; the change itself is still not made. |
 
 ---
 
