@@ -32,11 +32,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Stresses the thread safety of the region file container.
  * <p>
- * The whole design claim of {@link RegionFile} is that reads run without any lock while only the
- * sector allocation and the header entry are guarded. Every test in this class is built so that it
- * fails when that claim breaks: the payloads carry a marker byte in every single byte, the sector
- * table of the finished file is checked for overlapping ranges, and the file is reopened afterwards
- * so the header has to describe a layout which can be rebuilt.
+ * The whole design claim of {@link RegionFile} is that a read never takes a lock and still only ever
+ * returns a state which really existed, while a writer guards no more than the sector allocation,
+ * the header entry and the switch between the two storage locations of a chunk. Every test in this
+ * class is built so that it fails when that claim breaks: the payloads carry a marker byte in every
+ * single byte, the sector table of the finished file is checked for overlapping ranges, and the file
+ * is reopened afterwards so the header has to describe a layout which can be rebuilt.
  * </p>
  * <p>
  * A test which merely starts many threads and asserts that nothing was thrown would pass on a
@@ -73,15 +74,21 @@ class RegionFileConcurrencyTest extends FileTestBase {
     /**
      * The sector count of every version the torn read test writes.
      * <p>
-     * The values are chosen so the allocator can never hand out a sector twice while a reader is
-     * still working on an older version of a chunk. All eight version zero payloads occupy eight
-     * sectors in total, which is less than the nine sectors a single version one payload needs, and
-     * version zero plus version one occupy eighty sectors in total, which is less than the eighty
-     * one sectors a single version two payload needs. Together with the barrier which holds every
-     * writer until the last one finished its version one, a freed range can therefore never satisfy
-     * a later allocation, not even when every freed range is adjacent and merges into one gap.
-     * Without that property a reader could observe bytes of a chunk whose sectors were recycled by
-     * an unrelated write, which is a different race than the torn read this test is about.
+     * The values are chosen so the allocator can never hand out a sector twice. All eight version
+     * zero payloads occupy eight sectors in total, which is less than the nine sectors a single
+     * version one payload needs, and version zero plus version one occupy eighty sectors in total,
+     * which is less than the eighty one sectors a single version two payload needs. Together with
+     * the barrier which holds every writer until the last one finished its version one, a freed
+     * range can therefore never satisfy a later allocation, not even when every freed range is
+     * adjacent and merges into one gap.
+     * </p>
+     * <p>
+     * That property is what lets this test compute the final size of the file down to the byte and
+     * assert it. It is not a workaround: a reader which observes a recycled range has to see a
+     * single consistent version just as well, which
+     * {@link #testReadersNeverObserveASectorWhichWasRecycledWhileTheyRead()} drives on purpose.
+     * Keeping the two apart only means that a failure here names the torn read and a failure there
+     * names the recycled range.
      * </p>
      */
     private static final int[] TORN_SECTORS = {1, 9, 81};
@@ -111,6 +118,82 @@ class RegionFileConcurrencyTest extends FileTestBase {
      * so the scenario is repeated on a fresh file until a defect is practically certain to show.
      */
     private static final int ATTEMPTS = 4;
+
+    /**
+     * The sector count of the large version the recycling test writes.
+     * The value is the largest one a location entry can address, which makes the payload read of a
+     * reader as long as the format allows and therefore widens the window a recycled range needs.
+     */
+    private static final int RECYCLE_LARGE_SECTORS = RegionConstants.MAX_SECTORS_PER_CHUNK;
+
+    /**
+     * The sector count of the small version the recycling test writes.
+     * Shrinking the chunk to a single sector is what frees the large range in the first place.
+     */
+    private static final int RECYCLE_SMALL_SECTORS = 1;
+
+    /**
+     * The byte every large version of the observed chunk of the recycling test carries.
+     */
+    private static final byte RECYCLE_LARGE_MARKER = (byte) 0x51;
+
+    /**
+     * The byte every small version of the observed chunk of the recycling test carries.
+     */
+    private static final byte RECYCLE_SMALL_MARKER = (byte) 0x52;
+
+    /**
+     * The amount of threads which compete for the freed range in the recycling test.
+     * Every one of them writes exactly as many sectors as the observed chunk frees, so the first fit
+     * strategy of the allocator hands the freed range to one of them.
+     */
+    private static final int RECYCLE_FILLER_COUNT = 4;
+
+    /**
+     * The amount of threads which read the observed chunk of the recycling test.
+     */
+    private static final int RECYCLE_READER_COUNT = 8;
+
+    /**
+     * The amount of versions every writer of the recycling test produces.
+     */
+    private static final int RECYCLE_ROUNDS = 60;
+
+    /**
+     * The amount of times the recycling scenario is repeated on a fresh file.
+     */
+    private static final int RECYCLE_ATTEMPTS = 2;
+
+    /**
+     * The length of the payload which does not fit into a location entry and therefore lives in an
+     * external file next to the region file.
+     */
+    private static final int EXTERNAL_PAYLOAD_LENGTH = RegionConstants.MAX_SECTORS_PER_CHUNK * RegionConstants.SECTOR_SIZE + 1;
+
+    /**
+     * The length of the payload which is small enough to stay inside the region file.
+     */
+    private static final int INLINE_PAYLOAD_LENGTH = RegionConstants.SECTOR_SIZE - 5;
+
+    /**
+     * The byte the external payload of the storage switch test carries.
+     */
+    private static final byte EXTERNAL_MARKER = (byte) 0x61;
+
+    /**
+     * The byte the inline payload of the storage switch test carries.
+     */
+    private static final byte INLINE_MARKER = (byte) 0x62;
+
+    /**
+     * The amount of versions every writer of the storage switch test produces.
+     */
+    private static final int SWITCH_ROUNDS = 40;
+
+    /**
+     * The amount of threads which read the chunk of the storage switch test.
+     */
+    private static final int SWITCH_READER_COUNT = 4;
 
     /**
      * Creates the path of a region file of the given attempt inside the temporary directory.
@@ -256,8 +339,9 @@ class RegionFileConcurrencyTest extends FileTestBase {
                         // Every writer has to finish its first version before any of them starts the
                         // second one. A range which was freed by a second version is exactly as
                         // large as a first version needs, so without this barrier the allocator
-                        // would hand a recycled range to a first version and the layout the test
-                        // relies on would no longer hold.
+                        // would hand a recycled range to a first version and the file would no
+                        // longer end up at the size this test computes below. The recycled range
+                        // itself is driven by the test which is named for it.
                         try {
                             region.writeRaw(index, 0, ChunkCompression.ZLIB, tornPayload(index, 1));
                         } finally {
@@ -292,9 +376,196 @@ class RegionFileConcurrencyTest extends FileTestBase {
         );
         assertEquals(
                 (long) TORN_TOTAL_SECTORS * RegionConstants.SECTOR_SIZE, Files.size(path),
-                "a recycled sector would make the file smaller than the layout this test relies on"
+                "the barrier of this test rules every recycled sector out, so the file has to end at the computed size"
         );
         assertSectorTableIsDisjoint(path);
+    }
+
+    @Test
+    void testReadersNeverObserveASectorWhichWasRecycledWhileTheyRead() throws IOException, InterruptedException, ExecutionException {
+        for (int attempt = 0; attempt < RECYCLE_ATTEMPTS; attempt++) {
+            readWhileTheSectorsAreRecycled(regionPath(attempt));
+        }
+    }
+
+    /**
+     * Shrinks and grows a single chunk while other chunks compete for the range it frees.
+     * <p>
+     * This is the scenario the torn read test deliberately keeps out of its way with its barrier.
+     * The observed chunk alternates between the largest payload a location entry can address and a
+     * single sector, so every shrink frees a large range. The filler chunks request exactly that
+     * many sectors, so the first fit strategy of the allocator hands the freed range to one of them
+     * while a reader may still be somewhere inside it. A reader must never see those foreign bytes,
+     * must never see a header field of a foreign chunk and must never lose the chunk.
+     * </p>
+     *
+     * @param path the path of the region file to work on
+     * @throws IOException          if the region file cannot be used
+     * @throws InterruptedException if the waiting thread is interrupted
+     * @throws ExecutionException   if a worker failed
+     */
+    private void readWhileTheSectorsAreRecycled(Path path) throws IOException, InterruptedException, ExecutionException {
+        byte[] large = marked(RECYCLE_LARGE_SECTORS * RegionConstants.SECTOR_SIZE - 5, RECYCLE_LARGE_MARKER);
+        byte[] small = marked(RECYCLE_SMALL_SECTORS * RegionConstants.SECTOR_SIZE - 5, RECYCLE_SMALL_MARKER);
+        Queue<String> failures = new ConcurrentLinkedQueue<>();
+        AtomicInteger reads = new AtomicInteger();
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch written = new CountDownLatch(1 + RECYCLE_FILLER_COUNT);
+
+        try (RegionFile region = RegionFile.open(path);
+             ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            region.writeRaw(0, 0, ChunkCompression.ZLIB, large);
+
+            List<Future<?>> futures = new ArrayList<>(1 + RECYCLE_FILLER_COUNT + RECYCLE_READER_COUNT);
+
+            futures.add(executor.submit(() -> {
+                awaitStart(start);
+
+                try {
+                    for (int round = 0; round < RECYCLE_ROUNDS; round++) {
+                        region.writeRaw(0, 0, ChunkCompression.ZLIB, small);
+                        region.writeRaw(0, 0, ChunkCompression.ZLIB, large);
+                    }
+                } finally {
+                    written.countDown();
+                }
+                return null;
+            }));
+
+            for (int filler = 0; filler < RECYCLE_FILLER_COUNT; filler++) {
+                byte[] payload = marked(RECYCLE_LARGE_SECTORS * RegionConstants.SECTOR_SIZE - 5, (byte) (0x80 + filler));
+                int chunk = filler + 1;
+                futures.add(executor.submit(() -> {
+                    awaitStart(start);
+
+                    try {
+                        for (int round = 0; round < RECYCLE_ROUNDS * 2; round++) {
+                            region.writeRaw(chunk, 0, ChunkCompression.ZLIB, payload);
+                        }
+                    } finally {
+                        written.countDown();
+                    }
+                    return null;
+                }));
+            }
+
+            for (int reader = 0; reader < RECYCLE_READER_COUNT; reader++) {
+                futures.add(executor.submit(() -> {
+                    awaitStart(start);
+
+                    while (written.getCount() > 0) {
+                        inspectRecycledRead(region, failures);
+                        reads.incrementAndGet();
+                    }
+                    return null;
+                }));
+            }
+            start.countDown();
+            awaitAll(futures);
+
+            assertArrayEquals(large, read(region, 0, 0), "the observed chunk lost its last version");
+        }
+
+        assertTrue(failures.isEmpty(), "a reader observed bytes of a recycled sector: " + failures);
+        assertTrue(reads.get() > 0, "no reader ever read the observed chunk");
+        assertSectorTableIsDisjoint(path);
+    }
+
+    @Test
+    void testConcurrentStorageSwitchesKeepTheExternalFileAndTheHeaderInSync() throws IOException, InterruptedException, ExecutionException {
+        for (int attempt = 0; attempt < ATTEMPTS; attempt++) {
+            switchStorageConcurrently(regionPath(attempt), attempt);
+        }
+    }
+
+    /**
+     * Writes the same chunk from two threads where one payload needs an external file and the other
+     * one does not.
+     * <p>
+     * The header entry decides where a reader looks for the payload, so the entry and the external
+     * file have to change together. A writer which creates the file before it owns the header, or
+     * removes it after it gave the header up, lets the other writer slip in between: the header then
+     * claims an external payload while the file behind it is already gone, which breaks the chunk
+     * for good instead of only for the moment.
+     * </p>
+     *
+     * @param path   the path of the region file to work on
+     * @param chunkZ the chunk z coordinate the attempt uses so its external file is its own
+     * @throws IOException          if the region file cannot be used
+     * @throws InterruptedException if the waiting thread is interrupted
+     * @throws ExecutionException   if a worker failed
+     */
+    private void switchStorageConcurrently(Path path, int chunkZ) throws IOException, InterruptedException, ExecutionException {
+        byte[] external = marked(EXTERNAL_PAYLOAD_LENGTH, EXTERNAL_MARKER);
+        byte[] inline = marked(INLINE_PAYLOAD_LENGTH, INLINE_MARKER);
+        Queue<String> failures = new ConcurrentLinkedQueue<>();
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch written = new CountDownLatch(1);
+
+        try (RegionFile region = RegionFile.open(path);
+             ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            region.writeRaw(0, chunkZ, ChunkCompression.ZLIB, inline);
+
+            List<Future<?>> futures = new ArrayList<>(2 + SWITCH_READER_COUNT);
+
+            // The external payload is three orders of magnitude larger than the inline one, so a
+            // fixed round count would let the inline writer finish long before the first one even
+            // reached its second round. The inline writer therefore keeps going until the external
+            // one is done, which keeps both of them in the same window for the whole run.
+            futures.add(executor.submit(() -> {
+                awaitStart(start);
+
+                try {
+                    for (int round = 0; round < SWITCH_ROUNDS; round++) {
+                        region.writeRaw(0, chunkZ, ChunkCompression.ZLIB, external);
+                    }
+                } finally {
+                    written.countDown();
+                }
+                return null;
+            }));
+
+            futures.add(executor.submit(() -> {
+                awaitStart(start);
+
+                while (written.getCount() > 0) {
+                    region.writeRaw(0, chunkZ, ChunkCompression.ZLIB, inline);
+                }
+                return null;
+            }));
+
+            for (int reader = 0; reader < SWITCH_READER_COUNT; reader++) {
+                futures.add(executor.submit(() -> {
+                    awaitStart(start);
+
+                    while (written.getCount() > 0) {
+                        inspectSwitchedRead(region, chunkZ, failures);
+                    }
+                    return null;
+                }));
+            }
+            start.countDown();
+            awaitAll(futures);
+
+            inspectSwitchedRead(region, chunkZ, failures);
+        }
+
+        assertTrue(failures.isEmpty(), "a reader could not follow the storage the header points at: " + failures);
+
+        Path externalFile = this.tempDir.resolve("c.0." + chunkZ + ".mcc");
+        assertEquals(
+                ChunkCompression.isExternal(storedScheme(path, 0, chunkZ)), Files.exists(externalFile),
+                "the header entry and the external file of the chunk describe a different storage"
+        );
+
+        try (RegionFile reopened = RegionFile.open(path)) {
+            byte[] payload = read(reopened, 0, chunkZ);
+
+            assertTrue(
+                    Arrays.equals(external, payload) || Arrays.equals(inline, payload),
+                    "the chunk holds " + payload.length + " bytes which belong to no version"
+            );
+        }
     }
 
     @Test
@@ -552,6 +823,117 @@ class RegionFileConcurrencyTest extends FileTestBase {
             }
         }
         observations.incrementAndGet(version);
+    }
+
+    /**
+     * Reads the observed chunk of the recycling test once and records every deviation.
+     * <p>
+     * The chunk only ever holds one of two payloads, so both the length and the marker of a read are
+     * known up front. A failure of the read itself is recorded as well, because a header field which
+     * was overwritten by a foreign chunk shows up as a rejected length or an unknown scheme.
+     * </p>
+     *
+     * @param region   the region file to read from
+     * @param failures the queue which collects the description of every violation
+     */
+    private static void inspectRecycledRead(RegionFile region, Queue<String> failures) {
+        RegionFile.RawChunk chunk;
+
+        try {
+            chunk = region.readRaw(0, 0);
+        } catch (IOException exception) {
+            failures.add("the observed chunk could not be read: " + exception);
+            return;
+        }
+
+        if (chunk == null) {
+            failures.add("the observed chunk disappeared while it was rewritten");
+            return;
+        }
+
+        byte[] payload = chunk.payload();
+        byte expected;
+
+        if (payload.length == RECYCLE_LARGE_SECTORS * RegionConstants.SECTOR_SIZE - 5) {
+            expected = RECYCLE_LARGE_MARKER;
+        } else if (payload.length == RECYCLE_SMALL_SECTORS * RegionConstants.SECTOR_SIZE - 5) {
+            expected = RECYCLE_SMALL_MARKER;
+        } else {
+            failures.add("the observed chunk reported " + payload.length + " bytes which belong to no version");
+            return;
+        }
+
+        for (int offset = 0; offset < payload.length; offset++) {
+            if (payload[offset] != expected) {
+                failures.add(
+                        "the observed chunk holds " + payload[offset] + " at the offset " + offset + " of "
+                                + payload.length + " while it expects " + expected
+                );
+                return;
+            }
+        }
+    }
+
+    /**
+     * Reads the chunk of the storage switch test once and records every deviation.
+     *
+     * @param region   the region file to read from
+     * @param chunkZ   the chunk z coordinate the attempt uses
+     * @param failures the queue which collects the description of every violation
+     */
+    private static void inspectSwitchedRead(RegionFile region, int chunkZ, Queue<String> failures) {
+        RegionFile.RawChunk chunk;
+
+        try {
+            chunk = region.readRaw(0, chunkZ);
+        } catch (IOException exception) {
+            failures.add("the chunk could not be read: " + exception);
+            return;
+        }
+
+        if (chunk == null) {
+            failures.add("the chunk disappeared while it was rewritten");
+            return;
+        }
+
+        byte[] payload = chunk.payload();
+        byte expected;
+
+        if (payload.length == EXTERNAL_PAYLOAD_LENGTH) {
+            expected = EXTERNAL_MARKER;
+        } else if (payload.length == INLINE_PAYLOAD_LENGTH) {
+            expected = INLINE_MARKER;
+        } else {
+            failures.add("the chunk reported " + payload.length + " bytes which belong to no version");
+            return;
+        }
+
+        for (int offset = 0; offset < payload.length; offset++) {
+            if (payload[offset] != expected) {
+                failures.add(
+                        "the chunk holds " + payload[offset] + " at the offset " + offset + " of " + payload.length
+                                + " while it expects " + expected
+                );
+                return;
+            }
+        }
+    }
+
+    /**
+     * Reads the compression scheme byte a chunk carries straight from the region file on disk.
+     *
+     * @param path   the path of the region file to inspect
+     * @param chunkX the absolute chunk x coordinate
+     * @param chunkZ the absolute chunk z coordinate
+     * @return the scheme byte of the chunk including the external flag
+     * @throws IOException if the region file cannot be read
+     */
+    private static int storedScheme(Path path, int chunkX, int chunkZ) throws IOException {
+        byte[] bytes = Files.readAllBytes(path);
+        int location = ByteBuffer.wrap(bytes).getInt(RegionConstants.locationOffset(RegionConstants.index(chunkX, chunkZ)));
+
+        assertTrue(location != 0, "the chunk " + chunkX + "/" + chunkZ + " has no entry in the location table");
+        return bytes[(location >>> 8) * RegionConstants.SECTOR_SIZE + RegionConstants.LENGTH_FIELD_SIZE] & 0xFF;
     }
 
     /**

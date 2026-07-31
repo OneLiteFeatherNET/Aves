@@ -19,7 +19,7 @@ point at the sources of this branch and at Minestom `2026.06.20-26.1.2`.
 
 The annotation is present on all thirteen public types of the package —
 [`AvesAnvilLoader:66`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L66),
-[`RegionFile:39`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L39),
+[`RegionFile:57`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L57),
 [`RegionConstants:24`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionConstants.java#L24),
 [`ChunkCompression:34`](../src/main/java/net/theevilreaper/aves/instance/anvil/ChunkCompression.java#L34),
 [`BitPacker:24`](../src/main/java/net/theevilreaper/aves/instance/anvil/BitPacker.java#L24),
@@ -182,7 +182,16 @@ Concretely:
 * **Load stage 1** — `RegionFile.readRaw` returns the still-compressed payload and takes no lock;
   it uses `FileChannel.read(ByteBuffer, long)`, which does not mutate the channel position and is
   therefore safe from several threads
-  ([`RegionFile.java:161-200`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L161-L200)).
+  ([`RegionFile.java:204-284`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L204-L284)).
+  Taking no lock does not mean reading whatever is on disk: a chunk which is rewritten releases its
+  sector range, and the allocator may hand that range to the next write of any chunk while the reader
+  is still inside it. Each of the 1024 entries therefore carries a version counter which a writer
+  raises on entry to and on exit from its critical section. The reader takes the counter, rejects an
+  odd one, reads the bytes and takes the counter again; anything but an unchanged even counter makes
+  it start over, and after four attempts it falls back to the writer lock so a chunk which is
+  rewritten in a loop cannot starve it
+  ([`RegionFile.java:206-239`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L206-L239)).
+  Readers are never serialised against each other and never delay a writer.
 * **Load stage 2** — decompression and NBT parsing happen in the caller
   ([`AvesAnvilLoader.java:153`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L153)).
   `decodeSections` then returns a `List<DecodedSection>`
@@ -210,9 +219,12 @@ Concretely:
 * **Save stage 2** — encoding, NBT serialisation and deflate run on the clones, outside every lock
   ([`AvesAnvilLoader.java:609-627`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L609-L627),
   [`AvesAnvilLoader.java:205-212`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L205-L212)).
-* **Save stage 3** — the region lock covers sector allocation, the payload write and the 8-byte
-  header entry update, nothing else
-  ([`RegionFile.java:233-248`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L233-L248)).
+* **Save stage 3** — the region lock covers sector allocation, the payload write, the 8-byte header
+  entry update and, for an oversized chunk, the rename which puts its external file in place. The
+  header entry decides which of the two storage locations a reader has to follow, so the entry and
+  the file have to change together; only the bytes of the external file are written before the lock
+  is taken, into a staging file next to the region file
+  ([`RegionFile.java:317-370`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L317-L370)).
 
 `supportsParallelLoading()` and `supportsParallelSaving()` both return `true`
 ([`AvesAnvilLoader.java:268-278`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L268-L278)),
@@ -295,7 +307,7 @@ Aves paths are relative to `src/main/java/net/theevilreaper/aves/`.
 | **Lock granularity while loading** | One `ReentrantLock` per region file (`instance/anvil/RegionFile.java:42`); `readChunkData` holds it across `seek`, the length/compression read, the payload read **and** the decompression plus NBT parse (`:67-92`, parse at `:88`). | `readRaw` holds no lock and uses positional channel reads (`instance/anvil/RegionFile.java:161-200`); inflate and NBT parse run in the caller (`instance/anvil/AvesAnvilLoader.java:153`), palette decoding before the chunk lock (`:168`). | Minestom serialises the expensive part of every load of the same region behind one lock, so `supportsParallelLoading() == true` yields little for chunks in one region file. In Aves only the byte read touches the file, and it needs no mutual exclusion. |
 | **Lock granularity while saving** | The chunk **write** lock is held across the entire serialisation loop for all sections: palettes, block entities, biome lookups, packing (`instance/anvil/AnvilLoader.java:420-519`). Compression itself is outside the region lock (`instance/anvil/RegionFile.java:96-98` before `:104`). | The chunk **read** lock is held only to clone the sections and collect block entities (`instance/anvil/AvesAnvilLoader.java:596-607`); everything after that works on the clones (`:609-627`, `:205-212`). | Taking the write lock blocks readers as well as writers, for the full duration of encoding a chunk. A read lock over an array of `Section.clone()` calls keeps the chunk readable while it is being serialised. |
 | **`saveChunks` default** | `AnvilLoader` does not override it, so `ChunkLoader.saveChunks` applies: one virtual thread per chunk, coordinated by a `Phaser` (`instance/ChunkLoader.java:62-82`). The `catch` branch (`:71-73`) skips `phaser.arriveAndDeregister()`. | Overridden: chunks are grouped by region index, one task per region, concurrency bounded by a `Semaphore` sized to the CPU count (`instance/anvil/AvesAnvilLoader.java:233-262`, `:109`), results collected in `awaitAll` (`:711-724`). | With a `Throwable` escaping `saveChunk` the registered party is never deregistered, so `phaser.arriveAndAwaitAdvance()` at `ChunkLoader.java:76` never advances and the saving thread blocks for good. Independently, one thread per chunk means every chunk of a region contends for that region's lock while all snapshots are alive at once. Grouping by region removes the contention and the semaphore bounds peak memory. |
-| **Chunks over 255 sectors** | `Check.stateCondition(sectorCount >= SECTOR_1MB, "Chunk data is too large to fit in a region file")` (`instance/anvil/RegionFile.java:102`, `SECTOR_1MB = 256` at `:29`), which throws `IllegalStateException` (`utils/validate/Check.java:58-62`). | Payload is written to `c.<x>.<z>.mcc` next to the region file, the location entry stores an empty payload and the compression byte carries `EXTERNAL_FLAG = 0x80` (`instance/anvil/RegionFile.java:216-226`, `:358`; `instance/anvil/ChunkCompression.java:55`). Reading follows the flag (`RegionFile.java:188-190`). | A chunk larger than ~1 MiB compressed cannot be saved at all by Minestom; the exception propagates out of `saveChunk`'s `IOException`-only catch (`AnvilLoader.java:402`). Aves uses the external-file mechanism the format defines and deletes a stale `.mcc` when a chunk shrinks again (`RegionFile.java:251-253`). |
+| **Chunks over 255 sectors** | `Check.stateCondition(sectorCount >= SECTOR_1MB, "Chunk data is too large to fit in a region file")` (`instance/anvil/RegionFile.java:102`, `SECTOR_1MB = 256` at `:29`), which throws `IllegalStateException` (`utils/validate/Check.java:58-62`). | Payload is written to `c.<x>.<z>.mcc` next to the region file, the location entry stores an empty payload and the compression byte carries `EXTERNAL_FLAG = 0x80` (`instance/anvil/RegionFile.java:315-332`, `:352`; `instance/anvil/ChunkCompression.java:55`). Reading follows the flag (`RegionFile.java:281-283`). | A chunk larger than ~1 MiB compressed cannot be saved at all by Minestom; the exception propagates out of `saveChunk`'s `IOException`-only catch (`AnvilLoader.java:402`). Aves uses the external-file mechanism the format defines and deletes a stale `.mcc` when a chunk shrinks again, inside the same critical section which rewrites the header entry (`RegionFile.java:359-361`). |
 | **Block entities in single-value sections** | Block entities are collected only inside the `getAll` callback of the non-uniform branch (`instance/anvil/AnvilLoader.java:456-468`); when `section.blockPalette().singleValue() != -1` that branch is skipped entirely (`:436-441`). | `collectBlockEntities` walks every block position of the chunk independently of the palette shape (`instance/anvil/AvesAnvilLoader.java:638-672`). | A section whose blocks all share one state id but where some carry NBT or a handler — for example a section of air with handler-marked positions — loses all of its block entities on save in Minestom. |
 | **Palette bits-per-entry on load** | `Palette.load(palette, values)` derives bits-per-entry from `palette.length` alone and ignores `values.length` (`instance/palette/PaletteImpl.java:127-132`), called at `instance/anvil/AnvilLoader.java:234` and `:248`. | Derived from the palette size, then verified against the actual `long[]` length (`instance/anvil/PaletteData.java:69-87`, `instance/anvil/BitPacker.java:129-140`); if the two disagree the data is unpacked with the resolved width and written entry by entry (`instance/anvil/AvesAnvilLoader.java:521-535`). | The format permits a writer to use a wider bits-per-entry than the palette size requires. Minestom decodes such a section with the wrong stride, producing wrong blocks with no error. Aves detects the mismatch from the array length and decodes with the width that actually fits. |
 | **Palette deduplication on save** | Linear search per block: `blockPaletteIndices.indexOf(value)` on an `IntArrayList` (`instance/anvil/AnvilLoader.java:447`); same for biomes with `biomePalette.indexOf(biomeName)` on an `ArrayList<BinaryTag>` (`:484`). | `PaletteData.encode` assigns indices via `HashMap.computeIfAbsent` (`instance/anvil/PaletteData.java:97-103`). | Minestom's per-section cost is O(n·m) for n = 4096 blocks and m = distinct states in the section (biomes: O(64·m) with a deep `BinaryTag` equality per probe). Aves is O(n) hash lookups. This is a structural difference in the algorithm, not a measured figure. |
@@ -377,7 +389,7 @@ Stated plainly, because each of these is a reason to keep using another loader o
   ([`AvesAnvilLoader.java:212`](../src/main/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoader.java#L212)).
 * **No corruption recovery and no header rebuilding.** A header shorter than 8192 bytes, or a
   location table with overlapping sector ranges, fails the open
-  ([`RegionFile.java:116-121`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L116-L121),
+  ([`RegionFile.java:155-160`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L155-L160),
   [`SectorAllocator.java:86-90`](../src/main/java/net/theevilreaper/aves/instance/anvil/SectorAllocator.java#L86-L90)).
   There is no scan-and-repair mode, no orphaned-sector reclamation and no defragmentation; freed
   sectors are reused but the file is never shrunk
@@ -445,7 +457,7 @@ classes that do not know which chunk, region or dimension they are working on, s
 logged would be context-free. Instead they throw with the facts they do have — the offending key
 and its actual type ([`NbtReads.java:217-221`](../src/main/java/net/theevilreaper/aves/instance/anvil/NbtReads.java#L217-L221)),
 the declared length against the sector allocation
-([`RegionFile.java:179-184`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L179-L184)),
+([`RegionFile.java:272-277`](../src/main/java/net/theevilreaper/aves/instance/anvil/RegionFile.java#L272-L277)),
 the long count against the entry count
 ([`PaletteData.java:80-85`](../src/main/java/net/theevilreaper/aves/instance/anvil/PaletteData.java#L80-L85)),
 the conflicting sector ([`SectorAllocator.java:89`](../src/main/java/net/theevilreaper/aves/instance/anvil/SectorAllocator.java#L89)).

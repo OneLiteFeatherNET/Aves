@@ -35,10 +35,11 @@ import java.util.stream.Stream;
  * the internal lock protects.
  * </p>
  * <p>
- * Reading uses positional channel operations and takes no lock at all, so the read benchmark
- * describes a path several threads can walk at the same time. Writing takes the lock for the
- * allocation and the header update, so the write benchmark describes the part of a save which
- * really serialises between threads.
+ * Reading uses positional channel operations and takes no lock, so the read benchmark describes a
+ * path several threads can walk at the same time. What it adds on top of the raw transfer are the
+ * two reads of the version counter of the chunk which tell the reader whether a writer moved the
+ * bytes underneath it. Writing takes the lock for the allocation and the header update, so the write
+ * benchmark describes the part of a save which really serialises between threads.
  * </p>
  * <p>
  * The numbers depend heavily on the file system and on the page cache of the machine. A run on a
