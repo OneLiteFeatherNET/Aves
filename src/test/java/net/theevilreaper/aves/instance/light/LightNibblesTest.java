@@ -190,4 +190,82 @@ class LightNibblesTest {
 
         assertEquals(15, nibbles.get(2, 2, 2), "a nibble is unsigned, 15 must not read back as -1");
     }
+
+    @Test
+    void testALevelPerPositionIsPackedIntoNibbles() {
+        byte[] levels = new byte[LightNibbles.BLOCK_COUNT];
+
+        for (int index = 0; index < levels.length; index++) {
+            levels[index] = (byte) (index % 16);
+        }
+        LightNibbles nibbles = LightNibbles.ofLevels(levels, 0);
+
+        assertFalse(nibbles.isUniform());
+
+        for (int index = 0; index < levels.length; index++) {
+            assertEquals(levels[index], nibbles.get(index & 15, index >> 8, (index >> 4) & 15));
+        }
+    }
+
+    @Test
+    void testPackingAndSettingProduceTheSameBytes() {
+        // The packer replaces a loop which wrote every position through set. Both have to end in
+        // exactly the same bytes, because those bytes go to a client.
+        RandomGenerator random = RandomGenerator.getDefault();
+        byte[] levels = new byte[LightNibbles.BLOCK_COUNT];
+        LightNibbles written = LightNibbles.uniform(0);
+
+        for (int index = 0; index < levels.length; index++) {
+            int level = random.nextInt(16);
+            levels[index] = (byte) level;
+
+            if (level != 0) {
+                written.set(index & 15, index >> 8, (index >> 4) & 15, level);
+            }
+        }
+
+        assertArrayEquals(written.toDenseArray(), LightNibbles.ofLevels(levels, 0).toDenseArray());
+    }
+
+    @Test
+    void testALevelArrayOfOneRepeatedLevelNeedsNoArray() {
+        byte[] levels = new byte[LightNibbles.BLOCK_COUNT];
+        java.util.Arrays.fill(levels, (byte) 7);
+
+        LightNibbles nibbles = LightNibbles.ofLevels(levels, 0);
+
+        assertTrue(nibbles.isUniform());
+        assertEquals(7, nibbles.get(3, 9, 12));
+    }
+
+    @Test
+    void testPackingReadsTheSectionWhichStartsAtTheGivenOffset() {
+        // A whole chunk column keeps the levels of all of its sections in one array, so a section
+        // has to be packed out of the middle of it.
+        byte[] levels = new byte[LightNibbles.BLOCK_COUNT * 3];
+        java.util.Arrays.fill(levels, LightNibbles.BLOCK_COUNT, LightNibbles.BLOCK_COUNT * 2, (byte) 4);
+
+        LightNibbles second = LightNibbles.ofLevels(levels, LightNibbles.BLOCK_COUNT);
+
+        assertTrue(second.isUniform());
+        assertEquals(4, second.get(0, 0, 0));
+        assertEquals(0, LightNibbles.ofLevels(levels, 0).get(0, 0, 0));
+    }
+
+    @Test
+    void testALevelOutsideTheAllowedRangeIsRejected() {
+        byte[] levels = new byte[LightNibbles.BLOCK_COUNT];
+        levels[77] = 42;
+
+        assertThrows(IllegalArgumentException.class, () -> LightNibbles.ofLevels(levels, 0));
+    }
+
+    @Test
+    void testALevelArrayWhichIsTooShortIsRejected() {
+        assertThrows(IllegalArgumentException.class, () -> LightNibbles.ofLevels(new byte[10], 0));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> LightNibbles.ofLevels(new byte[LightNibbles.BLOCK_COUNT], 1)
+        );
+    }
 }

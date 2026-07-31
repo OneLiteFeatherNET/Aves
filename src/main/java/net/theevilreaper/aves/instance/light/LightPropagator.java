@@ -148,34 +148,7 @@ public final class LightPropagator {
      * @return the calculated light of the section
      */
     private LightNibbles collect() {
-        byte first = this.levels[0];
-        boolean uniform = true;
-
-        for (byte level : this.levels) {
-            if (level != first) {
-                uniform = false;
-                break;
-            }
-        }
-
-        if (uniform) {
-            return LightNibbles.uniform(first);
-        }
-
-        LightNibbles light = LightNibbles.uniform(0);
-
-        for (int y = 0; y < LightNibbles.DIMENSION; y++) {
-            for (int z = 0; z < LightNibbles.DIMENSION; z++) {
-                for (int x = 0; x < LightNibbles.DIMENSION; x++) {
-                    int level = this.levels[index(x, y, z)];
-
-                    if (level != 0) {
-                        light.set(x, y, z, level);
-                    }
-                }
-            }
-        }
-        return light;
+        return LightNibbles.ofLevels(this.levels, 0);
     }
 
     /**

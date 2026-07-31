@@ -104,6 +104,64 @@ public final class LightNibbles {
     }
 
     /**
+     * Creates a section from one level per position, packing two of them into a byte.
+     * <p>
+     * A propagation calculates its levels into a flat array of one byte per position and has to
+     * hand them over in the packed form. Writing that result back through {@link #set(int, int, int, int)}
+     * costs a call, a range check and a read of the byte the level shares with its neighbour for
+     * every single position. Packing the two neighbours together instead reads every level once and
+     * writes every byte once, and it is the same operation for all 4096 of them.
+     * </p>
+     * <p>
+     * The levels of a section lie next to each other in the index order of the section, so a whole
+     * chunk column can keep the levels of all of its sections in one array and hand out one section
+     * of it through the offset.
+     * </p>
+     *
+     * @param levels one level per position, starting at the given offset
+     * @param offset the position at which the section starts inside the array
+     * @return the created section
+     * @throws IllegalArgumentException if the array does not hold a whole section behind the offset
+     *                                  or if a level is outside of the allowed range
+     */
+    @Contract(pure = true, value = "_, _ -> new")
+    static LightNibbles ofLevels(byte[] levels, int offset) {
+        if (offset < 0 || levels.length - offset < BLOCK_COUNT) {
+            throw new IllegalArgumentException(
+                    "A section holds " + BLOCK_COUNT + " levels but the given array holds "
+                            + (levels.length - offset) + " behind the offset " + offset
+            );
+        }
+
+        byte[] packed = new byte[ARRAY_LENGTH];
+        int first = levels[offset];
+        int differing = 0;
+        int outOfRange = 0;
+
+        for (int index = 0; index < ARRAY_LENGTH; index++) {
+            int low = levels[offset + (index << 1)];
+            int high = levels[offset + (index << 1) + 1];
+            packed[index] = (byte) ((low & 0x0F) | ((high & 0x0F) << 4));
+            differing |= (low ^ first) | (high ^ first);
+            outOfRange |= low | high;
+        }
+
+        // Every level is checked at once rather than one at a time. A level outside of a nibble
+        // sets a bit no level may reach, and one accumulated value carries the bits of all of them.
+        if ((outOfRange & ~0x0F) != 0) {
+            throw new IllegalArgumentException("A light level must be within [0, " + MAX_LEVEL + "]");
+        }
+
+        if (differing == 0) {
+            return new LightNibbles(first);
+        }
+
+        LightNibbles nibbles = new LightNibbles(0);
+        nibbles.levels = packed;
+        return nibbles;
+    }
+
+    /**
      * Returns the light level of the given block.
      *
      * @param x the x coordinate inside the section

@@ -4,8 +4,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 /**
  * The {@link SectionOpacity} class holds the light properties of every block of a section in a form
@@ -38,6 +37,17 @@ public final class SectionOpacity {
      * The marker a uniformity scan reports when a section holds more than one state.
      */
     private static final int NOT_UNIFORM = Integer.MIN_VALUE;
+
+    /**
+     * The amount of bits the occluded faces of a block occupy in a resolved state.
+     * One bit per face, so a resolved state fits into a short together with its emission.
+     */
+    private static final int OCCLUSION_BITS = 6;
+
+    /**
+     * The bits which carry the occluded faces of a resolved state.
+     */
+    private static final int OCCLUSION_MASK = (1 << OCCLUSION_BITS) - 1;
 
     private final byte @Nullable [] occlusion;
     private final byte @Nullable [] emission;
@@ -89,35 +99,56 @@ public final class SectionOpacity {
         int uniform = uniformStateOf(stateIds);
 
         if (uniform != NOT_UNIFORM) {
-            byte[] properties = resolve(uniform, source);
-            return new SectionOpacity(null, null, properties[0], properties[1],
-                    properties[1] != 0, properties[0] == 0);
+            int properties = resolve(uniform, source);
+            byte occluded = (byte) (properties & OCCLUSION_MASK);
+            byte emitted = (byte) (properties >>> OCCLUSION_BITS);
+            return new SectionOpacity(null, null, occluded, emitted, emitted != 0, occluded == 0);
         }
 
-        Map<Integer, byte[]> resolved = new HashMap<>();
         byte[] occlusion = new byte[stateIds.length];
         byte[] emission = new byte[stateIds.length];
-        boolean anyEmission = false;
-        boolean anyOcclusion = false;
+        StateCache cache = new StateCache();
+        int anyEmission = 0;
+        int anyOcclusion = 0;
+
+        // Blocks of a world come in runs, so the state of a block is very often the state of the
+        // one before it. Remembering the last one turns the lookup of a run into a comparison.
+        int previousState = NOT_UNIFORM;
+        int previousProperties = 0;
 
         for (int index = 0; index < stateIds.length; index++) {
-            byte[] properties = resolved.computeIfAbsent(stateIds[index], stateId -> resolve(stateId, source));
-            occlusion[index] = properties[0];
-            emission[index] = properties[1];
-            anyEmission |= properties[1] != 0;
-            anyOcclusion |= properties[0] != 0;
+            int stateId = stateIds[index];
+            int properties = previousProperties;
+
+            if (stateId != previousState) {
+                properties = cache.propertiesOf(stateId, source);
+                previousState = stateId;
+                previousProperties = properties;
+            }
+            int occluded = properties & OCCLUSION_MASK;
+            int emitted = properties >>> OCCLUSION_BITS;
+            occlusion[index] = (byte) occluded;
+            emission[index] = (byte) emitted;
+            anyEmission |= emitted;
+            anyOcclusion |= occluded;
         }
-        return new SectionOpacity(occlusion, emission, (byte) 0, (byte) 0, anyEmission, !anyOcclusion);
+        return new SectionOpacity(occlusion, emission, (byte) 0, (byte) 0, anyEmission != 0, anyOcclusion == 0);
     }
 
     /**
      * Resolves the light properties of a single block state.
+     * <p>
+     * The occluded faces and the emission are returned as one value rather than as a pair, because
+     * a pair would have to be an object and this method is called once per distinct state of every
+     * section of every chunk a server lights.
+     * </p>
      *
      * @param stateId the state id to resolve
      * @param source  the source which describes the light properties of a block
-     * @return the occlusion mask and the emission of the state
+     * @return the occluded faces in the low bits and the emission above them
      */
-    private static byte[] resolve(int stateId, BlockLightSource source) {
+    @Contract(pure = true)
+    private static int resolve(int stateId, BlockLightSource source) {
         int mask = 0;
 
         for (BlockFace face : FACES) {
@@ -125,7 +156,146 @@ public final class SectionOpacity {
                 mask |= 1 << face.ordinal();
             }
         }
-        return new byte[]{(byte) mask, (byte) source.emission(stateId)};
+        return mask | (source.emission(stateId) << OCCLUSION_BITS);
+    }
+
+    /**
+     * The {@link StateCache} class remembers the resolved properties of every state a table build
+     * has already seen.
+     * <p>
+     * A section holds 4096 blocks but only a handful of distinct states, and resolving one of them
+     * reaches into the block registry of the server. The build therefore asks this cache once per
+     * block and the registry once per distinct state.
+     * </p>
+     * <p>
+     * The cache is a table with linear probing rather than a {@link java.util.HashMap}, for one
+     * reason: a map is keyed by objects. Its key would be a boxed state id and its value would be a
+     * pair object, and both would be created per block rather than per distinct state. That cost
+     * was measured and it dominated the build. Two flat arrays and a packed short have no such
+     * cost, and the whole cache dies with the build that created it.
+     * </p>
+     */
+    private static final class StateCache {
+
+        /**
+         * The amount of slots a cache starts with. Enough for a section of a real world, which
+         * rarely holds more than a few dozen distinct states.
+         */
+        private static final int INITIAL_SLOTS = 64;
+
+        /**
+         * The marker an unused slot carries.
+         * <p>
+         * A state id of exactly this value would be mistaken for an empty slot. The lowest possible
+         * integer is not a state id any registry produces, and the uniformity scan of the table
+         * already reserves it for the same reason.
+         * </p>
+         */
+        private static final int EMPTY = Integer.MIN_VALUE;
+
+        private int[] keys;
+        private short[] properties;
+        private int size;
+
+        /**
+         * Creates an empty cache.
+         */
+        private StateCache() {
+            this.keys = new int[INITIAL_SLOTS];
+            this.properties = new short[INITIAL_SLOTS];
+            Arrays.fill(this.keys, EMPTY);
+        }
+
+        /**
+         * Returns the resolved properties of the given state, resolving it if this is the first
+         * time the state is seen.
+         *
+         * @param stateId the state id to look up
+         * @param source  the source which describes the light properties of a block
+         * @return the occluded faces in the low bits and the emission above them
+         */
+        private int propertiesOf(int stateId, BlockLightSource source) {
+            int[] table = this.keys;
+            int mask = table.length - 1;
+            int slot = spread(stateId) & mask;
+            int key = table[slot];
+
+            while (key != stateId) {
+                if (key == EMPTY) {
+                    return insert(slot, stateId, source);
+                }
+                slot = (slot + 1) & mask;
+                key = table[slot];
+            }
+            return this.properties[slot];
+        }
+
+        /**
+         * Resolves a state which was seen for the first time and stores it in the given free slot.
+         *
+         * @param slot    the free slot the probe ended on
+         * @param stateId the state id to resolve
+         * @param source  the source which describes the light properties of a block
+         * @return the occluded faces in the low bits and the emission above them
+         */
+        private int insert(int slot, int stateId, BlockLightSource source) {
+            short resolved = (short) resolve(stateId, source);
+            this.keys[slot] = stateId;
+            this.properties[slot] = resolved;
+            this.size++;
+
+            // Linear probing degrades once a table fills up, so it is grown well before it is full.
+            if (this.size * 2 >= this.keys.length) {
+                grow();
+            }
+            return resolved;
+        }
+
+        /**
+         * Doubles the amount of slots and moves every stored state into the larger table.
+         */
+        private void grow() {
+            int[] oldKeys = this.keys;
+            short[] oldProperties = this.properties;
+            int[] newKeys = new int[oldKeys.length * 2];
+            short[] newProperties = new short[oldKeys.length * 2];
+            int mask = newKeys.length - 1;
+            Arrays.fill(newKeys, EMPTY);
+
+            for (int index = 0; index < oldKeys.length; index++) {
+                int key = oldKeys[index];
+
+                if (key == EMPTY) {
+                    continue;
+                }
+                int slot = spread(key) & mask;
+
+                while (newKeys[slot] != EMPTY) {
+                    slot = (slot + 1) & mask;
+                }
+                newKeys[slot] = key;
+                newProperties[slot] = oldProperties[index];
+            }
+            this.keys = newKeys;
+            this.properties = newProperties;
+        }
+
+        /**
+         * Mixes the bits of a state id so that neighbouring ids do not end up in neighbouring slots.
+         * <p>
+         * A table indexed by a power of two only ever looks at the low bits of its key. State ids of
+         * one block are consecutive, so without mixing a section of a single block type would fill
+         * one run of slots and probe through all of it.
+         * </p>
+         *
+         * @param stateId the state id to mix
+         * @return the mixed value
+         */
+        @Contract(pure = true)
+        private static int spread(int stateId) {
+            int mixed = stateId * 0x9E3779B9;
+            return mixed ^ (mixed >>> 16);
+        }
     }
 
     /**

@@ -275,39 +275,9 @@ public final class ChunkLightPropagator {
      * @return the light of the section
      */
     private LightNibbles collectSection(int baseY) {
-        byte first = this.levels[index(0, baseY, 0)];
-        boolean uniform = true;
-
-        outer:
-        for (int y = 0; y < LightNibbles.DIMENSION; y++) {
-            for (int z = 0; z < LightNibbles.DIMENSION; z++) {
-                for (int x = 0; x < LightNibbles.DIMENSION; x++) {
-                    if (this.levels[index(x, baseY + y, z)] != first) {
-                        uniform = false;
-                        break outer;
-                    }
-                }
-            }
-        }
-
-        if (uniform) {
-            return LightNibbles.uniform(first);
-        }
-
-        LightNibbles light = LightNibbles.uniform(0);
-
-        for (int y = 0; y < LightNibbles.DIMENSION; y++) {
-            for (int z = 0; z < LightNibbles.DIMENSION; z++) {
-                for (int x = 0; x < LightNibbles.DIMENSION; x++) {
-                    int level = this.levels[index(x, baseY + y, z)];
-
-                    if (level != 0) {
-                        light.set(x, y, z, level);
-                    }
-                }
-            }
-        }
-        return light;
+        // The levels of a section lie next to each other in the buffer of the whole column, because
+        // the index of a position puts its y coordinate into the highest bits.
+        return LightNibbles.ofLevels(this.levels, baseY << 8);
     }
 
     /**
