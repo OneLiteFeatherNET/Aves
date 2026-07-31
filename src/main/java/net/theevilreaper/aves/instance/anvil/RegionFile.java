@@ -430,20 +430,6 @@ public final class RegionFile implements AutoCloseable {
     }
 
     /**
-     * Checks whether the region file was already closed.
-     * <p>
-     * A caller which obtained a handle and then found it closed lost a race against an eviction and
-     * can decide to open the file again instead of failing.
-     * </p>
-     *
-     * @return true if the region file is closed, otherwise false
-     */
-    @Contract(pure = true)
-    public boolean isClosed() {
-        return this.closed;
-    }
-
-    /**
      * Forces all pending changes of the region file to the underlying storage.
      *
      * @throws IOException if the changes cannot be written
