@@ -55,16 +55,55 @@ public final class ChunkLightPropagator {
      * @throws IllegalArgumentException if the chunk holds no section
      */
     public List<LightNibbles> propagate(List<SectionOpacity> sections) {
+        int height = prepare(sections);
+        return search(sections, height, seed(sections, height));
+    }
+
+    /**
+     * Calculates the sky light of every section of a chunk.
+     * <p>
+     * Sky light enters from above and falls straight down without losing a level, which is what
+     * makes a cave dark while an open field is fully lit at every height. Only once something stops
+     * the fall does the light spread like any other light, losing one level per block.
+     * </p>
+     *
+     * @param sections the light properties of every section of the chunk
+     * @return the calculated sky light of every section, in the order the sections were given
+     * @throws IllegalArgumentException if the chunk holds no section
+     */
+    public List<LightNibbles> propagateSky(List<SectionOpacity> sections) {
+        int height = prepare(sections);
+        return search(sections, height, seedSky(sections, height));
+    }
+
+    /**
+     * Verifies the given chunk and clears the buffers for a new run.
+     *
+     * @param sections the light properties of every section of the chunk
+     * @return the amount of blocks the column spans vertically
+     * @throws IllegalArgumentException if the chunk holds no section
+     */
+    private int prepare(List<SectionOpacity> sections) {
         if (sections.isEmpty()) {
             throw new IllegalArgumentException("A chunk has to hold at least one section");
         }
 
         int height = sections.size() * LightNibbles.DIMENSION;
-        int blockCount = height * LightNibbles.DIMENSION * LightNibbles.DIMENSION;
-        ensureCapacity(blockCount);
+        ensureCapacity(height * LightNibbles.DIMENSION * LightNibbles.DIMENSION);
+        java.util.Arrays.fill(this.levels, 0, height * LightNibbles.DIMENSION * LightNibbles.DIMENSION, (byte) 0);
+        return height;
+    }
 
-        java.util.Arrays.fill(this.levels, 0, blockCount, (byte) 0);
-        int tail = seed(sections, height);
+    /**
+     * Spreads the queued levels through the column.
+     *
+     * @param sections the light properties of every section of the chunk
+     * @param height   the amount of blocks the column spans vertically
+     * @param queued   the amount of positions which were queued as sources
+     * @return the calculated light of every section
+     */
+    private List<LightNibbles> search(List<SectionOpacity> sections, int height, int queued) {
+        int tail = queued;
         int head = 0;
 
         while (head < tail) {
@@ -143,6 +182,36 @@ public final class ChunkLightPropagator {
                     }
                     int index = index(x, y, z);
                     this.levels[index] = (byte) emission;
+                    this.queue[tail++] = index;
+                }
+            }
+        }
+        return tail;
+    }
+
+    /**
+     * Puts every block which sees the open sky into the queue.
+     * <p>
+     * Every column is walked from the top of the chunk downwards. As long as light can enter the
+     * block from above it receives the full level, which is why an open column is lit to the very
+     * bottom. The walk of a column ends at the first block that stops the light.
+     * </p>
+     *
+     * @param sections the light properties of every section
+     * @param height   the amount of blocks the column spans vertically
+     * @return the amount of queued positions
+     */
+    private int seedSky(List<SectionOpacity> sections, int height) {
+        int tail = 0;
+
+        for (int z = 0; z < LightNibbles.DIMENSION; z++) {
+            for (int x = 0; x < LightNibbles.DIMENSION; x++) {
+                for (int y = height - 1; y >= 0; y--) {
+                    if (blocksFace(sections, x, y, z, BlockFace.TOP)) {
+                        break;
+                    }
+                    int index = index(x, y, z);
+                    this.levels[index] = LightNibbles.MAX_LEVEL;
                     this.queue[tail++] = index;
                 }
             }

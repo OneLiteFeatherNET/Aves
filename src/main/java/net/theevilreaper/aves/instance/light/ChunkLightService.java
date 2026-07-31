@@ -1,6 +1,7 @@
 package net.theevilreaper.aves.instance.light;
 
 import net.minestom.server.instance.Chunk;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Section;
 import net.minestom.server.instance.palette.Palette;
 import org.jetbrains.annotations.ApiStatus;
@@ -39,6 +40,8 @@ import java.util.List;
 @ApiStatus.Experimental
 public final class ChunkLightService {
 
+    private static final BlockFace[] HORIZONTAL_FACES = {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST};
+
     private final BlockLightSource source;
     private final ChunkLightPropagator propagator;
 
@@ -70,25 +73,101 @@ public final class ChunkLightService {
      * @param chunk the chunk to light
      */
     public void calculate(Chunk chunk) {
+        apply(chunk, this.propagator.propagate(opacityOf(chunk)), false);
+    }
+
+    /**
+     * Builds the opacity table of every section of the given chunk.
+     *
+     * @param chunk the chunk to read
+     * @return the opacity table of every section
+     */
+    private List<SectionOpacity> opacityOf(Chunk chunk) {
         List<int[]> states = readStates(chunk);
         List<SectionOpacity> opacity = new ArrayList<>(states.size());
 
         for (int[] section : states) {
             opacity.add(SectionOpacity.of(section, this.source));
         }
+        return opacity;
+    }
 
-        List<LightNibbles> light = this.propagator.propagate(opacity);
-
+    /**
+     * Writes the calculated light into the sections of the given chunk.
+     *
+     * @param chunk the chunk which receives the light
+     * @param light the calculated light of every section
+     * @param sky   whether the sky light is written instead of the block light
+     */
+    private static void apply(Chunk chunk, List<LightNibbles> light, boolean sky) {
         chunk.lockWriteLock();
         try {
             List<Section> sections = chunk.getSections();
 
             for (int index = 0; index < sections.size() && index < light.size(); index++) {
-                sections.get(index).blockLight().set(light.get(index).toDenseArray());
+                byte[] array = light.get(index).toDenseArray();
+                Section section = sections.get(index);
+
+                if (sky) {
+                    section.skyLight().set(array);
+                    continue;
+                }
+                section.blockLight().set(array);
             }
         } finally {
             chunk.unlockWriteLock();
         }
+    }
+
+    /**
+     * Calculates the sky light of the given chunk and stores it in its sections.
+     *
+     * @param chunk the chunk to light
+     */
+    public void calculateSky(Chunk chunk) {
+        List<SectionOpacity> opacity = opacityOf(chunk);
+        List<LightNibbles> light = this.propagator.propagateSky(opacity);
+        apply(chunk, light, true);
+    }
+
+    /**
+     * Calculates the light of the given chunk and continues it into the chunks around it.
+     * <p>
+     * A chunk which is lit on its own ends its light at the border, which shows up as a straight
+     * dark line every sixteen blocks. This method hands the border of every already loaded
+     * neighbour to the chunk and its own border back, so the light continues in both directions.
+     * Neighbours which are not loaded are skipped.
+     * </p>
+     *
+     * @param instance the instance which holds the chunk and its neighbours
+     * @param chunkX   the chunk x coordinate
+     * @param chunkZ   the chunk z coordinate
+     */
+    public void calculateWithNeighbours(Instance instance, int chunkX, int chunkZ) {
+        Chunk chunk = instance.getChunk(chunkX, chunkZ);
+
+        if (chunk == null) {
+            return;
+        }
+
+        List<SectionOpacity> opacity = opacityOf(chunk);
+        ChunkLightState state = ChunkLightState.blockLight(opacity);
+
+        for (BlockFace face : HORIZONTAL_FACES) {
+            Chunk neighbour = instance.getChunk(chunkX + face.offsetX(), chunkZ + face.offsetZ());
+
+            if (neighbour == null) {
+                continue;
+            }
+
+            List<SectionOpacity> neighbourOpacity = opacityOf(neighbour);
+            ChunkLightState neighbourState = ChunkLightState.blockLight(neighbourOpacity);
+
+            state.injectBorder(opacity, face, neighbourState.border(face.opposite()));
+            neighbourState.injectBorder(neighbourOpacity, face.opposite(), state.border(face));
+            apply(neighbour, neighbourState.toSections(), false);
+        }
+        apply(chunk, state.toSections(), false);
     }
 
     /**

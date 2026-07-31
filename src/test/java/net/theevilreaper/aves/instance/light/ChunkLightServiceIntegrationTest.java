@@ -163,4 +163,70 @@ class ChunkLightServiceIntegrationTest {
             assertEquals(14, this.service.blockLightAt(reloaded, 9, 40, 8));
         }
     }
+
+    @Test
+    void testSkyLightReachesTheGroundOfAnOpenChunk(Env env) {
+        Instance instance = env.createEmptyInstance();
+        Chunk chunk = instance.loadChunk(0, 0).join();
+
+        this.service.calculateSky(chunk);
+
+        chunk.lockReadLock();
+        try {
+            assertEquals(15, chunk.getSectionAt(40).skyLight().getLevel(8, 40 & 15, 8),
+                    "an open column is lit down to the bottom");
+        } finally {
+            chunk.unlockReadLock();
+        }
+    }
+
+    @Test
+    void testACeilingKeepsTheSkyLightOut(Env env) {
+        Instance instance = env.createEmptyInstance();
+        Chunk chunk = instance.loadChunk(0, 0).join();
+
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                place(chunk, x, 60, z, Block.STONE);
+            }
+        }
+
+        this.service.calculateSky(chunk);
+
+        chunk.lockReadLock();
+        try {
+            assertEquals(0, chunk.getSectionAt(40).skyLight().getLevel(8, 40 & 15, 8),
+                    "everything below the ceiling stays dark");
+        } finally {
+            chunk.unlockReadLock();
+        }
+    }
+
+    @Test
+    void testLightCrossesIntoTheNeighbouringChunk(Env env) {
+        Instance instance = env.createEmptyInstance();
+        Chunk west = instance.loadChunk(0, 0).join();
+        Chunk east = instance.loadChunk(1, 0).join();
+        // The lamp sits on the eastern edge of the western chunk.
+        place(west, 15, 40, 8, Block.GLOWSTONE);
+
+        this.service.calculateWithNeighbours(instance, 0, 0);
+
+        assertEquals(15, this.service.blockLightAt(west, 15, 40, 8));
+        assertEquals(14, this.service.blockLightAt(east, 0, 40, 8),
+                "the first block of the neighbouring chunk has to be lit");
+        assertEquals(13, this.service.blockLightAt(east, 1, 40, 8));
+    }
+
+    @Test
+    void testAMissingNeighbourIsSkipped(Env env) {
+        Instance instance = env.createEmptyInstance();
+        Chunk chunk = instance.loadChunk(0, 0).join();
+        place(chunk, 15, 40, 8, Block.GLOWSTONE);
+
+        // Only this chunk is loaded, the neighbours are absent.
+        this.service.calculateWithNeighbours(instance, 0, 0);
+
+        assertEquals(15, this.service.blockLightAt(chunk, 15, 40, 8));
+    }
 }

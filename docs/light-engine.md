@@ -7,9 +7,9 @@ Minestom, which is what makes it testable without a running server.
 > **Experimental.** Every public type of `net.theevilreaper.aves.instance.light` is annotated
 > `@ApiStatus.Experimental`. The API may still change.
 
-> **Scope.** This package computes the **block light** of a chunk and writes it into that chunk. It
-> works with any chunk of any loader. It does not compute sky light and does not propagate across
-> chunk borders. See [Limits](#limits).
+> **Scope.** Block light and sky light for a chunk, across section borders, across chunk borders,
+> and incrementally after a single block changed. Works with any chunk of any loader.
+> See [Limits](#limits) for what is still missing.
 
 ## When this is worth using
 
@@ -17,7 +17,7 @@ Honest answer first, because it decides whether the package is relevant at all:
 
 | Workload | Does light computation run? |
 | --- | --- |
-| Loading pre-lit worlds from `.mca` | **No.** The stored light is applied with `Light#set`, which clears `requiresUpdate()`. Nothing is recomputed. |
+| Loading pre-lit worlds from `.mca` | **No.** The stored light is applied with `Light#set`, which clears `requiresUpdate()`. Nothing is recomputed — unless you call this engine explicitly. |
 | Generated worlds without stored light | Yes |
 | Runtime block placement | Yes |
 
@@ -53,6 +53,7 @@ Seven types, each with one responsibility. Only the two on the right know Minest
 | `LightPropagator` | The breadth-first propagation, with reusable buffers. |
 | `ChunkLightPropagator` | The same search across all sections of a chunk, so light crosses their borders. |
 | `MinestomBlockLightSource` | Answers `BlockLightSource` from the block registry. |
+| `ChunkLightState` | Keeps a calculated result and updates it incrementally, including the retraction pass. |
 | `ChunkLightService` | Reads a chunk, runs the propagation, writes the result back. |
 
 `BlockLightSource` exists for the same reason `PaletteEntryResolver` does in the Anvil package: it
@@ -173,25 +174,69 @@ Locking follows the same three-stage split the Anvil loader uses: block states a
 read lock, the propagation runs with **no** lock held, and only the transfer of the result takes the
 write lock.
 
-### When to call it
+### Sky light
 
-After loading a chunk that carries no stored light, after generating one, or after a block change
-that affects light. `calculate` performs a **full** recalculation of the chunk, which is why
-removing a light source correctly retracts its light — but also why it is not suited to being called
-on every single block placement of a busy server.
+```java
+lighting.calculateSky(chunk);
+```
+
+Sky light enters from above and falls straight down **without losing a level** until something stops
+it — which is why an open field is fully lit at every height while a cave is dark. Only after the
+fall is interrupted does it spread like any other light, losing one level per block.
+
+### Across chunk borders
+
+```java
+lighting.calculateWithNeighbours(instance, chunkX, chunkZ);
+```
+
+Lighting a chunk on its own ends its light at the border, which shows up as a straight dark line
+every sixteen blocks. This method exchanges the border levels with every already loaded neighbour in
+both directions. Neighbours that are not loaded are skipped rather than forced to load.
+
+### Incremental updates
+
+`ChunkLightService#calculate` always recomputes the whole chunk. For a single block change that is
+wasteful, and `ChunkLightState` exists for that case:
+
+```java
+ChunkLightState state = ChunkLightState.blockLight(opacityTables);
+
+// after a block changed at that position
+state.update(updatedOpacityTables, x, y, z);
+List<LightNibbles> light = state.toSections();
+```
+
+Adding brightness is straightforward — it only spreads. **Removing** it is the hard case and the
+reason this class exists: when a light source disappears, the brightness it had spread is still
+stored in every block around it, and spreading again would keep that glow forever. The update
+therefore runs two passes. The first retracts every level that originated from the changed position
+and collects the still valid levels it meets at the edge of the retracted area; the second spreads
+those back in.
+
+`ChunkLightStateTest#testTheIncrementalResultMatchesAFullRecalculation` asserts that the incremental
+result is identical to a full recalculation, block for block.
+
+### When to call what
+
+| Situation | Method |
+| --- | --- |
+| Chunk loaded without stored light, or generated | `calculate` / `calculateSky` |
+| Chunk loaded and neighbours matter | `calculateWithNeighbours` |
+| A single block changed | `ChunkLightState#update` |
 
 ## Limits
 
 - **No `Light` implementation.** The engine deliberately does not implement
   `net.minestom.server.instance.light.Light`. It writes its result through `set` instead, which
   avoids depending on the internal calculation methods of that interface.
-- **No propagation across chunk borders.** Light crosses section borders inside a chunk, but a
-  source near the edge of a chunk does not light the neighbouring chunk. Handling that requires
-  loading the neighbours and a second pass over the borders.
-- **No sky light.** Sky light needs a heightmap and a downward seeding pass, neither of which exists
-  here.
-- **No incremental update.** `calculate` always recomputes the whole chunk. That handles a removed
-  light source correctly, but an incremental engine would only revisit the affected region.
+- **Border exchange is one round deep.** `calculateWithNeighbours` exchanges light with the direct
+  neighbours of a chunk. Light that would travel through a neighbour into the chunk behind it needs
+  another round; a fully converged result over a large area requires repeating the exchange until
+  nothing changes.
+- **Sky light is not incremental across the height limit.** `ChunkLightState#update` re-seeds the
+  open columns on every update rather than tracking a heightmap, so a sky light update costs more
+  than a block light update.
 - **`Section.clone()` discards foreign light.** Should an adapter be built later, note that
   `Section.clone()` calls `Light.sky()` / `Light.block()` outright, so any custom implementation is
   silently replaced on copy. `LightingChunk.copy()` would have to be overridden.
