@@ -46,6 +46,11 @@ dependencies {
     jmhImplementation(libs.adventure.nbt)
     jmhImplementation(libs.annotations)
     jmhImplementation(libs.jmh.core)
+    // Minestom is needed only by the comparison benchmark, which measures our light engine against
+    // the one the server ships with. It stays out of every other benchmark on purpose, so those
+    // measure this library and not a registry lookup.
+    jmhImplementation(libs.minestom)
+    jmhImplementation(libs.fastutil)
     // No jmh annotation processor is declared on purpose. The plugin already generates the harness
     // classes with its bytecode generator, and declaring the processor as well makes both of them
     // emit the same classes, which leaves the jar with two copies of every benchmark.

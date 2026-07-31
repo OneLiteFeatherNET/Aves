@@ -84,4 +84,38 @@ class ChunkCompressionTest {
 
         assertTrue(ChunkCompression.ZLIB.compress(repetitive).length < repetitive.length);
     }
+
+    @Test
+    void testTheCompressionLevelCanBeChosen() throws IOException {
+        byte[] payload = new byte[64 * 1024];
+        new java.util.Random(7).nextBytes(payload);
+        // Half the array is compressible so the level actually has an effect.
+        java.util.Arrays.fill(payload, 0, payload.length / 2, (byte) 7);
+
+        byte[] fast = ChunkCompression.ZLIB.compress(payload, ChunkCompression.FASTEST_LEVEL);
+        byte[] balanced = ChunkCompression.ZLIB.compress(payload, ChunkCompression.DEFAULT_LEVEL);
+
+        assertArrayEquals(payload, ChunkCompression.ZLIB.decompress(fast));
+        assertArrayEquals(payload, ChunkCompression.ZLIB.decompress(balanced));
+        assertTrue(balanced.length <= fast.length, "a higher level must not produce a larger result");
+    }
+
+    @Test
+    void testEveryLevelRoundTrips() throws IOException {
+        for (int level = ChunkCompression.FASTEST_LEVEL; level <= ChunkCompression.SMALLEST_LEVEL; level++) {
+            assertArrayEquals(PAYLOAD, ChunkCompression.ZLIB.decompress(ChunkCompression.ZLIB.compress(PAYLOAD, level)),
+                    "level " + level + " has to round trip");
+        }
+    }
+
+    @Test
+    void testAnInvalidLevelIsRejected() {
+        assertThrows(IllegalArgumentException.class, () -> ChunkCompression.ZLIB.compress(PAYLOAD, 0));
+        assertThrows(IllegalArgumentException.class, () -> ChunkCompression.ZLIB.compress(PAYLOAD, 10));
+    }
+
+    @Test
+    void testTheLevelIsIgnoredWithoutCompression() throws IOException {
+        assertArrayEquals(PAYLOAD, ChunkCompression.NONE.compress(PAYLOAD, ChunkCompression.SMALLEST_LEVEL));
+    }
 }

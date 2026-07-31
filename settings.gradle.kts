@@ -40,6 +40,9 @@ dependencyResolutionManagement {
 
             library("slf4j.api", "org.slf4j", "slf4j-api").versionRef("slf4j")
             library("annotations", "org.jetbrains", "annotations").versionRef("annotations")
+            // Only the comparison benchmark needs this. Minestom declares it at runtime scope, so it
+            // is not on a compile classpath, but that benchmark calls a Minestom method taking one.
+            library("fastutil", "it.unimi.dsi", "fastutil").version("8.5.18")
             library("minestom","net.minestom", "minestom").withoutVersion()
             library("adventure", "net.kyori", "adventure-text-minimessage").withoutVersion()
             library("adventure.nbt", "net.kyori", "adventure-nbt").withoutVersion()

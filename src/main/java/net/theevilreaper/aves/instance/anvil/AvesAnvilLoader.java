@@ -90,6 +90,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
     public static final int DEFAULT_OPEN_REGION_LIMIT = 64;
 
     private final int openRegionLimit;
+    private final int compressionLevel;
     private final Path regionDirectory;
     private final String dimensionLabel;
     private final AnvilDiagnostics diagnostics;
@@ -131,6 +132,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
             throw new IllegalArgumentException("The amount of open region files must be positive but was " + openRegionLimit);
         }
         this.openRegionLimit = openRegionLimit;
+        this.compressionLevel = ChunkCompression.DEFAULT_LEVEL;
         this.regionDirectory = resolveRegionDirectory(worldRoot, dimension);
         this.dimensionLabel = dimension.asString();
         this.diagnostics = new AnvilDiagnostics();
@@ -237,7 +239,7 @@ public final class AvesAnvilLoader implements ChunkLoader, AutoCloseable {
             ByteArrayOutputStream target = new ByteArrayOutputStream(64 * 1024);
             TAG_WRITER.writeNamed(Map.entry("", data), target, BinaryTagIO.Compression.NONE);
 
-            writeToRegion(chunkX, chunkZ, ChunkCompression.ZLIB.compress(target.toByteArray()));
+            writeToRegion(chunkX, chunkZ, ChunkCompression.ZLIB.compress(target.toByteArray(), this.compressionLevel));
             this.diagnostics.countChunkSaved();
         } catch (IOException | RuntimeException exception) {
             this.diagnostics.countError();
