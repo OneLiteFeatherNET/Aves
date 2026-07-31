@@ -175,4 +175,53 @@ class SectionOpacityTest {
             return true;
         }
     }
+
+    @Test
+    void testAUniformSectionIsRecognised() {
+        // Whole sections of a world hold one repeated state. Such a section needs no per position
+        // table at all, which saves both the lookups and the two arrays.
+        assertTrue(uniformSection(STONE).isUniform());
+        assertTrue(uniformSection(AIR).isUniform());
+    }
+
+    @Test
+    void testASectionWithOneDifferingBlockIsNotUniform() {
+        int[] states = new int[LightNibbles.BLOCK_COUNT];
+        states[LightNibbles.BLOCK_COUNT - 1] = STONE;
+
+        assertFalse(SectionOpacity.of(states, SOURCE).isUniform());
+    }
+
+    @Test
+    void testAUniformSectionAnswersLikeAFullTable() {
+        SectionOpacity uniform = uniformSection(SLAB);
+
+        // The shortcut must give the same answer at every position and for every face.
+        for (BlockFace face : BlockFace.values()) {
+            boolean expected = face == BlockFace.BOTTOM;
+            assertEquals(expected, uniform.blocksFace(0, 0, 0, face));
+            assertEquals(expected, uniform.blocksFace(15, 15, 15, face));
+            assertEquals(expected, uniform.blocksFace(7, 3, 11, face));
+        }
+        assertEquals(0, uniform.emission(9, 9, 9));
+    }
+
+    @Test
+    void testAUniformSectionOfLampsStillReportsEmission() {
+        SectionOpacity uniform = uniformSection(GLOWSTONE);
+
+        assertTrue(uniform.hasEmission());
+        assertEquals(15, uniform.emission(4, 4, 4));
+    }
+
+    @Test
+    void testAUniformSectionResolvesExactlyOneState() {
+        int[] states = new int[LightNibbles.BLOCK_COUNT];
+        java.util.Arrays.fill(states, STONE);
+        CountingSource counting = new CountingSource();
+
+        SectionOpacity.of(states, counting);
+
+        assertEquals(1, counting.resolved);
+    }
 }

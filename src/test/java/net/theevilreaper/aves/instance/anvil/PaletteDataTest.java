@@ -195,4 +195,41 @@ class PaletteDataTest {
         }
         return result;
     }
+
+    @Test
+    void testEncodingAUniformSectionTouchesNoMap() {
+        // A section of one repeated state is the common case: air, stone, or water fill whole
+        // sections of a world. Building a palette map over 4096 identical entries to then collapse
+        // it again is pure waste, so the uniform case has to be recognised before that happens.
+        int[] values = new int[BLOCK_ENTRIES];
+        java.util.Arrays.fill(values, 77);
+
+        PaletteData data = PaletteData.encode(values, BLOCK_MIN_BITS);
+
+        assertTrue(data.isSingleValue());
+        assertEquals(77, data.singleValue());
+        assertEquals(1, data.palette().length);
+        assertNull(data.packed());
+    }
+
+    @Test
+    void testEncodingStillHandlesASingleDifferingEntry() {
+        // The shortcut must not swallow a section that is uniform except for one block.
+        int[] values = new int[BLOCK_ENTRIES];
+        java.util.Arrays.fill(values, 5);
+        values[BLOCK_ENTRIES - 1] = 6;
+
+        PaletteData data = PaletteData.encode(values, BLOCK_MIN_BITS);
+
+        assertFalse(data.isSingleValue());
+        assertEquals(2, data.palette().length);
+    }
+
+    @Test
+    void testEncodingAnEmptySectionIsUniform() {
+        PaletteData data = PaletteData.encode(new int[BLOCK_ENTRIES], BLOCK_MIN_BITS);
+
+        assertTrue(data.isSingleValue());
+        assertEquals(0, data.singleValue());
+    }
 }

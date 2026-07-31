@@ -39,6 +39,12 @@ import java.util.Map;
 public record PaletteData(int[] palette, long @Nullable [] packed, int bitsPerEntry, int entryCount) {
 
     /**
+     * The marker a uniformity scan reports when a section holds more than one value.
+     * It is outside the range of a block state id, which is never negative.
+     */
+    private static final int NOT_UNIFORM = Integer.MIN_VALUE;
+
+    /**
      * Creates a representation for a section in which every entry holds the same value.
      *
      * @param value      the value every entry of the section holds
@@ -95,6 +101,16 @@ public record PaletteData(int[] palette, long @Nullable [] packed, int bitsPerEn
      * @return the created representation
      */
     public static PaletteData encode(int[] values, int minBitsPerEntry) {
+        // Whole sections of a world hold one repeated state: air above the terrain, stone below it,
+        // water in an ocean. Building a palette map over thousands of identical entries only to
+        // collapse it again afterwards is the common case, so it is recognised first. The scan
+        // stops at the first differing entry, which makes it free for every other section.
+        int uniform = uniformValueOf(values);
+
+        if (uniform != NOT_UNIFORM) {
+            return single(uniform, values.length);
+        }
+
         Map<Integer, Integer> indices = new HashMap<>();
         int[] mapped = new int[values.length];
 
@@ -114,6 +130,28 @@ public record PaletteData(int[] palette, long @Nullable [] packed, int bitsPerEn
 
         int bitsPerEntry = BitPacker.bitsPerEntry(palette.length, minBitsPerEntry);
         return new PaletteData(palette, BitPacker.pack(mapped, bitsPerEntry), bitsPerEntry, values.length);
+    }
+
+    /**
+     * Determines whether every entry of the given section holds the same value.
+     *
+     * @param values the value of every entry of the section
+     * @return the repeated value, or {@link #NOT_UNIFORM} if the section holds more than one
+     */
+    @Contract(pure = true)
+    private static int uniformValueOf(int[] values) {
+        if (values.length == 0) {
+            return NOT_UNIFORM;
+        }
+
+        int first = values[0];
+
+        for (int value : values) {
+            if (value != first) {
+                return NOT_UNIFORM;
+            }
+        }
+        return first;
     }
 
     /**

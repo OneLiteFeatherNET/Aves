@@ -2,6 +2,7 @@ package net.theevilreaper.aves.instance.light;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,22 +34,35 @@ public final class SectionOpacity {
 
     private static final BlockFace[] FACES = BlockFace.values();
 
-    private final byte[] occlusion;
-    private final byte[] emission;
+    /**
+     * The marker a uniformity scan reports when a section holds more than one state.
+     */
+    private static final int NOT_UNIFORM = Integer.MIN_VALUE;
+
+    private final byte @Nullable [] occlusion;
+    private final byte @Nullable [] emission;
+    private final byte uniformOcclusion;
+    private final byte uniformEmission;
     private final boolean hasEmission;
     private final boolean fullyTransparent;
 
     /**
      * Creates a new table from the given values.
      *
-     * @param occlusion        the occluded faces of every block as a bit mask
-     * @param emission         the emitted light level of every block
+     * @param occlusion        the occluded faces of every block, or null for a uniform section
+     * @param emission         the emitted light level of every block, or null for a uniform section
+     * @param uniformOcclusion the occluded faces of a uniform section
+     * @param uniformEmission  the emitted light level of a uniform section
      * @param hasEmission      whether any block of the section emits light
      * @param fullyTransparent whether no block of the section occludes any face
      */
-    private SectionOpacity(byte[] occlusion, byte[] emission, boolean hasEmission, boolean fullyTransparent) {
+    private SectionOpacity(byte @Nullable [] occlusion, byte @Nullable [] emission,
+                           byte uniformOcclusion, byte uniformEmission,
+                           boolean hasEmission, boolean fullyTransparent) {
         this.occlusion = occlusion;
         this.emission = emission;
+        this.uniformOcclusion = uniformOcclusion;
+        this.uniformEmission = uniformEmission;
         this.hasEmission = hasEmission;
         this.fullyTransparent = fullyTransparent;
     }
@@ -69,6 +83,17 @@ public final class SectionOpacity {
             );
         }
 
+        // A section of one repeated state needs no table at all. Whole sections of a world are
+        // exactly that, so the shortcut saves both the per position lookups and the two arrays. The
+        // scan stops at the first differing block, which makes it free for every other section.
+        int uniform = uniformStateOf(stateIds);
+
+        if (uniform != NOT_UNIFORM) {
+            byte[] properties = resolve(uniform, source);
+            return new SectionOpacity(null, null, properties[0], properties[1],
+                    properties[1] != 0, properties[0] == 0);
+        }
+
         Map<Integer, byte[]> resolved = new HashMap<>();
         byte[] occlusion = new byte[stateIds.length];
         byte[] emission = new byte[stateIds.length];
@@ -82,7 +107,7 @@ public final class SectionOpacity {
             anyEmission |= properties[1] != 0;
             anyOcclusion |= properties[0] != 0;
         }
-        return new SectionOpacity(occlusion, emission, anyEmission, !anyOcclusion);
+        return new SectionOpacity(occlusion, emission, (byte) 0, (byte) 0, anyEmission, !anyOcclusion);
     }
 
     /**
@@ -114,7 +139,9 @@ public final class SectionOpacity {
      */
     @Contract(pure = true)
     public boolean blocksFace(int x, int y, int z, BlockFace face) {
-        return (this.occlusion[index(x, y, z)] & (1 << face.ordinal())) != 0;
+        byte[] table = this.occlusion;
+        byte mask = table == null ? this.uniformOcclusion : table[index(x, y, z)];
+        return (mask & (1 << face.ordinal())) != 0;
     }
 
     /**
@@ -127,7 +154,8 @@ public final class SectionOpacity {
      */
     @Contract(pure = true)
     public int emission(int x, int y, int z) {
-        return this.emission[index(x, y, z)];
+        byte[] table = this.emission;
+        return table == null ? this.uniformEmission : table[index(x, y, z)];
     }
 
     /**
@@ -150,6 +178,35 @@ public final class SectionOpacity {
     @Contract(pure = true)
     public boolean isFullyTransparent() {
         return this.fullyTransparent;
+    }
+
+    /**
+     * Checks whether every block of the section holds the same state.
+     * Such a section carries no per position table.
+     *
+     * @return true if the section holds a single state, otherwise false
+     */
+    @Contract(pure = true)
+    public boolean isUniform() {
+        return this.occlusion == null;
+    }
+
+    /**
+     * Determines whether every block of the given section holds the same state.
+     *
+     * @param stateIds the state id of every block of the section
+     * @return the repeated state id, or {@link #NOT_UNIFORM} if the section holds more than one
+     */
+    @Contract(pure = true)
+    private static int uniformStateOf(int[] stateIds) {
+        int first = stateIds[0];
+
+        for (int stateId : stateIds) {
+            if (stateId != first) {
+                return NOT_UNIFORM;
+            }
+        }
+        return first;
     }
 
     /**
