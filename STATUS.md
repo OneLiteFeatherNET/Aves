@@ -99,6 +99,29 @@ Verified against the sources or by running probe code. Knowing these prevents re
 - `Instance` and `InstanceContainer` are not sealed either, but four `instanceof InstanceContainer`
   sites in Minestom make a foreign instance silently take a different path.
 
+**Claims about other light engines**
+
+Established by reading the sources, not by measuring. Each of these was taken for a promising lead
+first and only stopped being one after it was checked.
+
+- **The main advantage attributed to Starlight is already here.** Aves' BFS pushes a level onto the
+  neighbours of a cell instead of pulling each cell from all six of its own neighbours, which is the
+  difference Spottedleaf names as the reason Starlight beats vanilla. This is a structural property
+  of both implementations, not a measured figure.
+- **Starlight has no "extended nibble arrays with a border".** `SWMRNibbleArray.ARRAY_SIZE` is
+  2048 bytes, identical to vanilla's `DataLayer`. What does exist is the flat `sectionCache` /
+  `nibbleCache` over 5×5 sections — that is a flat `byte[]` for the column, not a border.
+- **Starlight's data-holding gain does not transfer.** It comes from vanilla keeping light in a
+  `Long2ObjectOpenHashMap<DataLayer>` and cloning it per tick. Aves never had that structure.
+- **The quoted 12× / 28× / 37× figures do not apply.** They compare Minecraft 1.16–1.19 against the
+  old vanilla engine. Spottedleaf withdrew the chunk-generation comparison himself and states for
+  1.20+ only "Vanilla is still 2x slower, but it is fast enough".
+- **Phosphor's optimisations are vanilla-specific bar one.** The transferable part is the block-state
+  opacity cache, which is what `SectionOpacity` already is.
+- **There is no scientific literature on this problem.** No peer-reviewed work on discrete
+  Minecraft-style flood-fill light propagation exists; the reference text is a blog post (Ben Arnold,
+  Seed of Andromeda). Voxel cone tracing and VXGI solve continuous radiance and do not transfer.
+
 **Library traps**
 - `adventure-nbt` 5.1.1: the iterators of `LongArrayBinaryTag`, `IntArrayBinaryTag` and
   `ByteArrayBinaryTag` **skip the last element** (`index < length - 1`). A for-each over packed block
@@ -120,6 +143,11 @@ Verified against the sources or by running probe code. Knowing these prevents re
   unusable in a published library — preview class files only run on the exact JDK they were built
   with, and would force `--enable-preview` on every consumer. Concurrency here uses
   `Executors.newVirtualThreadPerTaskExecutor()`, `Semaphore` and `Phaser`.
+- **The Vector API (JEP 508) is the same trap.** It is the tenth incubator round: without
+  `--add-modules jdk.incubator.vector` `javac` already refuses, with it the runtime prints a warning
+  that cannot be suppressed, and the JAR specification has no `Add-Modules` attribute to carry the
+  flag. Every consumer of the library would have to set a JVM flag, which rules it out regardless of
+  what it might buy.
 - Scoped Values, record patterns, sealed interfaces, FFM and stream gatherers are final and usable.
 - File I/O does **not** unmount a virtual thread from its carrier (JEP 444), so unbounded virtual
   threads over file work do not scale — bound them.
@@ -217,7 +245,8 @@ light before.
 ## Measured
 
 All figures from one machine that was **not idle**. Ratios are meaningful, absolute microseconds
-carry a wide error. Reproduce with `./gradlew jmhJar` and the benchmark names below.
+carry a wide error. Reproduce with `./gradlew jmhJar` and the benchmark names below — except for
+*Where the time goes in the light path*, which comes from a standalone rebuild and says so there.
 
 ### Where the time goes when saving a chunk
 
@@ -250,6 +279,8 @@ optimisation target.
 
 Systematic, not noise: an empty section favours Minestom because our opacity table is built
 unconditionally, a section with solid blocks favours us because that table is then read many times.
+The absolute gap in the worst row is 24.4 µs. *Where the time goes in the light path* below traces
+both that gap and the spread around it to one line in `SectionOpacity`.
 
 ### Scaling by world height
 
@@ -262,7 +293,55 @@ unconditionally, a section with solid blocks favours us because that table is th
   light the same method lands within 1.8 %.
 
 Measuring the exotic sizes rather than extrapolating from common ones is the only reason this is
-known.
+known. The cause of the sky-light curve is named below: seeding queues every open cell.
+
+### Where the time goes in the light path
+
+**Not JMH, and not the real code.** These figures come from a standalone rebuild of the same call
+structure, run outside the project on Temurin 25, best of seven. The ratios between the variants are
+what carries; the absolute microseconds are coarser than everything else in this section and are not
+directly comparable with the JMH numbers, which put a whole section at 63–157 µs. Read a row as
+"this part is a fifth of the path", not as "this part costs 29.1 µs".
+
+The headline is negative. **No foreign algorithm helps here** — the search is not where the time
+goes, the preparation before it and the collection after it are. What the rebuild found:
+
+`SectionOpacity.of` is 20–45 % of the whole path.
+
+| Variant | 0 % solid, 1 source | 30 % solid, 8 sources |
+| --- | ---: | ---: |
+| Today: `HashMap<Integer, byte[]>` with `computeIfAbsent` | 29.1 µs | 36.3 µs |
+| Open-addressed `int`→slot map, local, no boxing | 7.2 µs | 6.9 µs |
+| Flat table indexed by the state id | 5.1 µs | 5.0 µs |
+
+The spread is now explained rather than suspected. Allocation per call is 74 184 bytes today against
+8 224 bytes with the flat table, and the difference is 4096 × 16 bytes to the byte. The cause is the
+capturing lambda handed to `computeIfAbsent`: it captures the `BlockLightSource`, so a fresh instance
+is created on every loop iteration, and escape analysis does not remove it because `computeIfAbsent`
+is too large to inline. That is 4096 objects per section, roughly 1.8 MB per chunk column. **Both
+anomalies in the Minestom comparison hang on this one code path** — the loss on empty sections and
+the ±19.1 spread against Minestom's ±2.7.
+
+The rest, ordered by the size of the effect:
+
+- **Seeding sky light from a heightmap** instead of queueing every open column cell: 79.3 → 55.1 µs,
+  and 81 000 → 19 000 queued positions. Byte identity against the current seeding was verified over
+  240 randomly generated worlds, zero differing cells. This is what the non-linear sky-light scaling
+  above is made of.
+- **`collect()` as one linear nibble pack** instead of writing position by position through
+  `LightNibbles.set` and cloning afterwards: 9.6 → 1.2 µs in the non-uniform case.
+- **The seed pass is redundant.** `seed` walks all 4096 positions only to find the emitters, which
+  `of` already visits: 3.6 µs, plus 2.0 µs for the second `byte[4096]` that then becomes unnecessary.
+- **Column opacity as one flat `byte[]`** instead of `List.get(y >> 4)` plus a virtual call: −26 % on
+  searching a whole column.
+- **Skipping the direction an entry arrived from**: −7 to −16 %. **Testing the level before the
+  opacity**: −6 %.
+- **A bucket queue (Dial)** is 5–7 % *slower* at equal source brightness and 32–36 % faster at mixed
+  brightness. `LightEngineComparisonBenchmark` places only glowstone, so it never measures the case
+  in which the bucket queue wins.
+- **`ChunkLightState` allocates about 980 KB of buffers per instance**, and `calculateWithNeighbours`
+  builds nine of them — roughly 28 MB of garbage per call. Derived from the buffer sizes, not
+  measured with an allocation profiler.
 
 ### Optimisations these numbers produced
 
@@ -370,7 +449,22 @@ memory — every write holds the chunk's write lock — but the later writer win
 that may already be stale, which shows up as a seam rather than as an error. Whether that happens is
 up to the caller; nothing in the API says so yet.
 
-### 3. Two things that are argued rather than tested
+### 3. `calculateWithNeighbours` darkens the eight chunks it borrows
+
+It writes **all nine** chunks back at the end. The eight ring chunks only exchanged light inside the
+3×3, so the light they legitimately receive from chunks outside the 3×3 is missing from their result.
+Their previously correct light is overwritten with a darker one.
+
+The middle chunk is not affected, and provably so: a source in chunk (2,0) is at least 17 blocks from
+the middle chunk, and no path can be shorter than the direct distance, so level 15 does not survive
+the trip. Writing back only the middle chunk would therefore be **cheaper than the current behaviour
+and correct at the same time**. The argument is a derivation from the per-block decay, not a
+measurement — the byte-identity tests cover a single chunk, not the ring around it.
+
+This is the concrete form of what was filed under smaller items as "border exchange settles one ring
+deep": not an imprecision, a defect with a known fix.
+
+### 4. Two things that are argued rather than tested
 
 - **Stale header entries.** `locations` and `timestamps` are `AtomicIntegerArray` now, so a reader
   cannot see a stale `0` and turn a present chunk into a regenerated one. That is ruled out by
@@ -380,17 +474,22 @@ up to the caller; nothing in the API says so yet.
   a handle in use by a thread stays open beyond it for the duration of that access. Deliberate, and
   documented at the field, but it means the limit is a cache size and not a resource guarantee.
 
-### 4. Smaller items
+### 5. Smaller items
 
 - Border exchange between chunks settles one ring deep; a fully converged result over a large area
-  needs the exchange repeated.
-- Sky light updates re-seed open columns rather than tracking a heightmap incrementally.
+  needs the exchange repeated. Item 3 is the part of this that is outright wrong today.
+- Sky light updates re-seed open columns rather than tracking a heightmap incrementally. Measured at
+  79.3 → 55.1 µs in the rebuild, with byte identity verified over 240 worlds.
 - `SectionOpacity` builds its table unconditionally for non-uniform sections, which is why an empty
-  section with one light source loses to Minestom.
+  section with one light source loses to Minestom. The rebuild puts most of that cost in the
+  allocation the lookup causes rather than in the table itself — see *Where the time goes in the
+  light path*.
 
 ---
 
 ## Investigated and deliberately not built
+
+### Replacing parts of Minestom
 
 Three "replace this part of Minestom" questions were researched before any code was written. The
 answers differed sharply and none was obvious in advance — see [`docs/research/`](docs/research/).
@@ -403,6 +502,21 @@ answers differed sharply and none was obvious in advance — see [`docs/research
 
 The recurring lesson: **sealed-ness decides whether it is possible, and the profile decides whether
 it is worth it.** Both have to be checked before designing anything, and neither can be guessed.
+
+### Importing a foreign light algorithm
+
+A later round asked whether an algorithm from another engine would close the gap to Minestom. It
+would not: the gap is not in the search but around it, which is what *Where the time goes in the
+light path* measures and what *Claims about other light engines* refutes one lead at a time. The
+verdicts below exist so that nobody walks the same road again.
+
+| Subject | Verdict |
+| --- | --- |
+| **Starlight, wholesale** | Nothing left to take. The push-instead-of-pull BFS is already here, and the remainder of Starlight's gain is specific to how vanilla stores light. |
+| **Bit-slicing light levels across voxels** | No precedent in any engine. It would be an original design with an unproven benefit. |
+| **Parallelising the BFS of a single chunk** | Not worth it. The work is 50–150 µs; handing it to another thread costs more than it saves. Minestom parallelises across chunks, which is the right granularity. |
+| **Vector API** | Ruled out by packaging rather than by performance — it would force a JVM flag on every consumer. |
+| **A bucket queue (Dial)** | Undecided on purpose. It loses 5–7 % at equal source brightness and wins 32–36 % at mixed brightness, and no benchmark here produces the mixed case. Deciding it needs that benchmark first. |
 
 ---
 
