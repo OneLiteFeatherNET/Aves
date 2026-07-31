@@ -14,8 +14,11 @@ need ever reaches the classpath of the published library.
 ./gradlew jmh                      # every benchmark, full settings
 ```
 
-That is 82 benchmark configurations at the forks and iterations the annotations ask for, so budget
-roughly three quarters of an hour and do not touch the machine while it runs.
+That is every measured method for every combination of the parameters its state class declares — 476
+configurations at the time of writing, at the forks and iterations the annotations ask for. Budget
+well over an hour and do not touch the machine while it runs. The count is dominated by
+`ScalingBenchmark`, whose fifteen section counts and five distinct-state counts share one state class
+and therefore form a full cross product of 300 configurations on their own.
 
 The full run is not what you want during development. Restrict it to what you are working on:
 
@@ -80,7 +83,7 @@ Verify it for yourself:
 `compileJmhJava` *is* part of `build`, and that is on purpose: a benchmark that no longer compiles
 after a refactoring should break the build like any other source set.
 
-## Why no Minestom — and the four benchmarks where the answer is different
+## Why no Minestom — and the benchmarks where the answer is different
 
 Two kinds of benchmark live here, and the distinction matters when reading a number.
 
@@ -88,13 +91,14 @@ The **library benchmarks** — the large majority — start no server at all. Th
 code contributes, with the registry replaced by a fake.
 
 The **comparison benchmarks** measure this implementation against the one Minestom ships with, and
-there the point *is* to run the original rather than a stand-in. Two of them need a server for it:
+there the point *is* to run the original rather than a stand-in. Three of them need a server for it:
 
 | Benchmark | Server | Why |
 | --- | --- | --- |
 | `RegionFileComparisonBenchmark` | no | Minestom's `RegionFile` reads no registry, so it runs in a bare fork. The class sits in `net.minestom.server.instance.anvil` because that type is package-private. |
 | `ChunkSaveComparisonBenchmark` | `MinecraftServer.init()` | Minestom's `AnvilLoader` reads the biome registry and the block state count in **static** fields, so the class initialiser fails before any measurement unless the registries exist. |
 | `LightEngineComparisonBenchmark` | `MinecraftServer.init()` | Measures the original light engine, whose methods are package-private in `net.minestom.server.instance.light`. |
+| `LightEngineStageBenchmark` | `MinecraftServer.init()` | Same package and the same reason: it splits both engines into their stages, so it calls the same package-private methods. |
 
 The comparison numbers therefore include what a real registry costs on both sides — which is
 correct, because both sides pay it. They are not comparable with the library benchmarks below, which
@@ -168,16 +172,38 @@ which do start a server.
 
 These are the ones that answer "is this actually better", and they are the reason the
 [loader](anvil-chunk-loader.md) and [light engine](light-engine.md) documents can state factors
-instead of intentions. Each measures the original, not a reimplementation of it — which is why two
+instead of intentions. Each measures the original, not a reimplementation of it — which is why three
 of them live in Minestom packages, where the measured types are package-private.
 
 | Benchmark | Parameters | What it answers |
 | --- | --- | --- |
 | [`RegionFileComparisonBenchmark`](../src/jmh/java/net/minestom/server/instance/anvil/RegionFileComparisonBenchmark.java) `.avesRead` `.minestomRead` `.avesWrite` `.minestomWrite` | `distinctStates` 8, 200, and the JMH thread count | The central claim of the loader: what the lock granularity is worth. Run it with `-t 1` and the two are level; the difference appears only under contention, which is why the thread count is the parameter that matters here. |
 | [`ChunkSaveComparisonBenchmark`](../src/jmh/java/net/theevilreaper/aves/benchmark/anvil/ChunkSaveComparisonBenchmark.java) `.avesSave` `.minestomSave` `.compressAvesLevel` `.compressMinestomLevel` | `distinctStates` 1, 16, 64, 256, 1024 | Whether the palette handling shows up in a whole chunk save. Both sides run the identical Adventure writer over byte-identical payloads, so the save comparison cannot be won by choosing a cheaper compression level — that variable is measured separately in the two `compress*` methods. |
-| [`LightEngineComparisonBenchmark`](../src/jmh/java/net/minestom/server/instance/light/LightEngineComparisonBenchmark.java) `.aves` `.minestom` | `lightSources` 1, 8, 64 × `occlusionPercent` 0, 30 | Where each light engine wins. Both parameters are needed: the answer flips between them. It also verifies that both produce byte-identical results, so a faster number can never come from computing something else. |
+| [`LightEngineComparisonBenchmark`](../src/jmh/java/net/minestom/server/instance/light/LightEngineComparisonBenchmark.java) `.aves` `.minestom` | `lightSources` 1, 8, 64 × `occlusionPercent` 0, 30 × `emissionMix` UNIFORM, MIXED | By how much each light engine wins, and on what shape of section. All three parameters are needed: the margin moves with each of them. |
+| [`LightEngineStageBenchmark`](../src/jmh/java/net/minestom/server/instance/light/LightEngineStageBenchmark.java) `.avesReadStates` `.avesOpacity` `.avesPropagate` `.avesCollect` `.avesFull` `.minestomQueue` `.minestomFull` | `lightSources` 1, 8, 64 × `occlusionPercent` 0, 30 | *Why* one of them wins, which the comparison never says. It splits the Aves path into reading the palette, building the opacity table, searching and packing, and the built-in path into building the seed queue and the rest. This is what identified the allocation the opacity table used to make, and it is the source of the stage table in [`light-engine.md`](light-engine.md#where-the-gain-came-from). |
 
-Because two of them start a server, their absolute numbers include registry time and are **not**
+`emissionMix` decides whether every source of the section emits level 15 (`UNIFORM`, glowstone
+throughout) or whether the sources differ (`MIXED`: glowstone 15, lantern 15, torch 14, redstone
+torch 7, magma block 3, at the same positions drawn from the same seed). The Aves search assumes its
+queued positions are ordered by level, which only holds while every source starts at the same one, so
+this parameter is what would show whether a bucket queue is worth adding. One cell of the cross
+product measures nothing: with a single source `MIXED` places glowstone as well and is a duplicate of
+`UNIFORM`. The recommended run therefore leaves it out:
+
+```bash
+java -jar build/libs/aves-*-jmh.jar "LightEngineComparisonBenchmark.(aves|minestom)" \
+    -p emissionMix=UNIFORM -f 1 -wi 3 -i 5
+java -jar build/libs/aves-*-jmh.jar "LightEngineComparisonBenchmark.(aves|minestom)" \
+    -p emissionMix=MIXED -p lightSources=8,64 -f 1 -wi 3 -i 5
+```
+
+**The comparison verifies the two engines agree before it measures them.** Its `@Setup` runs both
+paths over the section it just built and aborts the trial when the 2048 bytes differ, so a faster
+number cannot come from computing something else. `LightEngineEquivalenceTest` pins the same property
+down in the normal test run, over 54 scenarios. Both are recent: the byte identity was stated in
+[`light-engine.md`](light-engine.md) long before anything in the build checked it.
+
+Because three of them start a server, their absolute numbers include registry time and are **not**
 comparable with the library benchmarks above. Compare them only against their own counterpart.
 
 ### Scaling beyond the sizes anyone uses

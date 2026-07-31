@@ -849,8 +849,8 @@ when a region file is opened, `TRACE` for chunk unloads and skipped out-of-world
 
 ## Testing
 
-The full suite is **400 tests, 0 failures, 0 errors** across 68 test classes. Nine of those classes
-cover the anvil package, contributing **143 executed tests**, plus 3 for the factory.
+The full suite is **575 tests, 0 failures, 0 errors**. Thirteen of those classes cover the anvil
+package, contributing **178 executed tests**, plus 3 for the factory.
 
 The two columns differ because `@ParameterizedTest` methods expand into one executed test per
 argument set. "Declared" counts annotated methods in the source; "executed" is what JUnit actually
@@ -859,18 +859,22 @@ ran, taken from `build/test-results/test/TEST-*.xml`.
 | Test class | Declared methods | Executed tests | Needs a Minestom server |
 | --- | --- | --- | --- |
 | `BitPackerTest` | 12 (8 + 4 parameterized) | 34 | no |
-| `PaletteDataTest` | 14 (13 + 1 parameterized) | 19 | no |
-| `ChunkCompressionTest` | 10 (7 + 3 parameterized) | 17 | no |
+| `PaletteDataTest` | 17 (16 + 1 parameterized) | 22 | no |
+| `ChunkCompressionTest` | 14 (11 + 3 parameterized) | 21 | no |
+| `AvesAnvilLoaderIntegrationTest` | 19 | 19 | **yes** |
 | `NbtReadsTest` | 15 | 15 | no |
 | `RegionFileTest` | 14 | 14 | no |
 | `SectionCodecTest` | 13 | 13 | no |
-| `AvesAnvilLoaderIntegrationTest` | 11 | 11 | **yes** |
 | `AnvilDiagnosticsTest` | 10 | 10 | no |
 | `SectorAllocatorTest` | 9 (8 + 1 parameterized) | 10 | no |
-| **Total (anvil package)** | **108** | **143** | |
+| `RegionFileConcurrencyTest` | 6 | 6 | no |
+| `AnvilDiagnosticsConcurrencyTest` | 5 | 5 | no |
+| `AvesAnvilLoaderLifecycleTest` | 5 | 5 | **yes** |
+| `AvesAnvilLoaderConcurrencyTest` | 4 | 4 | **yes** |
+| **Total (anvil package)** | **143** | **178** | |
 | `map/provider/ChunkLoaderFactoryTest` | 3 | 3 | no |
 
-**Layers that need no server.** Eight of the nine classes import nothing from `net.minestom`. That
+**Layers that need no server.** Ten of the thirteen classes import nothing from `net.minestom`. That
 is a direct consequence of the class split: `RegionConstants`, `SectorAllocator`, `RegionFile`,
 `ChunkCompression`, `BitPacker`, `PaletteData`, `SectionCodec`, `NbtReads` and `AnvilDiagnostics`
 have no dependency on the server or its registries. `SectionCodecTest` exercises the codec through a
@@ -879,14 +883,20 @@ or biome registry. `RegionFileTest` works on real files in a `@TempDir`. `ChunkL
 only checks which loader type a factory produces and which path it receives, so it needs no server
 either.
 
-**The layer that does.** `AvesAnvilLoaderIntegrationTest` is annotated
+`RegionFileConcurrencyTest` and `AnvilDiagnosticsConcurrencyTest` hammer the same file and the same
+diagnostics from several threads and stay server-free for the same reason.
+
+**The layer that does.** Three classes need one: `AvesAnvilLoaderIntegrationTest`,
+`AvesAnvilLoaderLifecycleTest` and `AvesAnvilLoaderConcurrencyTest`. The first is annotated
 `@ExtendWith(MicrotusExtension.class)` (Cyano) and receives an `Env` parameter, from which it builds
 instances with `env.createEmptyInstance(loader)`
 ([`AvesAnvilLoaderIntegrationTest`](../src/test/java/net/theevilreaper/aves/instance/anvil/AvesAnvilLoaderIntegrationTest.java)).
 It needs a real server because the loader touches `Chunk`, `Section`, `Palette`, the block registry
 and the biome registry. It covers the chunk round trip through a real region file: absent chunks,
 block round trip, region file placement in the dimension directory, NBT on blocks, block properties,
-parallel saving and parallel loading.
+parallel saving and parallel loading. The other two use the same extension: the lifecycle test covers
+what a closed loader does with further loads and saves, the concurrency test the loader under several
+threads at once, including the open-region limit and the eviction of a region file that is being read.
 
 There is no dedicated unit test for `BlockPaletteResolver` and `BiomePaletteResolver`; both are
 covered only indirectly through the integration test. `BiomePaletteResolver` accepts an injectable

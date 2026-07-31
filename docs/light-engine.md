@@ -92,6 +92,12 @@ Two further short cuts:
   instance is therefore reusable but thread confined — use one per worker rather than sharing one.
 - **The queue is an `int[]`, not a collection.** No boxing, no growth: a section has 4096 positions
   and each is queued at most once, so the array is sized exactly once.
+- **Building the table allocates nothing per block.** The lookup is a linear probing table over the
+  raw state id, so no key is boxed and no value object is created; a resolved state is packed into a
+  short that carries the occluded faces and the emission together. A run of one repeated state is
+  answered from the previous block instead of the table, because the blocks of a world come in runs.
+  This is what took the build of one section from 74 040 to 8 664 bytes and is the single largest
+  reason for the times [further down](#compared-with-the-light-engine-minestom-ships-with).
 
 ## Correctness details worth knowing
 
@@ -121,72 +127,86 @@ are package-private, which is the only way to measure the original instead of a 
 side gets to skip its preparation: the built-in path builds its seed queue, and the Aves path builds
 its opacity table through the real block registry rather than a stand-in.
 
-**The two engines produce the same light.** Across 54 scenarios the results are byte-identical: zero
-differing cells, maximum level difference 0. Nothing in this section is a statement about
-correctness — correctness is equal, not better. Everything below is about time.
+**The two engines produce the same light, and that is now checked rather than claimed.**
+`LightEngineEquivalenceTest` compares them byte for byte over 54 scenarios — nine source counts
+against six shares of solid blocks — and runs with `./gradlew test` like any other test. The
+benchmark repeats the same check in its `@Setup` and aborts the trial when the two disagree. Until
+recently this document asserted the byte identity while nothing in the build verified it; the
+statement happened to be true, but a change that broke it would have passed unnoticed. Nothing in
+this section is a statement about correctness — correctness is equal, not better. Everything below is
+about time.
+
+The numbers in this section were measured with `-f 1 -wi 5 -i 10` on a quiet machine, one section per
+operation, `score ± error`, lower is better. Every source emits level 15; sections whose sources
+differ in brightness are measured separately, [further down](#sources-of-mixed-brightness).
 
 ```
-java -jar build/libs/aves-*-jmh.jar "LightEngineComparisonBenchmark.(aves|minestom)" -f 1 -wi 3 -i 5
+java -jar build/libs/aves-*-jmh.jar "LightEngineComparisonBenchmark.(aves|minestom)" \
+    -p emissionMix=UNIFORM -f 1 -wi 5 -i 10
 ```
 
-Measured on a machine that was **not idle**, one section per operation, `score ± error`, lower is
-better.
+| Light sources | Solid blocks | Aves | Minestom | Aves is |
+| ---: | ---: | ---: | ---: | --- |
+| 1 | 0 % | 44.5 ± 0.6 µs/op | 49.4 ± 1.3 µs/op | 1.11× faster |
+| 8 | 0 % | 98.3 ± 2.4 µs/op | 121.1 ± 5.5 µs/op | 1.23× faster |
+| 64 | 0 % | 109.2 ± 1.6 µs/op | 126.5 ± 5.6 µs/op | 1.16× faster |
+| 1 | 30 % | 39.3 ± 0.8 µs/op | 62.0 ± 2.0 µs/op | 1.58× faster |
+| 8 | 30 % | 119.3 ± 3.5 µs/op | 204.2 ± 3.7 µs/op | 1.71× faster |
+| 64 | 30 % | 122.6 ± 1.3 µs/op | 206.6 ± 4.2 µs/op | 1.68× faster |
 
-| Light sources | Solid blocks | Aves | Minestom |
-| ---: | ---: | ---: | ---: |
-| 1 | 0 % | 77.1 ± 9.4 µs/op | 52.7 ± 1.7 µs/op |
-| 8 | 0 % | 128.6 ± 19.1 µs/op | 117.2 ± 2.7 µs/op |
-| 64 | 0 % | 139.9 ± 19.0 µs/op | 125.7 ± 9.1 µs/op |
-| 1 | 30 % | 63.5 ± 5.5 µs/op | 61.5 ± 1.5 µs/op |
-| 8 | 30 % | 148.4 ± 10.2 µs/op | 203.3 ± 14.7 µs/op |
-| 64 | 30 % | 156.9 ± 11.1 µs/op | 206.2 ± 15.4 µs/op |
+These numbers replace an earlier set in which Aves lost four of the six scenarios. What changed is
+not the algorithm but the table it works from: building `SectionOpacity` allocated a throwaway lambda
+per block, which is [broken down below](#where-the-gain-came-from). A shorter run on a loaded machine
+reproduces the same ordering and the same rough magnitudes, with the wider spreads a loaded machine
+produces.
 
-### A section without solid blocks: Minestom is ahead
+### A section without solid blocks: the narrow half of the result
 
-In a section where nothing blocks the light, Aves is the slower of the two at every measured point.
+This is where the two engines are closest, because it is where Aves has the least to gain: nothing
+blocks the light, so the search rarely has to ask whether it may pass.
 
 ```mermaid
 %%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#56B4E9, #E69F00"}}}}%%
 xychart-beta
-    title "No solid blocks: Aves (blue, upper) against Minestom (orange, lower)"
+    title "No solid blocks: Aves (blue, lower) against Minestom (orange, upper)"
     x-axis "Light sources in the section" [1, 8, 64]
     y-axis "Microseconds per section, lower is better" 0 --> 220
-    line [77.1, 128.6, 139.9]
-    line [52.7, 117.2, 125.7]
+    line [44.5, 98.3, 109.2]
+    line [49.4, 121.1, 126.5]
 ```
 
-`xychart-beta` draws no legend, so: the first line, the upper one, is **Aves** (blue); the lower one
+`xychart-beta` draws no legend, so: the first line, the lower one, is **Aves** (blue); the upper one
 is **Minestom** (orange). The scale runs to 220 although nothing here comes close to it, so that this
 chart and the next one can be held against each other.
 
-**Why.** Before Aves computes anything, it goes through the section once and notes down for every
-block whether light passes through it. Writing that note costs time before a single ray has moved. In
-a section with nothing in it, the search finishes almost immediately and hardly ever consults the
-note — so the preparation was paid for and barely used. Minestom, which asks the block registry only
-at the moment it actually needs an answer, is finished sooner.
+**Why the margin is small here.** Before Aves computes anything, it goes through the section once and
+notes down for every block whether light passes through it. That note costs time before a single ray
+has moved. In a section with nothing in it, the search hardly ever consults it, so the preparation is
+paid for and barely used. This is the shape of the workload on which Aves was behind until the
+preparation itself became cheap enough for the remainder to be earned back; 1.11× at one source is
+what is left of that, and it is the smallest margin in the table for exactly this reason.
 
-**How firm that is.** Only the leftmost point, with one light source, has spreads that do not overlap
-(77.1 ± 9.4 against 52.7 ± 1.7). At 8 and at 64 sources the error bars do overlap, so the gap the
-chart draws there is not established by this measurement. What is established is the direction: Aves
-is behind at all three points and ahead at none of them.
+**How firm that is.** The spreads do not overlap at any of the three points — 44.5 ± 0.6 against
+49.4 ± 1.3, 98.3 ± 2.4 against 121.1 ± 5.5, 109.2 ± 1.6 against 126.5 ± 5.6. The direction is
+established; the size of the gap at one source is small enough that a different machine could move it.
 
-### A section with solid blocks: Aves is ahead from eight light sources on
+### A section with solid blocks: the wide half
 
-Once 30 % of the blocks are solid, the picture turns around — but not yet at the single-source point.
+Once 30 % of the blocks are solid, the same mechanism works in the other direction.
 
 ```mermaid
 %%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#56B4E9, #E69F00"}}}}%%
 xychart-beta
-    title "30 percent solid blocks: Aves (blue) against Minestom (orange)"
+    title "30 percent solid blocks: Aves (blue, lower) against Minestom (orange, upper)"
     x-axis "Light sources in the section" [1, 8, 64]
     y-axis "Microseconds per section, lower is better" 0 --> 220
-    line [63.5, 148.4, 156.9]
-    line [61.5, 203.3, 206.2]
+    line [39.3, 119.3, 122.6]
+    line [62.0, 204.2, 206.6]
 ```
 
 Same order and the same colours as before: the first line is **Aves** (blue), the second **Minestom**
-(orange). With one light source the two start out together; from eight onwards the Minestom line sits
-clearly above.
+(orange). The distance between the lines is several times what the previous chart shows, on the same
+scale.
 
 **Why.** Now the note earns its keep. Solid blocks are exactly what a spreading light keeps running
 into, and every time it does, the same question comes up again: does light get through here? Aves
@@ -195,7 +215,7 @@ registry again each time. The more often the question is asked, the more the one
 the note is worth; and how often it is asked is set by how many light sources are spreading and how
 much they run into.
 
-That is the whole shape of the result, and it is why there is a turning point rather than a winner:
+That is the whole shape of the result, and it is what the optimisation moved:
 
 ```mermaid
 flowchart TB
@@ -204,23 +224,86 @@ flowchart TB
     Q{"How many times does the search ask<br/>'does light pass through here?'"}
     AV --> Q
     MI --> Q
-    Q -->|"few times: nearly empty section,<br/>the search runs out quickly"| L["the up-front cost is never earned back<br/>Minestom is ahead"]
-    Q -->|"many times: solid blocks everywhere,<br/>every step runs into one"| W["the cheap answers add up<br/>Aves is ahead"]
+    Q -->|"few times: nearly empty section,<br/>the search runs out quickly"| L["the up-front cost is barely used.<br/>Since it became cheap it is still<br/>earned back, but only just: 1.11x to 1.23x"]
+    Q -->|"many times: solid blocks everywhere,<br/>every step runs into one"| W["the cheap answers add up<br/>1.58x to 1.71x"]
 ```
 
-**How firm that is.** At 8 and at 64 sources the spreads do not overlap — 148.4 ± 10.2 against
-203.3 ± 14.7, and 156.9 ± 11.1 against 206.2 ± 15.4. At one source, 63.5 ± 5.5 against 61.5 ± 1.5,
-the two are indistinguishable; the lines touching at the left edge of the chart is the honest picture
-of that point, not a drawing artefact.
+The up-front cost has not disappeared, it has shrunk. The break-even point that used to sit inside
+the measured range now sits below its sparsest configuration, which is why the left branch reads as a
+small win instead of a loss. A section that is sparser still — no sources at all — is answered
+without a search or a table at all, so it never reaches this decision.
 
-### Minestom is the steadier of the two
+**How firm that is.** None of the six spreads overlap. The widest margins, 8 and 64 sources at 30 %
+solid, are also the ones with the tightest errors on both sides: 119.3 ± 3.5 against 204.2 ± 3.7 and
+122.6 ± 1.3 against 206.6 ± 4.2.
 
-Beside the question of who is faster there is the question of how repeatable each answer is, and
-there Minestom wins across the board. Its spreads in the table above run from ± 1.5 to ± 15.4; those
-of Aves run from ± 5.5 to ± 19.1, and at both 0 % points with more than one source the Aves error is
-larger than the entire difference being discussed. On the same not-idle machine, in the same run, the
-built-in engine gives the more repeatable number. A single measurement of this engine is therefore
-worth less than a single measurement of that one.
+### Where the gain came from
+
+`LightEngineStageBenchmark` splits both engines into their stages, which is what identifies the cost.
+For one light source in an open section, in microseconds:
+
+| | readStates | opacity | propagate | collect | full |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| before | 7.70 | **31.33** | 33.85 | 0.24 | 77.1 |
+| after | 7.23 | **8.07** | 31.41 | 0.23 | 46.3 |
+
+Building the opacity table was 41 % of the whole path and is now 17 % of a much shorter one. The
+table allocated a throwaway lambda per block; removing that took the allocation of one call from
+74 040 bytes to 8 664. The search and the two transfer stages are unchanged, as they should be —
+nothing about the algorithm was touched.
+
+**One number in there corrects the story this document used to tell.** The Aves *search* was already
+the faster of the two before the change: 33.9 µs against the 53.9 µs the built-in search takes. The
+entire deficit came from the preparation, not from the propagation. The earlier text explained the
+losses as a property of the algorithm's shape; they were a property of one allocation.
+
+### Sources of mixed brightness
+
+Every scenario above places glowstone, so every source starts at level 15. Real interiors are lit
+with torches, lanterns and magma blocks side by side, and `emissionMix=MIXED` builds exactly that:
+the same positions, drawn from the same seed, filled with glowstone 15, lantern 15, torch 14,
+redstone torch 7 and magma block 3.
+
+```
+java -jar build/libs/aves-*-jmh.jar "LightEngineComparisonBenchmark.(aves|minestom)" \
+    -p emissionMix=MIXED -p lightSources=8,64 -f 1 -wi 3 -i 5
+```
+
+| Light sources | Solid blocks | Aves | Minestom | Aves is |
+| ---: | ---: | ---: | ---: | --- |
+| 8 | 0 % | 118.97 ± 8.89 µs/op | 126.54 ± 9.55 µs/op | 1.06× faster |
+| 8 | 30 % | 116.50 ± 7.63 µs/op | 201.46 ± 16.83 µs/op | 1.73× faster |
+| 64 | 0 % | 150.42 ± 32.73 µs/op | 162.20 ± 3.11 µs/op | 1.08× faster |
+| 64 | 30 % | 149.42 ± 12.64 µs/op | 252.26 ± 9.28 µs/op | 1.69× faster |
+
+A single source is not measured under `MIXED`: the first block of the set is glowstone, so a lone
+source is the identical section `UNIFORM` already covers.
+
+**Mixed levels cost Aves more than they cost Minestom.** Held against the same scenario under
+`UNIFORM` in the same run, the Aves time at 64 sources in an open section rises by about a third, and
+the margin over Minestom falls from roughly 1.3× to the 1.06× above — the mixture costs Aves more
+than it costs the built-in engine. The reason is in the search: it assumes the queued positions are
+ordered by level, which is true only while every source starts at the same one. With mixed levels a
+position can be reached again later by a brighter wave, and the same positions are touched more than
+once. In the 30 % rows the margin is unaffected — 1.73× and 1.69× against the 1.71× and 1.68× of the
+uniform table — because there the cheap opacity answers still dominate what the search spends.
+
+Aves is ahead in all four, but the open-section pair is close enough that the two are effectively
+level there. If a bucket queue is ever added to the propagator, this is the parameter that will show
+whether it was worth it — and the reason it is a parameter rather than a constant.
+
+### Which of the two is the steadier
+
+In the run above, Aves has the smaller absolute spread at every one of the six points: ± 0.6 to
+± 3.5 against ± 1.3 to ± 5.6. Measured relative to the score the picture is almost the same, with one
+exception — at 8 sources and 30 % solid Minestom is the tighter of the two (1.8 % against 2.9 %).
+The earlier version of this document reported the opposite across the board, on an earlier run and a
+loaded machine; the drop in allocation is the likeliest reason the Aves spread fell, since it removes
+the garbage collector from the measurement.
+
+That comparison holds within one run, on one machine. The confirmation run on a loaded machine has
+spreads several times wider on both sides, which is what a loaded machine does and not a property of
+either engine.
 
 ### On concurrency there is nothing to win here
 
@@ -261,13 +344,19 @@ that answers from the real registry needs one.
 
 ### When to use Minestom's engine instead
 
-Plainly, because the numbers above say it: if you already use `LightingChunk` and your sections are
-mostly empty, the built-in engine is the better choice. It is faster on that shape of data, its
-timings are steadier, it is already wired into the server and it costs no extra code. This engine is
-worth reaching for where the built-in one cannot be used at all — any chunk that is not a
-`LightingChunk`, which includes the chunk type an `InstanceContainer` uses unless it is told
-otherwise — or where sections carry a real share of solid blocks together with more than one light
-source.
+The reason this section used to give — the built-in engine is faster on sparsely occupied sections —
+no longer holds, so it needs restating rather than deleting.
+
+If you already use `LightingChunk`, there is still no obligation to change anything. The built-in
+engine is wired into the server, costs no extra code and no extra call site, and on an open section
+lit by sources of differing brightness the two are within a few percent of each other. Swapping a
+working light path for a margin that small is not a good trade on its own.
+
+What does argue for this engine is the case the built-in one does not cover at all: any chunk that is
+not a `LightingChunk`, which includes the chunk type an `InstanceContainer` uses unless it is told
+otherwise. After that come the workloads where the margin is actually large — sections carrying a
+real share of solid blocks, where the measurements above put it between 1.58× and 1.73× — and the
+control over *when* light is computed that comes from computing it outside the chunk.
 
 ## Usage
 
@@ -451,6 +540,17 @@ random changes that verifies the equality after every single one of them.
 
 ## Tests
 
-Everything except `MinestomBlockLightSourceTest` runs without a Minestom server. The adapter test
-uses Cyano's `MicrotusExtension` because it needs the real block registry — which is the point: the
-directional occlusion of a slab is only meaningful against real block data.
+Everything that tests the algorithm itself runs without a Minestom server. Four classes need one and
+use Cyano's `MicrotusExtension` for it, each because a server is what the test is about:
+
+| Class | Why it needs a server |
+| --- | --- |
+| `MinestomBlockLightSourceTest` | The directional occlusion of a slab is only meaningful against real block data. |
+| `LightEngineEquivalenceTest` | Compares the two engines byte for byte over 54 scenarios; an equivalence claim is only worth something if both sides see the same registry. |
+| `ChunkLightServiceIntegrationTest` | The service reads real chunks and writes through `Light#set`. |
+| `ChunkLightServiceConcurrencyTest` | The same, from several threads at once. |
+
+`LightEngineEquivalenceTest` reaches `BlockLight.buildInternalQueue` and `LightCompute.compute`
+through reflection rather than by placing a test inside a Minestom package, so no package of the
+server is split across two artifacts and the queue type of the built-in path stays off the test
+classpath.
