@@ -1,11 +1,175 @@
 # Status — Anvil chunk loader and light engine
 
 Branch `feat/aves-anvil-chunk-loader` · PR [#91](https://github.com/OneLiteFeatherNET/Aves/pull/91)
-against `develop` · 16 commits · **552 tests** · `clean build` green three times in a row.
+against `develop` · 17 commits · **552 tests** · `clean build` green three times in a row.
 
 Everything below is experimental and opt-in. `AbstractMapProvider` still uses the loader Minestom
 ships with unless a `ChunkLoaderFactory` is passed explicitly, so no existing consumer changes
 behaviour by upgrading.
+
+---
+
+## What this is and why
+
+Aves is OneLiteFeather's utility library for Minestom servers. This branch adds two things it did
+not have:
+
+1. **An Anvil chunk loader** that replaces `net.minestom.server.instance.anvil.AnvilLoader`. The
+   goal was a loader that is genuinely parallel, that does not silently lose data, and that stays
+   maintainable — developed test-first, on Java 25, using Adventure NBT and JetBrains annotations.
+2. **A light engine**, because once chunks are loaded, lighting is the next thing a server pays for.
+
+The motivating observation for the loader: Minestom's `AnvilLoader` reports
+`supportsParallelLoading() == true`, but its `RegionFile` serialises reading, decompression **and**
+NBT parsing through a single `ReentrantLock`. The parallelism is largely nominal. The gain is not in
+starting more threads but in moving the CPU work out of the lock — which is what the three-stage
+pipeline below does, and what the measurements confirmed.
+
+## Environment
+
+| | |
+| --- | --- |
+| Java | 25 (toolchain and `release`), no `--enable-preview` anywhere |
+| Minestom | `2026.06.20-26.1.2`, `compileOnly` |
+| Adventure | `5.1.1`, `adventure-nbt` used directly — Minestom speaks `CompoundBinaryTag` natively, so there is no conversion layer |
+| Annotations | `org.jetbrains:annotations:26.1.0` |
+| Tests | JUnit 6.1.0, Cyano `0.6.2` (`MicrotusExtension`) for anything needing a server |
+| Benchmarks | JMH 1.37 via `me.champeau.jmh` 0.7.3, own `src/jmh/java` source set |
+| Build | Gradle 9.6.1 |
+
+`adventure-nbt`, `jetbrains-annotations` and `fastutil` were added to the version catalog by this
+branch. The first two were only reaching the classpath transitively through `compileOnly(minestom)`,
+so any direct use compiled by coincidence. `fastutil` is `runtime` scope in Minestom's POM and is
+needed only by the comparison benchmark.
+
+## Working on this
+
+```bash
+./gradlew clean build                 # compile, javadoc, tests — javadoc failures break the build
+./gradlew test --tests "*Anvil*"      # a subset
+./gradlew jmhJar                      # build the benchmarks (they never run during build)
+java -jar build/libs/aves-*-jmh.jar ScalingBenchmark -f 1 -wi 2 -i 3
+```
+
+Two things that will otherwise cost an hour:
+
+- **Do not run two Gradle builds in the same checkout at once.** They corrupt `build/test-results`
+  and surface as `EOFException`, `NoClassDefFoundError` or missing `jacoco/test.exec` — failures
+  that look like real test breakage. `rm -rf build` and rerun.
+- **JMH allows one instance at a time.** A crashed run leaves `/tmp/jmh.lock` behind and every later
+  run fails with *"Another JMH instance might be running"*. Delete the file.
+
+## Conventions
+
+Match these; the build enforces some of them.
+
+- **Javadoc on every class and method**, with `@param` / `@return` / `@throws`. `withJavadocJar()`
+  means an incomplete comment fails CI. Class comments explain *why*, not *what*, and carry
+  `@author` / `@version` / `@since`.
+- **Never write `@NotNull`.** Packages carry `@NotNullByDefault` in `package-info.java`; only
+  `@Nullable`, `@Contract` and `@UnmodifiableView` appear explicitly.
+- **Test-first, strictly.** Every type here was built by writing a failing test, confirming it fails
+  for the right reason, then implementing. Several bugs in this branch were found precisely because
+  a test was written before the code.
+- Tests are package-private, named `test<What><Expectation>`, use plain JUnit assertions, and avoid
+  `@Nested`. Anything needing a server uses `@ExtendWith(MicrotusExtension.class)`.
+- Commits follow conventional commits, scoped `(anvil)`, `(light)`, `(map)`.
+
+## Facts that cost real effort to establish
+
+Verified against the sources or by running probe code. Knowing these prevents repeating the work.
+
+**Minestom's loader interface**
+- `ChunkLoader#loadChunk` is **synchronous** — it returns `@Nullable Chunk`, not a future.
+  Parallelism happens because Minestom starts a virtual thread per chunk when
+  `supportsParallelLoading()` is true. A loader must be thread-safe, not asynchronous.
+- The default `saveChunks` starts **one virtual thread per chunk**, unbounded, and its `catch`
+  branch never deregisters from the `Phaser`, so one exception hangs it forever. Override it.
+- `unloadChunk` is documented as arriving for chunks the loader never loaded, which makes reference
+  counting on it unreliable.
+- `setChunkLoader` does **not** call `loadInstance` — only the constructor does. `AbstractMapProvider`
+  sets the loader afterwards, so `level.dat` is never read there. Pre-existing, not introduced here.
+
+**What can and cannot be replaced**
+- `Palette` is `sealed ... permits PaletteImpl`. A foreign implementation is a hard compiler error,
+  and `Section` is a record holding that exact type. Verified with javac and at runtime.
+- `Light` is **not** sealed, and `Section`'s canonical constructor is public — a custom light
+  implementation compiles and runs end to end. But `Section.clone()` calls `Light.sky()` / `Light.block()`
+  outright, so a custom implementation is silently replaced on copy.
+- `Instance` and `InstanceContainer` are not sealed either, but four `instanceof InstanceContainer`
+  sites in Minestom make a foreign instance silently take a different path.
+
+**Library traps**
+- `adventure-nbt` 5.1.1: the iterators of `LongArrayBinaryTag`, `IntArrayBinaryTag` and
+  `ByteArrayBinaryTag` **skip the last element** (`index < length - 1`). A for-each over packed block
+  data corrupts every chunk. Use `size()` + `get(i)`. `NbtReadsTest` documents this as a live check.
+- `BinaryTagIO.reader()` caps at 131 082 bytes, far too small for chunk NBT. Use `unlimitedReader()`.
+- Every `CompoundBinaryTag` getter silently returns a default for a missing or mistyped key, which
+  turns a broken region file into an empty chunk. `NbtReads` exists to make that an error.
+- `Block.fromStateId` indexes an array **without a bounds check** and throws for an unknown id
+  instead of returning null.
+
+**Test environment**
+- `MinecraftServer.getExceptionManager()` throws before `MinecraftServer.init()`. Anything resolving
+  a registry in a constructor becomes untestable — this is why the biome resolver is lazy.
+- Cyano's exception handler turns a reported exception into a **test failure**. Code that reports to
+  the `ExceptionManager` cannot be asserted on by exception type in tests.
+
+**Java 25**
+- `StructuredTaskScope` (JEP 505) and `StableValue` (JEP 502) are still **preview** and therefore
+  unusable in a published library — preview class files only run on the exact JDK they were built
+  with, and would force `--enable-preview` on every consumer. Concurrency here uses
+  `Executors.newVirtualThreadPerTaskExecutor()`, `Semaphore` and `Phaser`.
+- Scoped Values, record patterns, sealed interfaces, FFM and stream gatherers are final and usable.
+- File I/O does **not** unmount a virtual thread from its carrier (JEP 444), so unbounded virtual
+  threads over file work do not scale — bound them.
+
+## Decisions that shape everything else
+
+These were explicit calls, not defaults. Changing one means revisiting the work that followed it.
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| Format coverage | Core compression plus external `.mcc`, **no** LZ4, no corruption recovery | Covers real worlds without an extra dependency; Minestom fails hard on oversized chunks, which this does not |
+| Integration | Opt-in via `ChunkLoaderFactory` | No breaking change; existing providers behave exactly as before |
+| Own palette | **Not built** — codec-internal representation only | `Palette` is sealed, and it is 4.5 % of the load path anyway |
+| Own `InstanceContainer` | **Not built** | Compiles, but four `instanceof` sites break silently and the tick parallelism lives elsewhere |
+| Light `Light` implementation | **Not built** — results handed over via `Light#set` | Avoids the `@ApiStatus.Internal` calculation methods and the `Section.clone()` trap |
+| Read failure | Throws, never returns `null` | `null` means "absent", so the server regenerates and overwrites real data on the next save |
+| Compression level | 2, not the platform default 6 | 1.83× faster for ~3 % more bytes; compression is 63 % of a save |
+
+## Where things live
+
+```
+src/main/java/net/theevilreaper/aves/
+  instance/anvil/     RegionConstants, SectorAllocator, BitPacker, ChunkCompression,
+                      RegionFile, NbtReads, PaletteData, PaletteEntryResolver, SectionCodec,
+                      BlockPaletteResolver, BiomePaletteResolver, AnvilDiagnostics,
+                      AvesAnvilLoader, AnvilChunkException
+  instance/light/     LightNibbles, BlockFace, BlockLightSource, SectionOpacity,
+                      LightPropagator, ChunkLightPropagator, ChunkLightState,
+                      ChunkLightService, MinestomBlockLightSource
+  map/provider/       ChunkLoaderFactory  (+ registerInstance overload in AbstractMapProvider)
+
+src/test/java/...     mirrors the above; *ConcurrencyTest are the stress tests
+src/jmh/java/         benchmarks; LightEngineComparisonBenchmark lives in
+                      net.minestom.server.instance.light because the methods it measures
+                      are package-private there
+```
+
+Reading order for someone new: `RegionFile` (the byte container), then `AvesAnvilLoader`
+(the three stages), then `SectionOpacity` and `ChunkLightPropagator` for the light side.
+
+## Charts
+
+Published from the measurements in this branch. They are snapshots, not live views — re-run the
+benchmarks before trusting them after a change.
+
+| Chart | Shows |
+| --- | --- |
+| [Scaling and comparison](https://claude.ai/code/artifact/38131b5a-42f8-43c6-a843-f845802d78ae) | 1 to 256 sections, and the head-to-head against Minestom |
+| [Optimisation](https://claude.ai/code/artifact/a11c1e46-7310-40ed-84e5-0c4d650cbcc1) | Where save time goes, the compression trade-off, the uniform-section fast paths |
+| [Vanilla · Minestom · Aves](https://claude.ai/code/artifact/9d3b6d0d-ced3-4f0b-b675-6fb1640f262f) | 22 behaviours scored against the format reference |
 
 ---
 
