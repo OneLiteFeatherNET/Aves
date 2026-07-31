@@ -21,3 +21,15 @@ jobs:
           java-version: 25
       - name: Build on ${{ matrix.os }}
         run: ./gradlew clean build
+      # Gradle's console summary names the failing test and the exception type, but not the
+      # message, the path or the stack trace. For a failure that only happens on one operating
+      # system, that is the difference between reading the cause and guessing at it.
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ matrix.os }}
+          path: |
+            build/reports/tests/
+            build/test-results/
+          retention-days: 7
