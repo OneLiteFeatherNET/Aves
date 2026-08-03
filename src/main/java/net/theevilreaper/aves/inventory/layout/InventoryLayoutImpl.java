@@ -61,7 +61,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
             switch (slotEntry) {
                 case InventorySlot inventorySlot -> this.contents[i] = InventorySlot.of(inventorySlot);
                 case TranslatedSlot translatedSlot -> this.contents[i] = TranslatedSlot.of(translatedSlot);
-                default -> LOGGER.info("Slot: " + slotEntry + "is unknown and can't be converted");
+                default -> LOGGER.info("Slot: {} is unknown and can't be converted", slotEntry);
             }
         }
         this.applyLayoutFunction = layout.getApplyLayoutFunction();
