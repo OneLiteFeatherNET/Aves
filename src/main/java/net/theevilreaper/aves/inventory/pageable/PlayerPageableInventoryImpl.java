@@ -1,5 +1,6 @@
 package net.theevilreaper.aves.inventory.pageable;
 
+import net.minestom.server.item.ItemStack;
 import net.theevilreaper.aves.inventory.PersonalInventoryBuilder;
 import net.theevilreaper.aves.inventory.click.ClickHolder;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
@@ -44,7 +45,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     private final Player player;
     private final int[] slotRange;
     private int currentPage;
-    private int startPageItemIndex;
     private int maxPages;
 
     /**
@@ -77,7 +77,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         this.updateMaxPages();
         this.builder = new PersonalInventoryBuilder(getNewTitle(), type, player);
         this.dataLayout.blank(this.slotRange);
-        this.startPageItemIndex = 0;
         this.builder.setLayout(this.layout);
 
         var backSlot = this.layout.getSlot(this.pageableControls.getBackSlot());
@@ -91,7 +90,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
             result.accept(ClickHolder.cancelClick());
         };
 
-        this.backwardsClick = (_, _, _,  _,result) -> {
+        this.backwardsClick = (_, _, _, _, result) -> {
             this.update(PageAction.BACKWARDS);
             result.accept(ClickHolder.cancelClick());
         };
@@ -146,7 +145,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     /**
      * The method is called when the updatePage method is called with the {@link PageAction#FORWARD} value.
      * Its determines the next index boundary's and updates the inventory view for the player
-     * Also it checks if the forward button must be replaced with the old {@link net.minestom.server.item.ItemStack} reference.
+     * Also it checks if the forward button must be replaced with the old {@link ItemStack} reference.
      */
     private void nextPage() {
         if (this.currentPage < this.maxPages) {
@@ -161,7 +160,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     /**
      * The method is called when the updatePage method is called with the {@link PageAction#BACKWARDS} value.
      * Its determines the next index boundary's and updates the inventory view for the player
-     * Also it checks if the back button must be replaced with the old {@link net.minestom.server.item.ItemStack} reference.
+     * Also it checks if the back button must be replaced with the old {@link ItemStack} reference.
      */
     private void previousPage() {
         if (this.currentPage > 1) {
@@ -207,17 +206,10 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * @return the created component
      */
     private Component getNewTitle() {
-        if (this.titleData.showPageNumbers() && this.titleData.pageMapper() == null) {
-            throw new IllegalStateException("If the page numbers should be displayed the page mapper must be set");
+        if (this.titleData.showPageNumbers()) {
+            return titleData.title().append(titleData.pageMapper().apply(currentPage, maxPages));
         }
-
-        TitleMapper mapper = this.titleData.pageMapper();
-
-        if (mapper == null) {
-            return titleData.title();
-        }
-
-        return titleData.title().append(mapper.apply(currentPage, maxPages));
+        return titleData.title();
     }
 
     /**
@@ -225,9 +217,9 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      */
     private void updateItems() {
         // Convert 1-based page number to 0-based list offset (e.g., page 1 starts at index 0)
-        this.startPageItemIndex = (this.currentPage - 1) * this.slotRange.length;
+        int startPageItemIndex = (this.currentPage - 1) * this.slotRange.length;
         for (int i = 0; i < this.slotRange.length; i++) {
-            var newIndex = i + this.startPageItemIndex;
+            var newIndex = i + startPageItemIndex;
             if (newIndex >= this.items.size()) {
                 this.dataLayout.setItem(this.slotRange[i], BLANK_SLOT);
             } else {
@@ -240,15 +232,11 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * Calculates the maximum page index based on the given list with the items and the slotRange.
      */
     private void updateMaxPages() {
-        if (this.items.isEmpty() || this.items.size() <= this.slotRange.length) {
+        if (this.items.isEmpty()) {
             this.maxPages = 1;
             return;
         }
-        var pageAmount = this.items.size() / this.slotRange.length;
-        if (this.items.size() % this.slotRange.length != 0) {
-            pageAmount++;
-        }
-        this.maxPages = pageAmount;
+        this.maxPages = (this.items.size() + this.slotRange.length - 1) / this.slotRange.length;
     }
 
     /**
