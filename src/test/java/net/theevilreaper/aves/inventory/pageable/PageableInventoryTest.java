@@ -94,6 +94,28 @@ class PageableInventoryTest {
     }
 
     @Test
+    void testAddOnSecondPage(Env env) {
+        Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
+        var items = new ArrayList<ISlot>();
+        for (int i = 0; i < 20; i++) {
+            items.add(new InventorySlot(ItemStack.of(Material.STONE)));
+        }
+        PageableInventory pageInventory = PageableInventory
+                .builder()
+                .player(player)
+                .type(TYPE)
+                .layout(InventoryLayout.fromType(TYPE))
+                .slotRange(slotRange)
+                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2, TYPE.getSize() - 1))
+                .values(items)
+                .build();
+
+        pageInventory.open(2);
+        assertDoesNotThrow(() -> pageInventory.add(new InventorySlot(ItemStack.of(Material.DIRT))));
+        player.remove();
+    }
+
+    @Test
     void testMissingLayout() {
         var builder = PageableInventory.builder().type(TYPE).slotRange(12, 13);
         assertThrowsExactly(IllegalArgumentException.class, builder::build, "The layout can't be null");
