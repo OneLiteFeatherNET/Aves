@@ -26,7 +26,7 @@ import static net.theevilreaper.aves.inventory.util.InventoryConstants.BLANK_SLO
  *
  * @author Joltra
  * @author theEvilReaper
- * @version 1.1.1
+ * @version 1.1.2
  * @since 1.2.0
  */
 @ApiStatus.Experimental
@@ -46,7 +46,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     private final int[] slotRange;
     private int currentPage;
     private int startPageItemIndex;
-    private int endIndex;
     private int maxPages;
 
     /**
@@ -75,7 +74,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         this.items = items;
         this.currentPage = 1;
         this.slotRange = slotRange;
-        this.endIndex = this.slotRange.length;
         this.titleData = titleData;
         this.updateMaxPages();
         this.builder = new PersonalInventoryBuilder(getNewTitle(), type, player);
@@ -84,7 +82,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         this.builder.setLayout(this.layout);
 
         var backSlot = this.layout.getSlot(this.pageableControls.getBackSlot());
-
         this.oldBackSlot = backSlot == null ? BLANK_SLOT : ISlot.of(backSlot);
 
         ISlot givenForwardSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
@@ -101,13 +98,10 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         };
 
         this.builder.setDataLayoutFunction(inventoryLayout -> dataLayout);
-        this.initItems();
+        this.updateItems();
+        this.updateControls();
         this.builder.invalidateDataLayout();
         this.builder.register();
-
-        if (this.items.size() > this.slotRange.length) {
-            this.layout.setItem(this.pageableControls.getNextSlot(), this.pageableControls.getNextButton().get(), this.forwardClick);
-        }
     }
 
     /**
@@ -126,17 +120,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     }
 
     /**
-     * Fills the items for the first page into the data layout when the list contains items.
-     * If the list doesn't contain any entries nothing will happen.
-     */
-    private void initItems() {
-        if (this.items.isEmpty()) return;
-        for (int i = 0; i < this.items.size() && i < slotRange.length; i++) {
-            this.dataLayout.setItem(slotRange[i], this.items.get(i));
-        }
-    }
-
-    /**
      * Updates the control item at a specific position in the inventory layout.
      *
      * @param controlItem the item to set
@@ -151,14 +134,14 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * This method updates all items that are currently displayed at the page.
      */
     private void updatePage() {
-        this.updateItems();
-        if (this.dataLayout.getSlot(this.slotRange[endIndex - 1]) != null) {
-            setControlItems(this.pageableControls.getNextButton(), this.pageableControls.getNextSlot(), true);
-            this.builder.invalidateLayout();
-        }
-
-        this.builder.invalidateDataLayout();
         this.updateMaxPages();
+        if (this.currentPage > this.maxPages) {
+            this.currentPage = this.maxPages;
+        }
+        this.updateItems();
+        this.updateControls();
+        this.updateTitle();
+        this.builder.invalidateDataLayout();
     }
 
     /**
@@ -167,27 +150,10 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * Also it checks if the forward button must be replaced with the old {@link net.minestom.server.item.ItemStack} reference.
      */
     private void nextPage() {
-        if (this.startPageItemIndex < this.items.size() - 1) {
-            this.endIndex += this.slotRange.length;
-            this.currentPage += 1;
-            this.startPageItemIndex += this.slotRange.length;
-
-            var backSlot = this.layout.getSlot(this.pageableControls.getBackSlot());
-            if (backSlot != null && backSlot.getItem().material() != this.pageableControls.getBackMaterial()) {
-                setControlItems(this.pageableControls.getBackButton(), this.pageableControls.getBackSlot(), false);
-                this.builder.invalidateLayout();
-            }
-
-            if (this.layout.getSlot(this.pageableControls.getBackSlot()) == null) {
-                setControlItems(this.pageableControls.getBackButton(), this.pageableControls.getBackSlot(), false);
-            }
-
-            if (currentPage == getMaxPages()) {
-                this.layout.setItem(this.pageableControls.getNextSlot(), forwardSlot);
-                this.builder.invalidateLayout();
-            }
-
+        if (this.currentPage < this.maxPages) {
+            this.currentPage++;
             this.updateItems();
+            this.updateControls();
             this.updateTitle();
             this.builder.invalidateDataLayout();
         }
@@ -199,33 +165,31 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * Also it checks if the back button must be replaced with the old {@link net.minestom.server.item.ItemStack} reference.
      */
     private void previousPage() {
-        if (this.currentPage >= 0) {
-            if (this.items.size() % this.slotRange.length != 0 && this.endIndex == this.items.size() - 1) {
-                this.endIndex -= this.items.size() % this.slotRange.length;
-            } else {
-                this.endIndex -= this.slotRange.length;
-            }
-            this.startPageItemIndex -= this.slotRange.length;
-            this.currentPage -= 1;
-
-            if (this.items.size() > this.slotRange.length) {
-                var forwardItemSlot = this.layout.getSlot(this.pageableControls.getNextSlot());
-
-                if (forwardItemSlot != null && forwardItemSlot.getItem().material() != this.pageableControls.getForwardMaterial()) {
-                    setControlItems(this.pageableControls.getNextButton(), this.pageableControls.getNextSlot(), true);
-                    this.builder.invalidateLayout();
-                }
-            }
-
-            if (this.currentPage == 1) {
-                this.layout.setItem(this.pageableControls.getBackSlot(), oldBackSlot);
-                this.builder.invalidateLayout();
-            }
-
+        if (this.currentPage > 1) {
+            this.currentPage--;
             this.updateItems();
+            this.updateControls();
             this.updateTitle();
             this.builder.invalidateDataLayout();
         }
+    }
+
+    /**
+     * Updates the navigation control items (next / previous buttons) on the inventory layout.
+     */
+    private void updateControls() {
+        if (this.currentPage > 1) {
+            setControlItems(this.pageableControls.getBackButton(), this.pageableControls.getBackSlot(), false);
+        } else {
+            this.layout.setItem(this.pageableControls.getBackSlot(), oldBackSlot);
+        }
+
+        if (this.currentPage < this.maxPages) {
+            setControlItems(this.pageableControls.getNextButton(), this.pageableControls.getNextSlot(), true);
+        } else {
+            this.layout.setItem(this.pageableControls.getNextSlot(), forwardSlot);
+        }
+        this.builder.invalidateLayout();
     }
 
     /**
@@ -261,6 +225,8 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * Update which items should be displayed in the inventory.
      */
     private void updateItems() {
+        // Convert 1-based page number to 0-based list offset (e.g., page 1 starts at index 0)
+        this.startPageItemIndex = (this.currentPage - 1) * this.slotRange.length;
         for (int i = 0; i < this.slotRange.length; i++) {
             var newIndex = i + this.startPageItemIndex;
             if (newIndex >= this.items.size()) {
@@ -292,7 +258,6 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     @Override
     public void unregister() {
         Set<? extends Player> viewers = this.builder.getInventory().getViewers();
-        //Check if the inventory contains viewer and when close the inventories for the viewers to prevent issue
         if (!viewers.isEmpty()) {
             viewers.forEach(Player::closeInventory);
         }
@@ -319,23 +284,17 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
         Check.argCondition(page < 1, "The page index can't be zero or negative");
         Check.argCondition(page > this.maxPages, "The page index is to high");
 
-        //The values are the same. Ignore page update
         if (page == this.currentPage) {
             player.openInventory(this.builder.getInventory());
             return;
         }
 
-        if (page == 1) {
-            this.startPageItemIndex = 0;
-            this.endIndex = this.slotRange.length;
-        } else {
-            this.startPageItemIndex = this.slotRange.length * (page - 1);
-            this.endIndex = this.startPageItemIndex + this.slotRange.length;
-
-        }
         this.currentPage = page;
         this.updateItems();
-        builder.open();
+        this.updateControls();
+        this.updateTitle();
+        this.builder.invalidateDataLayout();
+        this.builder.open();
     }
 
     /**
