@@ -5,7 +5,6 @@ import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -14,7 +13,8 @@ import java.util.function.Consumer;
  * The interface defines to basic structure for a pageable inventory.
  * It contains a structure to build an inventory for pagination and add or remove data.
  *
- * @version 1.1.0
+ * @author theEvilReaper
+ * @version 1.1.1
  * @since 1.2.0
  */
 public non-sealed interface PageableInventory extends OpenableInventory {
@@ -24,9 +24,19 @@ public non-sealed interface PageableInventory extends OpenableInventory {
      *
      * @return the created instance
      */
-    @Contract(pure = true)
-    static PageableInventory.@NotNull Builder builder() {
-        return new PageableInventoryBuilder();
+    @Contract(value = "_ -> new", pure = true)
+    static PageableInventory.Builder builder(InventoryType type) {
+        return new PageableInventoryBuilder(type);
+    }
+
+    /**
+     * Creates a new instance from the {@link PageableInventory.Builder}.
+     *
+     * @return the created instance
+     */
+    @Contract(value = "-> new", pure = true)
+    static PageableInventory.Builder builder() {
+        return new PageableInventoryBuilder(InventoryType.CHEST_6_ROW);
     }
 
     /**
@@ -34,28 +44,28 @@ public non-sealed interface PageableInventory extends OpenableInventory {
      *
      * @param slot the slot to add
      */
-    void add(@NotNull ISlot slot);
+    void add(ISlot slot);
 
     /**
      * Add a list of entries which should be displayed in the inventory.
      *
      * @param slots the list that has all entries to add
      */
-    void add(@NotNull List<ISlot> slots);
+    void add(List<ISlot> slots);
 
     /**
      * Remove a single entry from the list.
      *
      * @param slot the slot to remove
      */
-    void remove(@NotNull ISlot slot);
+    void remove(ISlot slot);
 
     /**
      * Removes a list of {@link ISlot} from the underlying list.
      *
      * @param slots the list which contains the slots to remove
      */
-    void remove(@NotNull List<ISlot> slots);
+    void remove(List<ISlot> slots);
 
     /**
      * Unregister some listener and other stuff from the server process.
@@ -84,7 +94,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
          * @param player the player which owns the inventory
          * @return the builder instance
          */
-        @NotNull Builder player(@NotNull Player player);
+        Builder player(Player player);
 
         /**
          * Set the layout which contains the decoration layout.
@@ -94,16 +104,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
          * @param layout the layout which contains the decoration
          * @return the builder instance
          */
-        @NotNull Builder layout(@NotNull InventoryLayout layout);
-
-        /**
-         * Set the {@link InventoryType} for the paginated inventory.
-         * The {@link InventoryType} must be a chest type otherwise an exception will be thrown
-         *
-         * @param type the {@link InventoryType} to set
-         * @return the builder instance
-         */
-        @NotNull Builder type(@NotNull InventoryType type);
+        Builder layout(InventoryLayout layout);
 
         /**
          * Set a new reference from the {@link PageableControls} interface which defines which items are used to switch between pages.
@@ -111,7 +112,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
          * @param pageableControls the instance to set
          * @return the builder instance
          */
-        @NotNull Builder controls(@NotNull PageableControls pageableControls);
+        Builder controls(PageableControls pageableControls);
 
         /**
          * Set the slot range where the items should be placed in the layout
@@ -119,7 +120,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
          * @param itemSlots the array which contains all valid slots
          * @return the builder instance
          */
-        @NotNull Builder slotRange(int @NotNull ... itemSlots);
+        Builder slotRange(int... itemSlots);
 
         /**
          * Set the list which contains the items to the builder.
@@ -127,7 +128,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
          * @param slots the list which contains all slots
          * @return the builder instance
          */
-        @NotNull Builder values(@NotNull List<ISlot> slots);
+        Builder values(List<ISlot> slots);
 
         /**
          * Set the title data which contains the data for the title in the inventory.
@@ -135,7 +136,7 @@ public non-sealed interface PageableInventory extends OpenableInventory {
          * @param titleData the data to set
          * @return the builder instance
          */
-        @NotNull Builder titleData(@NotNull TitleData titleData);
+        Builder titleData(TitleData titleData);
 
         /**
          * Set the title data which contains the data for the title in the inventory.
@@ -143,13 +144,13 @@ public non-sealed interface PageableInventory extends OpenableInventory {
          * @param titleBuilder the builder to set the title data
          * @return the builder instance
          */
-        @NotNull Builder titleData(@NotNull Consumer<TitleData.Builder> titleBuilder);
+        Builder titleData(Consumer<TitleData.Builder> titleBuilder);
 
         /**
          * Returns a new instance from an {@link PageableInventory}.
          *
          * @return the created instance from the {@link PageableInventory}
          */
-        @NotNull PageableInventory build();
+        PageableInventory build();
     }
 }
