@@ -10,7 +10,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -38,7 +37,7 @@ public final class DefaultPageableControls implements PageableControls {
      * @param backSlot the slot where the back button should be set
      * @param nextSlot the slot where the next button should be set
      */
-    public DefaultPageableControls(@NotNull InventoryType type, int backSlot, int nextSlot) {
+    public DefaultPageableControls(InventoryType type, int backSlot, int nextSlot) {
         Check.argCondition(!LayoutCalculator.isChestInventory(type), "The type must be a chest inventory!");
         Check.argCondition(backSlot < 0 || backSlot > type.getSize(), "The backSlot index is not in the inventory range");
         Check.argCondition(nextSlot < 0 || nextSlot > type.getSize(), "The nextSlot index is not in the inventory range");
@@ -54,7 +53,7 @@ public final class DefaultPageableControls implements PageableControls {
      * @return the created instance
      */
     @Contract
-    public static @NotNull DefaultPageableControls fromSize(@NotNull InventoryType type) {
+    public static DefaultPageableControls fromSize(InventoryType type) {
         return new DefaultPageableControls(type, type.getSize() - 2, type.getSize() - 1);
     }
 
@@ -82,7 +81,7 @@ public final class DefaultPageableControls implements PageableControls {
      * @return the given stack
      */
     @Override
-    public @NotNull IItem getBackButton(@Nullable Locale locale) {
+    public IItem getBackButton(@Nullable Locale locale) {
         return previousPage;
     }
 
@@ -92,7 +91,7 @@ public final class DefaultPageableControls implements PageableControls {
      * @return the given stack
      */
     @Override
-    public @NotNull IItem getNextButton(@Nullable Locale locale) {
+    public IItem getNextButton(@Nullable Locale locale) {
         return nextPage;
     }
 }

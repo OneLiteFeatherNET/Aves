@@ -40,7 +40,6 @@ class TitleDataTest {
         assertNotNull(defaultData);
         assertEquals("Forgot to add a title?", PlainTextComponentSerializer.plainText().serialize(defaultData.title()));
         assertFalse(defaultData.showPageNumbers());
-        assertNull(defaultData.pageMapper());
+        assertNotNull(defaultData.pageMapper());
     }
-
 }

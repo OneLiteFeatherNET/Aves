@@ -2,8 +2,6 @@ package net.theevilreaper.aves.inventory.pageable;
 
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
 
@@ -12,7 +10,7 @@ import java.util.function.BiFunction;
  * If the title should contain the current and max page number the {@link TitleData} is the right place to define this.
  *
  * @author theEvilReaper
- * @version 1.0.1
+ * @version 1.0.2
  * @see TitleDataImpl
  * @since 1.6.0
  */
@@ -26,7 +24,7 @@ public sealed interface TitleData permits TitleDataImpl {
      * @return the created instance
      */
     @Contract(pure = true)
-    static @NotNull Builder builder() {
+    static Builder builder() {
         return new TitleDataBuilder();
     }
 
@@ -35,7 +33,7 @@ public sealed interface TitleData permits TitleDataImpl {
      *
      * @return the title as {@link Component}
      */
-    @NotNull Component title();
+    Component title();
 
     /**
      * Returns if the page numbers should be displayed in the title.
@@ -49,7 +47,7 @@ public sealed interface TitleData permits TitleDataImpl {
      *
      * @return the page mapper as {@link BiFunction}
      */
-    @Nullable TitleMapper pageMapper();
+    TitleMapper pageMapper();
 
     /**
      * The interface defines the structure to build a {@link TitleData} instance.
@@ -66,7 +64,7 @@ public sealed interface TitleData permits TitleDataImpl {
          * @param title the title as {@link Component}
          * @return the builder instance
          */
-        @NotNull Builder title(@NotNull Component title);
+        Builder title(Component title);
 
         /**
          * Set if the page numbers should be displayed in the title.
@@ -74,7 +72,7 @@ public sealed interface TitleData permits TitleDataImpl {
          * @param showPageNumbers true if the page numbers should be displayed otherwise false
          * @return the builder instance
          */
-        @NotNull Builder showPageNumbers(boolean showPageNumbers);
+        Builder showPageNumbers(boolean showPageNumbers);
 
         /**
          * Set the page mapper which is used to map the current and max page number to a {@link Component}.
@@ -82,13 +80,13 @@ public sealed interface TitleData permits TitleDataImpl {
          * @param pageMapper the page mapper as {@link TitleMapper}
          * @return the builder instance
          */
-        @NotNull Builder pageMapper(@NotNull TitleMapper pageMapper);
+        Builder pageMapper(TitleMapper pageMapper);
 
         /**
          * Builds a new instance of the {@link TitleData} interface.
          *
          * @return the created instance
          */
-        @NotNull TitleData build();
+        TitleData build();
     }
 }

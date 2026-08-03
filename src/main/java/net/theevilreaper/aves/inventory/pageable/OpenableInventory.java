@@ -1,19 +1,19 @@
 package net.theevilreaper.aves.inventory.pageable;
 
 import net.minestom.server.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The interface contains various implementations to open an inventory to a player.
  * What a methods do depends on the given use case. In some cases the method won't do anything
  *
+ * @author theEvilReaper
  * @version 1.0.0
  * @since 1.2.0
  */
 public sealed interface OpenableInventory permits PageableInventory {
 
     /**
-     * The first page index of an pageable inventory.
+     * The first page index of a pageable inventory.
      */
     int FIRST_PAGE = 1;
 
@@ -35,7 +35,7 @@ public sealed interface OpenableInventory permits PageableInventory {
      *
      * @param player the player who receives the inventory
      */
-    default void open(@NotNull Player player) {
+    default void open(Player player) {
         this.open(player, FIRST_PAGE);
     }
 
@@ -45,5 +45,5 @@ public sealed interface OpenableInventory permits PageableInventory {
      * @param player the player who receives the inventory
      * @param page   the page number
      */
-    void open(@NotNull Player player, int page);
+    void open(Player player, int page);
 }

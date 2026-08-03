@@ -47,13 +47,12 @@ class PageableInventoryTest {
         }
         Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
         this.pageableInventory = PageableInventory
-                .builder()
+                .builder(TYPE)
                 .player(player)
                 .titleData(TitleData.builder().title(Component.text("Test title")).build())
-                .type(TYPE)
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
-                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
+                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2, TYPE.getSize() - 1))
                 .values(this.slots)
                 .build();
     }
@@ -68,9 +67,8 @@ class PageableInventoryTest {
     void testNoControls(Env env) {
         Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
         var builder = PageableInventory
-                .builder()
+                .builder(TYPE)
                 .player(player)
-                .type(TYPE)
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(12)
                 .values(this.slots)
@@ -83,9 +81,8 @@ class PageableInventoryTest {
     void testDefaultTitleData(Env env) {
         Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
         var builder = PageableInventory
-                .builder()
+                .builder(TYPE)
                 .player(player)
-                .type(TYPE)
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(12)
                 .values(this.slots);
@@ -101,9 +98,8 @@ class PageableInventoryTest {
             items.add(new InventorySlot(ItemStack.of(Material.STONE)));
         }
         PageableInventory pageInventory = PageableInventory
-                .builder()
+                .builder(TYPE)
                 .player(player)
-                .type(TYPE)
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
                 .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2, TYPE.getSize() - 1))
@@ -117,23 +113,23 @@ class PageableInventoryTest {
 
     @Test
     void testMissingLayout() {
-        var builder = PageableInventory.builder().type(TYPE).slotRange(12, 13);
+        var builder = PageableInventory.builder(TYPE).slotRange(12, 13);
         assertThrowsExactly(IllegalArgumentException.class, builder::build, "The layout can't be null");
     }
 
     @Test
     void testNoChestInventory() {
-        var builder = PageableInventory.builder().layout(InventoryLayout.fromType(TYPE)).slotRange(12, 13);
+        var builder = PageableInventory.builder(InventoryType.CRAFTING).layout(InventoryLayout.fromType(TYPE)).slotRange(12, 13);
         assertThrowsExactly(
                 IllegalArgumentException.class,
-                () -> builder.type(InventoryType.CRAFTING).build(),
+                builder::build,
                 "The type must be a chest inventory"
         );
     }
 
     @Test
     void testInvalidItemRange() {
-        var builder = PageableInventory.builder().layout(InventoryLayout.fromType(TYPE)).type(TYPE);
+        var builder = PageableInventory.builder(TYPE).layout(InventoryLayout.fromType(TYPE));
         assertThrowsExactly(IllegalArgumentException.class,
                 () -> builder.slotRange().build(),
                 "The slotRange can't be zero"
@@ -145,13 +141,12 @@ class PageableInventoryTest {
         var items = new ArrayList<ISlot>();
         Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
         PageableInventory pageInventory = PageableInventory
-                .builder()
+                .builder(TYPE)
                 .player(player)
                 .titleData(titleBuilder -> titleBuilder.title(Component.text("Test title")))
-                .type(TYPE)
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
-                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
+                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2, TYPE.getSize() - 1))
                 .values(items)
                 .build();
         assertEquals(1, pageInventory.getMaxPages());
@@ -188,13 +183,12 @@ class PageableInventoryTest {
         Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
         items.addAll(otherSlots);
         PageableInventory pageInventory = PageableInventory
-                .builder()
+                .builder(TYPE)
                 .player(player)
                 .titleData(builder -> builder.title(Component.text("Test title")))
-                .type(TYPE)
                 .layout(InventoryLayout.fromType(TYPE))
                 .slotRange(slotRange)
-                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2,TYPE.getSize() - 1))
+                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2, TYPE.getSize() - 1))
                 .values(items)
                 .build();
         assertEquals(2, pageInventory.getMaxPages());
@@ -205,5 +199,64 @@ class PageableInventoryTest {
 
         assertSame(1, pageInventory.getMaxPages());
         env.destroyInstance(player.getInstance(), true);
+    }
+
+    @Test
+    void testPageActionsForwardAndBackwards(@NotNull Env env) {
+        Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
+        var items = new ArrayList<ISlot>();
+        for (int i = 0; i < 20; i++) {
+            items.add(new InventorySlot(ItemStack.of(Material.STONE)));
+        }
+        var pageInventory = (PlayerPageableInventoryImpl) PageableInventory
+                .builder(TYPE)
+                .player(player)
+                .layout(InventoryLayout.fromType(TYPE))
+                .slotRange(slotRange)
+                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2, TYPE.getSize() - 1))
+                .values(items)
+                .build();
+
+        pageInventory.update(PageAction.FORWARD);
+        pageInventory.update(PageAction.BACKWARDS);
+        pageInventory.update(PageAction.REFRESH);
+        player.remove();
+    }
+
+    @Test
+    void testTitleWithPageNumbers(@NotNull Env env) {
+        Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
+        var items = new ArrayList<ISlot>();
+        for (int i = 0; i < 20; i++) {
+            items.add(new InventorySlot(ItemStack.of(Material.STONE)));
+        }
+        PageableInventory pageInventory = PageableInventory
+                .builder(TYPE)
+                .player(player)
+                .layout(InventoryLayout.fromType(TYPE))
+                .slotRange(slotRange)
+                .controls(new DefaultPageableControls(TYPE, TYPE.getSize() - 2, TYPE.getSize() - 1))
+                .titleData(TitleData.builder().title(Component.text("Title")).showPageNumbers(true).build())
+                .values(items)
+                .build();
+
+        pageInventory.open(2);
+        player.remove();
+    }
+
+    @Test
+    void testUnregisterAndOpen(@NotNull Env env) {
+        Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
+        PageableInventory pageInventory = PageableInventory
+                .builder(TYPE)
+                .player(player)
+                .layout(InventoryLayout.fromType(TYPE))
+                .slotRange(slotRange)
+                .values(this.slots)
+                .build();
+
+        assertDoesNotThrow(() -> pageInventory.open());
+        assertDoesNotThrow(() -> pageInventory.unregister());
+        player.remove();
     }
 }
