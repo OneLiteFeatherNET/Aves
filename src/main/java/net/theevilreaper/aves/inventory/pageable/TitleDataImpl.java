@@ -1,8 +1,6 @@
 package net.theevilreaper.aves.inventory.pageable;
 
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Implementation of the {@link TitleData} interface.
@@ -10,10 +8,13 @@ import org.jetbrains.annotations.Nullable;
  * @param title           the title of the inventory
  * @param showPageNumbers if the page numbers should be displayed
  * @param pageMapper      the mapper to map the current and max page number to a {@link Component}
+ * @author theEvilReaper
+ * @version 1.1.0
+ * @since 1.6.0
  */
 record TitleDataImpl(
-        @NotNull Component title,
+        Component title,
         boolean showPageNumbers,
-        @Nullable TitleMapper pageMapper
+        TitleMapper pageMapper
 ) implements TitleData {
 }
