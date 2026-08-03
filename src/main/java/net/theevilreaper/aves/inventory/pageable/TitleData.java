@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
  * If the title should contain the current and max page number the {@link TitleData} is the right place to define this.
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.0.1
  * @see TitleDataImpl
  * @since 1.6.0
  */
