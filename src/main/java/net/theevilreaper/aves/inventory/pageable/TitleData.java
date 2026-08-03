@@ -18,6 +18,8 @@ import java.util.function.BiFunction;
  */
 public sealed interface TitleData permits TitleDataImpl {
 
+    TitleData DEFAULT = TitleData.builder().title(Component.text("Forgot to add a title?")).build();
+
     /**
      * Creates a new instance of the {@link Builder} interface.
      *
