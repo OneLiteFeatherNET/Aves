@@ -11,7 +11,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Set;
@@ -26,7 +25,7 @@ import static net.theevilreaper.aves.inventory.util.InventoryConstants.BLANK_SLO
  *
  * @author Joltra
  * @author theEvilReaper
- * @version 1.1.2
+ * @version 1.1.3
  * @since 1.2.0
  */
 @ApiStatus.Experimental
@@ -40,8 +39,8 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
     private final InventoryClick backwardsClick;
     private final PersonalInventoryBuilder builder;
     private final TitleData titleData;
-    private ISlot oldBackSlot;
-    private ISlot forwardSlot;
+    private final ISlot oldBackSlot;
+    private final ISlot forwardSlot;
     private final Player player;
     private final int[] slotRange;
     private int currentPage;
@@ -59,13 +58,13 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * @param slotRange the area where the items would be displayed
      */
     PlayerPageableInventoryImpl(
-            @NotNull Player player,
-            @NotNull InventoryType type,
-            @NotNull PageableControls controls,
-            @NotNull InventoryLayout layout,
-            @NotNull List<ISlot> items,
-            @NotNull TitleData titleData,
-            int @NotNull ... slotRange
+            Player player,
+            InventoryType type,
+            PageableControls controls,
+            InventoryLayout layout,
+            List<ISlot> items,
+            TitleData titleData,
+            int... slotRange
     ) {
         this.player = player;
         this.pageableControls = controls;
@@ -111,7 +110,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      *
      * @param pageAction the action that should be triggered
      */
-    public void update(@NotNull PageAction pageAction) {
+    public void update(PageAction pageAction) {
         switch (pageAction) {
             case BACKWARDS -> this.previousPage();
             case FORWARD -> this.nextPage();
@@ -126,7 +125,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * @param slotIndex   the index for the item
      * @param forward     true for the forward logic otherwise the backwards logic
      */
-    private void setControlItems(@NotNull IItem controlItem, int slotIndex, boolean forward) {
+    private void setControlItems(IItem controlItem, int slotIndex, boolean forward) {
         this.layout.setItem(slotIndex, controlItem.get(), forward ? forwardClick : backwardsClick);
     }
 
@@ -207,7 +206,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      *
      * @return the created component
      */
-    private @NotNull Component getNewTitle() {
+    private Component getNewTitle() {
         if (this.titleData.showPageNumbers() && this.titleData.pageMapper() == null) {
             throw new IllegalStateException("If the page numbers should be displayed the page mapper must be set");
         }
@@ -270,7 +269,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * @param player the player who receives the inventory
      */
     @Override
-    public void open(@NotNull Player player) {
+    public void open(Player player) {
         throw new UnsupportedOperationException("Not supported for this specific implementation");
     }
 
@@ -305,7 +304,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * @param page   the page number
      */
     @Override
-    public void open(@NotNull Player player, int page) {
+    public void open(Player player, int page) {
         throw new UnsupportedOperationException("In a PlayerInventory it's not possible to open it for another player");
     }
 
@@ -323,7 +322,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * @param slot the slot to add
      */
     @Override
-    public void add(@NotNull ISlot slot) {
+    public void add(ISlot slot) {
         this.items.add(slot);
         this.update(PageAction.REFRESH);
     }
@@ -334,7 +333,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * @param slots the list that has all entries to add
      */
     @Override
-    public void add(@NotNull List<ISlot> slots) {
+    public void add(List<ISlot> slots) {
         this.items.addAll(slots);
         this.update(PageAction.REFRESH);
     }
@@ -345,7 +344,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * @param slot the slot to remove
      */
     @Override
-    public void remove(@NotNull ISlot slot) {
+    public void remove(ISlot slot) {
         if (this.items.remove(slot)) {
             this.update(PageAction.REFRESH);
         }
@@ -357,7 +356,7 @@ public final class PlayerPageableInventoryImpl implements PageableInventory {
      * @param inventorySlots the list which contains the slots to remove
      */
     @Override
-    public void remove(@NotNull List<ISlot> inventorySlots) {
+    public void remove(List<ISlot> inventorySlots) {
         if (this.items.removeAll(inventorySlots)) {
             this.update(PageAction.REFRESH);
         }
