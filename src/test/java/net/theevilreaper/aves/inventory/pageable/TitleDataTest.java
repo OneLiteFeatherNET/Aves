@@ -33,4 +33,14 @@ class TitleDataTest {
         assertEquals("Test", PlainTextComponentSerializer.plainText().serialize(data.title()));
     }
 
+    @Test
+    void testDefaultTitleData() {
+        TitleData defaultData = TitleData.DEFAULT;
+
+        assertNotNull(defaultData);
+        assertEquals("Forgot to add a title?", PlainTextComponentSerializer.plainText().serialize(defaultData.title()));
+        assertFalse(defaultData.showPageNumbers());
+        assertNull(defaultData.pageMapper());
+    }
+
 }
