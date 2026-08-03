@@ -12,11 +12,13 @@ import java.util.function.BiFunction;
  * If the title should contain the current and max page number the {@link TitleData} is the right place to define this.
  *
  * @author theEvilReaper
- * @version 1.0.0
+ * @version 1.0.1
  * @see TitleDataImpl
  * @since 1.6.0
  */
 public sealed interface TitleData permits TitleDataImpl {
+
+    TitleData DEFAULT = TitleData.builder().title(Component.text("Forgot to add a title?")).build();
 
     /**
      * Creates a new instance of the {@link Builder} interface.

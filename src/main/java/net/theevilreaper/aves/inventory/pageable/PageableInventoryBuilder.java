@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * This class is the implementation for the {@link PageableInventory.Builder} interface.
  *
  * @author theEvilReaper
- * @version 1.1.0
+ * @version 1.1.1
  * @since 1.2.0
  */
 @ApiStatus.Experimental
@@ -29,6 +29,10 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     private TitleData titleData;
     private List<ISlot> slots;
     private int[] slotRange;
+
+    public PageableInventoryBuilder() {
+        this.titleData = TitleData.DEFAULT;
+    }
 
     /**
      * Set the player reference which owns the inventory.

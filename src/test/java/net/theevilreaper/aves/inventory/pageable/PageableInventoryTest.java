@@ -80,6 +80,20 @@ class PageableInventoryTest {
     }
 
     @Test
+    void testDefaultTitleData(Env env) {
+        Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
+        var builder = PageableInventory
+                .builder()
+                .player(player)
+                .type(TYPE)
+                .layout(InventoryLayout.fromType(TYPE))
+                .slotRange(12)
+                .values(this.slots);
+        assertNotNull(builder.build());
+        player.remove();
+    }
+
+    @Test
     void testMissingLayout() {
         var builder = PageableInventory.builder().type(TYPE).slotRange(12, 13);
         assertThrowsExactly(IllegalArgumentException.class, builder::build, "The layout can't be null");
