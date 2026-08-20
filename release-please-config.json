@@ -7,7 +7,7 @@
   "bootstrap-sha": "4838662c0ce839002d7d9106690e06d0f82a8284",
   "packages": {
     ".": {
-      "package-name": "cygnus",
+      "package-name": "aves",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         { "type": "generic", "path": "build.gradle.kts" }
