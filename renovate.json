@@ -4,6 +4,16 @@
     "github>OneLiteFeatherNET/renovate:default(OneLiteFeatherNET/aves-maintainers)",
     "github>OneLiteFeatherNET/renovate:minestom"
   ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "net.theevilreaper:aves"
+      ],
+      "registryUrls": [
+        "https://repo.onelitefeather.dev/onelitefeather"
+      ]
+    }
+  ],
   "customManagers": [
     {
       "customType": "regex",
@@ -15,14 +25,6 @@
       ],
       "datasourceTemplate": "maven",
       "depNameTemplate": "net.theevilreaper:aves"
-    }
-  ],
-  "packageRules": [
-    {
-      "matchPackageNames": ["net.theevilreaper:aves"],
-      "registryUrls": [
-        "https://repo.onelitefeather.dev/onelitefeather"
-      ]
     }
   ]
 }
