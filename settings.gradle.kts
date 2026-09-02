@@ -23,7 +23,7 @@ dependencyResolutionManagement {
         create("libs") {
             version("bom", "1.8.5")
             version("slf4j", "2.0.18")
-            version("cyclonedx", "3.3.0")
+            version("cyclonedx", "3.4.0")
 
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
 
