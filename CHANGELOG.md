@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.5](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.4...v1.16.5) (2026-09-02)
+
+
+### Bug Fixes
+
+* **deps:** add cyclonedx plugin ([d9fa902](https://github.com/OneLiteFeatherNET/Aves/commit/d9fa902d34c01c67cbfdbbc0980b685c8af04a3a))
+
 ## [1.16.4](https://github.com/OneLiteFeatherNET/Aves/compare/1.16.3...v1.16.4) (2026-09-02)
 
 
