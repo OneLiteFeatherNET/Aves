@@ -2,6 +2,7 @@ plugins {
     `java-library`
     `maven-publish`
     jacoco
+    alias(libs.plugins.cyclonedx)
 }
 
 group = "net.theevilreaper"

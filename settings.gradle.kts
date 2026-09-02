@@ -23,6 +23,7 @@ dependencyResolutionManagement {
         create("libs") {
             version("bom", "1.8.5")
             version("slf4j", "2.0.18")
+            version("cyclonedx", "3.3.0")
 
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
 
@@ -33,6 +34,8 @@ dependencyResolutionManagement {
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").withoutVersion()
             library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").withoutVersion()
             library("junit.platform.launcher", "org.junit.platform", "junit-platform-launcher").withoutVersion()
+
+            plugin("cyclonedx", "org.cyclonedx.bom").versionRef("cyclonedx")
         }
     }
 }
