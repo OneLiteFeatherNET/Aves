@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.6](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.5...v1.16.6) (2026-09-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.slf4j:slf4j-api to v2.0.19 ([#116](https://github.com/OneLiteFeatherNET/Aves/issues/116)) ([5ebbc98](https://github.com/OneLiteFeatherNET/Aves/commit/5ebbc980ead4f94328ce971b0b80a87e5e090524))
+
 ## [1.16.5](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.4...v1.16.5) (2026-09-02)
 
 
