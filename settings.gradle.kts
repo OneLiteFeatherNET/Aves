@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("bom", "1.8.5")
-            version("slf4j", "2.0.18")
+            version("slf4j", "2.0.19")
             version("cyclonedx", "3.4.1")
 
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
