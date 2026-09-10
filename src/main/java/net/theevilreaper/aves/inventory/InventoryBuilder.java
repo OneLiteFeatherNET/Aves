@@ -205,15 +205,17 @@ public abstract class InventoryBuilder {
             throw new IllegalStateException("Can't update content because the layout is null");
         }
 
-        // Design
-        ItemStack[] contents = inventory.getItemStacks();
-        inventory.clear();
-        this.inventoryLayout.applyLayout(contents, locale);
-        this.setItemsInternal(inventory, contents);
-        LOGGER.debug("UpdateInventory applied the InventoryLayout!");
-        this.inventoryLayoutValid = true;
-
+        // The design pass clears the inventory before it writes the layout back. Without the monitor another
+        // thread could observe that empty intermediate state or overwrite the result of applyDataLayout.
         synchronized (this) {
+            // Design
+            ItemStack[] contents = inventory.getItemStacks();
+            inventory.clear();
+            this.inventoryLayout.applyLayout(contents, locale);
+            this.setItemsInternal(inventory, contents);
+            LOGGER.debug("UpdateInventory applied the InventoryLayout!");
+            this.inventoryLayoutValid = true;
+
             if (!dataLayoutValid) {
                 retrieveDataLayout();
             }
