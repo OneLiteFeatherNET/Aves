@@ -256,7 +256,7 @@ class PageableInventoryTest {
                 .build();
 
         assertDoesNotThrow(() -> pageInventory.open());
-        assertDoesNotThrow(() -> pageInventory.unregister());
+        assertDoesNotThrow(pageInventory::unregister);
         player.remove();
     }
 }
