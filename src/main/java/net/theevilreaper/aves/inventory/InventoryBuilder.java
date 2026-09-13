@@ -194,13 +194,19 @@ public abstract class InventoryBuilder {
 
     /**
      * Updates the given inventory with the content.
+     * <p>
+     * The design pass (the base {@link #inventoryLayout}) and the data layout overlay are two independent
+     * layers, but they must never be redrawn independently of each other: the design pass clears the whole
+     * inventory, so skipping the overlay redraw whenever only the design pass runs would drop the data layout
+     * until something happens to invalidate it separately. That forced callers to invalidate both layouts for
+     * a single logical update. Instead, the overlay is redrawn with whatever data layout is currently known
+     * every time the design pass runs, and independently whenever the data layout itself is stale.
      *
      * @param inventory   the inventory that should receive the update
      * @param locale      the locale for the inventory
-     * @param applyLayout if the layout should be applied
+     * @param applyLayout if the design pass (the base layout) should run
      */
     protected void updateInventory(@NotNull Inventory inventory, Locale locale, boolean applyLayout){
-        if (!applyLayout) return;
         if (this.inventoryLayout == null) {
             throw new IllegalStateException("Can't update content because the layout is null");
         }
@@ -208,13 +214,24 @@ public abstract class InventoryBuilder {
         // The design pass clears the inventory before it writes the layout back. Without the monitor another
         // thread could observe that empty intermediate state or overwrite the result of applyDataLayout.
         synchronized (this) {
-            // Design
-            ItemStack[] contents = inventory.getItemStacks();
-            inventory.clear();
-            this.inventoryLayout.applyLayout(contents, locale);
-            this.setItemsInternal(inventory, contents);
-            LOGGER.debug("UpdateInventory applied the InventoryLayout!");
-            this.inventoryLayoutValid = true;
+            if (applyLayout) {
+                // Design
+                ItemStack[] contents = inventory.getItemStacks();
+                inventory.clear();
+                this.inventoryLayout.applyLayout(contents, locale);
+                this.setItemsInternal(inventory, contents);
+                LOGGER.debug("UpdateInventory applied the InventoryLayout!");
+                this.inventoryLayoutValid = true;
+            }
+
+            // Redraw the overlay whenever the design pass just wiped it away, and whenever it is itself
+            // stale. This is what lets invalidating either layout on its own converge to a correct render.
+            if (this.getDataLayout() != null && (applyLayout || !dataLayoutValid)) {
+                ItemStack[] contents = inventory.getItemStacks();
+                this.getDataLayout().applyLayout(contents, locale);
+                this.setItemsInternal(inventory, contents);
+                LOGGER.debug("UpdateInventory reapplied the current DataLayout!");
+            }
 
             if (!dataLayoutValid) {
                 retrieveDataLayout();
@@ -241,17 +258,24 @@ public abstract class InventoryBuilder {
      */
     protected void retrieveDataLayout() {
         if (this.dataLayoutFunction == null) return;
-        if (dataLayoutPending) return;
         synchronized (this) {
+            // The pending check must happen under the same monitor as the flag write below. Checking it
+            // beforehand raced two callers past the check before either flipped the flag, scheduling the
+            // recompute twice for a single invalidation.
+            if (dataLayoutPending) return;
             this.dataLayoutPending = true;
             MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
                 try {
-                    this.dataLayout = this.dataLayoutFunction.acceptThrows(this.dataLayout);
+                    synchronized (this) {
+                        this.dataLayout = this.dataLayoutFunction.acceptThrows(this.dataLayout);
+                    }
                     applyDataLayout();
                 } catch (Exception exception) {
                     MinecraftServer.getExceptionManager().handleException(exception);
                 } finally {
-                    this.dataLayoutPending = false;
+                    synchronized (this) {
+                        this.dataLayoutPending = false;
+                    }
                 }
             });
         }

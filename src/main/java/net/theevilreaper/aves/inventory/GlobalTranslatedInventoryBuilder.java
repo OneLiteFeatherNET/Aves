@@ -82,9 +82,10 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
 
     @Override
     protected void updateInventory() {
+        boolean applyLayout = !inventoryLayoutValid;
         for (Map.Entry<Locale, CustomInventory> entry : inventoryTranslatedObjectCache.entrySet()) {
             Locale locale = entry.getKey();
-            updateInventory(entry.getValue(), locale, true);
+            updateInventory(entry.getValue(), locale, applyLayout);
             updateViewer(entry.getValue());
         }
     }
