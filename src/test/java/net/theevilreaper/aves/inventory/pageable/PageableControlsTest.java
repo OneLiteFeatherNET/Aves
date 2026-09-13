@@ -44,6 +44,12 @@ class PageableControlsTest {
                 () -> new DefaultPageableControls(InventoryType.CHEST_2_ROW, 112, 2),
                 "The backSlot index is not in the inventory range"
         );
+        // Exact upper boundary: the size itself is one past the last valid slot index.
+        assertThrowsExactly(
+                IllegalArgumentException.class,
+                () -> new DefaultPageableControls(InventoryType.CHEST_2_ROW, InventoryType.CHEST_2_ROW.getSize(), 2),
+                "The backSlot index is not in the inventory range"
+        );
     }
 
     @Test
@@ -57,6 +63,12 @@ class PageableControlsTest {
                 IllegalArgumentException.class,
                 () -> new DefaultPageableControls(InventoryType.CHEST_2_ROW, 1, 200),
                 "The backSlot index is not in the inventory range"
+        );
+        // Exact upper boundary: the size itself is one past the last valid slot index.
+        assertThrowsExactly(
+                IllegalArgumentException.class,
+                () -> new DefaultPageableControls(InventoryType.CHEST_2_ROW, 1, InventoryType.CHEST_2_ROW.getSize()),
+                "The nextSlot index is not in the inventory range"
         );
     }
 
