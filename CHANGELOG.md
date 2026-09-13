@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.16.7](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.6...v1.16.7) (2026-09-13)
+
+
+### Bug Fixes
+
+* **inventory:** improve EmptySlot handling ([#123](https://github.com/OneLiteFeatherNET/Aves/issues/123)) ([fa7212c](https://github.com/OneLiteFeatherNET/Aves/commit/fa7212ccfce4211c880553825e64c7253e672406))
+* **inventory:** validate slot range ([#126](https://github.com/OneLiteFeatherNET/Aves/issues/126)) ([17d8143](https://github.com/OneLiteFeatherNET/Aves/commit/17d8143792e3de7b8bcc1a4184b28dedb92f5549))
+* **layout:** improve bounding checks ([#124](https://github.com/OneLiteFeatherNET/Aves/issues/124)) ([023c257](https://github.com/OneLiteFeatherNET/Aves/commit/023c257a6014a548f5ba7fc5ccb1edd548b57be0))
+
 ## [1.16.6](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.5...v1.16.6) (2026-09-13)
 
 
