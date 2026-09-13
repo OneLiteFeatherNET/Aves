@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.16.6](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.5...v1.16.6) (2026-09-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.slf4j:slf4j-api to v2.0.19 ([#116](https://github.com/OneLiteFeatherNET/Aves/issues/116)) ([5ebbc98](https://github.com/OneLiteFeatherNET/Aves/commit/5ebbc980ead4f94328ce971b0b80a87e5e090524))
+* **inventory:** apply the inventory layout under the builder monitor ([#119](https://github.com/OneLiteFeatherNET/Aves/issues/119)) ([e2fe2a7](https://github.com/OneLiteFeatherNET/Aves/commit/e2fe2a718e18ca110b93cad564acac9e4c5ce8a1))
+
 ## [1.16.5](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.4...v1.16.5) (2026-09-02)
 
 
