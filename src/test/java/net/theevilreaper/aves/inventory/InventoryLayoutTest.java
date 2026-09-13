@@ -176,6 +176,9 @@ class InventoryLayoutTest {
         var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         assertThrowsExactly(IllegalArgumentException.class, () -> layout.getSlot(-1));
         assertThrowsExactly(IllegalArgumentException.class, () -> layout.getSlot(12));
+        // Exact upper boundary: the size itself is one past the last valid slot index, and must not fall
+        // through to an ArrayIndexOutOfBoundsException from the backing array.
+        assertThrowsExactly(IllegalArgumentException.class, () -> layout.getSlot(layout.getSize()));
     }
 
     @Test

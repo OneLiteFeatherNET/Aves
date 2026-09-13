@@ -39,8 +39,8 @@ public final class DefaultPageableControls implements PageableControls {
      */
     public DefaultPageableControls(InventoryType type, int backSlot, int nextSlot) {
         Check.argCondition(!LayoutCalculator.isChestInventory(type), "The type must be a chest inventory!");
-        Check.argCondition(backSlot < 0 || backSlot > type.getSize(), "The backSlot index is not in the inventory range");
-        Check.argCondition(nextSlot < 0 || nextSlot > type.getSize(), "The nextSlot index is not in the inventory range");
+        Check.argCondition(backSlot < 0 || backSlot >= type.getSize(), "The backSlot index is not in the inventory range");
+        Check.argCondition(nextSlot < 0 || nextSlot >= type.getSize(), "The nextSlot index is not in the inventory range");
         this.backSlot = backSlot;
         this.nextSlot = nextSlot;
         this.nextPage = Item.of(ItemStack.builder(Material.ARROW).customName(Component.text("Next page", NamedTextColor.GRAY)).build());
