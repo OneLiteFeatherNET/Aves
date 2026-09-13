@@ -285,7 +285,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
      * @return the fetched slot otherwise null
      */
     default @Nullable ISlot getSlot(int index) {
-        Check.argCondition(index < 0 || index > getContents().length,
+        Check.argCondition(index < 0 || index >= getContents().length,
                 "The given index does not fit into the array (0, " + getContents().length + ")");
         return getContents()[index];
     }
