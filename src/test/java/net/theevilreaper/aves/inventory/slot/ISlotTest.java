@@ -36,4 +36,11 @@ class ISlotTest {
         assertNotNull(iSlot);
         assertNull(copiedSlot);
     }
+
+    @Test
+    void testCopyOfBlankSlot() {
+        ISlot copiedSlot = ISlot.of(InventoryConstants.BLANK_SLOT);
+
+        assertSame(InventoryConstants.BLANK_SLOT, copiedSlot);
+    }
 }

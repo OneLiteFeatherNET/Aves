@@ -34,6 +34,19 @@ class InventoryLayoutTest {
     }
 
     @Test
+    void testCopyConstructorPreservesBlankSlots() {
+        // Deliberately leave slot 1 untouched (default BLANK_SLOT) instead of filling every slot, so the
+        // copy constructor's handling of EmptySlot is actually exercised.
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
+        layout.setItem(0, ItemStack.of(Material.STONE));
+
+        var copiedLayout = InventoryLayout.of(layout);
+
+        assertSame(BLANK_SLOT, copiedLayout.getSlot(1));
+        assertEquals(layout, copiedLayout);
+    }
+
+    @Test
     void testSetApplyFunction() {
         var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         var newFunction = new DefaultApplyLayoutFunction(layout.getContents());
