@@ -4,6 +4,7 @@ import net.theevilreaper.aves.inventory.InventorySlot;
 import net.theevilreaper.aves.inventory.function.ApplyLayoutFunction;
 import net.theevilreaper.aves.inventory.function.DefaultApplyLayoutFunction;
 import net.theevilreaper.aves.inventory.function.InventoryClick;
+import net.theevilreaper.aves.inventory.slot.EmptySlot;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.theevilreaper.aves.inventory.slot.TranslatedSlot;
 import net.minestom.server.inventory.InventoryType;
@@ -61,6 +62,10 @@ public final class InventoryLayoutImpl implements InventoryLayout {
             switch (slotEntry) {
                 case InventorySlot inventorySlot -> this.contents[i] = InventorySlot.of(inventorySlot);
                 case TranslatedSlot translatedSlot -> this.contents[i] = TranslatedSlot.of(translatedSlot);
+                // EmptySlot is stateless, so the shared BLANK_SLOT instance can stand in for its own copy.
+                // Leaving this index null here would silently turn an explicitly blanked slot into one that
+                // applyLayout() treats as unmanaged, since it skips null entries but clears BLANK_SLOT ones.
+                case EmptySlot emptySlot -> this.contents[i] = emptySlot;
                 default -> LOGGER.info("Slot: {} is unknown and can't be converted", slotEntry);
             }
         }
