@@ -10,7 +10,8 @@
       "package-name": "aves",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
-        { "type": "generic", "path": "build.gradle.kts" }
+        { "type": "generic", "path": "build.gradle.kts" },
+        { "type": "generic", "path": "README.md" }
       ]
     }
   }
