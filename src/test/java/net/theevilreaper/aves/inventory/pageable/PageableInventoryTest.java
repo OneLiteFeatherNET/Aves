@@ -137,6 +137,14 @@ class PageableInventoryTest {
     }
 
     @Test
+    void testMissingSlotRange(@NotNull Env env) {
+        Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);
+        var builder = PageableInventory.builder(TYPE).player(player).layout(InventoryLayout.fromType(TYPE));
+        assertThrowsExactly(IllegalArgumentException.class, builder::build, "The slotRange can't be null");
+        player.remove();
+    }
+
+    @Test
     void testAddSlotUpdate(@NotNull Env env) {
         var items = new ArrayList<ISlot>();
         Player player = env.createPlayer(env.createFlatInstance(), Pos.ZERO);

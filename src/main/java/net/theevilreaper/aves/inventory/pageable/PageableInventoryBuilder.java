@@ -114,6 +114,7 @@ public non-sealed class PageableInventoryBuilder implements PageableInventory.Bu
     public PageableInventory build() {
         Check.argCondition(this.layout == null, "The layout can't be null");
         Check.argCondition(this.player == null, "The player argument can't be null");
+        Check.argCondition(this.slotRange == null, "The slotRange can't be null");
         if (this.pageableControls == null) {
             this.pageableControls = DefaultPageableControls.fromSize(this.type);
         }
