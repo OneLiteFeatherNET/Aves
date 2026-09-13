@@ -34,6 +34,13 @@ public interface ISlot {
             return TranslatedSlot.of(translatedSlot);
         }
 
+        // EmptySlot is stateless, so the shared BLANK_SLOT instance can stand in for its own copy. Falling
+        // through to null here would turn an explicitly blanked slot into one that is not managed at all,
+        // since applyLayout() treats a null content entry differently from an explicit EmptySlot.
+        if (iSlot instanceof EmptySlot) {
+            return iSlot;
+        }
+
         return null;
     }
 
