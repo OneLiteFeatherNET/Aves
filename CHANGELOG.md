@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.16.7](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.6...v1.16.7) (2026-09-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:mycelium-bom to v1.8.6 ([#127](https://github.com/OneLiteFeatherNET/Aves/issues/127)) ([e832bde](https://github.com/OneLiteFeatherNET/Aves/commit/e832bdeb15130250a9e606394437ea590419de5e))
+* **deps:** update dependency org.slf4j:slf4j-api to v2.0.20 ([#128](https://github.com/OneLiteFeatherNET/Aves/issues/128)) ([9a356ac](https://github.com/OneLiteFeatherNET/Aves/commit/9a356acb44f6ccda439e6b4b7a2c7646a2e7bc7b))
+* **inventory:** improve EmptySlot handling ([#123](https://github.com/OneLiteFeatherNET/Aves/issues/123)) ([fa7212c](https://github.com/OneLiteFeatherNET/Aves/commit/fa7212ccfce4211c880553825e64c7253e672406))
+* **inventory:** validate slot range ([#126](https://github.com/OneLiteFeatherNET/Aves/issues/126)) ([17d8143](https://github.com/OneLiteFeatherNET/Aves/commit/17d8143792e3de7b8bcc1a4184b28dedb92f5549))
+* **layout:** improve bounding checks ([#124](https://github.com/OneLiteFeatherNET/Aves/issues/124)) ([023c257](https://github.com/OneLiteFeatherNET/Aves/commit/023c257a6014a548f5ba7fc5ccb1edd548b57be0))
+
 ## [1.16.6](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.5...v1.16.6) (2026-09-13)
 
 
