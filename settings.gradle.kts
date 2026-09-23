@@ -21,7 +21,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("bom", "1.8.5")
+            version("bom", "1.8.6")
             version("slf4j", "2.0.19")
             version("cyclonedx", "3.4.1")
 
