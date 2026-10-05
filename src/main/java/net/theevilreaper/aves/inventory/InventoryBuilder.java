@@ -46,6 +46,7 @@ public abstract class InventoryBuilder {
     protected CloseFunction closeFunction;
     protected ThrowingFunction<InventoryLayout, InventoryLayout> dataLayoutFunction;
     protected InventoryClick inventoryClick;
+    protected boolean cancelEmptySlotClicks;
 
     private InventoryLayout inventoryLayout;
     private InventoryLayout dataLayout;
@@ -97,7 +98,7 @@ public abstract class InventoryBuilder {
             @NotNull Consumer<ClickHolder> result
     ) {
         if (slot == null || slot instanceof EmptySlot) {
-            result.accept(ClickHolder.noClick());
+            result.accept(cancelEmptySlotClicks ? ClickHolder.cancelClick() : ClickHolder.noClick());
             return;
         }
         slot.getClick().onClick(player, slotID, click, stack, result);
@@ -348,6 +349,28 @@ public abstract class InventoryBuilder {
     public InventoryBuilder setCloseFunction(CloseFunction closeFunction) {
         this.closeFunction = closeFunction;
         return this;
+    }
+
+    /**
+     * Set whether clicks on slots, which neither the layout nor the data layout fill, are cancelled.
+     * This includes unmanaged slots as well as slots which are explicitly blanked by a layout.
+     * The default is false, so players can put items into the free slots of the inventory.
+     *
+     * @param cancelEmptySlotClicks true to cancel clicks on free slots
+     * @return the current instance of the builder
+     */
+    public InventoryBuilder setCancelEmptySlotClicks(boolean cancelEmptySlotClicks) {
+        this.cancelEmptySlotClicks = cancelEmptySlotClicks;
+        return this;
+    }
+
+    /**
+     * Returns whether clicks on slots, which neither the layout nor the data layout fill, are cancelled.
+     *
+     * @return true if clicks on free slots are cancelled
+     */
+    public boolean isCancelEmptySlotClicks() {
+        return cancelEmptySlotClicks;
     }
 
     /**
