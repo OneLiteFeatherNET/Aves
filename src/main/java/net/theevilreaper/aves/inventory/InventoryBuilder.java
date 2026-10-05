@@ -18,6 +18,7 @@ import net.theevilreaper.aves.inventory.layout.InventoryLayout;
 import net.theevilreaper.aves.inventory.slot.EmptySlot;
 import net.theevilreaper.aves.inventory.slot.ISlot;
 import net.theevilreaper.aves.inventory.util.InventoryConstants;
+import net.theevilreaper.aves.util.functional.ThrowingConsumer;
 import net.theevilreaper.aves.util.functional.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,11 +46,13 @@ public abstract class InventoryBuilder {
     protected OpenFunction openFunction;
     protected CloseFunction closeFunction;
     protected ThrowingFunction<InventoryLayout, InventoryLayout> dataLayoutFunction;
+    protected ThrowingConsumer<InventoryLayout> dataLayoutFiller;
     protected InventoryClick inventoryClick;
     protected boolean cancelEmptySlotClicks;
 
     private InventoryLayout inventoryLayout;
     private InventoryLayout dataLayout;
+    private final InventoryLayout filledDataLayout;
 
     /**
      * Creates a new instance from the inventory builder with the given size.
@@ -58,6 +61,7 @@ public abstract class InventoryBuilder {
      */
     protected InventoryBuilder(@NotNull InventoryType type) {
         this.type = type;
+        this.filledDataLayout = InventoryLayout.fromType(type);
 
         this.inventoryClick = (player, slot, clickType, stack, result) -> {
             if (slot == InventoryConstants.INVALID_SLOT_ID) {
@@ -108,9 +112,30 @@ public abstract class InventoryBuilder {
      * Set a new reference to the data layout
      *
      * @param dataLayout The {@link InventoryLayout} to set
+     * @deprecated Deprecated since version 2.0.0 and will be removed in a future release.
+     * Use {@link #setDataLayoutFiller(ThrowingConsumer)} instead, which also clears slots that are no longer filled.
      */
+    @Deprecated(since = "2.0.0", forRemoval = true)
     public void setDataLayoutFunction(ThrowingFunction<InventoryLayout, InventoryLayout> dataLayout) {
         this.dataLayoutFunction = dataLayout;
+        this.dataLayoutFiller = null;
+        if (this.dataLayout == this.filledDataLayout) {
+            this.dataLayout = null;
+        }
+    }
+
+    /**
+     * Set the filler which provides the content of the data layout.
+     * The builder owns the data layout and passes it to the filler each time the data layout is invalidated.
+     * The filler sets all current items on every call. Slots which it no longer sets are cleared by the builder.
+     * The filler runs on the tick thread, so it should not block.
+     *
+     * @param dataLayoutFiller the filler which sets the items into the given layout
+     */
+    public void setDataLayoutFiller(@NotNull ThrowingConsumer<InventoryLayout> dataLayoutFiller) {
+        this.dataLayoutFiller = dataLayoutFiller;
+        this.dataLayoutFunction = null;
+        this.dataLayout = this.filledDataLayout;
     }
 
     /**
@@ -262,10 +287,10 @@ public abstract class InventoryBuilder {
     }
 
     /**
-     * Executes the logic to retrieve the {@link InventoryLayout} which comes from the {@link ThrowingFunction}.
+     * Executes the logic to retrieve the {@link InventoryLayout} which comes from the {@link ThrowingConsumer} or the {@link ThrowingFunction}.
      */
     protected void retrieveDataLayout() {
-        if (this.dataLayoutFunction == null) return;
+        if (this.dataLayoutFunction == null && this.dataLayoutFiller == null) return;
         synchronized (this) {
             // The pending check must happen under the same monitor as the flag write below. Checking it
             // beforehand raced two callers past the check before either flipped the flag, scheduling the
@@ -275,7 +300,11 @@ public abstract class InventoryBuilder {
             MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
                 try {
                     synchronized (this) {
-                        this.dataLayout = this.dataLayoutFunction.acceptThrows(this.dataLayout);
+                        if (this.dataLayoutFiller != null) {
+                            refillDataLayout();
+                        } else {
+                            this.dataLayout = this.dataLayoutFunction.acceptThrows(this.dataLayout);
+                        }
                     }
                     applyDataLayout();
                 } catch (Exception exception) {
@@ -287,6 +316,30 @@ public abstract class InventoryBuilder {
                 }
             });
         }
+    }
+
+    /**
+     * Resets the data layout and passes it to the {@link #dataLayoutFiller}.
+     * Every slot which the last round filled is blanked, so applying the layout clears the slot unless the filler
+     * sets it again. Slots which the last round blanked become unmanaged, so a blank only lasts one round.
+     * <p>
+     * The layout is modified in place without a lock for the click handler. This is safe because the method runs in
+     * a task of {@link net.minestom.server.timer.ExecutionType#TICK_START}, while Minestom handles click packets later
+     * in the tick in {@link Player#update(long)}, so both never run at the same time. The caller still holds the
+     * monitor of the builder, since {@link #updateInventory(Inventory, Locale, boolean)} can run on other threads.
+     *
+     * @throws Exception if the filler throws an exception
+     */
+    private void refillDataLayout() throws Exception {
+        ISlot[] contents = this.filledDataLayout.getContents();
+        for (int i = 0; i < contents.length; i++) {
+            if (contents[i] instanceof EmptySlot) {
+                this.filledDataLayout.clear(i);
+            } else if (contents[i] != null) {
+                this.filledDataLayout.blank(i);
+            }
+        }
+        this.dataLayoutFiller.acceptThrows(this.filledDataLayout);
     }
 
     /**
@@ -395,6 +448,8 @@ public abstract class InventoryBuilder {
 
     /**
      * Get underlying data {@link InventoryLayout}.
+     * When a {@link #setDataLayoutFiller(ThrowingConsumer) filler} is used, the builder owns the layout and resets it
+     * on every update, so it should only be read and not be modified from outside.
      *
      * @return the given layout
      */
