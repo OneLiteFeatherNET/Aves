@@ -35,6 +35,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     private static final Logger LOGGER = LoggerFactory.getLogger(InventoryLayoutImpl.class);
 
     private static final String INDEX_ERROR = "The given slot index is out of range";
+    private static final String UNMANAGED_ERROR = "The given slot index is not managed by the layout";
     private final ISlot[] contents;
 
     private ApplyLayoutFunction applyLayoutFunction;
@@ -46,7 +47,6 @@ public final class InventoryLayoutImpl implements InventoryLayout {
      */
     InventoryLayoutImpl(InventoryType type) {
         this.contents = new ISlot[type.getSize()];
-        Arrays.fill(this.contents, BLANK_SLOT);
         this.applyLayoutFunction = new DefaultApplyLayoutFunction(this.contents);
     }
 
@@ -66,6 +66,8 @@ public final class InventoryLayoutImpl implements InventoryLayout {
                 // Leaving this index null here would silently turn an explicitly blanked slot into one that
                 // applyLayout() treats as unmanaged, since it skips null entries but clears BLANK_SLOT ones.
                 case EmptySlot emptySlot -> this.contents[i] = emptySlot;
+                // A null entry is a slot which the layout does not manage, so the copy keeps it unmanaged
+                case null -> this.contents[i] = null;
                 default -> LOGGER.info("Slot: {} is unknown and can't be converted", slotEntry);
             }
         }
@@ -157,7 +159,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     @Override
     public InventoryLayoutImpl clear(int slot) {
         Check.argCondition(slot < 0 || slot >= contents.length, INDEX_ERROR);
-        contents[slot] = BLANK_SLOT;
+        contents[slot] = null;
         return this;
     }
 
@@ -167,6 +169,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     @Override
     public InventoryLayoutImpl update(int index, @Nullable InventoryClick listener) {
         Check.argCondition(index < 0 || index >= contents.length, INDEX_ERROR);
+        Check.argCondition(contents[index] == null, UNMANAGED_ERROR);
         contents[index].setClick(listener == null ? CANCEL_CLICK : listener);
         return this;
     }
@@ -177,6 +180,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     @Override
     public InventoryLayoutImpl update(int index, @Nullable ItemStack stack) {
         Check.argCondition(index < 0 || index >= contents.length, INDEX_ERROR);
+        Check.argCondition(contents[index] == null, UNMANAGED_ERROR);
         contents[index].setItemStack(stack);
         return this;
     }
@@ -187,6 +191,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     @Override
     public InventoryLayoutImpl update(int index, ItemStack stack, @Nullable InventoryClick click) {
         Check.argCondition(index < 0 || index >= contents.length, INDEX_ERROR);
+        Check.argCondition(contents[index] == null, UNMANAGED_ERROR);
         var slot = contents[index];
         slot.setItemStack(stack);
         slot.setClick(click == null ? CANCEL_CLICK : click);
@@ -200,7 +205,7 @@ public final class InventoryLayoutImpl implements InventoryLayout {
     public InventoryLayout remove(int index) {
         Check.argCondition(index < 0 || index >= this.contents.length,
                 "The given index does not fit into the array (0, " + this.contents.length + ")");
-        this.contents[index] = BLANK_SLOT;
+        this.contents[index] = null;
         return this;
     }
 
