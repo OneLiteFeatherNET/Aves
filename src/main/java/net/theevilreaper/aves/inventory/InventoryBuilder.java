@@ -245,7 +245,7 @@ public abstract class InventoryBuilder {
      * @param inventory the inventory for the items
      * @param contents  the array itself that contains all items
      */
-    private void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
+    protected void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
         for (int i = 0; i < contents.length; i++) {
             var contentSlot = contents[i];
             if (contentSlot == null || contentSlot.isAir()) continue;
