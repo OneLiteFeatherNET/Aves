@@ -241,6 +241,7 @@ public abstract class InventoryBuilder {
 
     /**
      * Set's the given array with the {@link ItemStack}'s into an inventory.
+     * A null entry comes from a blanked slot of the applied layout, so the inventory slot is cleared.
      *
      * @param inventory the inventory for the items
      * @param contents  the array itself that contains all items
@@ -248,7 +249,13 @@ public abstract class InventoryBuilder {
     protected void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
         for (int i = 0; i < contents.length; i++) {
             var contentSlot = contents[i];
-            if (contentSlot == null || contentSlot.isAir()) continue;
+            if (contentSlot == null) {
+                if (!inventory.getItemStack(i).isAir()) {
+                    inventory.setItemStack(i, ItemStack.AIR);
+                }
+                continue;
+            }
+            if (contentSlot.isAir()) continue;
             inventory.setItemStack(i, contentSlot);
         }
     }

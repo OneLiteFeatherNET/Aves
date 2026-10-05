@@ -209,6 +209,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**
      * Blanks a single slot in the layout.
+     * Applying the layout clears the slot in the inventory.
      *
      * @param slot the slot to blank
      * @return the instance from the layout
@@ -217,6 +218,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**
      * Marks an all-given slot with a fake slot object.
+     * Applying the layout clears these slots in the inventory.
      *
      * @param slots the slots to mark
      * @return the instance from the layout
