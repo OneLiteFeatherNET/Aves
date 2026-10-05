@@ -3,7 +3,6 @@ package net.theevilreaper.aves.inventory;
 import net.minestom.testing.extension.MicrotusExtension;
 import net.theevilreaper.aves.inventory.function.DefaultApplyLayoutFunction;
 import net.theevilreaper.aves.inventory.layout.InventoryLayout;
-import net.theevilreaper.aves.inventory.slot.EmptySlot;
 import net.theevilreaper.aves.inventory.slot.TranslatedSlot;
 import net.theevilreaper.aves.inventory.util.LayoutCalculator;
 import net.theevilreaper.aves.item.TranslatedItem;
@@ -35,14 +34,16 @@ class InventoryLayoutTest {
 
     @Test
     void testCopyConstructorPreservesBlankSlots() {
-        // Deliberately leave slot 1 untouched (default BLANK_SLOT) instead of filling every slot, so the
-        // copy constructor's handling of EmptySlot is actually exercised.
+        // Slot 1 is blanked and slot 2 stays unmanaged, so the copy constructor's handling of EmptySlot and
+        // of null entries is actually exercised.
         var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
         layout.setItem(0, ItemStack.of(Material.STONE));
+        layout.blank(1);
 
         var copiedLayout = InventoryLayout.of(layout);
 
         assertSame(BLANK_SLOT, copiedLayout.getSlot(1));
+        assertNull(copiedLayout.getSlot(2));
         assertEquals(layout, copiedLayout);
     }
 
@@ -153,8 +154,18 @@ class InventoryLayoutTest {
         layout.clear(0);
         layout.clear(LayoutCalculator.repeat(5, 10));
 
-        assertInstanceOf(EmptySlot.class, layout.getSlot(0));
+        assertNull(layout.getSlot(0));
         assertNotNull(layout.getSlot(11));
+    }
+
+    @Test
+    void testUpdateUnmanagedSlot() {
+        var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
+        var stack = ItemStack.of(Material.STONE);
+
+        assertThrows(IllegalArgumentException.class, () -> layout.update(0, stack));
+        assertThrows(IllegalArgumentException.class, () -> layout.update(0, CANCEL_CLICK));
+        assertThrows(IllegalArgumentException.class, () -> layout.update(0, stack, CANCEL_CLICK));
     }
 
     @Test
@@ -255,7 +266,7 @@ class InventoryLayoutTest {
     @Test
     void testToString() {
         var layout = InventoryLayout.fromType(InventoryType.CHEST_1_ROW);
-        assertFalse(layout.toString().contains("null"));
+        assertTrue(layout.toString().contains("null"));
     }
 
     @Test

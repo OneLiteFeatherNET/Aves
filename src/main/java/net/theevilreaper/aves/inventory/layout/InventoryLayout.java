@@ -27,6 +27,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**
      * Creates a new {@link InventoryLayout} reference with a given {@link InventoryType}.
+     * All slots of the new layout are unmanaged, so applying the layout leaves the inventory untouched.
      *
      * @param type the type for the layout to get the size from it
      * @return the created reference
@@ -208,6 +209,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**
      * Blanks a single slot in the layout.
+     * Applying the layout clears the slot in the inventory.
      *
      * @param slot the slot to blank
      * @return the instance from the layout
@@ -216,6 +218,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**
      * Marks an all-given slot with a fake slot object.
+     * Applying the layout clears these slots in the inventory.
      *
      * @param slots the slots to mark
      * @return the instance from the layout
@@ -229,6 +232,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**
      * Removes the slot object at a given index.
+     * The slot is unmanaged afterwards, so applying the layout leaves the inventory slot untouched.
      *
      * @param slot The index to remove the slot
      * @return the instance from the layout
@@ -292,6 +296,7 @@ public sealed interface InventoryLayout permits InventoryLayoutImpl {
 
     /**
      * Removes a slot from the layout by a specific index.
+     * The slot is unmanaged afterwards, so applying the layout leaves the inventory slot untouched.
      *
      * @param index the index to remove the slot
      * @return the instance from the layout

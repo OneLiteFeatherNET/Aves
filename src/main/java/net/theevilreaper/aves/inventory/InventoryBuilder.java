@@ -46,6 +46,7 @@ public abstract class InventoryBuilder {
     protected CloseFunction closeFunction;
     protected ThrowingFunction<InventoryLayout, InventoryLayout> dataLayoutFunction;
     protected InventoryClick inventoryClick;
+    protected boolean cancelEmptySlotClicks;
 
     private InventoryLayout inventoryLayout;
     private InventoryLayout dataLayout;
@@ -97,7 +98,7 @@ public abstract class InventoryBuilder {
             @NotNull Consumer<ClickHolder> result
     ) {
         if (slot == null || slot instanceof EmptySlot) {
-            result.accept(ClickHolder.noClick());
+            result.accept(cancelEmptySlotClicks ? ClickHolder.cancelClick() : ClickHolder.noClick());
             return;
         }
         slot.getClick().onClick(player, slotID, click, stack, result);
@@ -241,14 +242,21 @@ public abstract class InventoryBuilder {
 
     /**
      * Set's the given array with the {@link ItemStack}'s into an inventory.
+     * A null entry comes from a blanked slot of the applied layout, so the inventory slot is cleared.
      *
      * @param inventory the inventory for the items
      * @param contents  the array itself that contains all items
      */
-    private void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
+    protected void setItemsInternal(@NotNull Inventory inventory, @NotNull ItemStack[] contents) {
         for (int i = 0; i < contents.length; i++) {
             var contentSlot = contents[i];
-            if (contentSlot == null || contentSlot.isAir()) continue;
+            if (contentSlot == null) {
+                if (!inventory.getItemStack(i).isAir()) {
+                    inventory.setItemStack(i, ItemStack.AIR);
+                }
+                continue;
+            }
+            if (contentSlot.isAir()) continue;
             inventory.setItemStack(i, contentSlot);
         }
     }
@@ -341,6 +349,28 @@ public abstract class InventoryBuilder {
     public InventoryBuilder setCloseFunction(CloseFunction closeFunction) {
         this.closeFunction = closeFunction;
         return this;
+    }
+
+    /**
+     * Set whether clicks on slots, which neither the layout nor the data layout fill, are cancelled.
+     * This includes unmanaged slots as well as slots which are explicitly blanked by a layout.
+     * The default is false, so players can put items into the free slots of the inventory.
+     *
+     * @param cancelEmptySlotClicks true to cancel clicks on free slots
+     * @return the current instance of the builder
+     */
+    public InventoryBuilder setCancelEmptySlotClicks(boolean cancelEmptySlotClicks) {
+        this.cancelEmptySlotClicks = cancelEmptySlotClicks;
+        return this;
+    }
+
+    /**
+     * Returns whether clicks on slots, which neither the layout nor the data layout fill, are cancelled.
+     *
+     * @return true if clicks on free slots are cancelled
+     */
+    public boolean isCancelEmptySlotClicks() {
+        return cancelEmptySlotClicks;
     }
 
     /**

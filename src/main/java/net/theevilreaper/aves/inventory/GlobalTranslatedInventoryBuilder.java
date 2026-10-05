@@ -98,11 +98,7 @@ public class GlobalTranslatedInventoryBuilder extends BaseInventoryBuilderImpl {
             for (var entry : inventoryTranslatedObjectCache.entrySet()) {
                 var contents = entry.getValue().getItemStacks();
                 getDataLayout().applyLayout(contents, entry.getKey());
-                for (int i = 0; i < contents.length; i++) {
-                    ItemStack stack = contents[i];
-                    if (stack.isAir()) continue;
-                    entry.getValue().setItemStack(i, stack);
-                }
+                setItemsInternal(entry.getValue(), contents);
                 entry.getValue().update();
             }
         }

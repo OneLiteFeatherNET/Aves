@@ -92,12 +92,7 @@ public class GlobalInventoryBuilder extends BaseInventoryBuilderImpl {
             LOGGER.debug("Applying data layouts");
             ItemStack[] contents = inventory.getItemStacks();
             getDataLayout().applyLayout(contents, null);
-            for (int i = 0; i < contents.length; i++) {
-                ItemStack stack = contents[i];
-                if (stack != null && !stack.isAir()) {
-                    this.inventory.setItemStack(i, stack);
-                }
-            }
+            setItemsInternal(inventory, contents);
             this.dataLayoutValid = true;
             updateViewer(inventory);
         }
