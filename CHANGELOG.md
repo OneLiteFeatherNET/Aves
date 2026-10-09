@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.16.7](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.6...v1.16.7) (2026-10-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:mycelium-bom to v1.8.6 ([#127](https://github.com/OneLiteFeatherNET/Aves/issues/127)) ([e832bde](https://github.com/OneLiteFeatherNET/Aves/commit/e832bdeb15130250a9e606394437ea590419de5e))
+* **deps:** update dependency net.onelitefeather:mycelium-bom to v1.8.7 ([#131](https://github.com/OneLiteFeatherNET/Aves/issues/131)) ([1ea8d38](https://github.com/OneLiteFeatherNET/Aves/commit/1ea8d380fd36f13bfef2fd70be6ced47d8b023ef))
+* **deps:** update dependency net.onelitefeather:mycelium-bom to v1.8.8 ([#132](https://github.com/OneLiteFeatherNET/Aves/issues/132)) ([4a71981](https://github.com/OneLiteFeatherNET/Aves/commit/4a71981ac99e1081735d7a7f9eef7e63e39bb88b))
+* **deps:** update dependency net.onelitefeather:mycelium-bom to v1.8.9 ([#135](https://github.com/OneLiteFeatherNET/Aves/issues/135)) ([af21580](https://github.com/OneLiteFeatherNET/Aves/commit/af215809fc9356223c51ce9046495def61c4578c))
+* **deps:** update dependency org.slf4j:slf4j-api to v2.0.20 ([#128](https://github.com/OneLiteFeatherNET/Aves/issues/128)) ([9a356ac](https://github.com/OneLiteFeatherNET/Aves/commit/9a356acb44f6ccda439e6b4b7a2c7646a2e7bc7b))
+* **inventory:** improve EmptySlot handling ([#123](https://github.com/OneLiteFeatherNET/Aves/issues/123)) ([fa7212c](https://github.com/OneLiteFeatherNET/Aves/commit/fa7212ccfce4211c880553825e64c7253e672406))
+* **inventory:** use shared item apply logic in global builders ([#130](https://github.com/OneLiteFeatherNET/Aves/issues/130)) ([ad60f0c](https://github.com/OneLiteFeatherNET/Aves/commit/ad60f0cfff8ade6ae9f47b7c054afb2862c9b423))
+* **inventory:** validate slot range ([#126](https://github.com/OneLiteFeatherNET/Aves/issues/126)) ([17d8143](https://github.com/OneLiteFeatherNET/Aves/commit/17d8143792e3de7b8bcc1a4184b28dedb92f5549))
+* **layout:** improve bounding checks ([#124](https://github.com/OneLiteFeatherNET/Aves/issues/124)) ([023c257](https://github.com/OneLiteFeatherNET/Aves/commit/023c257a6014a548f5ba7fc5ccb1edd548b57be0))
+
 ## [1.16.6](https://github.com/OneLiteFeatherNET/Aves/compare/v1.16.5...v1.16.6) (2026-09-13)
 
 
