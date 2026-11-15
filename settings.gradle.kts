@@ -3,6 +3,7 @@ rootProject.name = "aves"
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        maven(url = "https://central.sonatype.com/repository/maven-snapshots/")
         maven {
             name = "OneLiteFeatherRepository"
             url = uri("https://repo.onelitefeather.dev/onelitefeather")
@@ -28,7 +29,7 @@ dependencyResolutionManagement {
             library("mycelium.bom", "net.onelitefeather", "mycelium-bom").versionRef("bom")
 
             library("slf4j.api", "org.slf4j", "slf4j-api").versionRef("slf4j")
-            library("minestom","net.minestom", "minestom").withoutVersion()
+            library("minestom","net.minestom", "minestom").version { strictly("26_3-SNAPSHOT") }
             library("adventure", "net.kyori", "adventure-text-minimessage").withoutVersion()
             library("cyano", "net.onelitefeather", "cyano").withoutVersion()
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").withoutVersion()
